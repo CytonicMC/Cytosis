@@ -37,6 +37,13 @@ tasks.withType<JavaCompile> {
 //    java.targetCompatibility = JavaVersion.VERSION_22
 }
 
+tasks.withType<JavaCompile> {
+    // use String templates
+    options.compilerArgs.add("--enable-preview")
+//    java.sourceCompatibility = JavaVersion.VERSION_22
+//    java.targetCompatibility = JavaVersion.VERSION_22
+}
+
 tasks {
     assemble {
         dependsOn("shadowJar")
