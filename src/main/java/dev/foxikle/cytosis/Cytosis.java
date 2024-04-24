@@ -105,7 +105,7 @@ public class Cytosis {
         Logger.info("Server started on port 25565");
         MINECRAFT_SERVER.start("0.0.0.0", 25565);
         long end = System.currentTimeMillis();
-        Logger.info(STR."Server started in \{end - start}ms!");
+        Logger.info(StringTemplate.STR."Server started in \{end - start}ms!");
     }
 
     public static EventHandler getEventHandler() {
