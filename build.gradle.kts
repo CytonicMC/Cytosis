@@ -1,0 +1,50 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    id("java")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
+}
+
+group = "dev.foxikle"
+version = "1.0-SNAPSHOT"
+
+//serviceLoader.serviceInterfaces.add("net.minestom.vanilla.VanillaReimplementation\$Feature")
+serviceLoader.serviceInterfaces.add("org.slf4j.spi.SLF4JServiceProvider")
+
+repositories {
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.Minestom", "Minestom", "7daf8d69b7") // minstom itself
+    implementation("com.google.code.gson:gson:2.10.1") // serializing
+    implementation("org.slf4j:slf4j-api:1.7.25") // logging
+    implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
+
+}
+
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "dev.foxikle.cytosis.Cytosis"
+    }
+}
+
+tasks {
+    assemble {
+        dependsOn("shadowJar")
+    }
+
+    named<ShadowJar>("shadowJar") {
+        manifest {
+            attributes["Main-Class"] = "dev.foxikle.cytosis.Cytosis"
+        }
+        mergeServiceFiles()
+        archiveFileName.set("cytosis.jar")
+        destinationDirectory.set(file("/home/foxikle/cytonicserver"))
+    }
+
+}
+
