@@ -6,7 +6,7 @@ plugins {
     id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
 }
 
-group = "dev.foxikle"
+group = "net.cytonic"
 version = "1.0-SNAPSHOT"
 
 //serviceLoader.serviceInterfaces.add("net.minestom.vanilla.VanillaReimplementation\$Feature")
@@ -25,26 +25,28 @@ dependencies {
 
 }
 
-
 tasks.withType<Jar> {
     manifest {
-        attributes["Main-Class"] = "dev.foxikle.cytosis.Cytosis"
+        attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
     }
+}
+tasks.withType<JavaCompile> {
+    // use String templates
+    options.compilerArgs.add("--enable-preview")
+//    java.sourceCompatibility = JavaVersion.VERSION_22
+//    java.targetCompatibility = JavaVersion.VERSION_22
 }
 
 tasks {
     assemble {
         dependsOn("shadowJar")
     }
-
     named<ShadowJar>("shadowJar") {
         manifest {
-            attributes["Main-Class"] = "dev.foxikle.cytosis.Cytosis"
+            attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        destinationDirectory.set(file("/home/foxikle/cytonicserver"))
+        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
     }
-
 }
-
