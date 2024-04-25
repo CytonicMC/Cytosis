@@ -3,7 +3,6 @@
   "extends": [
     "config:recommended"
   ],
-  {
   "packageRules": [
     {
       "description": "Automerge non-major updates",
@@ -11,5 +10,4 @@
       "automerge": true
     }
   ]
-}
 }
