@@ -17,13 +17,11 @@ public class FileManager {
     private final ConcurrentLinkedQueue<UUID> operators = new ConcurrentLinkedQueue<>();
 
     public FileManager() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisIOWorker").uncaughtExceptionHandler((t, e) -> Logger.error("An uncaught exception occoured on the thread: " + t.getName(), e)).factory());
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisIOWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
     }
 
     public void init() {
-        worker.submit(() -> {
-            createAndParseOperatorsFile();
-        });
+        worker.submit(this::createAndParseOperatorsFile);
     }
 
     private void createAndParseOperatorsFile() {
@@ -42,7 +40,6 @@ public class FileManager {
                 writer.endArray();
                 writer.endObject();
                 writer.close();
-
             } catch (IOException e) {
                 Logger.error("An error occoured whilst creating the ops.json file!", e);
             }
@@ -72,7 +69,7 @@ public class FileManager {
             reader.close();
             streamReader.close();
             stream.close();
-            Logger.info("Loaded " + this.operators.size() + " operators.");
+            Logger.info(STR."Loaded \{this.operators.size()} operators.");
         } catch (Throwable e) {
             Logger.error("An error occoured whilst parsing json the ops.json file!", e);
         }
@@ -96,7 +93,7 @@ public class FileManager {
                 writer.endObject();
                 writer.close();
             } catch (IOException e) {
-                Logger.error("An error occoured whilst creating the ops.json file!", e);
+                Logger.error("An error occurred whilst creating the ops.json file!", e);
             }
         });
     }
