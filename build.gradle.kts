@@ -23,6 +23,8 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
 
+    compileOnly("org.projectlombok:lombok:1.18.32") // lombok
+    annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
 }
 
 
