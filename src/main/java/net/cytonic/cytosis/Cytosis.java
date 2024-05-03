@@ -16,6 +16,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -36,25 +37,12 @@ public class Cytosis {
     private static ConsoleSender CONSOLE_SENDER;
 
     public static void main(String[] args) {
+        //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
         MINECRAFT_SERVER = MinecraftServer.init();
         MinecraftServer.setBrandName("Cytosis");
-
-        Logger.info();
-        Logger.info("Testing INFO");
-        Logger.debug("Testing DEBUG");
-        Logger.setup("Testing SETUP");
-        Logger.warn("Testing WARN");
-        Logger.error("Testing ERROR");
-        try {
-            demo();
-        } catch (RuntimeException ex) {
-            Logger.error("Oh noes! An error occoured!", ex);
-        }
-        Logger.info();
-
 
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
@@ -64,7 +52,6 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
-
 
         // Commands
         Logger.info("Starting command manager.");
@@ -80,30 +67,18 @@ public class Cytosis {
 
         Logger.info("Creating file manager");
         FILE_MANAGER = new FileManager();
+
+        // Everything after this point depends on config contents
         Logger.info("Initializing file manager");
-        FILE_MANAGER.init();
-
-        // basic world generator
-        Logger.info("Generating basic world");
-        DEFAULT_INSTANCE.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-        DEFAULT_INSTANCE.setChunkSupplier(LightingChunk::new);
-
-        Logger.info("Setting up event handlers");
-        EVENT_HANDLER = new EventHandler(MinecraftServer.getGlobalEventHandler());
-
-        Logger.info("Initializing server events");
-        ServerEventListeners.initServerEvents();
-
-        Logger.info("Initializing server commands");
-        COMMAND_HANDLER = new CommandHandler();
-        COMMAND_HANDLER.setupConsole();
-        COMMAND_HANDLER.registerCystosisCommands();
-
-        // Start the server
-        Logger.info("Server started on port 25565");
-        MINECRAFT_SERVER.start("0.0.0.0", 25565);
-        long end = System.currentTimeMillis();
-        Logger.info(STR."Server started in \{end - start}ms!");
+        FILE_MANAGER.init().whenComplete((_, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occured whilst initializing the file manager!", throwable);
+            } else {
+                Logger.info("File manager initialized!");
+                Logger.info("Completing nonessential startup tasks.");
+                completeNonEssentialTasks(start);
+            }
+        });
     }
 
     public static EventHandler getEventHandler() {
@@ -156,7 +131,27 @@ public class Cytosis {
         return CONSOLE_SENDER;
     }
 
-    private static void demo() {
-        throw new RuntimeException("Testing runtime exception");
+    public static void completeNonEssentialTasks(long start) {
+        // basic world generator
+        Logger.info("Generating basic world");
+        DEFAULT_INSTANCE.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+        DEFAULT_INSTANCE.setChunkSupplier(LightingChunk::new);
+
+        Logger.info("Setting up event handlers");
+        EVENT_HANDLER = new EventHandler(MinecraftServer.getGlobalEventHandler());
+
+        Logger.info("Initializing server events");
+        ServerEventListeners.initServerEvents();
+
+        Logger.info("Initializing server commands");
+        COMMAND_HANDLER = new CommandHandler();
+        COMMAND_HANDLER.setupConsole();
+        COMMAND_HANDLER.registerCystosisCommands();
+
+        // Start the server
+        Logger.info("Server started on port 25565");
+        MINECRAFT_SERVER.start("0.0.0.0", 25565);
+        long end = System.currentTimeMillis();
+        Logger.info(StringTemplate.STR."Server started in \{end - start}ms!");
     }
 }
