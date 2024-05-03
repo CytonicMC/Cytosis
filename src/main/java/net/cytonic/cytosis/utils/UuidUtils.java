@@ -33,7 +33,7 @@ public class UuidUtils {
             }
             con.disconnect();
         } catch (IOException e) {
-            Logger.error("An error occoured whilst fetching " + username + "'s UUID from Mojang's API.");
+            Logger.error(STR."An error occoured whilst fetching \{username}'s UUID from Mojang's API.");
         }
         return null;
     }
@@ -41,9 +41,9 @@ public class UuidUtils {
 
     public static UUID getUUID(final String username) {
         String raw = getMojandUUID(username);
-        if (raw == null) throw new IllegalArgumentException("A player by the name '" + username + "' does not exist!");
+        if (raw == null) throw new IllegalArgumentException(STR."A player by the name '\{username}' does not exist!");
         if (raw.length() != 32)
-            throw new IllegalArgumentException("Raw UUID provided is not 32 characters! '" + raw + "' is " + raw.length());
+            throw new IllegalArgumentException(STR."Raw UUID provided is not 32 characters! '\{raw}' is \{raw.length()}");
         return UUID.fromString(raw.replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
     }
 

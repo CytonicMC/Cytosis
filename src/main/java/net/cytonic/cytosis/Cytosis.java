@@ -17,7 +17,6 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -110,9 +109,8 @@ public class Cytosis {
 
     public static Optional<Player> getPlayer(String username) {
         Player target = null;
-        for (Player onlinePlayer : getOnlinePlayers()) {
+        for (Player onlinePlayer : getOnlinePlayers())
             if (onlinePlayer.getUsername().equals(username)) target = onlinePlayer;
-        }
         return Optional.ofNullable(target);
     }
 
@@ -153,10 +151,19 @@ public class Cytosis {
         COMMAND_HANDLER.setupConsole();
         COMMAND_HANDLER.registerCystosisCommands();
 
+        Logger.info("Initializing database");
+        database = new Database();
+        database.connect();
+        database.createChatTable();
+
         // Start the server
         Logger.info("Server started on port 25565");
         MINECRAFT_SERVER.start("0.0.0.0", 25565);
+        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
+            database.disconnect();
+            Logger.info("Good night!");
+        });
         long end = System.currentTimeMillis();
-        Logger.info(StringTemplate.STR."Server started in \{end - start}ms!");
+        Logger.info(STR."Server started in \{end - start}ms!");
     }
 }

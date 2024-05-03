@@ -7,7 +7,6 @@ user = ""  # Username to connect to the database
 password = ""  # Password to connect to the database
 use_ssl = false # Whether to use SSL
 
-
 # Logging Configuration
 # Enable/disable logging for various player activities
 [logging]
@@ -16,4 +15,3 @@ player_quit = true  # Log when players leave the server
 player_ip = true  # Log player IP addresses
 player_chat = true  # Log player chat messages
 player_command = true  # Log commands issued by players
-

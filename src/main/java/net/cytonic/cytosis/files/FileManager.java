@@ -3,7 +3,6 @@ package net.cytonic.cytosis.files;
 import com.moandjiezana.toml.Toml;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
@@ -44,23 +43,21 @@ public class FileManager {
                 try {
                     extractResource("config.toml", CONFIG_PATH).whenComplete((file, throwable) -> {
                         if (throwable != null) {
-                            Logger.error("An error occoured whilst extracting the config.toml file!", throwable);
+                            Logger.error("An error occurred whilst extracting the config.toml file!", throwable);
                             future.completeExceptionally(throwable);
                             return;
                         }
-
                         try {
                             Toml toml = new Toml().read(file);
                             CytosisSettings.inportConfig(toml.toMap());
                             future.complete(file);
                         } catch (IllegalStateException e) {
-                            Logger.error("An error occoured whilst parsing the config.toml file!", e);
+                            Logger.error("An error occurred whilst parsing the config.toml file!", e);
                             future.completeExceptionally(e);
                         }
-
                     });
                 } catch (Exception e) {
-                    Logger.error("An error occoured whilst creating the config.toml file!", e);
+                    Logger.error("An error occurred whilst creating the config.toml file!", e);
                     future.completeExceptionally(e);
                 }
             } else future.complete(CONFIG_PATH.toFile());
@@ -84,13 +81,10 @@ public class FileManager {
                 if (stream == null) {
                     throw new IllegalStateException(STR."The resource \"\{resource}\" does not exist!");
                 }
-
                 OutputStream outputStream = new FileOutputStream(path.toFile());
                 byte[] buffer = new byte[1024];
                 int length;
-                while ((length = stream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
+                while ((length = stream.read(buffer)) > 0) outputStream.write(buffer, 0, length);
                 outputStream.close();
                 stream.close();
                 future.complete(path.toFile());
@@ -99,7 +93,6 @@ public class FileManager {
                 future.completeExceptionally(e);
             }
         });
-
         return future;
     }
 }
