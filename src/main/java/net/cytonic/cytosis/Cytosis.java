@@ -72,7 +72,7 @@ public class Cytosis {
         Logger.info("Initializing file manager");
         FILE_MANAGER.init().whenComplete((_, throwable) -> {
             if (throwable != null) {
-                Logger.error("An error occured whilst initializing the file manager!", throwable);
+                Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
                 Logger.info("File manager initialized!");
                 Logger.info("Completing nonessential startup tasks.");

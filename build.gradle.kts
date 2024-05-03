@@ -23,7 +23,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
     implementation("mysql:mysql-connector-java:8.0.28") //mysql connector
-    implementation("com.moandjiezana.toml:toml4j:0.7.2") // Config lang
+    implementation("org.tomlj:tomlj:1.1.1") // Config lang
 }
 
 tasks.withType<Jar> {
