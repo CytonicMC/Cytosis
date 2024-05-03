@@ -22,7 +22,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1") // serializing
     implementation("org.slf4j:slf4j-api:1.7.25") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
-
+    implementation("com.moandjiezana.toml:toml4j:0.7.2") // Config lang
 }
 
 tasks.withType<Jar> {
@@ -33,15 +33,11 @@ tasks.withType<Jar> {
 tasks.withType<JavaCompile> {
     // use String templates
     options.compilerArgs.add("--enable-preview")
-//    java.sourceCompatibility = JavaVersion.VERSION_22
-//    java.targetCompatibility = JavaVersion.VERSION_22
 }
 
 tasks.withType<JavaCompile> {
     // use String templates
     options.compilerArgs.add("--enable-preview")
-//    java.sourceCompatibility = JavaVersion.VERSION_22
-//    java.targetCompatibility = JavaVersion.VERSION_22
 }
 
 tasks {
@@ -54,6 +50,5 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
     }
 }
