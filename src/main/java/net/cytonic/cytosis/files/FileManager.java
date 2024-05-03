@@ -1,11 +1,15 @@
 package net.cytonic.cytosis.files;
 
-import com.moandjiezana.toml.Toml;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
+import org.tomlj.Toml;
+import org.tomlj.TomlParseResult;
+import org.tomlj.TomlTable;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,6 +45,7 @@ public class FileManager {
 
         worker.submit(() -> {
             if (!CONFIG_PATH.toFile().exists()) {
+                Logger.info("No config file found, creating...");
                 try {
                     extractResource("config.toml", CONFIG_PATH).whenComplete((file, throwable) -> {
                         if (throwable != null) {
@@ -50,10 +55,9 @@ public class FileManager {
                         }
 
                         try {
-                            Toml toml = new Toml().read(file);
-                            CytosisSettings.inportConfig(toml.toMap());
+                            parseToml(Toml.parse(CONFIG_PATH));
                             future.complete(file);
-                        } catch (IllegalStateException e) {
+                        } catch (IllegalStateException | IOException e) {
                             Logger.error("An error occoured whilst parsing the config.toml file!", e);
                             future.completeExceptionally(e);
                         }
@@ -63,7 +67,15 @@ public class FileManager {
                     Logger.error("An error occoured whilst creating the config.toml file!", e);
                     future.completeExceptionally(e);
                 }
-            } else future.complete(CONFIG_PATH.toFile());
+            } else {
+                try {
+                    parseToml(Toml.parse(CONFIG_PATH));
+                } catch (IOException e) {
+                    Logger.error("An error occoured whilst parsing the config.toml file!", e);
+                    future.completeExceptionally(e);
+                }
+                future.complete(CONFIG_PATH.toFile());
+            }
         });
 
         return future;
@@ -76,7 +88,7 @@ public class FileManager {
      * @param path     The path where the extracted file will be written.
      * @return A CompletableFuture representing the completion of the file extraction process.
      */
-    public CompletableFuture<File> extractResource(String resource, Path path) {
+    private CompletableFuture<File> extractResource(String resource, Path path) {
         CompletableFuture<File> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
@@ -101,5 +113,44 @@ public class FileManager {
         });
 
         return future;
+    }
+
+    private void parseToml(TomlParseResult toml) {
+        if (!toml.errors().isEmpty()) {
+            Logger.error("An error occoured whilst parsing the config.toml file!", toml.errors().getFirst());
+            return;
+        }
+        Map<String, Object> config = recursiveParse(toml.toMap(), "");
+        CytosisSettings.inportConfig(config);
+    }
+
+    private Map<String, Object> recursiveParse(Map<String, Object> map, String parentKey) {
+        if (!parentKey.equalsIgnoreCase("")) {
+            parentKey = STR."\{parentKey}.";
+        }
+
+        Map<String, Object> resultMap = new HashMap<>();
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = STR."\{parentKey}\{entry.getKey()}";
+            Object value = entry.getValue();
+
+            // If the value is a nested table (another map), recurse
+            if (value instanceof TomlTable toml) {
+                resultMap.putAll(recursiveParse(toml.toMap(), key));
+            }
+            // If it's a list, check for nested tables within the list
+            else if (value instanceof Iterable<?> iterable) {
+                for (Object item : iterable) {
+                    if (item instanceof TomlTable toml) {
+                        resultMap.putAll(recursiveParse(toml.toMap(), key));
+                    }
+                }
+            } else {
+                resultMap.put(key, value);
+            }
+        }
+
+        return resultMap;
     }
 }
