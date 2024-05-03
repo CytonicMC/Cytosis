@@ -16,6 +16,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -41,20 +42,6 @@ public class Cytosis {
         Logger.info("Starting server.");
         MINECRAFT_SERVER = MinecraftServer.init();
         MinecraftServer.setBrandName("Cytosis");
-
-        Logger.info();
-        Logger.info("Testing INFO");
-        Logger.debug("Testing DEBUG");
-        Logger.setup("Testing SETUP");
-        Logger.warn("Testing WARN");
-        Logger.error("Testing ERROR");
-        try {
-            demo();
-        } catch (RuntimeException ex) {
-            Logger.error("Oh noes! An error occoured!", ex);
-        }
-        Logger.info();
-
 
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
@@ -154,9 +141,5 @@ public class Cytosis {
 
     public static ConsoleSender getConsoleSender() {
         return CONSOLE_SENDER;
-    }
-
-    private static void demo() {
-        throw new RuntimeException("Testing runtime exception");
     }
 }
