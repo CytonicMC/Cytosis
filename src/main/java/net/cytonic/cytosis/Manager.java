@@ -2,7 +2,6 @@ package net.cytonic.cytosis;
 
 import net.cytonic.cytosis.data.Database;
 import net.cytonic.cytosis.logging.Logger;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

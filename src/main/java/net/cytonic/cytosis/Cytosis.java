@@ -152,6 +152,8 @@ public class Cytosis {
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
 
+        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> manager.shutdown());
+
         Logger.info("Initializing server commands");
         COMMAND_HANDLER = new CommandHandler();
         COMMAND_HANDLER.setupConsole();
