@@ -1,7 +1,6 @@
 package net.cytonic.cytosis;
 
 import net.cytonic.cytosis.commands.CommandHandler;
-import net.cytonic.cytosis.data.Database;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -33,7 +32,7 @@ public class Cytosis {
     private static CommandManager COMMAND_MANAGER;
     private static CommandHandler COMMAND_HANDLER;
     private static FileManager FILE_MANAGER;
-    private static Database database;
+    private static Manager manager;
     private static ConsoleSender CONSOLE_SENDER;
 
     public static void main(String[] args) {
@@ -52,6 +51,9 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
+
+        Logger.info("Starting manager.");
+        manager = new Manager();
 
         // Commands
         Logger.info("Starting command manager.");
@@ -75,6 +77,10 @@ public class Cytosis {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
                 Logger.info("File manager initialized!");
+
+                Logger.info("Initializing database");
+                manager.setupDatabase();
+
                 Logger.info("Completing nonessential startup tasks.");
                 completeNonEssentialTasks(start);
             }
@@ -97,8 +103,8 @@ public class Cytosis {
         return COMMAND_MANAGER;
     }
 
-    public static Database getDatabase() {
-        return database;
+    public static Manager getManager() {
+        return manager;
     }
 
     public static Set<Player> getOnlinePlayers() {
@@ -151,18 +157,9 @@ public class Cytosis {
         COMMAND_HANDLER.setupConsole();
         COMMAND_HANDLER.registerCystosisCommands();
 
-        Logger.info("Initializing database");
-        database = new Database();
-        database.connect();
-        database.createChatTable();
-
         // Start the server
         Logger.info("Server started on port 25565");
         MINECRAFT_SERVER.start("0.0.0.0", 25565);
-        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
-            database.disconnect();
-            Logger.info("Good night!");
-        });
         long end = System.currentTimeMillis();
         Logger.info(STR."Server started in \{end - start}ms!");
     }

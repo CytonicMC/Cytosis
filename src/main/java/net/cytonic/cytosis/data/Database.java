@@ -20,6 +20,7 @@ public class Database {
     private final String database;
     private final String username;
     private final String password;
+    private final boolean ssl;
     private Connection connection;
 
     public Database() {
@@ -29,6 +30,7 @@ public class Database {
         this.database = CytosisSettings.DATABASE_NAME;
         this.username = CytosisSettings.DATABASE_USER;
         this.password = CytosisSettings.DATABASE_PASSWORD;
+        this.ssl = CytosisSettings.DATABASE_USE_SSL;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -45,7 +47,7 @@ public class Database {
         worker.submit(() -> {
             if (!isConnected()) {
                 try {
-                    connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=false&autoReconnect=true", username, password);
+                    connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true", username, password);
                 } catch (SQLException e) {
                     Logger.error("Invalid Database Credentials!");
                     MinecraftServer.stopCleanly();
@@ -62,9 +64,9 @@ public class Database {
                     connection.close();
                     Logger.info("Database connection closed!");
                 } catch (SQLException e) {
-                    Logger.error(STR."""
-An error occoured whilst disconnecting from the database. Please report the following stacktrace to Foxikle:\s
-\{Arrays.toString(e.getStackTrace())}""");
+                    Logger.error("""
+                            An error occurred whilst disconnecting from the database. Please report the following stacktrace to Foxikle:
+                            """,e);
                 }
             }
         });

@@ -5,7 +5,6 @@ import net.cytonic.cytosis.logging.Logger;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -15,8 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class FileManager {
-    private static final Path CONFIG_PATH = Path.of("config.toml");
 
+    private static final Path CONFIG_PATH = Path.of("config.toml");
     private final ExecutorService worker;
 
     public FileManager() {
@@ -56,7 +55,7 @@ public class FileManager {
                         try {
                             parseToml(Toml.parse(CONFIG_PATH));
                             future.complete(file);
-                        } catch (IllegalStateException e) {
+                        } catch (IllegalStateException | IOException e) {
                             Logger.error("An error occurred whilst parsing the config.toml file!", e);
 
                             future.completeExceptionally(e);
@@ -70,7 +69,7 @@ public class FileManager {
                 try {
                     parseToml(Toml.parse(CONFIG_PATH));
                 } catch (IOException e) {
-                    Logger.error("An error occoured whilst parsing the config.toml file!", e);
+                    Logger.error("An error occurred whilst parsing the config.toml file!", e);
                     future.completeExceptionally(e);
                 }
                 future.complete(CONFIG_PATH.toFile());
@@ -112,7 +111,7 @@ public class FileManager {
 
     private void parseToml(TomlParseResult toml) {
         if (!toml.errors().isEmpty()) {
-            Logger.error("An error occoured whilst parsing the config.toml file!", toml.errors().getFirst());
+            Logger.error("An error occurred whilst parsing the config.toml file!", toml.errors().getFirst());
             return;
         }
         Map<String, Object> config = recursiveParse(toml.toMap(), "");

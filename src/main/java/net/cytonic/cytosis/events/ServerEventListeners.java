@@ -32,7 +32,7 @@ public class ServerEventListeners {
         Logger.info("Registering player chat event.");
         Cytosis.getEventHandler().registerGlobalEvent(PlayerChatEvent.class, event -> {
             final Player player = event.getPlayer();
-            Cytosis.getDatabase().addChat(player.getUuid(),event.getMessage());
+            Cytosis.getManager().getDatabase().addChat(player.getUuid(),event.getMessage());
         });
     }
 }
