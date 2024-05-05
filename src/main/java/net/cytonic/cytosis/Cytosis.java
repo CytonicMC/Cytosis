@@ -17,10 +17,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Cytosis {
 
@@ -36,7 +33,10 @@ public class Cytosis {
 
     private static ConsoleSender CONSOLE_SENDER;
 
+    private static List<String> FLAGS;
+
     public static void main(String[] args) {
+        FLAGS = List.of(args);
         //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
@@ -153,5 +153,10 @@ public class Cytosis {
         MINECRAFT_SERVER.start("0.0.0.0", 25565);
         long end = System.currentTimeMillis();
         Logger.info(StringTemplate.STR."Server started in \{end - start}ms!");
+
+        if (FLAGS.contains("--ci-test")) {
+            Logger.info("Stopping server due to '--ci-test' flag.");
+            MinecraftServer.stopCleanly();
+        }
     }
 }
