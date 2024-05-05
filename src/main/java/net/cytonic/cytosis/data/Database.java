@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,7 +48,7 @@ public class Database {
                 try {
                     connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true", username, password);
                 } catch (SQLException e) {
-                    Logger.error("Invalid Database Credentials!");
+                    Logger.error("Invalid Database Credentials!",e);
                     MinecraftServer.stopCleanly();
                 }
             }
@@ -64,9 +63,7 @@ public class Database {
                     connection.close();
                     Logger.info("Database connection closed!");
                 } catch (SQLException e) {
-                    Logger.error("""
-                            An error occurred whilst disconnecting from the database. Please report the following stacktrace to Foxikle:
-                            """,e);
+                    Logger.error("An error occurred whilst disconnecting from the database. Please report the following stacktrace to Foxikle: ",e);
                 }
             }
         });
@@ -84,9 +81,7 @@ public class Database {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicchat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error(STR."""
-An error occoured whilst fetching data from the database. Please report the following stacktrace to Foxikle:\s
-\{Arrays.toString(e.getStackTrace())}""");
+                    Logger.error("An error occoured whilst fetching data from the database. Please report the following stacktrace to Foxikle:",e);
                 }
             }
         });
