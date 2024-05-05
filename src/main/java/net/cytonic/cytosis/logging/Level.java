@@ -6,9 +6,9 @@
 package net.cytonic.cytosis.logging;
 
 public enum Level {
+    SETUP,
     TRACE,
     DEBUG,
-    SETUP,
     INFO,
     WARN,
     ERROR
