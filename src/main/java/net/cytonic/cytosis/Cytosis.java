@@ -81,6 +81,7 @@ public class Cytosis {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
                 Logger.info("File manager initialized!");
+                loadEnvironmentVariables();
                 if (CytosisSettings.SERVER_PROXY_MODE) {
                     Logger.info("Enabling velocity!");
                     VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
@@ -147,6 +148,33 @@ public class Cytosis {
     public static void mojangAuth() {
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
+    }
+
+    public static void loadEnvironmentVariables() {
+        Logger.info("Loading environment variables!");
+        // logging
+        if (!(System.getenv("LOG_PLAYER_IPS") == null)) CytosisSettings.LOG_PLAYER_IPS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_IPS"));
+        if (!(System.getenv("LOG_PLAYER_JOINS") == null)) CytosisSettings.LOG_PLAYER_JOINS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_JOINS"));
+        if (!(System.getenv("LOG_PLAYER_QUITS") == null)) CytosisSettings.LOG_PLAYER_QUITS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_QUITS"));
+        if (!(System.getenv("LOG_PLAYER_COMMANDS") == null)) CytosisSettings.LOG_PLAYER_COMMANDS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_COMMANDS"));
+        if (!(System.getenv("LOG_PLAYER_CHAT") == null)) CytosisSettings.LOG_PLAYER_CHAT = Boolean.parseBoolean(System.getenv("LOG_PLAYER_CHAT"));
+        // database
+        if (!(System.getenv("DATABASE_USER") == null)) CytosisSettings.DATABASE_USER = System.getenv("DATABASE_USER");
+        if (!(System.getenv("DATABASE_PASSWORD") == null)) CytosisSettings.DATABASE_PASSWORD = System.getenv("DATABASE_PASSWORD");
+        if (!(System.getenv("DATABASE_HOST") == null)) CytosisSettings.DATABASE_HOST = System.getenv("DATABASE_HOST");
+        if (!(System.getenv("DATABASE_PORT") == null)) CytosisSettings.DATABASE_PORT = Integer.parseInt((System.getenv("DATABASE_PORT")));
+        if (!(System.getenv("DATABASE_NAME") == null)) CytosisSettings.DATABASE_NAME = System.getenv("DATABASE_NAME");
+        if (!(System.getenv("DATABASE_USE_SSL") == null)) CytosisSettings.DATABASE_USE_SSL = Boolean.parseBoolean(System.getenv("DATABASE_USE_SSL"));
+        //server
+        if (!(System.getenv("SERVER_PROXY_MODE") == null)) CytosisSettings.SERVER_PROXY_MODE = Boolean.parseBoolean(System.getenv("SERVER_PROXY_MODE"));
+        if (!(System.getenv("SERVER_SECRET") == null)) CytosisSettings.SERVER_SECRET = System.getenv("SERVER_SECRET");
+        if (!(System.getenv("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
+        // RabbitMQ
+        if (!(System.getenv("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getenv("RABBITMQ_ENABLED"));
+        if (!(System.getenv("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getenv("RABBITMQ_HOST");
+        if (!(System.getenv("RABBITMQ_PASSWORD") == null)) CytosisSettings.RABBITMQ_PASSWORD = System.getenv("RABBITMQ_PASSWORD");
+        if (!(System.getenv("RABBITMQ_USERNAME") == null)) CytosisSettings.RABBITMQ_USERNAME = System.getenv("RABBITMQ_USERNAME");
+        if (!(System.getenv("RABBITMQ_PORT") == null)) CytosisSettings.RABBITMQ_PORT = Integer.parseInt(System.getenv("RABBITMQ_PORT"));
     }
 
     public static void completeNonEssentialTasks(long start) {
