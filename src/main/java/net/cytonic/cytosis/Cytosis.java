@@ -12,6 +12,7 @@ import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
 import net.minestom.server.entity.Player;
 import net.minestom.server.extras.MojangAuth;
+import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
@@ -80,8 +81,10 @@ public class Cytosis {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
                 Logger.info("File manager initialized!");
-                if (CytosisSettings.SERVER_ONLINE_MODE)
-                    mojangAuth();
+                if (CytosisSettings.SERVER_PROXY_MODE) {
+                    Logger.info("Enabling velocity!");
+                    VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
+                } else mojangAuth();
                 Logger.info("Completing nonessential startup tasks.");
                 completeNonEssentialTasks(start);
             }
