@@ -5,6 +5,7 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.MessagingManager;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -16,6 +17,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +34,7 @@ public class Cytosis {
     private static CommandManager COMMAND_MANAGER;
     private static CommandHandler COMMAND_HANDLER;
     private static FileManager FILE_MANAGER;
+    private static MessagingManager MESSAGE_MANAGER;
 
     private static ConsoleSender CONSOLE_SENDER;
 
@@ -42,20 +45,6 @@ public class Cytosis {
         Logger.info("Starting server.");
         MINECRAFT_SERVER = MinecraftServer.init();
         MinecraftServer.setBrandName("Cytosis");
-
-        Logger.info();
-        Logger.info("Testing INFO");
-        Logger.debug("Testing DEBUG");
-        Logger.setup("Testing SETUP");
-        Logger.warn("Testing WARN");
-        Logger.error("Testing ERROR");
-        try {
-            demo();
-        } catch (RuntimeException ex) {
-            Logger.error("Oh noes! An error occoured!", ex);
-        }
-        Logger.info();
-
 
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
@@ -161,6 +150,15 @@ public class Cytosis {
         COMMAND_HANDLER = new CommandHandler();
         COMMAND_HANDLER.setupConsole();
         COMMAND_HANDLER.registerCystosisCommands();
+
+        MESSAGE_MANAGER = new MessagingManager();
+        MESSAGE_MANAGER.initialize().whenComplete((_, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst initializing the messaging manager!", throwable);
+            } else {
+                Logger.info("Messaging manager initialized!");
+            }
+        });
 
         // Start the server
         Logger.info("Server started on port 25565");
