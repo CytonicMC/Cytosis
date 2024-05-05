@@ -19,6 +19,8 @@ public class CytosisSettings {
     public static int DATABASE_PORT = 3306;
     public static String DATABASE_NAME = "";
     public static boolean DATABASE_USE_SSL = false;
+    public static boolean SERVER_ONLINE_MODE = true;
+    public static int SERVER_PORT = 25565;
 
     public static void inportConfig(Map<String, Object> config) {
         Logger.info("Importing config!");
@@ -37,6 +39,8 @@ public class CytosisSettings {
                     case "database.port" -> DATABASE_PORT = toInt(value);
                     case "database.name" -> DATABASE_NAME = (String) value;
                     case "database.use_ssl" -> DATABASE_USE_SSL = (boolean) value;
+                    case "server.online_mode" -> SERVER_ONLINE_MODE = (boolean) value;
+                    case "server.port" -> SERVER_PORT = toInt(value);
                     default -> { /*Do nothing*/ }
                 }
             } catch (ClassCastException e) {

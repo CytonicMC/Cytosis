@@ -5,11 +5,12 @@ import net.cytonic.cytosis.logging.Logger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Manager {
+public class DatabaseManager {
+
     private final ExecutorService worker;
     private Database database;
 
-    public Manager() {
+    public DatabaseManager() {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisManagerWorker")
                 .uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
     }
@@ -28,9 +29,6 @@ public class Manager {
             database.createChatTable();
         });
     }
-
-    public void setupBedwars() {}
-
 
     public Database getDatabase() {return database;}
 }
