@@ -16,7 +16,7 @@ jobs:
       - run: chmod +x gradlew
 
       - name: Assemble
-        run: ./gradlew assemble
+        run: ./gradlew assemble --enable-preview
 
       - name: Run Compiled Artifact
-        run: java --enable-preview -jar --ci-test
+        run: java --enable-preview -jar cytosis.jar  --ci-test
