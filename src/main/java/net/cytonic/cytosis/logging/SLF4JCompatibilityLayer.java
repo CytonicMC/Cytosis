@@ -18,7 +18,7 @@ class SLF4JCompatibilityLayer extends AbstractLogger implements org.slf4j.Logger
 
     @Override
     public String getName() {
-        return "[Cytosis] " + name;
+        return STR."[Cytosis] \{name}";
     }
 
     @Override

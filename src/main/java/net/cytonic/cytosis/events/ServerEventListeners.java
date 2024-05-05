@@ -5,7 +5,10 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.Event;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.event.player.PlayerChatEvent;
+import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
 public class ServerEventListeners {
@@ -26,5 +29,12 @@ public class ServerEventListeners {
                 Logger.info(STR."\{event.getPlayer().getUsername()} (\{event.getPlayer().getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             else Logger.info(STR."\{event.getPlayer().getUsername()} (\{event.getPlayer().getUuid()}) joined.");
         })));
+
+        Logger.info("Registering player chat event.");
+        Cytosis.getEventHandler().registerListener(new EventListener<PlayerChatEvent>("core:player-chat", false, 1, PlayerChatEvent.class,event ->{
+            final Player player = event.getPlayer();
+            if (CytosisSettings.LOG_PLAYER_CHAT)
+                Cytosis.getDatabaseManager().getDatabase().addChat(player.getUuid(),event.getMessage());
+        }));
     }
 }

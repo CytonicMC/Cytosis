@@ -22,24 +22,18 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
-
+    implementation("mysql:mysql-connector-java:8.0.33") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.32") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
 }
 
-
 tasks.withType<Jar> {
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
     }
 }
-tasks.withType<JavaCompile> {
-    // use String templates
-    options.compilerArgs.add("--enable-preview")
-}
-
 tasks.withType<JavaCompile> {
     // use String templates
     options.compilerArgs.add("--enable-preview")
@@ -55,8 +49,5 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        destinationDirectory.set(file("/home/foxikle/cytonicserver"))
     }
-
 }
-

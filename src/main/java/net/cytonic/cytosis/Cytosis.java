@@ -1,6 +1,7 @@
 package net.cytonic.cytosis;
 
 import net.cytonic.cytosis.commands.CommandHandler;
+import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -17,8 +18,8 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-
 import java.util.*;
+
 
 public class Cytosis {
 
@@ -31,9 +32,10 @@ public class Cytosis {
     private static CommandManager COMMAND_MANAGER;
     private static CommandHandler COMMAND_HANDLER;
     private static FileManager FILE_MANAGER;
+    private static DatabaseManager DATABASE_MANAGER;
     private static MessagingManager MESSAGE_MANAGER;
-
     private static ConsoleSender CONSOLE_SENDER;
+    private static int SERVER_PORT;
 
     private static List<String> FLAGS;
 
@@ -46,15 +48,15 @@ public class Cytosis {
         MINECRAFT_SERVER = MinecraftServer.init();
         MinecraftServer.setBrandName("Cytosis");
 
-        Logger.info("Initializing Mojang Authentication");
-        MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
-
         Logger.info("Starting instance manager.");
         INSTANCE_MANAGER = MinecraftServer.getInstanceManager();
 
         Logger.info("Starting connection manager.");
         CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
 
+
+        Logger.info("Starting manager.");
+        DATABASE_MANAGER = new DatabaseManager();
 
         // Commands
         Logger.info("Starting command manager.");
@@ -78,6 +80,8 @@ public class Cytosis {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
                 Logger.info("File manager initialized!");
+                if (CytosisSettings.SERVER_ONLINE_MODE)
+                    mojangAuth();
                 Logger.info("Completing nonessential startup tasks.");
                 completeNonEssentialTasks(start);
             }
@@ -100,6 +104,10 @@ public class Cytosis {
         return COMMAND_MANAGER;
     }
 
+    public static DatabaseManager getDatabaseManager() {
+        return DATABASE_MANAGER;
+    }
+
     public static Set<Player> getOnlinePlayers() {
         Set<Player> players = new HashSet<>();
         INSTANCE_MANAGER.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
@@ -108,9 +116,8 @@ public class Cytosis {
 
     public static Optional<Player> getPlayer(String username) {
         Player target = null;
-        for (Player onlinePlayer : getOnlinePlayers()) {
+        for (Player onlinePlayer : getOnlinePlayers())
             if (onlinePlayer.getUsername().equals(username)) target = onlinePlayer;
-        }
         return Optional.ofNullable(target);
     }
 
@@ -134,6 +141,11 @@ public class Cytosis {
         return CONSOLE_SENDER;
     }
 
+    public static void mojangAuth() {
+        Logger.info("Initializing Mojang Authentication");
+        MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
+    }
+
     public static void completeNonEssentialTasks(long start) {
         // basic world generator
         Logger.info("Generating basic world");
@@ -146,6 +158,11 @@ public class Cytosis {
 
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
+
+        Logger.info("Initializing database");
+        DATABASE_MANAGER.setupDatabase();
+
+        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> DATABASE_MANAGER.shutdown());
 
         Logger.info("Initializing server commands");
         COMMAND_HANDLER = new CommandHandler();
@@ -160,12 +177,15 @@ public class Cytosis {
                 Logger.info("Messaging manager initialized!");
             }
         });
+      
+        SERVER_PORT = CytosisSettings.SERVER_PORT;
 
         // Start the server
-        Logger.info("Server started on port 25565");
-        MINECRAFT_SERVER.start("0.0.0.0", 25565);
+        Logger.info(STR."Server started on port \{SERVER_PORT}");
+        MINECRAFT_SERVER.start("0.0.0.0", SERVER_PORT);
+      
         long end = System.currentTimeMillis();
-        Logger.info(StringTemplate.STR."Server started in \{end - start}ms!");
+        Logger.info(STR."Server started in \{end - start}ms!");
 
         if (FLAGS.contains("--ci-test")) {
             Logger.info("Stopping server due to '--ci-test' flag.");

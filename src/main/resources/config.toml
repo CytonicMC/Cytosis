@@ -7,6 +7,10 @@ user = ""  # Username to connect to the database
 password = ""  # Password to connect to the database
 use_ssl = false # Whether to use SSL
 
+# server stuff
+[server]
+online_mode = true
+port = 25565
 
 # Logging Configuration
 # Enable/disable logging for various player activities

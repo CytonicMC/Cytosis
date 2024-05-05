@@ -17,7 +17,7 @@ public class OperatorCommand extends Command {
         var playerArg = ArgumentType.Word("player").from(getPlayerNames());
         playerArg.setCallback((sender, exception) -> {
             final String input = exception.getInput();
-            sender.sendMessage("The player " + input + " is invalid!");
+            sender.sendMessage(STR."The player \{input} is invalid!");
         });
 
         setDefaultExecutor((sender, context) -> {
@@ -27,7 +27,7 @@ public class OperatorCommand extends Command {
                 return;
             }
             final String playerName = context.get(playerArg);
-            Cytosis.getPlayer(playerName).ifPresentOrElse(Cytosis::opPlayer, () -> sender.sendMessage(Component.text("Couldn't find the player '" + playerName + "'. Did you spell their name right?")));
+            Cytosis.getPlayer(playerName).ifPresentOrElse(Cytosis::opPlayer, () -> sender.sendMessage(Component.text(STR."Couldn't find the player '\{playerName}'. Did you spell their name right?")));
         });
     }
 

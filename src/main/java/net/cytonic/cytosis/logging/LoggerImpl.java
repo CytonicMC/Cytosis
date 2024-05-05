@@ -64,9 +64,7 @@ record LoggerImpl(Level level) implements Logger {
     public Logger print(String message) {
         synchronized (printLock) {
             if (LOG_LEVEL.ordinal() > level.ordinal()) return this;
-            if (loggerWasLast && !lastLogger.equals(this) && !newLine) {
-                newLine();
-            }
+            if (loggerWasLast && !lastLogger.equals(this) && !newLine) newLine();
             if (newLine) {
                 consolePrint(preparePrefix());
                 newLine = false;
@@ -90,7 +88,6 @@ record LoggerImpl(Level level) implements Logger {
             consolePrint(translateColor() + message);
             return;
         }
-
         String[] split = message.split(Pattern.quote("\r"), -1);
         consolePrint("\r");
         consolePrint(preparePrefix());
@@ -131,9 +128,9 @@ record LoggerImpl(Level level) implements Logger {
     public Logger throwable(Throwable throwable, Object... args) {
         String info = "";
         if (args.length == 1) {
-            info = " -> (" + args[0] + ")";
+            info = STR." -> (\{args[0]})";
         } else if (args.length > 1) {
-            info = " -> (" + String.format(args[0].toString(), args[1]) + ")";
+            info = STR." -> (\{String.format(args[0].toString(), args[1])})";
         }
         return print(throwable.getMessage() + info);
     }
