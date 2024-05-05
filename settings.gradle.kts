@@ -1,2 +1,2 @@
-rootProject.name = "MinestomBase"
+rootProject.name = "Cytosis"
 

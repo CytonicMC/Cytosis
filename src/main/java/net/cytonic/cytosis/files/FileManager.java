@@ -5,7 +5,6 @@ import net.cytonic.cytosis.logging.Logger;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -15,8 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class FileManager {
-    private static final Path CONFIG_PATH = Path.of("config.toml");
 
+    private static final Path CONFIG_PATH = Path.of("config.toml");
     private final ExecutorService worker;
 
     public FileManager() {
@@ -49,29 +48,28 @@ public class FileManager {
                 try {
                     extractResource("config.toml", CONFIG_PATH).whenComplete((file, throwable) -> {
                         if (throwable != null) {
-                            Logger.error("An error occoured whilst extracting the config.toml file!", throwable);
+                            Logger.error("An error occurred whilst extracting the config.toml file!", throwable);
                             future.completeExceptionally(throwable);
                             return;
                         }
-
                         try {
                             parseToml(Toml.parse(CONFIG_PATH));
                             future.complete(file);
                         } catch (IllegalStateException | IOException e) {
-                            Logger.error("An error occoured whilst parsing the config.toml file!", e);
+                            Logger.error("An error occurred whilst parsing the config.toml file!", e);
+
                             future.completeExceptionally(e);
                         }
-
                     });
                 } catch (Exception e) {
-                    Logger.error("An error occoured whilst creating the config.toml file!", e);
+                    Logger.error("An error occurred whilst creating the config.toml file!", e);
                     future.completeExceptionally(e);
                 }
             } else {
                 try {
                     parseToml(Toml.parse(CONFIG_PATH));
                 } catch (IOException e) {
-                    Logger.error("An error occoured whilst parsing the config.toml file!", e);
+                    Logger.error("An error occurred whilst parsing the config.toml file!", e);
                     future.completeExceptionally(e);
                 }
                 future.complete(CONFIG_PATH.toFile());
@@ -96,13 +94,10 @@ public class FileManager {
                 if (stream == null) {
                     throw new IllegalStateException(STR."The resource \"\{resource}\" does not exist!");
                 }
-
                 OutputStream outputStream = new FileOutputStream(path.toFile());
                 byte[] buffer = new byte[1024];
                 int length;
-                while ((length = stream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
+                while ((length = stream.read(buffer)) > 0) outputStream.write(buffer, 0, length);
                 outputStream.close();
                 stream.close();
                 future.complete(path.toFile());
@@ -111,13 +106,12 @@ public class FileManager {
                 future.completeExceptionally(e);
             }
         });
-
         return future;
     }
 
     private void parseToml(TomlParseResult toml) {
         if (!toml.errors().isEmpty()) {
-            Logger.error("An error occoured whilst parsing the config.toml file!", toml.errors().getFirst());
+            Logger.error("An error occurred whilst parsing the config.toml file!", toml.errors().getFirst());
             return;
         }
         Map<String, Object> config = recursiveParse(toml.toMap(), "");
