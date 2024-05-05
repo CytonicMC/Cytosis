@@ -1,4 +1,4 @@
-package dev.foxikle.cytosis.events;
+package net.cytonic.cytosis.events;
 
 import lombok.Getter;
 import net.minestom.server.event.Event;
@@ -55,7 +55,9 @@ public class EventListener<T extends Event> {
      * @param event The event to complete the consumer with.
      * @since 1.0.0
      */
-    public void complete(T event) {
-        consumer.accept(event);
+    public void complete(Object event) {
+        if (!eventClass.isInstance(event))
+            throw new IllegalArgumentException(STR."The specified event object isn't an instance of \{eventClass.getName()}");
+        consumer.accept(eventClass.cast(event));
     }
 }
