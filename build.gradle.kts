@@ -6,7 +6,7 @@ plugins {
     id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
 }
 
-group = "dev.foxikle"
+group = "net.cytonic"
 version = "1.0-SNAPSHOT"
 
 //serviceLoader.serviceInterfaces.add("net.minestom.vanilla.VanillaReimplementation\$Feature")
@@ -18,37 +18,40 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Minestom", "Minestom", "7daf8d69b7") // minstom itself
+    implementation("com.github.Minestom", "Minestom", "6b8a4e4cc9") // minstom itself
     implementation("com.google.code.gson:gson:2.10.1") // serializing
-    implementation("org.slf4j:slf4j-api:1.7.25") // logging
+    implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
 
     compileOnly("org.projectlombok:lombok:1.18.32") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
+    implementation("org.tomlj:tomlj:1.1.1") // Config lang
+    implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
 }
 
 
 tasks.withType<Jar> {
     manifest {
-        attributes["Main-Class"] = "dev.foxikle.cytosis.Cytosis"
+        attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
     }
+}
+tasks.withType<JavaCompile> {
+    // use String templates
+    options.compilerArgs.add("--enable-preview")
 }
 
 tasks.withType<JavaCompile> {
     // use String templates
     options.compilerArgs.add("--enable-preview")
-//    java.sourceCompatibility = JavaVersion.VERSION_22
-//    java.targetCompatibility = JavaVersion.VERSION_22
 }
 
 tasks {
     assemble {
         dependsOn("shadowJar")
     }
-
     named<ShadowJar>("shadowJar") {
         manifest {
-            attributes["Main-Class"] = "dev.foxikle.cytosis.Cytosis"
+            attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")

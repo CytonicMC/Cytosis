@@ -1,0 +1,25 @@
+# Database Connection Details
+[database]
+host = ""  # Database host or IP address
+port = 3306  # Default MySQL/MariaDB port
+name = ""  # Name of the database
+user = ""  # Username to connect to the database
+password = ""  # Password to connect to the database
+use_ssl = false # Whether to use SSL
+
+
+# Logging Configuration
+# Enable/disable logging for various player activities
+[logging]
+player_join = true  # Log when players join the server
+player_quit = true  # Log when players leave the server
+player_ip = true  # Log player IP addresses
+player_chat = true  # Log player chat messages
+player_command = true  # Log commands issued by players
+
+[rabbitmq]
+enabled = false
+host = ""  # RabbitMQ host or IP address
+port = 5672  # Default RabbitMQ port
+username = "" # username login to RabbitMQ server
+password = "" # password to login to RabbitMQ server
