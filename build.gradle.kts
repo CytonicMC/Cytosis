@@ -23,6 +23,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
+    implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
 }
 
 tasks.withType<Jar> {
@@ -40,13 +41,6 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("--enable-preview")
 }
 
-tasks.withType<JavaCompile> {
-    // use String templates
-    options.compilerArgs.add("--enable-preview")
-//    java.sourceCompatibility = JavaVersion.VERSION_22
-//    java.targetCompatibility = JavaVersion.VERSION_22
-}
-
 tasks {
     assemble {
         dependsOn("shadowJar")
@@ -57,5 +51,6 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
+        destinationDirectory.set(file("/home/foxikle/cytonicserver/"))
     }
 }
