@@ -18,5 +18,8 @@ jobs:
       - name: Assemble
         run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview --no-daemon assemble
 
+      - name: Show files
+        run: ls -l
+
       - name: Run Compiled Artifact
         run: java --enable-preview -jar cytosis.jar  --ci-test
