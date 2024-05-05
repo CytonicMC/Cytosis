@@ -6,6 +6,7 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.MessagingManager;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -17,10 +18,8 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 
 public class Cytosis {
 
@@ -34,10 +33,14 @@ public class Cytosis {
     private static CommandHandler COMMAND_HANDLER;
     private static FileManager FILE_MANAGER;
     private static DatabaseManager DATABASE_MANAGER;
+    private static MessagingManager MESSAGE_MANAGER;
     private static ConsoleSender CONSOLE_SENDER;
     private static int SERVER_PORT;
 
+    private static List<String> FLAGS;
+
     public static void main(String[] args) {
+        FLAGS = List.of(args);
         //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
@@ -50,6 +53,7 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
+
 
         Logger.info("Starting manager.");
         DATABASE_MANAGER = new DatabaseManager();
@@ -164,11 +168,27 @@ public class Cytosis {
         COMMAND_HANDLER.setupConsole();
         COMMAND_HANDLER.registerCystosisCommands();
 
+        MESSAGE_MANAGER = new MessagingManager();
+        MESSAGE_MANAGER.initialize().whenComplete((_, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst initializing the messaging manager!", throwable);
+            } else {
+                Logger.info("Messaging manager initialized!");
+            }
+        });
+      
         SERVER_PORT = CytosisSettings.SERVER_PORT;
+
         // Start the server
         Logger.info(STR."Server started on port \{SERVER_PORT}");
         MINECRAFT_SERVER.start("0.0.0.0", SERVER_PORT);
+      
         long end = System.currentTimeMillis();
         Logger.info(STR."Server started in \{end - start}ms!");
+
+        if (FLAGS.contains("--ci-test")) {
+            Logger.info("Stopping server due to '--ci-test' flag.");
+            MinecraftServer.stopCleanly();
+        }
     }
 }
