@@ -51,6 +51,5 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        destinationDirectory.set(file("/home/foxikle/cytonicserver/"))
     }
 }
