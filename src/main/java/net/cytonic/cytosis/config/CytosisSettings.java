@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.logging.Logger;
-
 import java.util.Map;
 
 /**
@@ -22,7 +21,9 @@ public class CytosisSettings {
     public static int DATABASE_PORT = 3306;
     public static String DATABASE_NAME = "";
     public static boolean DATABASE_USE_SSL = false;
-    public static boolean SERVER_ONLINE_MODE = true;
+    // server
+    public static boolean SERVER_PROXY_MODE = false;
+    public static String SERVER_SECRET = "";
     public static int SERVER_PORT = 25565;
 
     // RabbitMQ
@@ -53,7 +54,8 @@ public class CytosisSettings {
                     case "database.use_ssl" -> DATABASE_USE_SSL = (boolean) value;
                     
                     // server
-                    case "server.online_mode" -> SERVER_ONLINE_MODE = (boolean) value;
+                    case "server.proxy_mode" -> SERVER_PROXY_MODE = (boolean) value;
+                    case "server.secret" -> SERVER_SECRET = (String) value;
                     case "server.port" -> SERVER_PORT = toInt(value);
 
                     // RabbitMQ
