@@ -142,6 +142,7 @@ public class Cytosis {
 
         Logger.info("Setting up event handlers");
         EVENT_HANDLER = new EventHandler(MinecraftServer.getGlobalEventHandler());
+        EVENT_HANDLER.init();
 
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
