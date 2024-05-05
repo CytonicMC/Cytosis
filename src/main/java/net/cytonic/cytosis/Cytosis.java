@@ -100,7 +100,7 @@ public class Cytosis {
         return COMMAND_MANAGER;
     }
 
-    public static DatabaseManager getManager() {
+    public static DatabaseManager getDatabaseManager() {
         return DATABASE_MANAGER;
     }
 
