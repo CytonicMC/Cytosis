@@ -19,4 +19,4 @@ jobs:
         run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview --no-daemon assemble
 
       - name: Run Compiled Artifact
-        run: java --enable-preview -jar build/libs/cytosis.jar  --ci-test
+        run: java --enable-preview -jar build/libs/cytosis.jar --ci-test
