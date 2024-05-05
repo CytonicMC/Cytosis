@@ -5,6 +5,7 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.MessagingManager;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -33,6 +34,7 @@ public class Cytosis {
     private static CommandManager COMMAND_MANAGER;
     private static CommandHandler COMMAND_HANDLER;
     private static FileManager FILE_MANAGER;
+    private static MessagingManager MESSAGE_MANAGER;
 
     private static ConsoleSender CONSOLE_SENDER;
 
@@ -52,6 +54,7 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
+
 
         // Commands
         Logger.info("Starting command manager.");
@@ -147,6 +150,15 @@ public class Cytosis {
         COMMAND_HANDLER = new CommandHandler();
         COMMAND_HANDLER.setupConsole();
         COMMAND_HANDLER.registerCystosisCommands();
+
+        MESSAGE_MANAGER = new MessagingManager();
+        MESSAGE_MANAGER.initialize().whenComplete((_, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst initializing the messaging manager!", throwable);
+            } else {
+                Logger.info("Messaging manager initialized!");
+            }
+        });
 
         // Start the server
         Logger.info("Server started on port 25565");

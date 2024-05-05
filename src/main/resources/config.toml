@@ -17,3 +17,9 @@ player_ip = true  # Log player IP addresses
 player_chat = true  # Log player chat messages
 player_command = true  # Log commands issued by players
 
+[rabbitmq]
+enabled = false
+host = ""  # RabbitMQ host or IP address
+port = 5672  # Default RabbitMQ port
+username = "" # username login to RabbitMQ server
+password = "" # password to login to RabbitMQ server

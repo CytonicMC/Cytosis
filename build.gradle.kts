@@ -23,6 +23,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.16.0")// better components
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
+    implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
 }
 
 tasks.withType<Jar> {
