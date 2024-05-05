@@ -9,7 +9,8 @@ use_ssl = false # Whether to use SSL
 
 # server stuff
 [server]
-online_mode = true
+proxy_mode = true
+secret = "hi i am the secret" # this can NOT be empty
 port = 25565
 
 # Logging Configuration
