@@ -44,12 +44,14 @@ public class Database {
 
     public void connect() {
         worker.submit(() -> {
-            if (!isConnected()) {
-                try {
-                    connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true", username, password);
-                } catch (SQLException e) {
-                    Logger.error("Invalid Database Credentials!",e);
-                    MinecraftServer.stopCleanly();
+            if (CytosisSettings.DATABASE_ENABLED) {
+                if (!isConnected()) {
+                    try {
+                        connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true", username, password);
+                    } catch (SQLException e) {
+                        Logger.error("Invalid Database Credentials!", e);
+                        MinecraftServer.stopCleanly();
+                    }
                 }
             }
         });

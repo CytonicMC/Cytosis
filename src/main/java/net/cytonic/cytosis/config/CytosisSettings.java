@@ -15,6 +15,7 @@ public class CytosisSettings {
     public static boolean LOG_PLAYER_CHAT = true;
 
     // Database
+    public static boolean DATABASE_ENABLED = true;
     public static String DATABASE_USER = "";
     public static String DATABASE_PASSWORD = "";
     public static String DATABASE_HOST = "";
@@ -46,6 +47,7 @@ public class CytosisSettings {
                     case "logging.player_chat" -> LOG_PLAYER_CHAT = (boolean) value;
 
                     // database
+                    case "database.enabled" -> DATABASE_ENABLED = (boolean) value;
                     case "database.user" -> DATABASE_USER = (String) value;
                     case "database.password" -> DATABASE_PASSWORD = (String) value;
                     case "database.host" -> DATABASE_HOST = (String) value;
@@ -87,6 +89,7 @@ public class CytosisSettings {
         if (!(System.getenv("LOG_PLAYER_COMMANDS") == null)) CytosisSettings.LOG_PLAYER_COMMANDS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_COMMANDS"));
         if (!(System.getenv("LOG_PLAYER_CHAT") == null)) CytosisSettings.LOG_PLAYER_CHAT = Boolean.parseBoolean(System.getenv("LOG_PLAYER_CHAT"));
         // database
+        if (!(System.getenv("DATABASE_ENABLED") == null)) CytosisSettings.DATABASE_ENABLED = Boolean.parseBoolean(System.getenv("DATABASE_ENABLED"));
         if (!(System.getenv("DATABASE_USER") == null)) CytosisSettings.DATABASE_USER = System.getenv("DATABASE_USER");
         if (!(System.getenv("DATABASE_PASSWORD") == null)) CytosisSettings.DATABASE_PASSWORD = System.getenv("DATABASE_PASSWORD");
         if (!(System.getenv("DATABASE_HOST") == null)) CytosisSettings.DATABASE_HOST = System.getenv("DATABASE_HOST");

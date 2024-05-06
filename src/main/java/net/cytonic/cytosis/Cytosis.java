@@ -43,6 +43,7 @@ public class Cytosis {
 
     public static void main(String[] args) {
         FLAGS = List.of(args);
+        Logger.info(STR."args = \{FLAGS}");
         //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
@@ -184,7 +185,6 @@ public class Cytosis {
         });
       
         SERVER_PORT = CytosisSettings.SERVER_PORT;
-
         // Start the server
         Logger.info(STR."Server started on port \{SERVER_PORT}");
         MINECRAFT_SERVER.start("0.0.0.0", SERVER_PORT);
@@ -192,7 +192,7 @@ public class Cytosis {
         long end = System.currentTimeMillis();
         Logger.info(STR."Server started in \{end - start}ms!");
 
-        if (FLAGS.contains("--ci-test")) {
+            if (FLAGS.contains("--ci-test")) {
             Logger.info("Stopping server due to '--ci-test' flag.");
             MinecraftServer.stopCleanly();
         }
