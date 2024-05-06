@@ -2,6 +2,7 @@ package net.cytonic.cytosis;
 
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -81,6 +82,7 @@ public class Cytosis {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
                 Logger.info("File manager initialized!");
+                CytosisSettings.loadEnvironmentVariables();
                 if (CytosisSettings.SERVER_PROXY_MODE) {
                     Logger.info("Enabling velocity!");
                     VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
