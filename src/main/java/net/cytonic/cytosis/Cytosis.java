@@ -43,7 +43,6 @@ public class Cytosis {
 
     public static void main(String[] args) {
         FLAGS = List.of(args);
-        Logger.info(STR."args = \{FLAGS}");
         //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
