@@ -13,7 +13,6 @@ public class CytosisSettings {
     public static boolean LOG_PLAYER_QUITS = true;
     public static boolean LOG_PLAYER_COMMANDS = true;
     public static boolean LOG_PLAYER_CHAT = true;
-
     // Database
     public static boolean DATABASE_ENABLED = true;
     public static String DATABASE_USER = "";
@@ -26,7 +25,6 @@ public class CytosisSettings {
     public static boolean SERVER_PROXY_MODE = false;
     public static String SERVER_SECRET = "";
     public static int SERVER_PORT = 25565;
-
     // RabbitMQ
     public static boolean RABBITMQ_ENABLED = false;
     public static String RABBITMQ_HOST = "";

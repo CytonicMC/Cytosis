@@ -22,7 +22,6 @@ import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import java.util.*;
 
-
 public class Cytosis {
 
     // manager stuff
@@ -38,7 +37,6 @@ public class Cytosis {
     private static MessagingManager MESSAGE_MANAGER;
     private static ConsoleSender CONSOLE_SENDER;
     private static int SERVER_PORT;
-
     private static List<String> FLAGS;
 
     public static void main(String[] args) {
@@ -55,7 +53,6 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
-
 
         Logger.info("Starting manager.");
         DATABASE_MANAGER = new DatabaseManager();

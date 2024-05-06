@@ -15,11 +15,9 @@ public class GamemodeCommand extends Command {
         super("gamemode", "gm");
         setCondition((sender, commandString) -> sender.hasPermission("cytosis.commands.gamemode"));
         setDefaultExecutor((sender, context) -> sender.sendMessage(Component.text("You must specify a gamemode!", NamedTextColor.RED)));
-
         // using a gamemode as an argument
         var gameModeArgument = ArgumentType.Enum("gamemode", GameMode.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         gameModeArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The gamemode \{exception.getInput()} is invalid!"));
-
         var shorthand = ArgumentType.Word("shorthand").from("c", "s", "sv", "a", "0", "1", "2", "3");
         shorthand.setSuggestionCallback((sender, context, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("c", Component.text("Represents the Creative gamemode")));
@@ -28,7 +26,6 @@ public class GamemodeCommand extends Command {
             suggestion.addEntry(new SuggestionEntry("a", Component.text("Represents the Adventure gamemode")));
         });
         shorthand.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The shorthand '\{exception.getInput()}' is invalid!", NamedTextColor.RED)));
-
         addSyntax((sender, context) -> {
             if (sender instanceof final Player player) {
                 final GameMode gameMode = context.get(gameModeArgument);
