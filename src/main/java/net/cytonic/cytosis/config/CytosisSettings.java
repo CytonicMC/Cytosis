@@ -104,4 +104,31 @@ public class CytosisSettings {
         if (!(System.getenv("RABBITMQ_USERNAME") == null)) CytosisSettings.RABBITMQ_USERNAME = System.getenv("RABBITMQ_USERNAME");
         if (!(System.getenv("RABBITMQ_PORT") == null)) CytosisSettings.RABBITMQ_PORT = Integer.parseInt(System.getenv("RABBITMQ_PORT"));
     }
+
+    public static void loadCommandArgs() {
+        Logger.info("Loading command args!");
+        // logging
+        if (!(System.getProperty("LOG_PLAYER_IPS") == null)) CytosisSettings.LOG_PLAYER_IPS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_IPS"));
+        if (!(System.getProperty("LOG_PLAYER_JOINS") == null)) CytosisSettings.LOG_PLAYER_JOINS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_JOINS"));
+        if (!(System.getProperty("LOG_PLAYER_QUITS") == null)) CytosisSettings.LOG_PLAYER_QUITS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_QUITS"));
+        if (!(System.getProperty("LOG_PLAYER_COMMANDS") == null)) CytosisSettings.LOG_PLAYER_COMMANDS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_COMMANDS"));
+        if (!(System.getProperty("LOG_PLAYER_CHAT") == null)) CytosisSettings.LOG_PLAYER_CHAT = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_CHAT"));
+        // database
+        if (!(System.getProperty("DATABASE_USER") == null)) CytosisSettings.DATABASE_USER = System.getProperty("DATABASE_USER");
+        if (!(System.getProperty("DATABASE_PASSWORD") == null)) CytosisSettings.DATABASE_PASSWORD = System.getProperty("DATABASE_PASSWORD");
+        if (!(System.getProperty("DATABASE_HOST") == null)) CytosisSettings.DATABASE_HOST = System.getProperty("DATABASE_HOST");
+        if (!(System.getProperty("DATABASE_PORT") == null)) CytosisSettings.DATABASE_PORT = Integer.parseInt((System.getProperty("DATABASE_PORT")));
+        if (!(System.getProperty("DATABASE_NAME") == null)) CytosisSettings.DATABASE_NAME = System.getProperty("DATABASE_NAME");
+        if (!(System.getProperty("DATABASE_USE_SSL") == null)) CytosisSettings.DATABASE_USE_SSL = Boolean.parseBoolean(System.getProperty("DATABASE_USE_SSL"));
+        //server
+        if (!(System.getProperty("SERVER_PROXY_MODE") == null)) CytosisSettings.SERVER_PROXY_MODE = Boolean.parseBoolean(System.getProperty("SERVER_PROXY_MODE"));
+        if (!(System.getProperty("SERVER_SECRET") == null)) CytosisSettings.SERVER_SECRET = System.getProperty("SERVER_SECRET");
+        if (!(System.getProperty("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
+        // RabbitMQ
+        if (!(System.getProperty("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getProperty("RABBITMQ_ENABLED"));
+        if (!(System.getProperty("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getProperty("RABBITMQ_HOST");
+        if (!(System.getProperty("RABBITMQ_PASSWORD") == null)) CytosisSettings.RABBITMQ_PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
+        if (!(System.getProperty("RABBITMQ_USERNAME") == null)) CytosisSettings.RABBITMQ_USERNAME = System.getProperty("RABBITMQ_USERNAME");
+        if (!(System.getProperty("RABBITMQ_PORT") == null)) CytosisSettings.RABBITMQ_PORT = Integer.parseInt(System.getProperty("RABBITMQ_PORT"));
+    }
 }
