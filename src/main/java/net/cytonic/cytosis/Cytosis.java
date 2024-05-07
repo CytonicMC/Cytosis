@@ -83,6 +83,7 @@ public class Cytosis {
             } else {
                 Logger.info("File manager initialized!");
                 CytosisSettings.loadEnvironmentVariables();
+                CytosisSettings.loadCommandArgs();
                 if (CytosisSettings.SERVER_PROXY_MODE) {
                     Logger.info("Enabling velocity!");
                     VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
