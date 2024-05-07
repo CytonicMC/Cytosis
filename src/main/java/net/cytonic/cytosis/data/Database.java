@@ -44,14 +44,12 @@ public class Database {
 
     public void connect() {
         worker.submit(() -> {
-            if (CytosisSettings.DATABASE_ENABLED) {
-                if (!isConnected()) {
-                    try {
-                        connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true", username, password);
-                    } catch (SQLException e) {
-                        Logger.error("Invalid Database Credentials!", e);
-                        MinecraftServer.stopCleanly();
-                    }
+            if (!isConnected()) {
+                try {
+                    connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true", username, password);
+                } catch (SQLException e) {
+                    Logger.error("Invalid Database Credentials!", e);
+                    MinecraftServer.stopCleanly();
                 }
             }
         });
@@ -83,7 +81,7 @@ public class Database {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicchat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst fetching data from the database. Please report the following stacktrace to Foxikle:",e);
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Foxikle:",e);
                 }
             }
         });

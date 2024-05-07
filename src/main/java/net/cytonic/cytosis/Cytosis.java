@@ -161,8 +161,10 @@ public class Cytosis {
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
 
-        Logger.info("Initializing database");
-        DATABASE_MANAGER.setupDatabase();
+        if (CytosisSettings.DATABASE_ENABLED) {
+            Logger.info("Initializing database");
+            DATABASE_MANAGER.setupDatabase();
+        }
 
         MinecraftServer.getSchedulerManager().buildShutdownTask(() -> DATABASE_MANAGER.shutdown());
 
