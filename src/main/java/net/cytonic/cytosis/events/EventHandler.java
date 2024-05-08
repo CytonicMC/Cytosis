@@ -192,5 +192,8 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(ClientPingServerEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerListPingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerTickMonitorEvent.class, (this::handleEvent));
+
+        // Cytosis Events
+        GLOBAL_HANDLER.addListener(PlayerRankSetupEvent.class, (this::handleEvent));
     }
 }
