@@ -1,5 +1,6 @@
 package net.cytonic.cytosis;
 
+import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.events.EventHandler;
@@ -7,6 +8,7 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.ranks.RankManager;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -19,24 +21,38 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+
 import java.util.*;
 
 
+@Getter
 public class Cytosis {
 
     // manager stuff
-    private static MinecraftServer MINECRAFT_SERVER;
-    private static InstanceManager INSTANCE_MANAGER;
-    private static InstanceContainer DEFAULT_INSTANCE;
-    private static EventHandler EVENT_HANDLER;
-    private static ConnectionManager CONNECTION_MANAGER;
-    private static CommandManager COMMAND_MANAGER;
-    private static CommandHandler COMMAND_HANDLER;
-    private static FileManager FILE_MANAGER;
-    private static DatabaseManager DATABASE_MANAGER;
-    private static MessagingManager MESSAGE_MANAGER;
-    private static ConsoleSender CONSOLE_SENDER;
-    private static int SERVER_PORT;
+    @Getter
+    private static MinecraftServer minecraftServer;
+    @Getter
+    private static InstanceManager instanceManager;
+    @Getter
+    private static InstanceContainer defaultInstance;
+    @Getter
+    private static EventHandler eventHandler;
+    @Getter
+    private static ConnectionManager connectionManager;
+    @Getter
+    private static CommandManager commandManager;
+    @Getter
+    private static CommandHandler commandHandler;
+    @Getter
+    private static FileManager fileManager;
+    @Getter
+    private static DatabaseManager databaseManager;
+    @Getter
+    private static MessagingManager messagingManager;
+    @Getter
+    private static ConsoleSender consoleSender;
+    @Getter
+    private static RankManager rankManager;
 
     private static List<String> FLAGS;
 
@@ -46,37 +62,37 @@ public class Cytosis {
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
-        MINECRAFT_SERVER = MinecraftServer.init();
+        minecraftServer = MinecraftServer.init();
         MinecraftServer.setBrandName("Cytosis");
 
         Logger.info("Starting instance manager.");
-        INSTANCE_MANAGER = MinecraftServer.getInstanceManager();
+        instanceManager = MinecraftServer.getInstanceManager();
 
         Logger.info("Starting connection manager.");
-        CONNECTION_MANAGER = MinecraftServer.getConnectionManager();
+        connectionManager = MinecraftServer.getConnectionManager();
 
 
         Logger.info("Starting manager.");
-        DATABASE_MANAGER = new DatabaseManager();
+        databaseManager = new DatabaseManager();
 
         // Commands
         Logger.info("Starting command manager.");
-        COMMAND_MANAGER = MinecraftServer.getCommandManager();
+        commandManager = MinecraftServer.getCommandManager();
 
         Logger.info("Setting console command sender.");
-        CONSOLE_SENDER = COMMAND_MANAGER.getConsoleSender();
-        CONSOLE_SENDER.addPermission(new Permission("*"));
+        consoleSender = commandManager.getConsoleSender();
+        consoleSender.addPermission(new Permission("*"));
 
         // instances
         Logger.info("Creating instance container");
-        DEFAULT_INSTANCE = INSTANCE_MANAGER.createInstanceContainer();
+        defaultInstance = instanceManager.createInstanceContainer();
 
         Logger.info("Creating file manager");
-        FILE_MANAGER = new FileManager();
+        fileManager = new FileManager();
 
         // Everything after this point depends on config contents
         Logger.info("Initializing file manager");
-        FILE_MANAGER.init().whenComplete((_, throwable) -> {
+        fileManager.init().whenComplete((_, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
@@ -91,29 +107,9 @@ public class Cytosis {
         });
     }
 
-    public static EventHandler getEventHandler() {
-        return EVENT_HANDLER;
-    }
-
-    public static InstanceContainer getDefaultInstance() {
-        return DEFAULT_INSTANCE;
-    }
-
-    public static ConnectionManager getConnectionManager() {
-        return CONNECTION_MANAGER;
-    }
-
-    public static CommandManager getCommandManager() {
-        return COMMAND_MANAGER;
-    }
-
-    public static DatabaseManager getDatabaseManager() {
-        return DATABASE_MANAGER;
-    }
-
     public static Set<Player> getOnlinePlayers() {
         Set<Player> players = new HashSet<>();
-        INSTANCE_MANAGER.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
+        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
         return players;
     }
 
@@ -140,10 +136,6 @@ public class Cytosis {
         player.removePermission("*"); // remove every permission
     }
 
-    public static ConsoleSender getConsoleSender() {
-        return CONSOLE_SENDER;
-    }
-
     public static void mojangAuth() {
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
@@ -152,40 +144,42 @@ public class Cytosis {
     public static void completeNonEssentialTasks(long start) {
         // basic world generator
         Logger.info("Generating basic world");
-        DEFAULT_INSTANCE.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-        DEFAULT_INSTANCE.setChunkSupplier(LightingChunk::new);
+        defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+        defaultInstance.setChunkSupplier(LightingChunk::new);
 
         Logger.info("Setting up event handlers");
-        EVENT_HANDLER = new EventHandler(MinecraftServer.getGlobalEventHandler());
-        EVENT_HANDLER.init();
+        eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
+        eventHandler.init();
 
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
 
         Logger.info("Initializing database");
-        DATABASE_MANAGER.setupDatabase();
+        databaseManager.setupDatabase();
 
-        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> DATABASE_MANAGER.shutdown());
+        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> databaseManager.shutdown());
 
         Logger.info("Initializing server commands");
-        COMMAND_HANDLER = new CommandHandler();
-        COMMAND_HANDLER.setupConsole();
-        COMMAND_HANDLER.registerCystosisCommands();
+        commandHandler = new CommandHandler();
+        commandHandler.setupConsole();
+        commandHandler.registerCystosisCommands();
 
-        MESSAGE_MANAGER = new MessagingManager();
-        MESSAGE_MANAGER.initialize().whenComplete((_, throwable) -> {
+        messagingManager = new MessagingManager();
+        messagingManager.initialize().whenComplete((_, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the messaging manager!", throwable);
             } else {
                 Logger.info("Messaging manager initialized!");
             }
         });
-      
-        SERVER_PORT = CytosisSettings.SERVER_PORT;
+
+        Logger.info("Initializing Rank Manager");
+        rankManager = new RankManager();
+        rankManager.init();
 
         // Start the server
-        Logger.info(STR."Server started on port \{SERVER_PORT}");
-        MINECRAFT_SERVER.start("0.0.0.0", SERVER_PORT);
+        Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
+        minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
       
         long end = System.currentTimeMillis();
         Logger.info(STR."Server started in \{end - start}ms!");
