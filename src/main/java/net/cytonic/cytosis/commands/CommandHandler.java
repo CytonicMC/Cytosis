@@ -2,6 +2,8 @@ package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.command.CommandManager;
+import net.minestom.server.entity.Player;
+
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,7 +22,11 @@ public class CommandHandler {
     public void registerCystosisCommands() {
         CommandManager cm = Cytosis.getCommandManager();
         cm.register(new GamemodeCommand());
-        cm.register(new OperatorCommand());
+        cm.register(new RankCommand());
+    }
+
+    public void recalculateCommands(Player player) {
+        player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }
 
     public void setupConsole() {
