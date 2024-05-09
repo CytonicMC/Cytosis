@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.messaging;
 
 import net.cytonic.cytosis.config.CytosisSettings;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingManager {
+
     private final RabbitMQ rabbitMQ;
     private final ExecutorService worker;
 

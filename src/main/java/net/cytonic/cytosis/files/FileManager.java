@@ -57,7 +57,6 @@ public class FileManager {
                             future.complete(file);
                         } catch (IllegalStateException | IOException e) {
                             Logger.error("An error occurred whilst parsing the config.toml file!", e);
-
                             future.completeExceptionally(e);
                         }
                     });
@@ -75,7 +74,6 @@ public class FileManager {
                 future.complete(CONFIG_PATH.toFile());
             }
         });
-
         return future;
     }
 
@@ -122,13 +120,10 @@ public class FileManager {
         if (!parentKey.equalsIgnoreCase("")) {
             parentKey = STR."\{parentKey}.";
         }
-
         Map<String, Object> resultMap = new HashMap<>();
-
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = STR."\{parentKey}\{entry.getKey()}";
             Object value = entry.getValue();
-
             // If the value is a nested table (another map), recurse
             if (value instanceof TomlTable toml) {
                 resultMap.putAll(recursiveParse(toml.toMap(), key));
@@ -136,9 +131,8 @@ public class FileManager {
             // If it's a list, check for nested tables within the list
             else if (value instanceof Iterable<?> iterable) {
                 for (Object item : iterable) {
-                    if (item instanceof TomlTable toml) {
+                    if (item instanceof TomlTable toml)
                         resultMap.putAll(recursiveParse(toml.toMap(), key));
-                    }
                 }
             } else {
                 resultMap.put(key, value);

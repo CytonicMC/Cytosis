@@ -17,7 +17,6 @@ import net.minestom.server.event.server.ClientPingServerEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.event.trait.CancellableEvent;
-
 import java.util.*;
 
 /**
@@ -79,14 +78,12 @@ public class EventHandler {
 
     public <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
-
         for (EventListener<? extends Event> listener : NAMESPACED_HANDLERS.values()) {
             if (listener.getEventClass() == event.getClass() &&
                     !(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled())) {
                 matchingListeners.add(listener);
             }
         }
-
         // Sort listeners by priority
         matchingListeners.sort(Comparator.comparingInt(EventListener::getPriority));
 
@@ -95,7 +92,6 @@ public class EventHandler {
                 listener.complete(event);
         }
     }
-
 
     private void setupInternalListeners() {
         //book events
@@ -113,12 +109,10 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(EntitySpawnEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityTickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityVelocityEvent.class, (this::handleEvent));
-
         //projectile events
         GLOBAL_HANDLER.addListener(ProjectileCollideWithBlockEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ProjectileCollideWithEntityEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ProjectileUncollideEvent.class, (this::handleEvent));
-
         // Instance events
         GLOBAL_HANDLER.addListener(AddEntityToInstanceEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InstanceChunkLoadEvent.class, (this::handleEvent));
@@ -127,7 +121,6 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(InstanceTickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InstanceUnregisterEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(RemoveEntityFromInstanceEvent.class, (this::handleEvent));
-
         // Inventory Events
         GLOBAL_HANDLER.addListener(InventoryClickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InventoryCloseEvent.class, (this::handleEvent));
@@ -135,14 +128,12 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(InventoryOpenEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InventoryPreClickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerInventoryItemChangeEvent.class, (this::handleEvent));
-
         // Item Events
         GLOBAL_HANDLER.addListener(EntityEquipEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ItemDropEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ItemUpdateStateEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PickupExperienceEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PickupItemEvent.class, (this::handleEvent));
-
         // player events
         GLOBAL_HANDLER.addListener(AdvancementTabEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(AsyncPlayerConfigurationEvent.class, (this::handleEvent));
@@ -189,7 +180,6 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(PlayerUseItemEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerUseItemOnBlockEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(UpdateTagListEvent.class, (this::handleEvent)); // deprecated
-
         // Server
         GLOBAL_HANDLER.addListener(ClientPingServerEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerListPingEvent.class, (this::handleEvent));

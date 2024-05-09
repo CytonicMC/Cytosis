@@ -2,7 +2,6 @@ package net.cytonic.cytosis.events;
 
 import lombok.Getter;
 import net.minestom.server.event.Event;
-
 import java.util.function.Consumer;
 
 @Getter
@@ -30,7 +29,6 @@ public class EventListener<T extends Event> {
         this.priority = priority;
         this.namespace = namespace;
     }
-
 
     /**
      * Constructs a new instance of {@link EventListener} with the specified namespace, priority, and consumer. It will be executed synchronously.
