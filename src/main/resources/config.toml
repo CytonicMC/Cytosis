@@ -18,6 +18,7 @@ password = "" #No username :)
 proxy_mode = true
 secret = "hi i am the secret" # this can NOT be empty
 port = 25565
+world_name = ""
 
 # Logging Configuration
 # Enable/disable logging for various player activities

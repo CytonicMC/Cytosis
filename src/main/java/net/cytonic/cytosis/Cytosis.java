@@ -10,6 +10,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.ranks.RankManager;
+import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -22,14 +23,11 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
-
 
 @Getter
 public class Cytosis {
-    public static final String SERVER_ID = generateID();
+
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -55,9 +53,6 @@ public class Cytosis {
     private static ConsoleSender consoleSender;
     @Getter
     private static RankManager rankManager;
-    @Nullable
-    @Getter
-    private static CytonicNetwork cytonicNetwork;
 
     private static List<String> FLAGS;
 
@@ -75,10 +70,6 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         connectionManager = MinecraftServer.getConnectionManager();
-
-
-        Logger.info("Starting manager.");
-        databaseManager = new DatabaseManager();
 
         // Commands
         Logger.info("Starting command manager.");
@@ -107,7 +98,7 @@ public class Cytosis {
                 if (CytosisSettings.SERVER_PROXY_MODE) {
                     Logger.info("Enabling velocity!");
                     VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
-                } else setOnlineMode();
+                } else mojangAuth();
                 Logger.info("Completing nonessential startup tasks.");
                 completeNonEssentialTasks(start);
             }
@@ -120,12 +111,6 @@ public class Cytosis {
         return players;
     }
 
-    /**
-     * Gets the player if they are on THIS instance, by username
-     *
-     * @param username The username to fetch the player by
-     * @return The optional holding the player, if it exists.
-     */
     public static Optional<Player> getPlayer(String username) {
         Player target = null;
         for (Player onlinePlayer : getOnlinePlayers())
@@ -133,12 +118,6 @@ public class Cytosis {
         return Optional.ofNullable(target);
     }
 
-    /**
-     * Gets the player if they are on THIS instance, by UUID
-     *
-     * @param uuid The uuid to fetch the player by
-     * @return The optional holding the player if they exist
-     */
     public static Optional<Player> getPlayer(UUID uuid) {
         Player target = null;
         for (Player onlinePlayer : getOnlinePlayers()) {
@@ -155,20 +134,36 @@ public class Cytosis {
         player.removePermission("*"); // remove every permission
     }
 
-    /**
-     * Initiailizes Mojang authentication, enabling online mode
-     */
-    public static void setOnlineMode() {
+    public static void mojangAuth() {
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
     }
 
-    public static void completeNonEssentialTasks(long start) {
-        // basic world generator
-        Logger.info("Generating basic world");
-        defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-        defaultInstance.setChunkSupplier(LightingChunk::new);
+    public static void loadWorld() {
+        if (CytosisSettings.SERVER_WORLD_NAME.isEmpty()) {
+            Logger.info("Generating basic world");
+            defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+            defaultInstance.setChunkSupplier(LightingChunk::new);
+            Logger.info("Basic world loaded!");
+            return;
+        }
+        Logger.info(STR."Loading world '\{CytosisSettings.SERVER_WORLD_NAME}'");
+        databaseManager.getDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst initializing the world!", throwable);
+            } else {
+                defaultInstance.setChunkLoader(new PolarLoader(polarWorld));
+                defaultInstance.setChunkSupplier(LightingChunk::new);
+                Logger.info("World loaded!");
+            }
+        });
+    }
 
+    public static void completeNonEssentialTasks(long start) {
+        Logger.info("Initializing database");
+        databaseManager = new DatabaseManager();
+        databaseManager.setupDatabase();
+        Logger.info("Database initialized!");
         Logger.info("Setting up event handlers");
         eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
         eventHandler.init();
@@ -176,12 +171,9 @@ public class Cytosis {
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
 
-        Logger.info("Initializing database");
-        databaseManager.setupDatabases();
-
         MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
             databaseManager.shutdown();
-            messagingManager.shutdown();
+            Logger.info("Good night!");
         });
 
         Logger.info("Initializing server commands");
@@ -202,13 +194,6 @@ public class Cytosis {
         rankManager = new RankManager();
         rankManager.init();
 
-        if (CytosisSettings.SERVER_PROXY_MODE) {
-            Logger.info("Loading network setup!");
-            cytonicNetwork = new CytonicNetwork();
-            cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
-        }
-
-
         // Start the server
         Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
         minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
@@ -220,17 +205,5 @@ public class Cytosis {
             Logger.info("Stopping server due to '--ci-test' flag.");
             MinecraftServer.stopCleanly();
         }
-    }
-
-    private static String generateID() {
-        //todo: make a check for existing server ids
-        StringBuilder id = new StringBuilder("Cytosis-");
-        Random random = new Random();
-        id.append((char) (random.nextInt(26) + 'a'));
-        for (int i = 0; i < 4; i++) {
-            id.append(random.nextInt(10));
-        }
-        id.append((char) (random.nextInt(26) + 'a'));
-        return id.toString();
     }
 }
