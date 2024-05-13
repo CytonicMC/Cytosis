@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.data;
 
 import lombok.Getter;
-import net.cytonic.cytosis.logging.Logger;
 
 @Getter
 public class DatabaseManager {
@@ -12,14 +11,12 @@ public class DatabaseManager {
     }
 
     public void shutdown() {
-            database.disconnect();
-            Logger.info("Good night!");
+        database.disconnect();
     }
 
     public void setupDatabase() {
-            database = new Database();
-            database.connect();
+        database = new Database();
+        database.connect();
         database.createTables();
     }
-
 }

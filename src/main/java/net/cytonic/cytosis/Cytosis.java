@@ -10,6 +10,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.ranks.RankManager;
+import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -22,9 +23,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-
 import java.util.*;
-
 
 @Getter
 public class Cytosis {
@@ -71,10 +70,6 @@ public class Cytosis {
 
         Logger.info("Starting connection manager.");
         connectionManager = MinecraftServer.getConnectionManager();
-
-
-        Logger.info("Starting manager.");
-        databaseManager = new DatabaseManager();
 
         // Commands
         Logger.info("Starting command manager.");
@@ -144,12 +139,31 @@ public class Cytosis {
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
     }
 
-    public static void completeNonEssentialTasks(long start) {
-        // basic world generator
-        Logger.info("Generating basic world");
-        defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-        defaultInstance.setChunkSupplier(LightingChunk::new);
+    public static void loadWorld() {
+        if (CytosisSettings.SERVER_WORLD_NAME.isEmpty()) {
+            Logger.info("Generating basic world");
+            defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+            defaultInstance.setChunkSupplier(LightingChunk::new);
+            Logger.info("Basic world loaded!");
+            return;
+        }
+        Logger.info(STR."Loading world '\{CytosisSettings.SERVER_WORLD_NAME}'");
+        databaseManager.getDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst initializing the world!", throwable);
+            } else {
+                defaultInstance.setChunkLoader(new PolarLoader(polarWorld));
+                defaultInstance.setChunkSupplier(LightingChunk::new);
+                Logger.info("World loaded!");
+            }
+        });
+    }
 
+    public static void completeNonEssentialTasks(long start) {
+        Logger.info("Initializing database");
+        databaseManager = new DatabaseManager();
+        databaseManager.setupDatabase();
+        Logger.info("Database initialized!");
         Logger.info("Setting up event handlers");
         eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
         eventHandler.init();
@@ -157,10 +171,10 @@ public class Cytosis {
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
 
-        Logger.info("Initializing database");
-        databaseManager.setupDatabase();
-
-        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> databaseManager.shutdown());
+        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
+            databaseManager.shutdown();
+            Logger.info("Good night!");
+        });
 
         Logger.info("Initializing server commands");
         commandHandler = new CommandHandler();
@@ -183,7 +197,7 @@ public class Cytosis {
         // Start the server
         Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
         minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
-      
+
         long end = System.currentTimeMillis();
         Logger.info(STR."Server started in \{end - start}ms!");
 

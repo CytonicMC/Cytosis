@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.logging.Logger;
+import net.minestom.server.coordinate.Pos;
 import java.util.Map;
 
 /**
@@ -25,6 +26,8 @@ public class CytosisSettings {
     public static boolean SERVER_PROXY_MODE = false;
     public static String SERVER_SECRET = "";
     public static int SERVER_PORT = 25565;
+    public static String SERVER_WORLD_NAME = "";
+    public static Pos SERVER_SPAWN_POS = new Pos(0,1,0);
     // RabbitMQ
     public static boolean RABBITMQ_ENABLED = false;
     public static String RABBITMQ_HOST = "";
@@ -57,6 +60,7 @@ public class CytosisSettings {
                     case "server.proxy_mode" -> SERVER_PROXY_MODE = (boolean) value;
                     case "server.secret" -> SERVER_SECRET = (String) value;
                     case "server.port" -> SERVER_PORT = toInt(value);
+                    case "server.world_name" -> SERVER_WORLD_NAME = (String) value;
 
                     // RabbitMQ
                     case "rabbitmq.host" -> RABBITMQ_HOST = (String) value;
@@ -98,6 +102,7 @@ public class CytosisSettings {
         if (!(System.getenv("SERVER_PROXY_MODE") == null)) CytosisSettings.SERVER_PROXY_MODE = Boolean.parseBoolean(System.getenv("SERVER_PROXY_MODE"));
         if (!(System.getenv("SERVER_SECRET") == null)) CytosisSettings.SERVER_SECRET = System.getenv("SERVER_SECRET");
         if (!(System.getenv("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
+        if (!(System.getenv("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getenv("SERVER_WORLD_NAME");
         // RabbitMQ
         if (!(System.getenv("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getenv("RABBITMQ_ENABLED"));
         if (!(System.getenv("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getenv("RABBITMQ_HOST");
@@ -125,6 +130,7 @@ public class CytosisSettings {
         if (!(System.getProperty("SERVER_PROXY_MODE") == null)) CytosisSettings.SERVER_PROXY_MODE = Boolean.parseBoolean(System.getProperty("SERVER_PROXY_MODE"));
         if (!(System.getProperty("SERVER_SECRET") == null)) CytosisSettings.SERVER_SECRET = System.getProperty("SERVER_SECRET");
         if (!(System.getProperty("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
+        if (!(System.getProperty("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getProperty("SERVER_WORLD_NAME");
         // RabbitMQ
         if (!(System.getProperty("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getProperty("RABBITMQ_ENABLED"));
         if (!(System.getProperty("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getProperty("RABBITMQ_HOST");
