@@ -116,6 +116,12 @@ public class Cytosis {
         return players;
     }
 
+    /**
+     * Gets the player if they are on THIS instance, by username
+     *
+     * @param username The username to fetch the player by
+     * @return The optional holding the player, if it exists.
+     */
     public static Optional<Player> getPlayer(String username) {
         Player target = null;
         for (Player onlinePlayer : getOnlinePlayers())
@@ -123,6 +129,11 @@ public class Cytosis {
         return Optional.ofNullable(target);
     }
 
+    /**
+     * Gets the player if they are on THIS instance, by UUID
+     * @param uuid The uuid to fetch the player by
+     * @return The optional holding the player if they exist
+     */
     public static Optional<Player> getPlayer(UUID uuid) {
         Player target = null;
         for (Player onlinePlayer : getOnlinePlayers()) {
