@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.PosSerializer;
 import net.minestom.server.coordinate.Pos;
 import java.util.Map;
 
@@ -61,6 +62,7 @@ public class CytosisSettings {
                     case "server.secret" -> SERVER_SECRET = (String) value;
                     case "server.port" -> SERVER_PORT = toInt(value);
                     case "server.world_name" -> SERVER_WORLD_NAME = (String) value;
+                    case "server.spawn_point" -> SERVER_SPAWN_POS = PosSerializer.deserialize((String) value);
 
                     // RabbitMQ
                     case "rabbitmq.host" -> RABBITMQ_HOST = (String) value;
@@ -103,6 +105,7 @@ public class CytosisSettings {
         if (!(System.getenv("SERVER_SECRET") == null)) CytosisSettings.SERVER_SECRET = System.getenv("SERVER_SECRET");
         if (!(System.getenv("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
         if (!(System.getenv("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getenv("SERVER_WORLD_NAME");
+        if (!(System.getenv("SERVER_SPAWN_POINT") == null)) CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(System.getenv("SERVER_SPAWN_POINT"));
         // RabbitMQ
         if (!(System.getenv("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getenv("RABBITMQ_ENABLED"));
         if (!(System.getenv("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getenv("RABBITMQ_HOST");
@@ -131,6 +134,7 @@ public class CytosisSettings {
         if (!(System.getProperty("SERVER_SECRET") == null)) CytosisSettings.SERVER_SECRET = System.getProperty("SERVER_SECRET");
         if (!(System.getProperty("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
         if (!(System.getProperty("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getProperty("SERVER_WORLD_NAME");
+        if (!(System.getProperty("SERVER_SPAWN_POINT") == null)) CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(System.getProperty("SERVER_SPAWN_POINT"));
         // RabbitMQ
         if (!(System.getProperty("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getProperty("RABBITMQ_ENABLED"));
         if (!(System.getProperty("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getProperty("RABBITMQ_HOST");
