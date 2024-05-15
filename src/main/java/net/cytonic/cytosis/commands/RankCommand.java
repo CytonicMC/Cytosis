@@ -9,9 +9,7 @@ import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
-
 import java.util.Locale;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class RankCommand extends Command {
@@ -19,7 +17,7 @@ public class RankCommand extends Command {
     public RankCommand() {
         super("rank");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.rank"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>You must specify a valid rank and player!"));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>You must specify a valid player and rank!"));
 
         var rankArg = ArgumentType.Enum("rank", PlayerRank.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         rankArg.setCallback((sender, exception) -> sender.sendMessage(STR."The rank \{exception.getInput()} is invalid!"));
@@ -50,7 +48,7 @@ public class RankCommand extends Command {
 
             Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
                 if (throwable != null) {
-                    sender.sendMessage("An error occured whilst fetching the old rank!");
+                    sender.sendMessage("An error occurred whilst fetching the old rank!");
                     return;
                 }
 
