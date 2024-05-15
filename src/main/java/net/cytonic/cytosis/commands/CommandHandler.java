@@ -3,7 +3,6 @@ package net.cytonic.cytosis.commands;
 import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
-
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
