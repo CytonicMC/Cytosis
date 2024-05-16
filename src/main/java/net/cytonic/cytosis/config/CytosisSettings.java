@@ -10,7 +10,6 @@ import java.util.Map;
  */
 public class CytosisSettings {
     // Logging
-    public static boolean LOG_PLAYER_IPS = true;
     public static boolean LOG_PLAYER_JOINS = true;
     public static boolean LOG_PLAYER_QUITS = true;
     public static boolean LOG_PLAYER_COMMANDS = true;
@@ -42,7 +41,6 @@ public class CytosisSettings {
             try {
                 switch (key.replace("\"", "")) {
                     // logging
-                    case "logging.player_ip" -> LOG_PLAYER_IPS = (boolean) value;
                     case "logging.player_join" -> LOG_PLAYER_JOINS = (boolean) value;
                     case "logging.player_quit" -> LOG_PLAYER_QUITS = (boolean) value;
                     case "logging.player_command" -> LOG_PLAYER_COMMANDS = (boolean) value;
@@ -87,7 +85,6 @@ public class CytosisSettings {
     public static void loadEnvironmentVariables() {
         Logger.info("Loading environment variables!");
         // logging
-        if (!(System.getenv("LOG_PLAYER_IPS") == null)) CytosisSettings.LOG_PLAYER_IPS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_IPS"));
         if (!(System.getenv("LOG_PLAYER_JOINS") == null)) CytosisSettings.LOG_PLAYER_JOINS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_JOINS"));
         if (!(System.getenv("LOG_PLAYER_QUITS") == null)) CytosisSettings.LOG_PLAYER_QUITS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_QUITS"));
         if (!(System.getenv("LOG_PLAYER_COMMANDS") == null)) CytosisSettings.LOG_PLAYER_COMMANDS = Boolean.parseBoolean(System.getenv("LOG_PLAYER_COMMANDS"));
@@ -117,7 +114,6 @@ public class CytosisSettings {
     public static void loadCommandArgs() {
         Logger.info("Loading command args!");
         // logging
-        if (!(System.getProperty("LOG_PLAYER_IPS") == null)) CytosisSettings.LOG_PLAYER_IPS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_IPS"));
         if (!(System.getProperty("LOG_PLAYER_JOINS") == null)) CytosisSettings.LOG_PLAYER_JOINS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_JOINS"));
         if (!(System.getProperty("LOG_PLAYER_QUITS") == null)) CytosisSettings.LOG_PLAYER_QUITS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_QUITS"));
         if (!(System.getProperty("LOG_PLAYER_COMMANDS") == null)) CytosisSettings.LOG_PLAYER_COMMANDS = Boolean.parseBoolean(System.getProperty("LOG_PLAYER_COMMANDS"));
