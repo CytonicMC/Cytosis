@@ -71,7 +71,7 @@ public class Database {
                     connection.close();
                     Logger.info("Database connection closed!");
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst disconnecting from the database. Please report the following stacktrace to Foxikle: ", e);
+                    Logger.error("An error occurred whilst disconnecting from the database.", e);
                 }
             }
         });
@@ -102,7 +102,7 @@ public class Database {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Foxikle:", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
                 }
             }
         });
@@ -233,7 +233,7 @@ public class Database {
                 ps.setString(2, message);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                Logger.error("An error occurred whilst adding a chat message.",e);
             }
         });
     }
