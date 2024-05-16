@@ -23,7 +23,7 @@ public class ServerEventListeners {
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
             final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
-            Cytosis.getDatabaseManager().getDatabase().playerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
+            Cytosis.getDatabaseManager().getDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             Cytosis.getRankManager().addPlayer(player);
         })));
 
