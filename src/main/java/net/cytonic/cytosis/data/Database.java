@@ -81,7 +81,7 @@ public class Database {
         createRanksTable();
         createChatTable();
         createWorldTable();
-        createPlayersTable();
+        createPlayerJoinsTable();
     }
 
     private Connection getConnection() {
@@ -148,13 +148,13 @@ public class Database {
         });
     }
 
-    private void createPlayersTable() {
+    private void createPlayerJoinsTable() {
         worker.submit(() -> {
             if (isConnected()) {
-                try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (joined TIMESTAMP, uuid VARCHAR(36), ip TEXT)")) {
+                try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_joins (joined TIMESTAMP, uuid VARCHAR(36), ip TEXT)")) {
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_player_joins` table.", e);
                 }
             }
         });
@@ -304,14 +304,14 @@ public class Database {
  * @param ip   The IP address of the player.
  * <p>
  * This method uses a worker thread to execute the database operation.
- * It prepares a SQL statement to insert a new record into the 'cytonic_players' table.
+ * It prepares a SQL statement to insert a new record into the 'cytonic_player_joins' table.
  * The 'joined' column is set to the current timestamp, the 'uuid' column is set to the provided UUID,
  * and the 'ip' column is set to the provided IP address.
  * If an error occurs during the database operation, it is logged using the Logger.
  */
 public void playerJoin(UUID uuid, SocketAddress ip) {
     worker.submit(() -> {
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_players (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)")) {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_player_joins (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)")) {
             ps.setString(1, uuid.toString());
             ps.setString(2, ip.toString());
             ps.executeUpdate();
