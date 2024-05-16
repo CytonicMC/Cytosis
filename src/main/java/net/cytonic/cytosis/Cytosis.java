@@ -103,7 +103,7 @@ public class Cytosis {
                 if (CytosisSettings.SERVER_PROXY_MODE) {
                     Logger.info("Enabling velocity!");
                     VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
-                } else mojangAuth();
+                } else setOnlineMode();
                 Logger.info("Completing nonessential startup tasks.");
                 completeNonEssentialTasks(start);
             }
@@ -150,7 +150,10 @@ public class Cytosis {
         player.removePermission("*"); // remove every permission
     }
 
-    public static void mojangAuth() {
+    /**
+     * Initiailizes Mojang authentication, enabling online mode
+     */
+    public static void setOnlineMode() {
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
     }
