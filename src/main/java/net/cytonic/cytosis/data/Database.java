@@ -309,7 +309,7 @@ public class Database {
  * and the 'ip' column is set to the provided IP address.
  * If an error occurs during the database operation, it is logged using the Logger.
  */
-public void playerJoin(UUID uuid, SocketAddress ip) {
+public void logPlayerJoin(UUID uuid, SocketAddress ip) {
     worker.submit(() -> {
         try (PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_player_joins (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)")) {
             ps.setString(1, uuid.toString());
