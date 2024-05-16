@@ -11,6 +11,7 @@ import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.NotNull;
+import java.net.SocketAddress;
 import java.sql.*;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -80,6 +81,7 @@ public class Database {
         createRanksTable();
         createChatTable();
         createWorldTable();
+        createPlayersTable();
     }
 
     private Connection getConnection() {
@@ -100,7 +102,7 @@ public class Database {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Foxikle:", e);
                 }
             }
         });
@@ -140,7 +142,19 @@ public class Database {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data varchar(100))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
+                }
+            }
+        });
+    }
+
+    private void createPlayersTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (joined TIMESTAMP, uuid VARCHAR(36), ip TEXT)")) {
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
                 }
             }
         });
@@ -245,7 +259,7 @@ public class Database {
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
                 ps.executeUpdate();
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a world!",e);
+                Logger.error("An error occurred whilst adding a world!", e);
             }
         });
     }
@@ -255,7 +269,7 @@ public class Database {
      *
      * @param worldName The name of the world to fetch.
      * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}.
-     *         If the world does not exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
+     * If the world does not exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
      * @throws IllegalStateException If the database connection is not open.
      */
     public CompletableFuture<PolarWorld> getWorld(String worldName) {
@@ -269,7 +283,7 @@ public class Database {
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
                     CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
-                   future.complete(world);
+                    future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");
                     throw new RuntimeException(STR."World not found: \{worldName}");
@@ -282,4 +296,28 @@ public class Database {
         });
         return future;
     }
+
+    /**
+ * Logs a player's join event to the database.
+ *
+ * @param uuid The unique identifier of the player.
+ * @param ip   The IP address of the player.
+ * <p>
+ * This method uses a worker thread to execute the database operation.
+ * It prepares a SQL statement to insert a new record into the 'cytonic_players' table.
+ * The 'joined' column is set to the current timestamp, the 'uuid' column is set to the provided UUID,
+ * and the 'ip' column is set to the provided IP address.
+ * If an error occurs during the database operation, it is logged using the Logger.
+ */
+public void playerJoin(UUID uuid, SocketAddress ip) {
+    worker.submit(() -> {
+        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_players (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)")) {
+            ps.setString(1, uuid.toString());
+            ps.setString(2, ip.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Logger.error("Failed to add a player to the database!", e);
+        }
+    });
+}
 }

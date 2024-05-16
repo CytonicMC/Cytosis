@@ -26,7 +26,6 @@ spawn_point = ""
 [logging]
 player_join = true  # Log when players join the server
 player_quit = true  # Log when players leave the server
-player_ip = true  # Log player IP addresses
 player_chat = true  # Log player chat messages
 player_command = true  # Log commands issued by players
 
