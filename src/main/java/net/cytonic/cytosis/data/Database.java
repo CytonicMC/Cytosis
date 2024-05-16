@@ -142,7 +142,7 @@ public class Database {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data varchar(100))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
                 }
             }
         });
