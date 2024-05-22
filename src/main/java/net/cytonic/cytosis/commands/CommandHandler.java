@@ -23,6 +23,7 @@ public class CommandHandler {
         CommandManager cm = Cytosis.getCommandManager();
         cm.register(new GamemodeCommand());
         cm.register(new RankCommand());
+        cm.register(new ChatChannelCommand());
         cm.register(new BanCommand());
     }
 

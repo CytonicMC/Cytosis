@@ -1,5 +1,18 @@
 package net.cytonic.cytosis.data;
 
+import java.net.SocketAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.jetbrains.annotations.NotNull;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
@@ -10,13 +23,6 @@ import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
-import org.jetbrains.annotations.NotNull;
-import java.net.SocketAddress;
-import java.sql.*;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Database {
 
@@ -82,6 +88,7 @@ public class Database {
         createChatTable();
         createWorldTable();
         createPlayerJoinsTable();
+        createChatChannelsTable();
     }
 
     private Connection getConnection() {
@@ -128,6 +135,16 @@ public class Database {
         });
     }
 
+        public void createNameTable() {
+        PreparedStatement ps;
+        try {
+            ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicnames (uuid VARCHAR(36), name VARCHAR(16), PRIMARY KEY(uuid))");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Logger.error("An error occurred whilst creating the `cytonic_names` table.", e);
+        }
+        }
+
     /**
      * Creates the 'cytonic_worlds' table in the database if it doesn't exist.
      * The table contains information about the worlds stored in the database.
@@ -143,6 +160,20 @@ public class Database {
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
+                }
+            }
+        });
+    }
+
+    private void createChatChannelsTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat_channels (player_uuid VARCHAR(36), chat_channel TEXT, PRIMARY KEY(player_uuid))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_chat_channels` table.", e);
                 }
             }
         });
@@ -236,6 +267,40 @@ public class Database {
                 Logger.error("An error occurred whilst adding a chat message.",e);
             }
         });
+    }
+
+    public String getName(UUID uuid) {
+        PreparedStatement ps;
+        try {
+            ps = connection.prepareStatement("SELECT name FROM cytonicnames WHERE uuid = ?");
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("name");
+            }
+        } catch (SQLException e) {
+            Logger.error(STR."An error occurred whilst fetching the name of '\{uuid}'");
+        }
+        return "ERROR!";
+    }
+
+    public UUID getUUID(String name) {
+        PreparedStatement ps;
+        try {
+            ps = connection.prepareStatement("SELECT uuid FROM cytonicnames WHERE name = ?");
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                try {
+                    return UUID.fromString(rs.getString("uuid"));
+                } catch (IllegalArgumentException ex) {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(STR."An error occurred whilst fetching the uuid of '\{name}'");
+        }
+        return null;
     }
 
     /**

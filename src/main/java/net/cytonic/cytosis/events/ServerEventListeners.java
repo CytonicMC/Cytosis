@@ -2,7 +2,10 @@ package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
@@ -32,6 +35,25 @@ public class ServerEventListeners {
             final Player player = event.getPlayer();
             if (CytosisSettings.LOG_PLAYER_CHAT)
                 Cytosis.getDatabaseManager().getDatabase().addChat(player.getUuid(), event.getMessage());
+            event.setCancelled(true);
+            String originalMessage = event.getMessage();
+            if(Cytosis.getChatManager().getChannel(player.getUuid()) != ChatChannel.ALL) {
+                ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
+                Component message = Component.text("")
+                    .append(channel.getPrefix())
+                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor())))
+                    .appendSpace()
+                    .append(Component.text(originalMessage, NamedTextColor.WHITE));
+                    Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
+                } else {
+                    Component message = Component.text("")
+                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor())))
+                    .appendSpace()
+                    .append(Component.text(originalMessage, NamedTextColor.WHITE));
+                    Cytosis.getOnlinePlayers().forEach((p) -> {p.sendMessage(message);});
+                }
         }));
 
         Logger.info("Registering player disconnect event.");
@@ -39,5 +61,23 @@ public class ServerEventListeners {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
         }));
+    }
+
+    public static void chatEvent(PlayerChatEvent event) {
+        Player player = event.getPlayer();
+        if(Cytosis.getChatManager().getChannel(player.getUuid()) != ChatChannel.ALL) {
+            ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
+            event.setCancelled(true);
+            String originalMessage = event.getMessage();
+            Component message = Component.text("")
+                    .append(channel.getPrefix())
+                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor())))
+                    .appendSpace()
+                    .append(Component.text(originalMessage, NamedTextColor.WHITE));
+            Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
+        } else {
+            event.setCancelled(false);
+        }
     }
 }
