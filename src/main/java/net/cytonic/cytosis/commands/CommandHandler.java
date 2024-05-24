@@ -18,7 +18,7 @@ public class CommandHandler {
         this.worker = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().name("CytosisConsoleWorker").factory());
     }
 
-    public void registerCystosisCommands() {
+    public void registerCytosisCommands() {
         CommandManager cm = Cytosis.getCommandManager();
         cm.register(new GamemodeCommand());
         cm.register(new RankCommand());
