@@ -20,6 +20,7 @@ secret = "hi i am the secret" # this can NOT be empty
 port = 25565
 world_name = ""
 spawn_point = ""
+hostname = "UNKNOWN"
 
 # Logging Configuration
 # Enable/disable logging for various player activities

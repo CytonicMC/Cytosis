@@ -6,11 +6,8 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import lombok.Getter;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.kyori.adventure.text.Component;
 
 public class MessagingManager {
 
@@ -32,7 +29,6 @@ public class MessagingManager {
                 rabbitMQ.initializeQueues();
                 rabbitMQ.sendServerDeclarationMessage();
                 rabbitMQ.receiveChatMessages();
-                rabbitMQ.sendChatMessage(Component.text("hello world!"), ChatChannel.ADMIN);
             }
             future.complete(null);
         });
