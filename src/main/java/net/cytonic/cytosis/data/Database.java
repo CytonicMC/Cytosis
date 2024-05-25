@@ -164,7 +164,7 @@ private void createChatChannelsTable() {
         if (isConnected()) {
             PreparedStatement ps;
             try {
-                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat_channels (uuid VARCHAR(36), chat_channel TEXT, PRIMARY KEY(uuid))");
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat_channels (uuid VARCHAR(36), chat_channel VARCHAR(16), PRIMARY KEY(uuid))");
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst creating the `cytonic_chat_channels` table.", e);
