@@ -40,18 +40,15 @@ public class RankCommand extends Command {
                 sender.sendMessage(MM."<red>The player \{context.get(group).getRaw("player")} doesn't exist!");
                 return;
             }
-
             if (player == sender) {
                 sender.sendMessage(MM."<red>You cannot change your own rank!");
                 return;
             }
-
             Cytosis.getDatabaseManager().getDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
                 if (throwable != null) {
                     sender.sendMessage("An error occurred whilst fetching the old rank!");
                     return;
                 }
-
                 // if it's a console we don't care (There isn't a console impl)
                 if (sender instanceof Player s) {
                     PlayerRank senderRank = Cytosis.getRankManager().getPlayerRank(s.getUuid()).orElseThrow();
@@ -60,7 +57,6 @@ public class RankCommand extends Command {
                         return;
                     }
                 }
-
                 setRank(player, newRank, sender);
             });
         }, group);

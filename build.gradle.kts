@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Minestom", "Minestom", "6b8a4e4cc9") // minstom itself
+    implementation("com.github.Minestom", "Minestom", "85942b6b27") // minestom itself
     implementation("com.google.code.gson:gson:2.10.1") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components

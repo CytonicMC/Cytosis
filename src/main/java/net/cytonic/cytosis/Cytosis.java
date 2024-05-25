@@ -1,5 +1,10 @@
 package net.cytonic.cytosis;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -8,6 +13,7 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.hollowcube.polar.PolarLoader;
@@ -23,7 +29,6 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import java.util.*;
 
 @Getter
 public class Cytosis {
@@ -53,6 +58,8 @@ public class Cytosis {
     private static ConsoleSender consoleSender;
     @Getter
     private static RankManager rankManager;
+    @Getter
+    private static ChatManager chatManager;
 
     private static List<String> FLAGS;
 
@@ -78,6 +85,10 @@ public class Cytosis {
         Logger.info("Setting console command sender.");
         consoleSender = commandManager.getConsoleSender();
         consoleSender.addPermission(new Permission("*"));
+
+        //chat manager
+        Logger.info("Starting chat manager.");
+        chatManager = new ChatManager();
 
         // instances
         Logger.info("Creating instance container");
@@ -179,7 +190,7 @@ public class Cytosis {
         Logger.info("Initializing server commands");
         commandHandler = new CommandHandler();
         commandHandler.setupConsole();
-        commandHandler.registerCystosisCommands();
+        commandHandler.registerCytosisCommands();
 
         messagingManager = new MessagingManager();
         messagingManager.initialize().whenComplete((_, throwable) -> {

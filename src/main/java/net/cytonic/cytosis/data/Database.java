@@ -1,5 +1,17 @@
 package net.cytonic.cytosis.data;
 
+import java.net.SocketAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import org.jetbrains.annotations.NotNull;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
@@ -10,13 +22,6 @@ import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
-import org.jetbrains.annotations.NotNull;
-import java.net.SocketAddress;
-import java.sql.*;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Database {
 
@@ -61,7 +66,6 @@ public class Database {
                 }
             }
         });
-
     }
 
     public void disconnect() {
@@ -82,6 +86,7 @@ public class Database {
         createChatTable();
         createWorldTable();
         createPlayerJoinsTable();
+        createChatChannelsTable();
     }
 
     private Connection getConnection() {
@@ -147,6 +152,26 @@ public class Database {
             }
         });
     }
+
+    /**
+ * Creates the 'cytonic_chat_channels' table in the database if it doesn't exist.
+ * The table contains information about player's chat channels.
+ *
+ * @throws IllegalStateException if the database connection is not open.
+ */
+private void createChatChannelsTable() {
+    worker.submit(() -> {
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat_channels (uuid VARCHAR(36), chat_channel VARCHAR(16), PRIMARY KEY(uuid))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_chat_channels` table.", e);
+            }
+        }
+    });
+}
 
     private void createPlayerJoinsTable() {
         worker.submit(() -> {
@@ -233,9 +258,46 @@ public class Database {
                 ps.setString(2, message);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a chat message.",e);
+                Logger.error("An error occurred whilst adding a chat message.", e);
             }
         });
+    }
+
+    public void setChatChannel(UUID uuid, ChatChannel chatChannel) {
+        worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must have an open connection to add a player's chat!");
+            PreparedStatement ps;
+            try {
+                ps = connection.prepareStatement("INSERT INTO cytonic_chat_channels (uuid, chat_channel) VALUES (?, ?) ON DUPLICATE KEY UPDATE chat_channel = VALUES(chat_channel)");
+                ps.setString(1, uuid.toString());
+                ps.setString(2, chatChannel.name());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst setting a players chat channel.", e);
+            }
+        });
+    }
+
+    public CompletableFuture<ChatChannel> getChatChannel(@NotNull final UUID uuid) {
+        CompletableFuture<ChatChannel> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a player's chat channel!");
+        worker.submit(() -> {
+            String channel = "ALL";
+            try {
+                PreparedStatement ps = connection.prepareStatement("SELECT chat_channel FROM cytonic_chat_channels WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    channel = rs.getString("chat_channel");
+                }
+                future.complete(ChatChannel.valueOf(channel));
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst fetching the chat channel of '\{uuid}'", e);
+            }
+        });
+        return future;
     }
 
     /**
@@ -298,26 +360,26 @@ public class Database {
     }
 
     /**
- * Logs a player's join event to the database.
- *
- * @param uuid The unique identifier of the player.
- * @param ip   The IP address of the player.
- * <p>
- * This method uses a worker thread to execute the database operation.
- * It prepares a SQL statement to insert a new record into the 'cytonic_player_joins' table.
- * The 'joined' column is set to the current timestamp, the 'uuid' column is set to the provided UUID,
- * and the 'ip' column is set to the provided IP address.
- * If an error occurs during the database operation, it is logged using the Logger.
- */
-public void logPlayerJoin(UUID uuid, SocketAddress ip) {
-    worker.submit(() -> {
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_player_joins (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)")) {
-            ps.setString(1, uuid.toString());
-            ps.setString(2, ip.toString());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            Logger.error("Failed to add a player to the database!", e);
-        }
-    });
-}
+     * Logs a player's join event to the database.
+     *
+     * @param uuid The unique identifier of the player.
+     * @param ip   The IP address of the player.
+     *             <p>
+     *             This method uses a worker thread to execute the database operation.
+     *             It prepares a SQL statement to insert a new record into the 'cytonic_player_joins' table.
+     *             The 'joined' column is set to the current timestamp, the 'uuid' column is set to the provided UUID,
+     *             and the 'ip' column is set to the provided IP address.
+     *             If an error occurs during the database operation, it is logged using the Logger.
+     */
+    public void logPlayerJoin(UUID uuid, SocketAddress ip) {
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_player_joins (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)")) {
+                ps.setString(1, uuid.toString());
+                ps.setString(2, ip.toString());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("Failed to add a player to the database!", e);
+            }
+        });
+    }
 }
