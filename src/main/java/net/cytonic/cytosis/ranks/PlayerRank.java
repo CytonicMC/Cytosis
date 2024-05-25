@@ -57,11 +57,9 @@ public enum PlayerRank {
         if (isDemotion(targetOriginalRole, targetNewRole)) {
             return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
         }
-
         if (isPromotion(targetOriginalRole, targetNewRole)) {
             return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
         }
-
         // If it's neither promotion nor demotion, it's an invalid operation
         return false;
     }

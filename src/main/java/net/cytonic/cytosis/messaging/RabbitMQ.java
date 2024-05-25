@@ -1,15 +1,10 @@
 package net.cytonic.cytosis.messaging;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
-
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
-
+import com.rabbitmq.client.*;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
@@ -21,7 +16,7 @@ public class RabbitMQ {
 
     public static final String SERVER_DECLARE_QUEUE = "server-declaration";
     public static final String SHUTDOWN_QUEUE = "server-shutdown";
-    public static final String CHAT_CHANNEL_QUEUE = "chat-channel";
+    public static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{CytosisSettings.SERVER_HOSTNAME}";
     private Connection connection;
     private Channel channel;
 
@@ -39,8 +34,7 @@ public class RabbitMQ {
         Logger.info("Connected to RabbitMQ!");
         try {
             channel = connection.createChannel();
-            connection = factory.newConnection();
-        } catch (IOException | TimeoutException e) {
+        } catch (IOException e) {
             Logger.error("An error occurred whilst connecting to RabbitMQ!", e);
         }
     }
@@ -58,9 +52,9 @@ public class RabbitMQ {
             Logger.error("An error occurred whilst initializing the 'SHUTDOWN_QUEUE'.", e);
         }
         try {
+            channel.exchangeDeclare("chat-testing", BuiltinExchangeType.FANOUT);
             channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, false, null);
-            channel.exchangeDeclare("chat-messages", "fanout");
-            channel.queueBind(CHAT_CHANNEL_QUEUE, "chat-messages", "");
+            channel.queueBind(CHAT_CHANNEL_QUEUE,"chat-testing","");
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'CHAT_CHANNEL_QUEUE'.", e);
         }
@@ -68,7 +62,6 @@ public class RabbitMQ {
 
     public void sendServerDeclarationMessage() {
         //formatting: {server-name}|:|{server-ip}|:|{server-port}
-        String serverName = System.getenv("HOSTNAME");
         String serverIP;
         try {
             serverIP = InetAddress.getLocalHost().getHostAddress();
@@ -76,7 +69,7 @@ public class RabbitMQ {
             Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
             return;
         }
-        String message = STR."\{serverName}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
+        String message = STR."\{CytosisSettings.SERVER_HOSTNAME}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
         try {
             channel.basicPublish("", SERVER_DECLARE_QUEUE, null, message.getBytes());
         } catch (IOException e) {
@@ -85,54 +78,59 @@ public class RabbitMQ {
         Logger.info(STR."Server Declaration message sent! '\{message}'.");
     }
 
-    public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
-        //formatting: {chat-message}|{chat-channel}
-        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
-        try {
-            channel.basicPublish("chat-messages", CHAT_CHANNEL_QUEUE, null, message.getBytes());
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst attempting to send a chat message!", e);
-        }
+    /**
+ * Sends a chat message to all the servers.
+ *
+ * @param chatMessage The chat message to be sent. This should be a {@link Component}.
+ * @param chatChannel The channel to which the chat message should be sent.
+ *
+ */
+public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
+    // Formatting: {chat-message}|:|{chat-channel}
+    String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
+    try {
+        channel.basicPublish("chat-testing","", null, message.getBytes());
+    } catch (IOException e) {
+        Logger.error("An error occurred whilst attempting to send a chat message!", e);
     }
+}
 
     public void receiveChatMessages() {
         try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String[] thing = new String(delivery.getBody(), "UTF-8").split("\\|");
-            Component chatMessage = JSONComponentSerializer.json().deserialize(thing[0]);
-            ChatChannel chatChannel = ChatChannel.valueOf(thing[1]);
-            switch (chatChannel) {
-            case MOD -> // send a message to all players with cytonic.chat.mod permission
-                    Cytosis.getOnlinePlayers().forEach(player -> {
-                        if (player.hasPermission("cytonic.chat.mod")) {
-                            player.sendMessage(chatMessage);
-                        }
-                    });
+            DeliverCallback deliverCallback = (_, delivery) -> {
+                String[] thing = new String(delivery.getBody(), StandardCharsets.UTF_8).split("\\|");
+                Component chatMessage = JSONComponentSerializer.json().deserialize(thing[0]);
+                ChatChannel chatChannel = ChatChannel.valueOf(thing[1]);
+                switch (chatChannel) {
+                    case MOD -> // send a message to all players with cytonic.chat.mod permission
+                            Cytosis.getOnlinePlayers().forEach(player -> {
+                                if (player.hasPermission("cytonic.chat.mod")) {
+                                    player.sendMessage(chatMessage);
+                                }
+                            });
 
-            case STAFF -> // send a message to all players with cytonic.chat.staff permission
-                    Cytosis.getOnlinePlayers().forEach(player -> {
-                        if (player.hasPermission("cytonic.chat.staff")) {
-                            player.sendMessage(chatMessage);
-                        }
-            });           
-            case ADMIN -> // send a message to all players with cytonic.chat.admin permission
-                    Cytosis.getOnlinePlayers().forEach(player -> {
-                        if (player.hasPermission("cytonic.chat.admin")) {
-                            player.sendMessage(chatMessage);
-                        }
-            });
-            case LEAGUE -> {
-            // leagues..
-            }
+                    case STAFF -> // send a message to all players with cytonic.chat.staff permission
+                            Cytosis.getOnlinePlayers().forEach(player -> {
+                                if (player.hasPermission("cytonic.chat.staff")) {
+                                    player.sendMessage(chatMessage);
+                                }
+                            });
+                    case ADMIN -> // send a message to all players with cytonic.chat.admin permission
+                            Cytosis.getOnlinePlayers().forEach(player -> {
+                                if (player.hasPermission("cytonic.chat.admin")) {
+                                    player.sendMessage(chatMessage);
+                                }
+                            });
+                    case LEAGUE -> {// leagues..
+                    }
 
-            case PARTY -> {
-            // parties..
-            }
+                    case PARTY -> {// parties..
+                    }
+                }
+            };
+            channel.basicConsume(CHAT_CHANNEL_QUEUE, true, deliverCallback, _ -> {});
+        } catch (IOException e) {
+            Logger.error("error", e);
         }
-    };
-    channel.basicConsume(CHAT_CHANNEL_QUEUE, true, deliverCallback, consumerTag -> { });
-} catch (IOException e) {
-    Logger.error("error", e);
-}
-}
+    }
 }

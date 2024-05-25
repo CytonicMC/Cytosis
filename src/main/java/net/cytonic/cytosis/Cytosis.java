@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -89,7 +88,7 @@ public class Cytosis {
 
         //chat manager
         Logger.info("Starting chat manager.");
-        chatManager = new ChatManager();   
+        chatManager = new ChatManager();
 
         // instances
         Logger.info("Creating instance container");
@@ -191,7 +190,7 @@ public class Cytosis {
         Logger.info("Initializing server commands");
         commandHandler = new CommandHandler();
         commandHandler.setupConsole();
-        commandHandler.registerCystosisCommands();
+        commandHandler.registerCytosisCommands();
 
         messagingManager = new MessagingManager();
         messagingManager.initialize().whenComplete((_, throwable) -> {

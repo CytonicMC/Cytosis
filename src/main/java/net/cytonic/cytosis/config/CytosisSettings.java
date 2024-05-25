@@ -27,7 +27,8 @@ public class CytosisSettings {
     public static String SERVER_SECRET = "";
     public static int SERVER_PORT = 25565;
     public static String SERVER_WORLD_NAME = "";
-    public static Pos SERVER_SPAWN_POS = new Pos(0,1,0);
+    public static Pos SERVER_SPAWN_POS = new Pos(0, 1, 0);
+    public static String SERVER_HOSTNAME = "UNKNOWN";
     // RabbitMQ
     public static boolean RABBITMQ_ENABLED = false;
     public static String RABBITMQ_HOST = "";
@@ -45,7 +46,6 @@ public class CytosisSettings {
                     case "logging.player_quit" -> LOG_PLAYER_QUITS = (boolean) value;
                     case "logging.player_command" -> LOG_PLAYER_COMMANDS = (boolean) value;
                     case "logging.player_chat" -> LOG_PLAYER_CHAT = (boolean) value;
-
                     // database
                     case "database.enabled" -> DATABASE_ENABLED = (boolean) value;
                     case "database.user" -> DATABASE_USER = (String) value;
@@ -54,14 +54,13 @@ public class CytosisSettings {
                     case "database.port" -> DATABASE_PORT = toInt(value);
                     case "database.name" -> DATABASE_NAME = (String) value;
                     case "database.use_ssl" -> DATABASE_USE_SSL = (boolean) value;
-                    
                     // server
                     case "server.proxy_mode" -> SERVER_PROXY_MODE = (boolean) value;
                     case "server.secret" -> SERVER_SECRET = (String) value;
                     case "server.port" -> SERVER_PORT = toInt(value);
                     case "server.world_name" -> SERVER_WORLD_NAME = (String) value;
                     case "server.spawn_point" -> SERVER_SPAWN_POS = PosSerializer.deserialize((String) value);
-
+                    case "server.hostname" -> SERVER_HOSTNAME = (String) value;
                     // RabbitMQ
                     case "rabbitmq.host" -> RABBITMQ_HOST = (String) value;
                     case "rabbitmq.password" -> RABBITMQ_PASSWORD = (String) value;
@@ -103,6 +102,7 @@ public class CytosisSettings {
         if (!(System.getenv("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
         if (!(System.getenv("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getenv("SERVER_WORLD_NAME");
         if (!(System.getenv("SERVER_SPAWN_POINT") == null)) CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(System.getenv("SERVER_SPAWN_POINT"));
+        if (!(System.getenv("SERVER_HOSTNAME") == null)) CytosisSettings.SERVER_HOSTNAME = System.getenv("SERVER_HOSTNAME");
         // RabbitMQ
         if (!(System.getenv("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getenv("RABBITMQ_ENABLED"));
         if (!(System.getenv("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getenv("RABBITMQ_HOST");
@@ -131,6 +131,7 @@ public class CytosisSettings {
         if (!(System.getProperty("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
         if (!(System.getProperty("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getProperty("SERVER_WORLD_NAME");
         if (!(System.getProperty("SERVER_SPAWN_POINT") == null)) CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(System.getProperty("SERVER_SPAWN_POINT"));
+        if (!(System.getProperty("SERVER_HOSTNAME") == null)) CytosisSettings.SERVER_HOSTNAME = System.getProperty("SERVER_HOSTNAME");
         // RabbitMQ
         if (!(System.getProperty("RABBITMQ_ENABLED") == null)) CytosisSettings.RABBITMQ_ENABLED = Boolean.parseBoolean(System.getProperty("RABBITMQ_ENABLED"));
         if (!(System.getProperty("RABBITMQ_HOST") == null)) CytosisSettings.RABBITMQ_HOST = System.getProperty("RABBITMQ_HOST");

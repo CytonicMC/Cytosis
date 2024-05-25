@@ -5,12 +5,12 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class ServerEventListeners {
 
@@ -28,6 +28,11 @@ public class ServerEventListeners {
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             Cytosis.getRankManager().addPlayer(player);
+            Cytosis.getDatabaseManager().getDatabase().getChatChannel(player.getUuid()).whenComplete(((chatChannel, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
+                } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
+            }));
         })));
 
         Logger.info("Registering player chat event.");
@@ -37,23 +42,29 @@ public class ServerEventListeners {
                 Cytosis.getDatabaseManager().getDatabase().addChat(player.getUuid(), event.getMessage());
             event.setCancelled(true);
             String originalMessage = event.getMessage();
-            if(Cytosis.getChatManager().getChannel(player.getUuid()) != ChatChannel.ALL) {
-                ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
-                Component message = Component.text("")
-                    .append(channel.getPrefix())
-                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor())))
-                    .appendSpace()
-                    .append(Component.text(originalMessage, NamedTextColor.WHITE));
+            if (!originalMessage.contains("|")) {
+                if (Cytosis.getChatManager().getChannel(player.getUuid()) != ChatChannel.ALL) {
+                    ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
+                    Component message = Component.text("")
+                            .append(channel.getPrefix())
+                            .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                            .appendSpace()
+                            .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
+                            .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
+                            .appendSpace()
+                            .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
                     Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
                 } else {
                     Component message = Component.text("")
-                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor())))
-                    .appendSpace()
-                    .append(Component.text(originalMessage, NamedTextColor.WHITE));
-                    Cytosis.getOnlinePlayers().forEach((p) -> {p.sendMessage(message);});
+                            .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                            .appendSpace()
+                            .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
+                            .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
+                            .appendSpace()
+                            .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
+                    Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
                 }
+            } else player.sendMessage(MM."<red>Hey you cannot do that!");
         }));
 
         Logger.info("Registering player disconnect event.");
@@ -61,23 +72,5 @@ public class ServerEventListeners {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
         }));
-    }
-
-    public static void chatEvent(PlayerChatEvent event) {
-        Player player = event.getPlayer();
-        if(Cytosis.getChatManager().getChannel(player.getUuid()) != ChatChannel.ALL) {
-            ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
-            event.setCancelled(true);
-            String originalMessage = event.getMessage();
-            Component message = Component.text("")
-                    .append(channel.getPrefix())
-                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor())))
-                    .appendSpace()
-                    .append(Component.text(originalMessage, NamedTextColor.WHITE));
-            Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
-        } else {
-            event.setCancelled(false);
-        }
     }
 }

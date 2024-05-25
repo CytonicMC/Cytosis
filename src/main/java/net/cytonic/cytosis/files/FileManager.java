@@ -41,7 +41,6 @@ public class FileManager {
      */
     public CompletableFuture<File> createConfigFile() {
         CompletableFuture<File> future = new CompletableFuture<>();
-
         worker.submit(() -> {
             if (!CONFIG_PATH.toFile().exists()) {
                 Logger.info("No config file found, creating...");
@@ -131,14 +130,12 @@ public class FileManager {
             // If it's a list, check for nested tables within the list
             else if (value instanceof Iterable<?> iterable) {
                 for (Object item : iterable) {
-                    if (item instanceof TomlTable toml)
-                        resultMap.putAll(recursiveParse(toml.toMap(), key));
+                    if (item instanceof TomlTable toml) resultMap.putAll(recursiveParse(toml.toMap(), key));
                 }
             } else {
                 resultMap.put(key, value);
             }
         }
-
         return resultMap;
     }
 }
