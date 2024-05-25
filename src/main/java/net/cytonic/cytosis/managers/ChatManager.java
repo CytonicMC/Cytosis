@@ -29,13 +29,13 @@ public class ChatManager {
             case ADMIN, MOD, STAFF -> // send a message to all servers
                     Cytosis.getMessagingManager().getRabbitMQ().sendChatMessage(component, chatChannel);
             case PARTY -> {
-                // parties..
+                //todo parties..
             }
             case LEAGUE -> {
-                // leagues..
+                //todo leagues..
             }
             case PRIVATE_MESSAGE -> {
-                // private messages
+                //todo private messages
             }
             case ALL -> throw new UnsupportedOperationException(STR."Unimplemented case: \{chatChannel}");
             default -> throw new IllegalArgumentException(STR."Unexpected value: \{chatChannel}");
