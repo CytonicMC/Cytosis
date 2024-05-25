@@ -17,6 +17,7 @@ public class RabbitMQ {
     public static final String SERVER_DECLARE_QUEUE = "server-declaration";
     public static final String SHUTDOWN_QUEUE = "server-shutdown";
     public static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{CytosisSettings.SERVER_HOSTNAME}";
+    public static final String CHAT_CHANNEL_EXCHANGE = "chat-exchange";
     private Connection connection;
     private Channel channel;
 
@@ -52,9 +53,9 @@ public class RabbitMQ {
             Logger.error("An error occurred whilst initializing the 'SHUTDOWN_QUEUE'.", e);
         }
         try {
-            channel.exchangeDeclare("chat-testing", BuiltinExchangeType.FANOUT);
+            channel.exchangeDeclare(CHAT_CHANNEL_EXCHANGE, BuiltinExchangeType.FANOUT);
             channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, false, null);
-            channel.queueBind(CHAT_CHANNEL_QUEUE,"chat-testing","");
+            channel.queueBind(CHAT_CHANNEL_QUEUE,CHAT_CHANNEL_EXCHANGE,"");
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'CHAT_CHANNEL_QUEUE'.", e);
         }
@@ -89,7 +90,7 @@ public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
     // Formatting: {chat-message}|:|{chat-channel}
     String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
     try {
-        channel.basicPublish("chat-testing","", null, message.getBytes());
+        channel.basicPublish(CHAT_CHANNEL_EXCHANGE,"", null, message.getBytes());
     } catch (IOException e) {
         Logger.error("An error occurred whilst attempting to send a chat message!", e);
     }
