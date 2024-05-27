@@ -55,7 +55,7 @@ public class RabbitMQ {
         try {
             channel.exchangeDeclare(CHAT_CHANNEL_EXCHANGE, BuiltinExchangeType.FANOUT);
             channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, false, null);
-            channel.queueBind(CHAT_CHANNEL_QUEUE,CHAT_CHANNEL_EXCHANGE,"");
+            channel.queueBind(CHAT_CHANNEL_QUEUE, CHAT_CHANNEL_EXCHANGE, "");
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'CHAT_CHANNEL_QUEUE'.", e);
         }
@@ -80,21 +80,20 @@ public class RabbitMQ {
     }
 
     /**
- * Sends a chat message to all the servers.
- *
- * @param chatMessage The chat message to be sent. This should be a {@link Component}.
- * @param chatChannel The channel to which the chat message should be sent.
- *
- */
-public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
-    // Formatting: {chat-message}|:|{chat-channel}
-    String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
-    try {
-        channel.basicPublish(CHAT_CHANNEL_EXCHANGE,"", null, message.getBytes());
-    } catch (IOException e) {
-        Logger.error("An error occurred whilst attempting to send a chat message!", e);
+     * Sends a chat message to all the servers.
+     *
+     * @param chatMessage The chat message to be sent. This should be a {@link Component}.
+     * @param chatChannel The channel to which the chat message should be sent.
+     */
+    public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
+        // Formatting: {chat-message}|:|{chat-channel}
+        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
+        try {
+            channel.basicPublish(CHAT_CHANNEL_EXCHANGE, "", null, message.getBytes());
+        } catch (IOException e) {
+            Logger.error("An error occurred whilst attempting to send a chat message!", e);
+        }
     }
-}
 
     public void receiveChatMessages() {
         try {
