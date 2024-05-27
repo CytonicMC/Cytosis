@@ -13,7 +13,7 @@ public interface Logger {
     /**
      * Debug log entries contain common debug information.
      */
-    static Logger debug() {
+    private static Logger debug() {
         return logger().level(Level.DEBUG);
     }
 
@@ -45,7 +45,7 @@ public interface Logger {
     /**
      * Info log entries contain important relevant information.
      */
-    static Logger info() {
+    private static Logger info() {
         return logger().level(Level.INFO);
     }
 
@@ -61,7 +61,7 @@ public interface Logger {
     /**
      * Warn log entries contain technical warnings. Typically, warnings do not prevent the application from continuing.
      */
-    static Logger warn() {
+    private static Logger warn() {
         return logger().level(Level.WARN);
     }
 
@@ -77,7 +77,7 @@ public interface Logger {
     /**
      * Error log entries contain technical errors. Errors WILL stop the application from continuing.
      */
-    static Logger error() {
+    private static Logger error() {
         return logger().level(Level.ERROR);
     }
 
