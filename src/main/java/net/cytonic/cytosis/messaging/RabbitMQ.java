@@ -61,12 +61,12 @@ public class RabbitMQ {
     public void initializeQueues() {
         Logger.info("Initializing RabbitMQ queues...");
         try {
-            channel.queueDeclare(SERVER_DECLARE_QUEUE, false, false, false, null);
+            channel.queueDeclare(SERVER_DECLARE_QUEUE, false, false, true, null);
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'SERVER_DECLARE_QUEUE'.", e);
         }
         try {
-            channel.queueDeclare(SHUTDOWN_QUEUE, false, false, false, null);
+            channel.queueDeclare(SHUTDOWN_QUEUE, false, false, true, null);
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'SHUTDOWN_QUEUE'.", e);
         }
