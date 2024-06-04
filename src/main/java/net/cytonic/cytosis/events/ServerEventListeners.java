@@ -4,12 +4,17 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.KickReason;
+import net.cytonic.cytosis.utils.MessageUtils;
+import net.minestom.server.coordinate.Pos;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class ServerEventListeners {
@@ -24,6 +29,26 @@ public class ServerEventListeners {
 
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
+            Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(event.getPlayer().getUuid()).whenComplete((data, throwable) -> {
+                final Player player = event.getPlayer();
+                if (throwable != null) {
+                    Logger.error("An error occoured whilst checking if the player is banned!", throwable);
+                    player.kick(MM."<red>An error occured whilst initiating the login sequence!");
+                    return;
+                }
+
+                if (data.isBanned()) {
+                    Cytosis.getMessagingManager().getRabbitMQ().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data));
+                    return;
+                }
+
+                if (CytosisSettings.LOG_PLAYER_IPS)
+                    Logger.info(STR."\{event.getPlayer().getUsername()} (\{event.getPlayer().getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
+                else Logger.info(STR."\{event.getPlayer().getUsername()} (\{event.getPlayer().getUuid()}) joined.");
+                Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
+
+                Cytosis.getRankManager().addPlayer(player);
+            });
             final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
@@ -65,6 +90,7 @@ public class ServerEventListeners {
                     Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
                 }
             } else player.sendMessage(MM."<red>Hey you cannot do that!");
+                Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
         }));
 
         Logger.info("Registering player disconnect event.");
