@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data;
 
 import lombok.Getter;
+import net.cytonic.cytosis.logging.Logger;
 
 @Getter
 public class DatabaseManager {
@@ -12,17 +13,9 @@ public class DatabaseManager {
     }
 
     public void shutdown() {
-        database.disconnect();
         mysqlDatabase.disconnect();
-        redisDatabase.disconnect();
         Logger.info("Good night!");
     }
-
-    public void setupDatabase() {
-        database = new Database();
-        database.connect();
-        database.createTables();
-        }
 
     public void setupDatabases() {
         Logger.info("Connecting to MySQL Database.");
@@ -36,6 +29,6 @@ public class DatabaseManager {
         } catch (Exception ex) {
             Logger.error("An error occured!", ex);
         }
-        Logger.info("All databases connected.");
+        Logger.info("All mysqlDatabases connected.");
     }
 }

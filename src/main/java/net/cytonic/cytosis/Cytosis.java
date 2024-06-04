@@ -1,10 +1,5 @@
 package net.cytonic.cytosis;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -30,6 +25,8 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 @Getter
 public class Cytosis {
@@ -169,7 +166,7 @@ public class Cytosis {
             return;
         }
         Logger.info(STR."Loading world '\{CytosisSettings.SERVER_WORLD_NAME}'");
-        databaseManager.getDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
+        databaseManager.getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the world!", throwable);
             } else {
@@ -183,7 +180,7 @@ public class Cytosis {
     public static void completeNonEssentialTasks(long start) {
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
-        databaseManager.setupDatabase();
+        databaseManager.setupDatabases();
         Logger.info("Database initialized!");
         Logger.info("Setting up event handlers");
         eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
@@ -191,9 +188,6 @@ public class Cytosis {
 
         Logger.info("Initializing server events");
         ServerEventListeners.initServerEvents();
-
-        Logger.info("Initializing database");
-        databaseManager.setupDatabases();
 
         MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
             databaseManager.shutdown();

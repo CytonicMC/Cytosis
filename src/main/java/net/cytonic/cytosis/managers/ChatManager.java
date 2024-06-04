@@ -1,11 +1,12 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.kyori.adventure.text.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ChatManager {
 
@@ -17,7 +18,7 @@ public class ChatManager {
 
     public void setChannel(UUID uuid, ChatChannel channel) {
         channels.put(uuid, channel);
-        Cytosis.getDatabaseManager().getDatabase().setChatChannel(uuid,channel);
+        Cytosis.getDatabaseManager().getMysqlDatabase().setChatChannel(uuid, channel);
     }
 
     public ChatChannel getChannel(UUID uuid) {
