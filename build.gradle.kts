@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
+    `maven-publish`
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
@@ -18,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Minestom", "Minestom", "6b8a4e4cc9") // minstom itself
+    implementation("com.github.Minestom", "Minestom", "19bb74e") // minstom itself
     implementation("com.google.code.gson:gson:2.10.1") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -27,6 +28,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
+    implementation("com.google.guava:guava:33.2.0-jre") // a lot of things, but mostly caching
+    implementation("redis.clients:jedis:3.7.0") // redis client
 }
 
 tasks.withType<Jar> {
@@ -49,6 +52,28 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        //destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+        archiveClassifier.set("")
+        destinationDirectory.set(file("/home/foxikle/cytonicserver/"))
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "FoxikleCytonicRepository"
+            url = uri("https://repo.foxikle.dev/cytonic")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+            artifact(tasks["shadowJar"])
+        }
     }
 }
