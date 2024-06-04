@@ -45,7 +45,6 @@ public class RankCommand extends Command {
                 sender.sendMessage(MM."<red>You cannot change your own rank!");
                 return;
             }
-
             Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
                 if (throwable != null) {
                     sender.sendMessage("An error occurred whilst fetching the old rank!");
