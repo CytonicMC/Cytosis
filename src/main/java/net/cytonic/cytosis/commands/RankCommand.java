@@ -48,7 +48,7 @@ public class RankCommand extends Command {
                 return;
             }
 
-            Cytosis.getDatabaseManager().getDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
+            Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
                 if (throwable != null) {
                     sender.sendMessage("An error occured whilst fetching the old rank!");
                     return;
@@ -69,7 +69,7 @@ public class RankCommand extends Command {
     }
 
     private void setRank(Player player, PlayerRank rank, CommandSender sender) {
-        Cytosis.getDatabaseManager().getDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((_, t) -> {
+        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((_, t) -> {
             if (t != null) {
                 sender.sendMessage(MM."<red>An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.");
                 Logger.error(STR."An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.", t);
