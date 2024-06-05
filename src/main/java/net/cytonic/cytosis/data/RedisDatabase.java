@@ -4,7 +4,6 @@ import lombok.Getter;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import redis.clients.jedis.*;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -34,8 +33,6 @@ public class RedisDatabase extends JedisPubSub {
         JedisClientConfig config = DefaultJedisClientConfig.builder().password(CytosisSettings.REDIS_PASSWORD).build();
         this.jedis = new Jedis(hostAndPort, config);
         this.jedis.auth(CytosisSettings.REDIS_PASSWORD);
-
-
         onlinePlayers = jedis.smembers(ONLINE_PLAYER_NAME_KEY);
         Set<UUID> uuids = new HashSet<>();
         jedis.smembers(ONLINE_PLAYER_UUID_KEY).forEach(s -> uuids.add(UUID.fromString(s)));
@@ -47,7 +44,6 @@ public class RedisDatabase extends JedisPubSub {
     public void sendShutdownMessage() {
         jedis.set(SERVER_SHUTDOWN_KEY, "");
     }
-
 
     /**
      * Consumes messages on the redis pub/sub interface to determine the online players
