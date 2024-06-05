@@ -29,7 +29,7 @@ dependencies {
     implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
     implementation("dev.hollowcube:polar:1.9.4") // Polar
     implementation("com.google.guava:guava:33.2.0-jre") // a lot of things, but mostly caching
-    implementation("redis.clients:jedis:3.7.0") // redis client
+    implementation("redis.clients:jedis:3.10.0") // redis client
 }
 
 tasks.withType<Jar> {
