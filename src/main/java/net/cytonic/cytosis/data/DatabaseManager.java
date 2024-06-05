@@ -1,22 +1,35 @@
 package net.cytonic.cytosis.data;
 
 import lombok.Getter;
+import net.cytonic.cytosis.logging.Logger;
 
 @Getter
 public class DatabaseManager {
 
-    private Database database;
+    private MysqlDatabase mysqlDatabase;
+    private RedisDatabase redisDatabase;
 
     public DatabaseManager() {
     }
 
     public void shutdown() {
-        database.disconnect();
+        mysqlDatabase.disconnect();
+        Logger.info("Good night!");
     }
 
-    public void setupDatabase() {
-        database = new Database();
-        database.connect();
-        database.createTables();
+    public void setupDatabases() {
+        Logger.info("Connecting to MySQL Database.");
+        mysqlDatabase = new MysqlDatabase();
+        mysqlDatabase.connect();
+        mysqlDatabase.createTables();
+
+        Logger.info("Connecting to the Redis Database.");
+        try {
+            redisDatabase = new RedisDatabase(); // it handles itnitialization in the constructor
+        } catch (Exception ex) {
+            Logger.error("An error occured!", ex);
+        }
+        Logger.info("All mysqlDatabases connected.");
     }
+
 }

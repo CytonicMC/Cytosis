@@ -40,15 +40,17 @@ public class RankCommand extends Command {
                 sender.sendMessage(MM."<red>The player \{context.get(group).getRaw("player")} doesn't exist!");
                 return;
             }
+
             if (player == sender) {
                 sender.sendMessage(MM."<red>You cannot change your own rank!");
                 return;
             }
-            Cytosis.getDatabaseManager().getDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
+            Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
                 if (throwable != null) {
                     sender.sendMessage("An error occurred whilst fetching the old rank!");
                     return;
                 }
+
                 // if it's a console we don't care (There isn't a console impl)
                 if (sender instanceof Player s) {
                     PlayerRank senderRank = Cytosis.getRankManager().getPlayerRank(s.getUuid()).orElseThrow();
@@ -57,13 +59,14 @@ public class RankCommand extends Command {
                         return;
                     }
                 }
+
                 setRank(player, newRank, sender);
             });
         }, group);
     }
 
     private void setRank(Player player, PlayerRank rank, CommandSender sender) {
-        Cytosis.getDatabaseManager().getDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((_, t) -> {
+        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((_, t) -> {
             if (t != null) {
                 sender.sendMessage(MM."<red>An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.");
                 Logger.error(STR."An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.", t);

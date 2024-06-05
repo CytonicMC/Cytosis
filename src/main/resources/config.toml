@@ -8,7 +8,12 @@ user = ""  # Username to connect to the database
 password = ""  # Password to connect to the database
 use_ssl = false # Whether to use SSL
 
-# server stuff
+[redis]
+port = 6379
+host = ""
+password = "" #No username :)
+
+# Networking stuff
 [server]
 proxy_mode = true
 secret = "hi i am the secret" # this can NOT be empty

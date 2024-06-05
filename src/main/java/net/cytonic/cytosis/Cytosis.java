@@ -1,10 +1,7 @@
 package net.cytonic.cytosis;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -16,7 +13,6 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.ranks.RankManager;
-import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -29,10 +25,11 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class Cytosis {
-
+    public static final String SERVER_ID = generateID();
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -60,6 +57,9 @@ public class Cytosis {
     private static RankManager rankManager;
     @Getter
     private static ChatManager chatManager;
+    @Nullable
+    @Getter
+    private static CytonicNetwork cytonicNetwork;
 
     private static List<String> FLAGS;
 
@@ -129,6 +129,12 @@ public class Cytosis {
         return Optional.ofNullable(target);
     }
 
+    /**
+     * Gets the player if they are on THIS instance, by UUID
+     *
+     * @param uuid The uuid to fetch the player by
+     * @return The optional holding the player if they exist
+     */
     public static Optional<Player> getPlayer(UUID uuid) {
         Player target = null;
         for (Player onlinePlayer : getOnlinePlayers()) {
@@ -159,7 +165,7 @@ public class Cytosis {
             return;
         }
         Logger.info(STR."Loading world '\{CytosisSettings.SERVER_WORLD_NAME}'");
-        databaseManager.getDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
+        databaseManager.getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the world!", throwable);
             } else {
@@ -173,7 +179,7 @@ public class Cytosis {
     public static void completeNonEssentialTasks(long start) {
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
-        databaseManager.setupDatabase();
+        databaseManager.setupDatabases();
         Logger.info("Database initialized!");
         Logger.info("Setting up event handlers");
         eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
@@ -184,7 +190,7 @@ public class Cytosis {
 
         MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
             databaseManager.shutdown();
-            Logger.info("Good night!");
+            messagingManager.shutdown();
         });
 
         Logger.info("Initializing server commands");
@@ -205,6 +211,13 @@ public class Cytosis {
         rankManager = new RankManager();
         rankManager.init();
 
+        if (CytosisSettings.SERVER_PROXY_MODE) {
+            Logger.info("Loading network setup!");
+            cytonicNetwork = new CytonicNetwork();
+            cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
+        }
+
+
         // Start the server
         Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
         minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
@@ -216,5 +229,17 @@ public class Cytosis {
             Logger.info("Stopping server due to '--ci-test' flag.");
             MinecraftServer.stopCleanly();
         }
+    }
+
+    private static String generateID() {
+        //todo: make a check for existing server ids
+        StringBuilder id = new StringBuilder("Cytosis-");
+        Random random = new Random();
+        id.append((char) (random.nextInt(26) + 'a'));
+        for (int i = 0; i < 4; i++) {
+            id.append(random.nextInt(10));
+        }
+        id.append((char) (random.nextInt(26) + 'a'));
+        return id.toString();
     }
 }

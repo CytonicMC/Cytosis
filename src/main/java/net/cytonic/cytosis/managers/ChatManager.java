@@ -17,7 +17,7 @@ public class ChatManager {
 
     public void setChannel(UUID uuid, ChatChannel channel) {
         channels.put(uuid, channel);
-        Cytosis.getDatabaseManager().getDatabase().setChatChannel(uuid,channel);
+        Cytosis.getDatabaseManager().getMysqlDatabase().setChatChannel(uuid, channel);
     }
 
     public ChatChannel getChannel(UUID uuid) {

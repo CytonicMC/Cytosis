@@ -33,7 +33,7 @@ public class RankManager {
 
     public void addPlayer(Player player) {
         // cache the rank
-        Cytosis.getDatabaseManager().getDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
+        Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
                 Logger.error(STR."An error occured whilst fetching \{player.getUsername()}'s rank!", throwable);
                 return;
