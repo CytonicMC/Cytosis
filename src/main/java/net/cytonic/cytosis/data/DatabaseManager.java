@@ -9,8 +9,7 @@ public class DatabaseManager {
     private MysqlDatabase mysqlDatabase;
     private RedisDatabase redisDatabase;
 
-    public DatabaseManager() {
-    }
+    public DatabaseManager() {}
 
     public void shutdown() {
         mysqlDatabase.disconnect();
@@ -31,5 +30,4 @@ public class DatabaseManager {
         }
         Logger.info("All mysqlDatabases connected.");
     }
-
 }
