@@ -52,6 +52,6 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+//        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
     }
 }
