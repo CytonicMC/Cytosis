@@ -28,8 +28,8 @@ dependencies {
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
     implementation("dev.hollowcube:polar:1.9.4") // Polar
-    implementation("com.google.guava:guava:33.2.0-jre") // a lot of things, but mostly caching
-    implementation("redis.clients:jedis:3.10.0") // redis client
+    implementation("com.google.guava:guava:33.2.1-jre") // a lot of things, but mostly caching
+    implementation("redis.clients:jedis:5.1.3") // redis client
 }
 
 tasks.withType<Jar> {

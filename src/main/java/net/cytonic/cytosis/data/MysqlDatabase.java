@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -15,7 +16,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import java.net.SocketAddress;
 import java.sql.*;
 import java.time.Instant;
@@ -480,14 +480,12 @@ public class MysqlDatabase {
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
-                Logger.debug("Writing SQL!");
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
                 ps.executeUpdate();
-                Logger.debug("World Loaded into database!!");
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }

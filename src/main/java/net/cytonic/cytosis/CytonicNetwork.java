@@ -2,7 +2,6 @@ package net.cytonic.cytosis;
 
 import lombok.Getter;
 import net.cytonic.cytosis.data.RedisDatabase;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;

@@ -4,7 +4,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.KickReason;
+import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
@@ -34,7 +34,6 @@ public class ServerEventListeners {
                     player.kick(MM."<red>An error occured whilst initiating the login sequence!");
                     return;
                 }
-
                 if (data.isBanned()) {
                     Cytosis.getMessagingManager().getRabbitMQ().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data));
                     return;
