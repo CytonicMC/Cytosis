@@ -3,7 +3,6 @@ package net.cytonic.cytosis.ranks;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
@@ -58,11 +57,9 @@ public enum PlayerRank {
         if (isDemotion(targetOriginalRole, targetNewRole)) {
             return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
         }
-
         if (isPromotion(targetOriginalRole, targetNewRole)) {
             return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
         }
-
         // If it's neither promotion nor demotion, it's an invalid operation
         return false;
     }

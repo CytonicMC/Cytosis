@@ -79,8 +79,7 @@ public class EventHandler {
     public <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
         for (EventListener<? extends Event> listener : NAMESPACED_HANDLERS.values()) {
-            if (listener.getEventClass() == event.getClass() &&
-                    !(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled())) {
+            if (listener.getEventClass() == event.getClass() && !(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled())) {
                 matchingListeners.add(listener);
             }
         }
@@ -184,7 +183,6 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(ClientPingServerEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerListPingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerTickMonitorEvent.class, (this::handleEvent));
-
         // Cytosis Events
         GLOBAL_HANDLER.addListener(RankSetupEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(RankChangeEvent.class, (this::handleEvent));

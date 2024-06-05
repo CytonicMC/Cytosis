@@ -1,12 +1,17 @@
 package net.cytonic.cytosis.messaging;
 
+import lombok.Getter;
 import net.cytonic.cytosis.config.CytosisSettings;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.Getter;
+import net.cytonic.cytosis.config.CytosisSettings;
 
 public class MessagingManager {
 
+    @Getter
     private final RabbitMQ rabbitMQ;
     private final ExecutorService worker;
 
@@ -23,9 +28,18 @@ public class MessagingManager {
                 rabbitMQ.initializeConnection();
                 rabbitMQ.initializeQueues();
                 rabbitMQ.sendServerDeclarationMessage();
+                rabbitMQ.receiveChatMessages();
             }
             future.complete(null);
         });
         return future;
+    }
+
+    public void shutdown() {
+        if (rabbitMQ != null) {
+            rabbitMQ.sendServerShutdownMessage();
+            rabbitMQ.shutdown();
+        }
+        worker.shutdown();
     }
 }

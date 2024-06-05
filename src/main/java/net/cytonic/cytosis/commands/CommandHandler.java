@@ -1,9 +1,9 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.moderation.BanCommand;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
-
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,12 +19,16 @@ public class CommandHandler {
         this.worker = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().name("CytosisConsoleWorker").factory());
     }
 
-    public void registerCystosisCommands() {
+    public void registerCytosisCommands() {
         CommandManager cm = Cytosis.getCommandManager();
         cm.register(new GamemodeCommand());
         cm.register(new RankCommand());
+        cm.register(new BanCommand());
+        cm.register(new ChatChannelCommand());
+        cm.register(new BanCommand());
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public void recalculateCommands(Player player) {
         player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }

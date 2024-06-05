@@ -12,7 +12,6 @@ import net.minestom.server.permission.Permission;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,14 +27,13 @@ public class RankManager {
                     .teamColor(value.getTeamColor())
                     .prefix(value.getPrefix().appendSpace())
                     .build();
-
             teamMap.put(value, team);
         }
     }
 
     public void addPlayer(Player player) {
         // cache the rank
-        Cytosis.getDatabaseManager().getDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
+        Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
                 Logger.error(STR."An error occured whilst fetching \{player.getUsername()}'s rank!", throwable);
                 return;
