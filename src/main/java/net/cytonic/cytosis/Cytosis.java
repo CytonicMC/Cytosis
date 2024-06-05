@@ -1,7 +1,5 @@
 package net.cytonic.cytosis;
 
-import java.util.*;
-
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -13,6 +11,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.ranks.RankManager;
+import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -26,6 +25,8 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 @Getter
 public class Cytosis {
