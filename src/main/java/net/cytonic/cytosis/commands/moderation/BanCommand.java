@@ -3,7 +3,7 @@ package net.cytonic.cytosis.commands.moderation;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
-import net.cytonic.cytosis.enums.BanReason;
+import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.KickReason;
 import net.cytonic.cytosis.utils.BanData;
