@@ -112,6 +112,7 @@ public class Cytosis {
                     VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
                 } else mojangAuth();
                 Logger.info("Completing nonessential startup tasks.");
+
                 completeNonEssentialTasks(start);
             }
         });
@@ -180,56 +181,64 @@ public class Cytosis {
     public static void completeNonEssentialTasks(long start) {
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
-        databaseManager.setupDatabases();
-        Logger.info("Database initialized!");
-        Logger.info("Setting up event handlers");
-        eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
-        eventHandler.init();
-
-        Logger.info("Initializing server events");
-        ServerEventListeners.initServerEvents();
-
-        MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
-            databaseManager.shutdown();
-            messagingManager.shutdown();
-        });
-
-        Logger.info("Initializing server commands");
-        commandHandler = new CommandHandler();
-        commandHandler.setupConsole();
-        commandHandler.registerCytosisCommands();
-
-        messagingManager = new MessagingManager();
-        messagingManager.initialize().whenComplete((_, throwable) -> {
+        databaseManager.setupDatabases().whenComplete((_, throwable) -> {
             if (throwable != null) {
-                Logger.error("An error occurred whilst initializing the messaging manager!", throwable);
-            } else {
-                Logger.info("Messaging manager initialized!");
+                Logger.error("An error occurred whilst initializing the database!", throwable);
+                return;
+            }
+            Logger.info("Database initialized!");
+            Logger.info("Setting up event handlers");
+            eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
+            eventHandler.init();
+
+            Logger.info("Initializing server events");
+            ServerEventListeners.initServerEvents();
+
+            MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
+                databaseManager.shutdown();
+                messagingManager.shutdown();
+            });
+
+            Logger.info("Initializing server commands");
+            commandHandler = new CommandHandler();
+            commandHandler.setupConsole();
+            commandHandler.registerCytosisCommands();
+
+            messagingManager = new MessagingManager();
+            messagingManager.initialize().whenComplete((_, th) -> {
+                if (th != null) {
+                    Logger.error("An error occurred whilst initializing the messaging manager!", th);
+                } else {
+                    Logger.info("Messaging manager initialized!");
+                }
+            });
+
+            Logger.info("Initializing Rank Manager");
+            rankManager = new RankManager();
+            rankManager.init();
+
+            if (CytosisSettings.SERVER_PROXY_MODE) {
+                Logger.info("Loading network setup!");
+                cytonicNetwork = new CytonicNetwork();
+                cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
+            }
+
+            Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
+
+
+            // Start the server
+            Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
+            minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
+
+            long end = System.currentTimeMillis();
+            Logger.info(STR."Server started in \{end - start}ms!");
+
+            if (FLAGS.contains("--ci-test")) {
+                Logger.info("Stopping server due to '--ci-test' flag.");
+                MinecraftServer.stopCleanly();
             }
         });
 
-        Logger.info("Initializing Rank Manager");
-        rankManager = new RankManager();
-        rankManager.init();
-
-        if (CytosisSettings.SERVER_PROXY_MODE) {
-            Logger.info("Loading network setup!");
-            cytonicNetwork = new CytonicNetwork();
-            cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
-        }
-
-
-        // Start the server
-        Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
-        minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
-
-        long end = System.currentTimeMillis();
-        Logger.info(STR."Server started in \{end - start}ms!");
-
-        if (FLAGS.contains("--ci-test")) {
-            Logger.info("Stopping server due to '--ci-test' flag.");
-            MinecraftServer.stopCleanly();
-        }
     }
 
     private static String generateID() {
