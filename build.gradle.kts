@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Minestom", "Minestom", "85942b6b27") // minestom itself
+    implementation("net.minestom:minestom-snapshots:1_20_5-05a4bb77c3")
     implementation("com.google.code.gson:gson:2.10.1") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -52,6 +52,6 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-        //destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
     }
 }
