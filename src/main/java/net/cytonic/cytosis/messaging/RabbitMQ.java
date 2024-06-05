@@ -4,12 +4,12 @@ import com.rabbitmq.client.*;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -48,18 +48,18 @@ public class RabbitMQ {
     public void initializeQueues() {
         Logger.info("Initializing RabbitMQ queues...");
         try {
-            channel.queueDeclare(SERVER_DECLARE_QUEUE, false, false, true, null);
+            channel.queueDeclare(SERVER_DECLARE_QUEUE, false, false, false, null);
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'SERVER_DECLARE_QUEUE'.", e);
         }
         try {
-            channel.queueDeclare(SHUTDOWN_QUEUE, false, false, true, null);
+            channel.queueDeclare(SHUTDOWN_QUEUE, false, false, false, null);
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'SHUTDOWN_QUEUE'.", e);
         }
         try {
             channel.exchangeDeclare(CHAT_CHANNEL_EXCHANGE, BuiltinExchangeType.FANOUT);
-            channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, false, null);
+            channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, true, null);
             channel.queueBind(CHAT_CHANNEL_QUEUE, CHAT_CHANNEL_EXCHANGE, "");
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'CHAT_CHANNEL_QUEUE'.", e);
