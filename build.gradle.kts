@@ -56,7 +56,7 @@ tasks {
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
 
-        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+//        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
     }
 }
 
