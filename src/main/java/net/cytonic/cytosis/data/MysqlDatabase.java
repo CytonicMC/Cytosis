@@ -62,7 +62,6 @@ public class MysqlDatabase {
                     connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
                     Logger.info("Successfully connected to the MySQL Database!");
                     future.complete(null);
-
                 } catch (SQLException e) {
                     Logger.error("Invalid Database Credentials!", e);
                     MinecraftServer.stopCleanly();
@@ -70,7 +69,6 @@ public class MysqlDatabase {
                 }
             }
         });
-
         return future;
     }
 
