@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
+    `maven-publish`
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
@@ -30,6 +31,7 @@ dependencies {
     implementation("dev.hollowcube:polar:1.9.4") // Polar
     implementation("com.google.guava:guava:33.2.1-jre") // a lot of things, but mostly caching
     implementation("redis.clients:jedis:5.1.3") // redis client
+    implementation("org.reflections:reflections:0.10.2") // reflection utils
 }
 
 tasks.withType<Jar> {
@@ -52,6 +54,30 @@ tasks {
         }
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
-//        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+        archiveClassifier.set("")
+
+        destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "FoxikleCytonicRepository"
+            url = uri("https://repo.foxikle.dev/cytonic")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+//            println("$version | $artifactId | $groupId")
+            artifact(tasks["shadowJar"])
+        }
     }
 }
