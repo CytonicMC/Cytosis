@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -15,7 +16,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import java.net.SocketAddress;
 import java.sql.*;
 import java.time.Instant;
@@ -62,6 +62,7 @@ public class MysqlDatabase {
                     connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
                     Logger.info("Successfully connected to the MySQL Database!");
                     future.complete(null);
+
                 } catch (SQLException e) {
                     Logger.error("Invalid Database Credentials!", e);
                     MinecraftServer.stopCleanly();
@@ -69,6 +70,7 @@ public class MysqlDatabase {
                 }
             }
         });
+
         return future;
     }
 

@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.messaging;
+package net.cytonic.cytosis.data.enums;
 
 import lombok.Getter;
 
