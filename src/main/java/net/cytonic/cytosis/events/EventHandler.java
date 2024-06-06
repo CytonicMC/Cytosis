@@ -17,6 +17,7 @@ import net.minestom.server.event.server.ClientPingServerEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.event.trait.CancellableEvent;
+
 import java.util.*;
 
 /**
@@ -100,7 +101,8 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(EntityDamageEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityDeathEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityDespawnEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(EntityFireEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(EntityFireExtinguishEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(EntitySetFireEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityItemMergeEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityPotionAddEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityPotionRemoveEvent.class, (this::handleEvent));
@@ -126,7 +128,7 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(InventoryItemChangeEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InventoryOpenEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InventoryPreClickEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(PlayerInventoryItemChangeEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(InventoryItemChangeEvent.class, (this::handleEvent));
         // Item Events
         GLOBAL_HANDLER.addListener(EntityEquipEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ItemDropEvent.class, (this::handleEvent));
@@ -174,7 +176,7 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(PlayerStopFlyingWithElytraEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerStopSprintingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerStopSneakingEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(PlayerSwapItemEvent.class, (this::handleEvent));
+//        GLOBAL_HANDLER.addListener(PlayerSwapItemEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerTickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerUseItemEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerUseItemOnBlockEvent.class, (this::handleEvent));

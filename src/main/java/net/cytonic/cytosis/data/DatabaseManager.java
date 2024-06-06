@@ -3,6 +3,8 @@ package net.cytonic.cytosis.data;
 import lombok.Getter;
 import net.cytonic.cytosis.logging.Logger;
 
+import java.util.concurrent.CompletableFuture;
+
 @Getter
 public class DatabaseManager {
 
@@ -16,10 +18,11 @@ public class DatabaseManager {
         Logger.info("Good night!");
     }
 
-    public void setupDatabases() {
+    public CompletableFuture<Void> setupDatabases() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         Logger.info("Connecting to MySQL Database.");
         mysqlDatabase = new MysqlDatabase();
-        mysqlDatabase.connect();
+        mysqlDatabase.connect().whenComplete((_, _) -> future.complete(null));
         mysqlDatabase.createTables();
 
         Logger.info("Connecting to the Redis Database.");
@@ -29,5 +32,6 @@ public class DatabaseManager {
             Logger.error("An error occured!", ex);
         }
         Logger.info("All mysqlDatabases connected.");
+        return future;
     }
 }
