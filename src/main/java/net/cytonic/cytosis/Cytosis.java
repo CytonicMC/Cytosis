@@ -10,6 +10,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
@@ -25,6 +26,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 @Getter
@@ -60,6 +62,8 @@ public class Cytosis {
     @Nullable
     @Getter
     private static CytonicNetwork cytonicNetwork;
+    @Getter
+    private static PluginManager pluginManager;
 
     private static List<String> FLAGS;
 
@@ -211,6 +215,11 @@ public class Cytosis {
                     Logger.info("Messaging manager initialized!");
                 }
             });
+
+            Logger.info("Initializing Plugin Manager!");
+            pluginManager = new PluginManager();
+            Logger.info("Loading plugins!");
+            pluginManager.loadPlugins();
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
