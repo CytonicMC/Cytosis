@@ -77,6 +77,17 @@ public class EventHandler {
         return NAMESPACED_HANDLERS.putIfAbsent(listener.getNamespace(), listener) == listener;
     }
 
+    /**
+     * Registers all the listners
+     *
+     * @param listeners the listners to register
+     */
+    public void registerListeners(EventListener<? extends Event>... listeners) {
+        for (EventListener<? extends Event> listener : listeners) {
+            registerListener(listener);
+        }
+    }
+
     public <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
         for (EventListener<? extends Event> listener : NAMESPACED_HANDLERS.values()) {
@@ -91,6 +102,10 @@ public class EventHandler {
             if (!(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled()))
                 listener.complete(event);
         }
+    }
+
+    public void registerCustomEvent(Class<? extends Event> clazz) {
+        GLOBAL_HANDLER.addListener(clazz, this::handleEvent);
     }
 
     private void setupInternalListeners() {
