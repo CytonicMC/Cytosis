@@ -480,12 +480,14 @@ public class MysqlDatabase {
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
+                Logger.debug("Writing SQL!");
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
                 ps.executeUpdate();
+                Logger.debug("World Loaded into database!!");
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }
