@@ -406,7 +406,6 @@ public class Sideboard {
         ServerPacket packet;
 
         if (action == ScoreboardAction.REMOVE) {
-            // todo: change this.player.getusername() to objName?
             packet = new ResetScorePacket(objName, this.id);
         } else {
             packet = new UpdateScorePacket(objName, this.id, score, null, Sidebar.NumberFormat.blank());
