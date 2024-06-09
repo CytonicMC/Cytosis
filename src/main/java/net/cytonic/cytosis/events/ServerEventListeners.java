@@ -52,6 +52,7 @@ public class ServerEventListeners {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
                 } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
             }));
+            Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
         })));
 
@@ -92,6 +93,7 @@ public class ServerEventListeners {
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-disconnect", false, 1, PlayerDisconnectEvent.class, event -> {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
+            Cytosis.getSideboardManager().removePlayer(player);
         }));
     }
 }
