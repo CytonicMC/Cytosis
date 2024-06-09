@@ -2,6 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     `maven-publish`
+    `java-library`
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
@@ -19,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Minestom:Minestom:-SNAPSHOT")
+    api("com.github.Minestom:Minestom:-SNAPSHOT")
     implementation("com.google.code.gson:gson:2.11.0") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -28,7 +29,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
-    implementation("dev.hollowcube:polar:1.9.4") // Polar
+    implementation("dev.hollowcube:polar:1.9.5") // Polar
     implementation("com.google.guava:guava:33.2.1-jre") // a lot of things, but mostly caching
     implementation("redis.clients:jedis:5.1.3") // redis client
     implementation("org.reflections:reflections:0.10.2") // reflection utils
@@ -42,6 +43,12 @@ tasks.withType<Jar> {
 tasks.withType<JavaCompile> {
     // use String templates
     options.compilerArgs.add("--enable-preview")
+}
+tasks.withType<Javadoc> {
+    val javadocOptions = options as CoreJavadocOptions
+
+    javadocOptions.addStringOption("source", "21")
+    javadocOptions.addBooleanOption("-enable-preview", true)
 }
 
 tasks {
@@ -57,6 +64,16 @@ tasks {
         archiveClassifier.set("")
         //destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
     }
+}
+
+val javadocJar = tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from(tasks.javadoc)
+}
+
+val sourcesJar = tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allJava)
 }
 
 publishing {
@@ -77,6 +94,8 @@ publishing {
             version = project.version.toString()
 //            println("$version | $artifactId | $groupId")
             artifact(tasks["shadowJar"])
+            artifact(javadocJar)
+            artifact(sourcesJar)
         }
     }
 }
