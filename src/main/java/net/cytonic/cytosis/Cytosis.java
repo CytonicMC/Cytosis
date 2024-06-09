@@ -9,6 +9,7 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
+import net.cytonic.cytosis.managers.SideboardManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
@@ -64,6 +65,9 @@ public class Cytosis {
     private static CytonicNetwork cytonicNetwork;
     @Getter
     private static PluginManager pluginManager;
+    @Getter
+    private static SideboardManager sideboardManager;
+    public static final String VERSION = "0.1";
 
     private static List<String> FLAGS;
 
@@ -200,6 +204,7 @@ public class Cytosis {
             MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
                 databaseManager.shutdown();
                 messagingManager.shutdown();
+                sideboardManager.shutdown();
             });
 
             Logger.info("Initializing server commands");
@@ -224,6 +229,10 @@ public class Cytosis {
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
             rankManager.init();
+
+            Logger.info("Creating sideboard manager!");
+            sideboardManager = new SideboardManager();
+            sideboardManager.updateBoards();
 
             if (CytosisSettings.SERVER_PROXY_MODE) {
                 Logger.info("Loading network setup!");
