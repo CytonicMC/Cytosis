@@ -3,8 +3,8 @@ package net.cytonic.cytosis.events;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.data.enums.KickReason;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
@@ -52,6 +52,7 @@ public class ServerEventListeners {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
                 } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
             }));
+            Cytosis.getPlayerListManager().setupPlayer(player);
         })));
 
         Logger.info("Registering player chat event.");
