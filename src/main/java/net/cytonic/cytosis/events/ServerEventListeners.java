@@ -53,6 +53,7 @@ public class ServerEventListeners {
                 } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
             }));
             Cytosis.getSideboardManager().addPlayer(player);
+            Cytosis.getPlayerListManager().setupPlayer(player);
         })));
 
         Logger.info("Registering player chat event.");
