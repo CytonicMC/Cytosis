@@ -4,8 +4,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.enums.BanReason;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.data.enums.KickReason;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.BanData;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.MessageUtils;
@@ -15,7 +15,9 @@ import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
+
 import java.time.Instant;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class BanCommand extends Command {
@@ -35,8 +37,6 @@ public class BanCommand extends Command {
         var durationArg = ArgumentType.Word("duration");
         var reasonArg = ArgumentType.Enum("reason", BanReason.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
 
-        var group = ArgumentType.Group("ban-group", playerArg, durationArg, reasonArg);
-
         addSyntax((sender, context) -> {
             if (sender instanceof Player actor) {
 
@@ -44,13 +44,13 @@ public class BanCommand extends Command {
                     actor.sendMessage(MM."<red>You don't have permission to use this command!");
                 }
 
-                final String player = context/*.get(group)*/.get(playerArg);
-                final String reason = context/*.get(group)*/.get(reasonArg).getReason();
-                final String rawDur = context/*.get(group)*/.get(durationArg);
+                final String player = context.get(playerArg);
+                final String reason = context.get(reasonArg).getReason();
+                final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parse(rawDur);
 
                 if (!Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().contains(player)) {
-                    sender.sendMessage(MM."<red>The player \{context.get(group).getRaw("player")} doesn't exist!");
+                    sender.sendMessage(MM."<red>The player \{context.get(playerArg)} doesn't exist!");
                     return;
                 }
                 Cytosis.getDatabaseManager().getMysqlDatabase().findUUIDByName(player).whenComplete((uuid, throwable) -> {
