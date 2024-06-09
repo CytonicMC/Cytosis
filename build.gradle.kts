@@ -29,7 +29,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
-    implementation("dev.hollowcube:polar:1.9.4") // Polar
+    implementation("dev.hollowcube:polar:1.9.5") // Polar
     implementation("com.google.guava:guava:33.2.1-jre") // a lot of things, but mostly caching
     implementation("redis.clients:jedis:5.1.3") // redis client
     implementation("org.reflections:reflections:0.10.2") // reflection utils
