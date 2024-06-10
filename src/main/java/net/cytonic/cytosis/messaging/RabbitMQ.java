@@ -20,7 +20,7 @@ public class RabbitMQ {
 
     public static final String SERVER_DECLARE_QUEUE = "server-declaration";
     public static final String SHUTDOWN_QUEUE = "server-shutdown";
-    public static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{CytosisSettings.SERVER_ID}";
+    public static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{Cytosis.SERVER_ID}";
     public static final String PLAYER_KICK_QUEUE = "player-kick";
     public static final String CHAT_CHANNEL_EXCHANGE = "chat-exchange";
     private Connection connection;
@@ -80,7 +80,7 @@ public class RabbitMQ {
             Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
             return;
         }
-        String message = STR."\{CytosisSettings.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
+        String message = STR."\{Cytosis.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
         try {
             channel.basicPublish("", SERVER_DECLARE_QUEUE, null, message.getBytes());
         } catch (IOException e) {
@@ -98,7 +98,7 @@ public class RabbitMQ {
             Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
             return;
         }
-        String message = STR."\{CytosisSettings.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
+        String message = STR."\{Cytosis.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
         try {
             channel.basicPublish("", SHUTDOWN_QUEUE, null, message.getBytes());
         } catch (IOException e) {
