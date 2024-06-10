@@ -32,14 +32,11 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 @Getter
 public class Cytosis {
-    public static final String SERVER_ID = generateID();
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -102,6 +99,9 @@ public class Cytosis {
         Logger.info("Setting console command sender.");
         consoleSender = commandManager.getConsoleSender();
         consoleSender.addPermission(new Permission("*"));
+
+        //server id
+        CytosisSettings.SERVER_ID = generateID();
 
         //chat manager
         Logger.info("Starting chat manager.");
@@ -243,7 +243,6 @@ public class Cytosis {
                     )
             );
 
-
             Logger.info("Initializing server commands");
             commandHandler = new CommandHandler();
             commandHandler.setupConsole();
@@ -308,6 +307,6 @@ public class Cytosis {
     }
 
     public static String getRawID() {
-        return SERVER_ID.replace("Cytosis-", "");
+        return CytosisSettings.SERVER_ID.replace("Cytosis-", "");
     }
 }
