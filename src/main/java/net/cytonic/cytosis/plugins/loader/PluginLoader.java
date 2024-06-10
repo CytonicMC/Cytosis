@@ -4,7 +4,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.plugins.CytosisPlugin;
 import net.cytonic.cytosis.plugins.Plugin;
-
 import java.io.File;
 import java.net.URL;
 import java.util.*;
@@ -19,7 +18,7 @@ public class PluginLoader {
     public void loadPlugins() {
         File pluginDir = new File("plugins");
         if (pluginDir.exists() && pluginDir.isDirectory()) {
-            File[] jarFiles = pluginDir.listFiles((dir, name) -> name.endsWith(".jar"));
+            File[] jarFiles = pluginDir.listFiles((_, name) -> name.endsWith(".jar"));
             if (jarFiles != null) {
                 try {
                     URL[] urls = new URL[jarFiles.length];
@@ -68,7 +67,7 @@ public class PluginLoader {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("An error occurred whilst loading a plugin!", e);
         }
     }
 
@@ -88,12 +87,12 @@ public class PluginLoader {
             Class<?> pluginClass = pluginClasses.get(pluginName);
             if (pluginClass != null) {
                 CytosisPlugin plugin = (CytosisPlugin) pluginClass.getDeclaredConstructor().newInstance();
-                System.out.println("Loading plugin: " + pluginName);
+                Logger.info(STR."Loading plugin: \{pluginName}");
                 Cytosis.getPluginManager().registerPlugin(plugin, pluginClass.getAnnotation(Plugin.class));
                 loadedPlugins.add(pluginName);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error(STR."Error loading plugin \{pluginName}!", e);
         }
     }
 }
