@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.sideboard;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisSettings;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 
@@ -26,7 +27,7 @@ public class DefaultCreator implements SideboardCreator {
     public List<Component> lines(Player player) {
         try {
             return List.of(
-                    MM."<gray>\{Cytosis.SERVER_ID}",
+                    MM."<gray>\{CytosisSettings.SERVER_ID}",
                     MM."<green>Players: \{Cytosis.getCytonicNetwork().getNetworkPlayers().size()}",
                     MM."",
                     MM."Cytosis v\{Cytosis.VERSION}",
