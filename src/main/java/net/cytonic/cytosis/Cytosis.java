@@ -213,6 +213,7 @@ public class Cytosis {
                 databaseManager.shutdown();
                 messagingManager.shutdown();
                 sideboardManager.shutdown();
+                getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
             Logger.info("Starting Player list manager");
