@@ -37,6 +37,8 @@ import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 @Getter
 public class Cytosis {
+
+    public static final String SERVER_ID = generateID();
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -99,9 +101,6 @@ public class Cytosis {
         Logger.info("Setting console command sender.");
         consoleSender = commandManager.getConsoleSender();
         consoleSender.addPermission(new Permission("*"));
-
-        //server id
-        CytosisSettings.SERVER_ID = generateID();
 
         //chat manager
         Logger.info("Starting chat manager.");
@@ -308,6 +307,6 @@ public class Cytosis {
     }
 
     public static String getRawID() {
-        return CytosisSettings.SERVER_ID.replace("Cytosis-", "");
+        return Cytosis.SERVER_ID.replace("Cytosis-", "");
     }
 }

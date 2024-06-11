@@ -32,7 +32,6 @@ public class CytosisSettings {
 
     public static String SERVER_WORLD_NAME = "";
     public static Pos SERVER_SPAWN_POS = new Pos(0, 1, 0);
-    public static String SERVER_ID = "UNKNOWN";
     // RabbitMQ
     public static boolean RABBITMQ_ENABLED = false;
     public static String RABBITMQ_HOST = "";
