@@ -27,9 +27,9 @@ public class DatabaseManager {
 
         Logger.info("Connecting to the Redis Database.");
         try {
-            redisDatabase = new RedisDatabase(); // it handles itnitialization in the constructor
+            redisDatabase = new RedisDatabase(); // it handles initialization in the constructor
         } catch (Exception ex) {
-            Logger.error("An error occured!", ex);
+            Logger.error("An error occurred!", ex);
         }
         Logger.info("All mysqlDatabases connected.");
         return future;

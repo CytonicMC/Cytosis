@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
  * A class that holds the connection to the redis cache
  */
 public class RedisDatabase extends JedisPubSub {
+
     public static final String ONLINE_PLAYER_NAME_KEY = "online_player_names";
     public static final String ONLINE_PLAYER_UUID_KEY = "online_player_uuids";
     public static final String PLAYER_STATUS_CHANNEL = "player_status";

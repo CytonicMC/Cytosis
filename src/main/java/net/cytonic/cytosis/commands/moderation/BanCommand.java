@@ -26,8 +26,7 @@ public class BanCommand extends Command {
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.ban"));
 
         var playerArg = ArgumentType.Word("target");
-        System.out.println(playerArg.getSuggestionCallback());
-        playerArg.setSuggestionCallback((sender, context, suggestion) -> {
+        playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof Player player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }

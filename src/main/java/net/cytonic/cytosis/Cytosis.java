@@ -32,13 +32,12 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 @Getter
 public class Cytosis {
+
     public static final String SERVER_ID = generateID();
     // manager stuff
     @Getter
@@ -243,7 +242,6 @@ public class Cytosis {
                     )
             );
 
-
             Logger.info("Initializing server commands");
             commandHandler = new CommandHandler();
             commandHandler.setupConsole();
@@ -308,6 +306,6 @@ public class Cytosis {
     }
 
     public static String getRawID() {
-        return SERVER_ID.replace("Cytosis-", "");
+        return Cytosis.SERVER_ID.replace("Cytosis-", "");
     }
 }

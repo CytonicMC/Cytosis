@@ -32,7 +32,6 @@ public class CytosisSettings {
 
     public static String SERVER_WORLD_NAME = "";
     public static Pos SERVER_SPAWN_POS = new Pos(0, 1, 0);
-    public static String SERVER_HOSTNAME = "UNKNOWN";
     // RabbitMQ
     public static boolean RABBITMQ_ENABLED = false;
     public static String RABBITMQ_HOST = "";
@@ -69,7 +68,6 @@ public class CytosisSettings {
                     case "server.port" -> SERVER_PORT = toInt(value);
                     case "server.world_name" -> SERVER_WORLD_NAME = (String) value;
                     case "server.spawn_point" -> SERVER_SPAWN_POS = PosSerializer.deserialize((String) value);
-                    case "server.hostname" -> SERVER_HOSTNAME = (String) value;
                     // RabbitMQ
                     case "rabbitmq.host" -> RABBITMQ_HOST = (String) value;
                     case "rabbitmq.password" -> RABBITMQ_PASSWORD = (String) value;
@@ -127,7 +125,6 @@ public class CytosisSettings {
         if (!(System.getenv("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
         if (!(System.getenv("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getenv("SERVER_WORLD_NAME");
         if (!(System.getenv("SERVER_SPAWN_POINT") == null)) CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(System.getenv("SERVER_SPAWN_POINT"));
-        if (!(System.getenv("SERVER_HOSTNAME") == null)) CytosisSettings.SERVER_HOSTNAME = System.getenv("SERVER_HOSTNAME");
         if (!(System.getenv("SERVER_PROXY_MODE") == null))
             SERVER_PROXY_MODE = Boolean.parseBoolean(System.getenv("SERVER_PROXY_MODE"));
         if (!(System.getenv("SERVER_SECRET") == null)) SERVER_SECRET = System.getenv("SERVER_SECRET");
@@ -177,7 +174,6 @@ public class CytosisSettings {
         if (!(System.getProperty("SERVER_PORT") == null)) CytosisSettings.SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
         if (!(System.getProperty("SERVER_WORLD_NAME") == null)) CytosisSettings.SERVER_WORLD_NAME = System.getProperty("SERVER_WORLD_NAME");
         if (!(System.getProperty("SERVER_SPAWN_POINT") == null)) CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(System.getProperty("SERVER_SPAWN_POINT"));
-        if (!(System.getProperty("SERVER_HOSTNAME") == null)) CytosisSettings.SERVER_HOSTNAME = System.getProperty("SERVER_HOSTNAME");
         if (!(System.getProperty("SERVER_PROXY_MODE") == null))
             SERVER_PROXY_MODE = Boolean.parseBoolean(System.getProperty("SERVER_PROXY_MODE"));
         if (!(System.getProperty("SERVER_SECRET") == null)) SERVER_SECRET = System.getProperty("SERVER_SECRET");
