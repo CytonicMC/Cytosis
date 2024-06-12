@@ -62,7 +62,7 @@ tasks {
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
-        //destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+        destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(System.getenv("SERVER_DIR"))))
     }
 }
 
@@ -83,7 +83,15 @@ publishing {
             url = uri("https://repo.foxikle.dev/cytonic")
             credentials(PasswordCredentials::class)
             authentication {
-                create<BasicAuthentication>("basic")
+                create<BasicAuthentication>("basic") {
+                    // Use providers to get the properties or fallback to environment variables
+                    val user = providers.gradleProperty("username").orElse(System.getenv("REPO_USERNAME"))
+                    val pass = providers.gradleProperty("password").orElse(System.getenv("REPO_PASSWORD"))
+                    credentials {
+                        username = user.toString()
+                        password = pass.toString()
+                    }
+                }
             }
         }
     }
@@ -92,7 +100,6 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-//            println("$version | $artifactId | $groupId")
             artifact(tasks["shadowJar"])
             artifact(javadocJar)
             artifact(sourcesJar)
