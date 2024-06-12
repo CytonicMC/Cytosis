@@ -16,7 +16,7 @@ jobs:
       - run: chmod +x gradlew
 
       - name: Assemble
-        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview --no-daemon assemble
+        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview -DREPO_PASSWORD=${{ secrets.REPO_PASSWORD }} -DREPO_USERNAME=${{ secrets.REPO_USERNAME }} --no-daemon assemble
 
       - name: Run Compiled Artifact
         run: java --enable-preview -jar build/libs/cytosis.jar --ci-test
