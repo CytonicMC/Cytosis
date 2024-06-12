@@ -1,5 +1,10 @@
 name: Build Pull Request
 run-name: Deploy to Maven Repository by @${{ github.actor }}
+
+env:
+  REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+  REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
 on:
   push:
     branches:
