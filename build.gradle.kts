@@ -62,7 +62,7 @@ tasks {
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
-        println(providers.gradleProperty("server_dir").orElse(System.getenv("SERVER_DIR")).get())
+        println(System.getenv("SERVER_DIR"))
         destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(System.getenv("SERVER_DIR"))))
     }
 }
