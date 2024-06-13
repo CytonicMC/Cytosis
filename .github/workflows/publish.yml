@@ -24,4 +24,4 @@ jobs:
       - run: chmod +x gradlew
 
       - name: Publish
-        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview -DREPO_PASSWORD=${{ secrets.REPO_PASSWORD }} -DREPO_USERNAME=${{ secrets.REPO_USERNAME }} --no-daemon publish
+        run: ./gradlew :publish -Dorg.gradle.jvmargs=--enable-preview -DREPO_PASSWORD=${{ secrets.REPO_PASSWORD }} -DREPO_USERNAME=${{ secrets.REPO_USERNAME }}
