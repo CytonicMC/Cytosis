@@ -13,6 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+      REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
