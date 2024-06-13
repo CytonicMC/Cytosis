@@ -78,52 +78,30 @@ val sourcesJar = tasks.register<Jar>("sourcesJar") {
 
 publishing {
     repositories {
-//        maven {
-//            name = "FoxikleCytonicRepository"
-//            url = uri("https://repo.foxikle.dev/cytonic")
-//            credentials(PasswordCredentials::class)
-//            authentication {
-//                create<BasicAuthentication>("basic") {
-//                    // Use providers to get the properties or fallback to environment variables
-//                    var u = System.getenv("REPO_USERNAME")
-//                    var p = System.getenv("REPO_PASSWORD")
-//
-//                    if (u == null || u.isEmpty()) {
-//                        u = "no-value-provided"
-//                    }
-//                    if (p == null || p.isEmpty()) {
-//                        p = "no-value-provided"
-//                    }
-//
-//                    val user = providers.gradleProperty("username").orElse(u).get()
-//                    val pass = providers.gradleProperty("password").orElse(p).get()
-//
-//                    println("pass: ${pass.length} | user: ${user.length}")
-//                    credentials {
-//                        username = user
-//                        password = pass
-//                    }
-//                }
-//            }
         maven {
             name = "FoxikleCytonicRepository"
             url = uri("https://repo.foxikle.dev/cytonic")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic") {
-                    val u = providers.gradleProperty("username")
-                        .orElse(System.getenv("REPO_USERNAME"))
-                        .orElse("no-value-provided")
-                        .get()
-                    val p = providers.gradleProperty("password")
-                        .orElse(System.getenv("REPO_PASSWORD"))
-                        .orElse("no-value-provided")
-                        .get()
+                    // Use providers to get the properties or fallback to environment variables
+                    var u = System.getenv("REPO_USERNAME")
+                    var p = System.getenv("REPO_PASSWORD")
 
-                    println("pass: ${p.length} | user: ${u.length}")
+                    if (u == null || u.isEmpty()) {
+                        u = "no-value-provided"
+                    }
+                    if (p == null || p.isEmpty()) {
+                        p = "no-value-provided"
+                    }
+
+                    val user = providers.gradleProperty("username").orElse(u).get()
+                    val pass = providers.gradleProperty("password").orElse(p).get()
+
+                    println("pass: ${pass.length} | user: ${user.length}")
                     credentials {
-                        username = u
-                        password = p
+                        username = user
+                        password = pass
                     }
                 }
             }
