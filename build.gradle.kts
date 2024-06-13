@@ -87,8 +87,10 @@ publishing {
                     // Use providers to get the properties or fallback to environment variables
                     println(System.getenv("REPO_PASSWORD").length)
                     println("pass: " + System.getenv("REPO_PASSWORD") + " | user: " + System.getenv("REPO_USERNAME"))
-                    val user = providers.gradleProperty("username").orElse(System.getenv("REPO_USERNAME").orEmpty())
-                    val pass = providers.gradleProperty("password").orElse(System.getenv("REPO_PASSWORD").orEmpty())
+                    val user =
+                        providers.gradleProperty("username").orElse(System.getenv("REPO_USERNAME")).orElse("null")
+                    val pass =
+                        providers.gradleProperty("password").orElse(System.getenv("REPO_PASSWORD")).orElse("null")
                     credentials {
                         username = user.get()
                         password = pass.get()
