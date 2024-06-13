@@ -91,6 +91,8 @@ publishing {
                         providers.gradleProperty("username").orElse(System.getenv("REPO_USERNAME")).orElse("null")
                     val pass =
                         providers.gradleProperty("password").orElse(System.getenv("REPO_PASSWORD")).orElse("null")
+                    println(pass.get().length)
+                    println("pass: " + pass.get() + " | user: " + user.get())
                     credentials {
                         username = user.get()
                         password = pass.get()
