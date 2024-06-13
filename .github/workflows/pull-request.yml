@@ -9,9 +9,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-      REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
 
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +21,9 @@ jobs:
       - run: chmod +x gradlew
 
       - name: Assemble
+        env:
+          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+          REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
         run: ./gradlew :assemble -Dorg.gradle.jvmargs=--enable-preview -DREPO_PASSWORD=${{ secrets.REPO_PASSWORD }} -DREPO_USERNAME=${{ secrets.REPO_USERNAME }}
 
       - name: Run Compiled Artifact
