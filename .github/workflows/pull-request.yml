@@ -18,13 +18,16 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - run: chmod +x gradlew
+      #      - run: chmod +x gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Assemble
+        run: ./gradlew assemble
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-        run: ./gradlew assemble
 
       - name: Run Compiled Artifact
         run: java --enable-preview -jar build/libs/cytosis.jar --ci-test

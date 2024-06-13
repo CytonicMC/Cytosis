@@ -24,10 +24,13 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - run: chmod +x gradlew
+      #      - run: chmod +x gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Publish
+        run: ./gradlew publish
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-        run: ./gradlew publish
