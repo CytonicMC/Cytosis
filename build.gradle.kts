@@ -88,10 +88,10 @@ publishing {
                     var u = System.getenv("REPO_USERNAME")
                     var p = System.getenv("REPO_PASSWORD")
 
-                    if (u.isEmpty()) {
+                    if (u == null || u.isEmpty()) {
                         u = "no-value-provided"
                     }
-                    if (p.isEmpty()) {
+                    if (p == null || p.isEmpty()) {
                         p = "no-value-provided"
                     }
 
