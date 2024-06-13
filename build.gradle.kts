@@ -100,7 +100,7 @@ publishing {
 
                     val user = providers.gradleProperty("username").orElse(u).get()
                     val pass = providers.gradleProperty("password").orElse(p).get()
-
+                    println("pass: $pass | user: $user")
                     println("pass: ${pass.length} | user: ${user.length}")
                     credentials {
                         username = user
