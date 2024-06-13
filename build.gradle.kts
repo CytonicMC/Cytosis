@@ -85,14 +85,19 @@ publishing {
             authentication {
                 create<BasicAuthentication>("basic") {
                     // Use providers to get the properties or fallback to environment variables
-                    println(System.getenv("REPO_PASSWORD").length)
-                    println("pass: " + System.getenv("REPO_PASSWORD") + " | user: " + System.getenv("REPO_USERNAME"))
                     val user =
                         providers.gradleProperty("username").orElse(System.getenv("REPO_USERNAME")).orElse("null")
                     val pass =
                         providers.gradleProperty("password").orElse(System.getenv("REPO_PASSWORD")).orElse("null")
-                    println(pass.get().length)
-                    println("pass: " + pass.get() + " | user: " + user.get())
+                    println("pass: " + pass.isPresent + " | user: " + user.isPresent)
+
+
+
+                    if (user.get().isEmpty() || !user.isPresent) {
+                        user.orElse("no-value-provided")
+                    }
+
+                    println("pass: " + pass.isPresent + " | user: " + user.isPresent)
                     credentials {
                         username = user.getOrElse("no-value-provided")
                         password = pass.getOrElse("no-value-provided")
