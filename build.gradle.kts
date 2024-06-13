@@ -94,8 +94,8 @@ publishing {
                     println(pass.get().length)
                     println("pass: " + pass.get() + " | user: " + user.get())
                     credentials {
-                        username = user.get()
-                        password = pass.get()
+                        username = user.getOrElse("no-value-provided")
+                        password = pass.getOrElse("no-value-provided")
                     }
                 }
             }
