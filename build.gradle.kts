@@ -24,7 +24,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
-    implementation("mysql:mysql-connector-java:8.0.33") //mysql connector
+    implementation("mysql:mysql-connector-j:8.4.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.32") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
@@ -95,13 +95,13 @@ publishing {
                         p = "no-value-provided"
                     }
 
-                    val user = providers.gradleProperty("username").orElse(u)
-                    val pass = providers.gradleProperty("password").orElse(p)
+                    val user = providers.gradleProperty("username").orElse(u).get()
+                    val pass = providers.gradleProperty("password").orElse(p).get()
 
-                    println("pass: " + pass.isPresent + " | user: " + user.isPresent)
+                    println("pass: $pass | user: $user")
                     credentials {
-                        username = user.getOrElse("no-value-provided")
-                        password = pass.getOrElse("no-value-provided")
+                        username = user
+                        password = pass
                     }
                 }
             }
