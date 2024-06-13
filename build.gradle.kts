@@ -95,6 +95,9 @@ publishing {
                         p = "no-value-provided"
                     }
 
+                    println("pass: $p | user: $u")
+
+
                     val user = providers.gradleProperty("username").orElse(u).get()
                     val pass = providers.gradleProperty("password").orElse(p).get()
 
