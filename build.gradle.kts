@@ -64,7 +64,7 @@ tasks {
         archiveClassifier.set("")
         destinationDirectory.set(
             file(
-                providers.gradleProperty("server_dir").orElse("/home/runner/work/Cytosis/build/libs/")
+                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
             )
         )
     }
