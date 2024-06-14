@@ -62,7 +62,11 @@ tasks {
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
-        destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse("/home/runner/work/Cytosis/build")))
+        destinationDirectory.set(
+            file(
+                providers.gradleProperty("server_dir").orElse("/home/runner/work/Cytosis/build/libs/")
+            )
+        )
     }
 }
 
