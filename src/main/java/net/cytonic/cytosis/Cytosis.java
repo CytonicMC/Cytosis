@@ -9,8 +9,9 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
-import net.cytonic.cytosis.managers.SideboardManager;
+import net.cytonic.cytosis.managers.NPCManager;
 import net.cytonic.cytosis.managers.PlayerListManager;
+import net.cytonic.cytosis.managers.SideboardManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.playerlist.PlayerListCategory;
 import net.cytonic.cytosis.playerlist.PlayerListEntry;
@@ -75,13 +76,14 @@ public class Cytosis {
     private static PluginManager pluginManager;
     @Getter
     private static SideboardManager sideboardManager;
+    @Getter
+    private static NPCManager npcManager;
     public static final String VERSION = "0.1";
 
     private static List<String> FLAGS;
 
     public static void main(String[] args) {
         FLAGS = List.of(args);
-        //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
@@ -269,6 +271,9 @@ public class Cytosis {
             Logger.info("Creating sideboard manager!");
             sideboardManager = new SideboardManager();
             sideboardManager.updateBoards();
+
+            Logger.info("Starting NPC manager!");
+            npcManager = new NPCManager();
 
             if (CytosisSettings.SERVER_PROXY_MODE) {
                 Logger.info("Loading network setup!");
