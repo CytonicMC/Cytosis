@@ -1,15 +1,21 @@
 name: Build Pull Request
-
-on: [ pull_request ]
+run-name: Deploy to Maven Repository by @${{ github.actor }}
 
 env:
   REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
   REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+      REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -23,11 +29,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Assemble
-        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview assemble
+      - name: Publish
+        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview publish
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-
-      - name: Run Compiled Artifact
-        run: java --enable-preview -jar build/libs/cytosis.jar --ci-test

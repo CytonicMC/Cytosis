@@ -24,7 +24,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
-    implementation("mysql:mysql-connector-java:8.0.33") //mysql connector
+    implementation("com.mysql:mysql-connector-j:8.4.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.32") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
@@ -62,7 +62,11 @@ tasks {
         mergeServiceFiles()
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
-        //destinationDirectory.set(file(providers.gradleProperty("server_dir").get()))
+        destinationDirectory.set(
+            file(
+                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
+            )
+        )
     }
 }
 
@@ -81,9 +85,28 @@ publishing {
         maven {
             name = "FoxikleCytonicRepository"
             url = uri("https://repo.foxikle.dev/cytonic")
-            credentials(PasswordCredentials::class)
+//            credentials(PasswordCredentials::class)
+            // Use providers to get the properties or fallback to environment variables
+            var u = System.getenv("REPO_USERNAME")
+            var p = System.getenv("REPO_PASSWORD")
+
+            if (u == null || u.isEmpty()) {
+                u = "no-value-provided"
+            }
+            if (p == null || p.isEmpty()) {
+                p = "no-value-provided"
+            }
+
+            val user = providers.gradleProperty("usernames").orElse(u).get()
+            val pass = providers.gradleProperty("passwords").orElse(p).get()
+            credentials {
+                username = user
+                password = pass
+            }
             authentication {
-                create<BasicAuthentication>("basic")
+                create<BasicAuthentication>("basic") {
+
+                }
             }
         }
     }
@@ -92,7 +115,6 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-//            println("$version | $artifactId | $groupId")
             artifact(tasks["shadowJar"])
             artifact(javadocJar)
             artifact(sourcesJar)
