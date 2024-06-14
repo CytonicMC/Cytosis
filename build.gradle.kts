@@ -11,7 +11,6 @@ plugins {
 group = "net.cytonic"
 version = "1.0-SNAPSHOT"
 
-//serviceLoader.serviceInterfaces.add("net.minestom.vanilla.VanillaReimplementation\$Feature")
 serviceLoader.serviceInterfaces.add("org.slf4j.spi.SLF4JServiceProvider")
 
 repositories {
@@ -63,9 +62,7 @@ tasks {
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
         destinationDirectory.set(
-            file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
-            )
+            file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString()))
         )
     }
 }
