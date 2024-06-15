@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation("net.minestom:minestom-snapshots:b3aa996e1d")
+    implementation("net.minestom:minestom-snapshots:1_21-9219e96f76")
     implementation("com.google.code.gson:gson:2.11.0") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -94,8 +94,8 @@ publishing {
                 p = "no-value-provided"
             }
 
-            val user = providers.gradleProperty("usernames").orElse(u).get()
-            val pass = providers.gradleProperty("passwords").orElse(p).get()
+            val user = providers.gradleProperty("FoxikleCytonicRepositoryUsername").orElse(u).get()
+            val pass = providers.gradleProperty("FoxikleCytonicRepositoryPassword").orElse(p).get()
             credentials {
                 username = user
                 password = pass
