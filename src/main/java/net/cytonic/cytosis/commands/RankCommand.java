@@ -9,7 +9,10 @@ import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
+
 import java.util.Locale;
+import java.util.Optional;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class RankCommand extends Command {
@@ -17,7 +20,7 @@ public class RankCommand extends Command {
     public RankCommand() {
         super("rank");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.rank"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>You must specify a valid player and rank!"));
+//        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>You must specify a valid player and rank!"));
 
         var rankArg = ArgumentType.Enum("rank", PlayerRank.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         rankArg.setCallback((sender, exception) -> sender.sendMessage(STR."The rank \{exception.getInput()} is invalid!"));
@@ -27,19 +30,30 @@ public class RankCommand extends Command {
             }
         });
 
-        var playerArg = ArgumentType.Entity("player").onlyPlayers(true);
-        playerArg.setCallback((sender, exception) -> sender.sendMessage(STR."The player \{exception.getInput()} doesn't exist!"));
+        var playerArg = ArgumentType.Word("player");
+        playerArg.setSuggestionCallback((sender, _, suggestion) -> {
+            if (sender instanceof Player player) {
+                player.sendActionBar(MM."<green>Fetching online players...");
+            }
+            Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().forEach(player ->
+                    suggestion.addEntry(new SuggestionEntry(player)));
+        });
 
-
-        var group = ArgumentType.Group("rank-group", playerArg, rankArg);
 
         addSyntax((sender, context) -> {
-            final Player player = context.get(group).get(playerArg).findFirstPlayer(sender);
-            final PlayerRank newRank = context.get(group).get(rankArg);
-            if (player == null) {
-                sender.sendMessage(MM."<red>The player \{context.get(group).getRaw("player")} doesn't exist!");
+            String name = context.get(playerArg);
+            if (!Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().contains(name)) {
+                sender.sendMessage(MM."<red>The player \{context.get("player")} doesn't exist!");
                 return;
             }
+            Optional<Player> optionalPlayer = Cytosis.getPlayer(name);
+            if (optionalPlayer.isEmpty()) {
+                sender.sendMessage(MM."<red>You must be on the same server to set someone's rank! Use the /find command to find and go to their server.");
+                return;
+            }
+
+            final Player player = optionalPlayer.get();
+            final PlayerRank newRank = context.get(rankArg);
 
             if (player == sender) {
                 sender.sendMessage(MM."<red>You cannot change your own rank!");
@@ -62,7 +76,7 @@ public class RankCommand extends Command {
 
                 setRank(player, newRank, sender);
             });
-        }, group);
+        }, playerArg, rankArg);
     }
 
     private void setRank(Player player, PlayerRank rank, CommandSender sender) {
