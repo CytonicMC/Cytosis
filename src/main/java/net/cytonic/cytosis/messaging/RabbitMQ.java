@@ -139,7 +139,7 @@ public class RabbitMQ {
         //formatting: {chat-message}|{chat-channel}
         String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
         try {
-            channel.basicPublish("chat-messages", CHAT_CHANNEL_QUEUE, null, message.getBytes());
+            channel.basicPublish(CHAT_CHANNEL_EXCHANGE, CHAT_CHANNEL_QUEUE, null, message.getBytes());
         } catch (IOException e) {
             Logger.error("An error occurred whilst attempting to send a chat message!", e);
         }
