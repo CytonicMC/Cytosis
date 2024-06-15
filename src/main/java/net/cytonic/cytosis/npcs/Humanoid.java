@@ -15,7 +15,6 @@ import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class Humanoid extends EntityCreature implements NPC {
         super.updateNewViewer(player);
         player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
 
-        Logger.debug("COlor: " + glowingColor.toString());
+        Logger.debug(STR."Color: \{glowingColor.toString()}");
         var team = new TeamsPacket(STR."NPC-\{getUuid().toString()}",
                 new TeamsPacket.CreateTeamAction(Component.empty(),
                         (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
