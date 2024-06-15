@@ -94,8 +94,8 @@ publishing {
                 p = "no-value-provided"
             }
 
-            val user = providers.gradleProperty("usernames").orElse(u).get()
-            val pass = providers.gradleProperty("passwords").orElse(p).get()
+            val user = providers.gradleProperty("FoxikleCytonicRepositoryUsername").orElse(u).get()
+            val pass = providers.gradleProperty("FoxikleCytonicRepositoryPassword").orElse(p).get()
             credentials {
                 username = user
                 password = pass
