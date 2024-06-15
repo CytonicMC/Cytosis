@@ -4,14 +4,16 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
+import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerChatEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.player.*;
+
+import java.util.Optional;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
@@ -94,6 +96,24 @@ public class ServerEventListeners {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
+        }));
+
+        Logger.info("Registering interact events.");
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-attack", false, 1, EntityAttackEvent.class, event -> {
+            if (event.getEntity() instanceof Player player) {
+                Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
+                if (optional.isPresent() && optional.get() == event.getTarget()) {
+                    NPC npc = optional.get();
+                    npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.ATTACK, player));
+                }
+            }
+        }));
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-interact", false, 1, PlayerEntityInteractEvent.class, event -> {
+            Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
+            if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == Player.Hand.MAIN) {
+                NPC npc = optional.get();
+                npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
+            }
         }));
     }
 }
