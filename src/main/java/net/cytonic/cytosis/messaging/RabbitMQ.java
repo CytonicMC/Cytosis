@@ -221,11 +221,32 @@ public class RabbitMQ {
     /*
      * RabbitMQ via the Plugins API
      */
+
+    /**
+     * Registers a queue with RabbitMQ
+     *
+     * @param queue the queue to register
+     */
     public void registerQueue(String queue) {
         try {
             channel.queueDeclare(queue, false, false, false, null);
         } catch (IOException e) {
             Logger.error(STR."An error occurred whilst attempting to register the queue '\{queue}'", e);
+        }
+    }
+
+    /**
+     * Binds a queue to an exchange
+     *
+     * @param queue      The queue to bind
+     * @param exchange   The exchange to bind the queue to
+     * @param routingKey The routing key
+     */
+    public void bindQueue(String queue, String exchange, String routingKey) {
+        try {
+            channel.queueBind(queue, exchange, routingKey);
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to bind the queue '\{queue}'", e);
         }
     }
 
