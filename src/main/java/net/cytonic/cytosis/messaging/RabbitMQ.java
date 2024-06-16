@@ -236,6 +236,20 @@ public class RabbitMQ {
     }
 
     /**
+     * Registers an exchange with RabbitMQ
+     *
+     * @param exchange The name of the exchange
+     * @param type     The type of the exchange
+     */
+    public void registerExchange(String exchange, String type) {
+        try {
+            channel.exchangeDeclare(exchange, type);
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to register the exchange '\{exchange}'", e);
+        }
+    }
+
+    /**
      * Binds a queue to an exchange
      *
      * @param queue      The queue to bind
