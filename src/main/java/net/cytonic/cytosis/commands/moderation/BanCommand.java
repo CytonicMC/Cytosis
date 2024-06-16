@@ -20,7 +20,13 @@ import java.time.Instant;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command that allows authorized players to ban players.
+ */
 public class BanCommand extends Command {
+    /**
+     * Creates the command and sets the consumers
+     */
     public BanCommand() {
         super("ban");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.ban"));

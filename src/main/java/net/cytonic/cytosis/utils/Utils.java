@@ -10,12 +10,20 @@ import java.util.List;
 /**
  * A class holding utility methods
  */
-public class Utils {
+public final class Utils {
+
+    /**
+     * Default constructor
+     */
+    private Utils() {
+        // do nothing
+    }
 
     /**
      * Creates a MUTABLE list from a vararg, for immutable lists, use {@link List#of(Object...)}
      *
      * @param vararg The elements to be added to the list
+     * @param <E> The type of the list
      * @return The elements as a List object
      */
     @SafeVarargs
@@ -23,6 +31,11 @@ public class Utils {
         return new ArrayList<>(List.of(vararg));
     }
 
+    /**
+     * Gets the server's IP address
+     *
+     * @return the string of the IP address
+     */
     public static String getServerIP() {
         String serverIP;
         try {

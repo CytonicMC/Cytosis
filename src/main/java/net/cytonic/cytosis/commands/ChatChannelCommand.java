@@ -9,8 +9,14 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 
+/**
+ * A class that handles the chat channel command
+ */
 public class ChatChannelCommand extends Command {
 
+    /**
+     * Creates the command
+     */
     public ChatChannelCommand() {
         super("chat");
         setDefaultExecutor((sender, _) -> sender.sendMessage(Component.text("You must specify a channel!", NamedTextColor.RED)));

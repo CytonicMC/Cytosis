@@ -11,9 +11,20 @@ import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 
 import java.util.*;
 
+/**
+ * A class that manages the player list
+ */
 @Setter
 @Getter
 public class PlayerListManager {
+
+    /**
+     * The default player list manager constructor
+     */
+    public PlayerListManager() {
+        // do nothing
+    }
+
     //todo make it per player?
     private List<PlayerListCategory> globalCategories = new ArrayList<>();
 
@@ -35,6 +46,11 @@ public class PlayerListManager {
         }
     }
 
+    /**
+     * Creates the player list packets
+     *
+     * @return the list of packets
+     */
     private List<ServerPacket> createPackets() {
         globalCategories.sort(Comparator.comparingInt(PlayerListCategory::getPriority));
         List<ServerPacket> packets = new ArrayList<>();

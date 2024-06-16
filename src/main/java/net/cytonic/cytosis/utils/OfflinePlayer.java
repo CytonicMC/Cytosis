@@ -9,6 +9,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * An offline player
+ *
+ * @param name the name of the player
+ * @param uuid the uuid of the player
+ * @param rank the rank of the player
+ */
 public record OfflinePlayer(String name, UUID uuid, PlayerRank rank) implements PermissionHandler {
 
     @Override

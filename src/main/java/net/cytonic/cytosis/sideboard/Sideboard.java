@@ -341,11 +341,20 @@ public class Sideboard {
         this.deleted = true;
     }
 
+    /**
+     * Send a line change packet
+     *
+     * @param score the score to change
+     */
     public void sendLineChange(int score) {
         Component line = getLineByScore(score);
         sendTeamPacket(score, TeamMode.UPDATE, line, Component.empty());
     }
 
+    /**
+     * Get an empty line
+     * @return an empty line
+     */
     public Component emptyLine() {
         return Component.empty();
     }
@@ -364,18 +373,38 @@ public class Sideboard {
         }
     }
 
+    /**
+     * Gets a score from a line bynver
+     * @param line the line
+     * @return the score
+     */
     public int getScoreByLine(int line) {
         return this.lines.size() - line - 1;
     }
 
+    /**
+     * Gets a line by the score number
+     * @param score The score
+     * @return The line by the score
+     */
     public Component getLineByScore(int score) {
         return getLineByScore(this.lines, score);
     }
 
+    /**
+     * gets a sline by score
+     * @param lines The existing lines
+     * @param score The score
+     * @return The Line
+     */
     public Component getLineByScore(List<Component> lines, int score) {
         return score < lines.size() ? lines.get(lines.size() - score - 1) : null;
     }
 
+    /**
+     * Sends the objective packet
+     * @param mode with the mode
+     */
     public void sendObjectivePacket(ObjectiveMode mode) {
 
         ScoreboardObjectivePacket packet;
@@ -392,14 +421,27 @@ public class Sideboard {
         sendPacket(packet);
     }
 
+    /**
+     * Sends a packet to display the objective
+     */
     public void sendDisplayObjectivePacket() {
         sendPacket(new DisplayScoreboardPacket((byte) 1, this.id));
     }
 
+    /**
+     * Sends a score packet
+     * @param score The score
+     * @param action the action
+     */
     public void sendScorePacket(int score, ScoreboardAction action) {
         sendModernScorePacket(score, action);
     }
 
+    /**
+     * Sends a score packet
+     * @param score The score
+     * @param action the action
+     */
     private void sendModernScorePacket(int score, ScoreboardAction action) {
         String objName = objective[score];
 
@@ -413,10 +455,22 @@ public class Sideboard {
         sendPacket(packet);
     }
 
+    /**
+     * Sends a team packet
+     * @param score The score
+     * @param mode the mode
+     */
     public void sendTeamPacket(int score, TeamMode mode) {
         sendTeamPacket(score, mode, Component.empty(), Component.empty());
     }
 
+    /**
+     * Sends a team packet
+     * @param score the score
+     * @param mode the mode
+     * @param prefix the prefix
+     * @param suffix the suffix
+     */
     public void sendTeamPacket(int score, TeamMode mode, Component prefix, Component suffix) {
         if (mode == TeamMode.ADD_PLAYERS || mode == TeamMode.REMOVE_PLAYERS) throw new UnsupportedOperationException();
         TeamsPacket.Action action;
@@ -439,15 +493,61 @@ public class Sideboard {
         if (this.player.isOnline()) player.sendPacket(packet);
     }
 
+    /**
+     * Allowed modes for a scoreboard
+     */
     public enum ObjectiveMode {
-        CREATE, REMOVE, UPDATE
+        /**
+         * Create a new objective
+         */
+        CREATE,
+        /**
+         * Remove the objective
+         */
+        REMOVE,
+        /**
+         * Update the objective
+         */
+        UPDATE
     }
 
+    /**
+     * actions for team packets
+     */
     public enum TeamMode {
-        CREATE, REMOVE, UPDATE, ADD_PLAYERS, REMOVE_PLAYERS
+        /**
+         * Create a new team
+         */
+        CREATE,
+        /**
+         * Remove a team
+         */
+        REMOVE,
+        /**
+         * Update a team
+         */
+        UPDATE,
+        /**
+         * Add a player to a team
+         */
+        ADD_PLAYERS,
+        /**
+         * Remove a player from a team
+         */
+        REMOVE_PLAYERS
     }
 
+    /**
+     * Actions for scoreboards
+     */
     public enum ScoreboardAction {
-        CHANGE, REMOVE
+        /**
+         * Change the scoreboard
+         */
+        CHANGE,
+        /**
+         * Remove the scoreboard
+         */
+        REMOVE
     }
 }

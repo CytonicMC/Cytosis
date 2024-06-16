@@ -8,7 +8,7 @@ import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.OfflinePlayer;
 import net.cytonic.cytosis.utils.Utils;
-import net.kyori.adventure.sound.*;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
@@ -26,6 +26,13 @@ import java.util.concurrent.TimeoutException;
  */
 @SuppressWarnings("unused")
 public class RabbitMQ {
+
+    /**
+     * Creates a new RabbitMQ instance
+     */
+    public RabbitMQ() {
+        // do nothing
+    }
 
     private static final String SERVER_DECLARE_QUEUE = "server-declaration";
     private static final String SHUTDOWN_QUEUE = "server-shutdown";
