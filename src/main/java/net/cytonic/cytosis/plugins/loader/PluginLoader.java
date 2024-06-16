@@ -4,17 +4,24 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.plugins.CytosisPlugin;
 import net.cytonic.cytosis.plugins.Plugin;
+
 import java.io.File;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+/**
+ * A class that loads plugin classes
+ */
 public class PluginLoader {
     private final List<PluginClassLoader> pluginClassLoaders = new ArrayList<>();
     private final Map<String, Class<?>> pluginClasses = new HashMap<>();
     private final Map<String, List<String>> pluginDependencies = new HashMap<>();
 
+    /**
+     * Loads the plugins from the
+     */
     public void loadPlugins() {
         File pluginDir = new File("plugins");
         if (pluginDir.exists() && pluginDir.isDirectory()) {
@@ -47,6 +54,12 @@ public class PluginLoader {
         } else pluginDir.mkdir();
     }
 
+    /**
+     * Discover all plugins
+     *
+     * @param jarFile     The file to search
+     * @param classLoader The loader to use
+     */
     private void discoverPlugins(File jarFile, PluginClassLoader classLoader) {
         try (JarFile jar = new JarFile(jarFile)) {
             Enumeration<JarEntry> entries = jar.entries();
@@ -71,6 +84,12 @@ public class PluginLoader {
         }
     }
 
+    /**
+     * Load dependencies first
+     * @param pluginName the plugin name
+     * @param loadedPlugins the loaded plugins
+     * @param classLoader the class loader
+     */
     private void loadDependencies(String pluginName, Set<String> loadedPlugins, PluginClassLoader classLoader) {
         if (loadedPlugins.contains(pluginName)) {
             return;
