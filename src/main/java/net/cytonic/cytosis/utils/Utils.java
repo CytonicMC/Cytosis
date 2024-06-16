@@ -1,5 +1,9 @@
 package net.cytonic.cytosis.utils;
 
+import net.cytonic.cytosis.logging.Logger;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,5 +21,16 @@ public class Utils {
     @SafeVarargs
     public static <E> List<E> list(E... vararg) {
         return new ArrayList<>(List.of(vararg));
+    }
+
+    public static String getServerIP() {
+        String serverIP;
+        try {
+            serverIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
+            return "ERROR";
+        }
+        return serverIP;
     }
 }
