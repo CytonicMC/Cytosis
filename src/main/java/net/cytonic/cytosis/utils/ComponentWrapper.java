@@ -6,9 +6,23 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.utils.StringUtils;
+
 import java.util.*;
 
-public class ComponentWrapper {
+/**
+ * A util class that wraps text components
+ */
+public final class ComponentWrapper {
+    private ComponentWrapper() {
+    }
+
+    /**
+     * Wraps the text component with a specified line length
+     *
+     * @param component The component to wrap
+     * @param length    The line length
+     * @return The list of wrapped components
+     */
     public static List<Component> wrap(Component component, int length) {
         if (!(component instanceof TextComponent text)) return Collections.singletonList(component);
         var wrapped = new ArrayList<Component>();

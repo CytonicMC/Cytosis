@@ -6,6 +6,11 @@ import net.minestom.server.event.Event;
 
 import java.util.function.Consumer;
 
+/**
+ * A class that represents an event listener. It contains information about the event class, priority, and consumer.
+ *
+ * @param <T> The event class type
+ */
 @Getter
 public class EventListener<T extends Event> {
     private final Class<T> eventClass;

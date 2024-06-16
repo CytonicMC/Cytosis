@@ -15,11 +15,15 @@ import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * A class representing a Player NPC
+ */
 @SuppressWarnings("UnstableApiUsage")
 public class Humanoid extends EntityCreature implements NPC {
 
@@ -31,12 +35,23 @@ public class Humanoid extends EntityCreature implements NPC {
     private boolean glowing = false;
     private NamedTextColor glowingColor = NamedTextColor.WHITE;
 
+    /**
+     * Creates a new Humanoid from uuid, username, and skin
+     *
+     * @param uuid     The NPC's UUID
+     * @param username The NPC's username (pretty irrelevent)
+     * @param skin     The NPC's skin data
+     */
     public Humanoid(UUID uuid, String username, PlayerSkin skin) {
         super(EntityType.PLAYER, uuid);
         this.username = username;
         this.skin = skin;
     }
 
+    /**
+     * Creates a new NPC from a UUID
+     * @param uuid The UUID to use
+     */
     public Humanoid(UUID uuid) {
         super(EntityType.PLAYER, uuid);
         this.username = STR."npc-\{uuid.toString().substring(0, 12)}";

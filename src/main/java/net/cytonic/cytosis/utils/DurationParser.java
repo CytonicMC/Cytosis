@@ -7,8 +7,17 @@ import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DurationParser {
+/**
+ * A class handling parsing of duration strings
+ */
+public final class DurationParser {
     private static final Pattern PATTERN = Pattern.compile("(\\d+)([ydhms])");
+
+    /**
+     * The default constructor
+     */
+    private DurationParser() {
+    }
 
     /**
      * Parses a duration from a string akin to "1y5d6h23m12s"

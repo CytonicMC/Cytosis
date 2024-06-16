@@ -1,49 +1,132 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.logging.Logger;
-
 import net.cytonic.cytosis.utils.PosSerializer;
 import net.minestom.server.coordinate.Pos;
+
 import java.util.Map;
 
 /**
  * This class is used to store all the cached configuration values.
  */
-public class CytosisSettings {
+public final class CytosisSettings {
+    /**
+     * Defualt constructor
+     */
+    private CytosisSettings() {
+    }
+
     // Logging
+    /**
+     * Should the server log player joins
+     */
     public static boolean LOG_PLAYER_JOINS = true;
+    /**
+     * Should the server log player quits
+     */
     public static boolean LOG_PLAYER_QUITS = true;
+    /**
+     * Should the server log player commands
+     */
     public static boolean LOG_PLAYER_COMMANDS = true;
+    /**
+     * Should the server log player chat messages
+     */
     public static boolean LOG_PLAYER_CHAT = true;
 
     // Database
+    /**
+     * Should the server use the database
+     */
     public static boolean DATABASE_ENABLED = true;
+    /**
+     * Database username
+     */
     public static String DATABASE_USER = "";
+    /**
+     * Database password
+     */
     public static String DATABASE_PASSWORD = "";
+    /**
+     * Hostname of the database server
+     */
     public static String DATABASE_HOST = "";
+    /**
+     * Database port
+     */
     public static int DATABASE_PORT = 3306;
+    /**
+     * Name of the database to use
+     */
     public static String DATABASE_NAME = "";
+    /**
+     * Use SSL?
+     */
     public static boolean DATABASE_USE_SSL = false;
 
     // server
+    /**
+     * Should Cytosis run in proxy mode?
+     */
     public static boolean SERVER_PROXY_MODE = false;
-    public static String SERVER_SECRET = "";
+    /**
+     * The velocity forwarding secret
+     */
+    public static String SERVER_SECRET = "cannot-be-empty";
+    /**
+     * The port to start on
+     */
     public static int SERVER_PORT = 25565;
 
+    /**
+     * The name of the world to load from the database
+     */
     public static String SERVER_WORLD_NAME = "";
+    /**
+     * The pos for players to spawn at
+     */
     public static Pos SERVER_SPAWN_POS = new Pos(0, 1, 0);
-    // RabbitMQ
+
+    /**
+     * Should Cytosis use RabbitMQ?
+     */
     public static boolean RABBITMQ_ENABLED = false;
+    /**
+     * hostname of the RabbitMQ server
+     */
     public static String RABBITMQ_HOST = "";
+    /**
+     * RabbitMQ Password
+     */
     public static String RABBITMQ_PASSWORD = "";
+    /**
+     * RabbitMQ server username
+     */
     public static String RABBITMQ_USERNAME = "";
+    /**
+     * The port to connect to RabbitMQ on
+     */
     public static int RABBITMQ_PORT = 5672;
 
     //Redis
+    /**
+     * The redis port
+     */
     public static int REDIS_PORT = 6379;
+    /**
+     * The redis hostname
+     */
     public static String REDIS_HOST = "";
+    /**
+     * The redis password
+     */
     public static String REDIS_PASSWORD = "";
 
+    /**
+     * Loads the config from a config map
+     *
+     * @param config The config map of key value pairs
+     */
     public static void inportConfig(Map<String, Object> config) {
         Logger.info("Importing config!");
         config.forEach((key, value) -> {
@@ -93,6 +176,9 @@ public class CytosisSettings {
         return Integer.parseInt(key.toString());
     }
 
+    /**
+     * Load settings from environment variables
+     */
     public static void loadEnvironmentVariables() {
         Logger.info("Loading environment variables!");
         // logging
@@ -143,6 +229,9 @@ public class CytosisSettings {
         if (!(System.getenv("REDIS_PASSWORD") == null)) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
     }
 
+    /**
+     * Load settings from command args (System Properties)
+     */
     public static void loadCommandArgs() {
         Logger.info("Loading command args!");
         // logging

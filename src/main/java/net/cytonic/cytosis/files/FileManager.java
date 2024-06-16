@@ -5,6 +5,7 @@ import net.cytonic.cytosis.logging.Logger;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -13,11 +14,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * A class handling IO and files
+ */
 public class FileManager {
 
     private static final Path CONFIG_PATH = Path.of("config.toml");
     private final ExecutorService worker;
 
+    /**
+     * The default constructor that initializes the worker thread
+     */
     public FileManager() {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisIOWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
     }
