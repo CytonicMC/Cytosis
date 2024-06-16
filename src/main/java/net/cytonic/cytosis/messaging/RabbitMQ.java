@@ -7,25 +7,35 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.OfflinePlayer;
+import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
+
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * A class holding a connection to the RabbitMQ server.
+ * <p>
+ * It serves as a wrapper around the RabbitMQ Java API,
+ * facilitating the communication between other instances of Cytosis and Cynturion.
+ */
+@SuppressWarnings("unused")
 public class RabbitMQ {
 
-    public static final String SERVER_DECLARE_QUEUE = "server-declaration";
-    public static final String SHUTDOWN_QUEUE = "server-shutdown";
-    public static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{Cytosis.SERVER_ID}";
-    public static final String PLAYER_KICK_QUEUE = "player-kick";
-    public static final String CHAT_CHANNEL_EXCHANGE = "chat-exchange";
+    private static final String SERVER_DECLARE_QUEUE = "server-declaration";
+    private static final String SHUTDOWN_QUEUE = "server-shutdown";
+    private static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{Cytosis.SERVER_ID}";
+    private static final String PLAYER_KICK_QUEUE = "player-kick";
+    private static final String CHAT_CHANNEL_EXCHANGE = "chat-exchange";
     private Connection connection;
     private Channel channel;
 
+    /**
+     * Initializes a connection to the RabbitMQ server.
+     */
     public void initializeConnection() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(CytosisSettings.RABBITMQ_HOST);
@@ -45,6 +55,9 @@ public class RabbitMQ {
         }
     }
 
+    /**
+     * Creates the queues required for Cytosis to link with proxy servers
+     */
     public void initializeQueues() {
         Logger.info("Initializing RabbitMQ queues...");
         try {
@@ -71,16 +84,13 @@ public class RabbitMQ {
         }
     }
 
+    /**
+     * Sends a message to proxies to register the server
+     */
     public void sendServerDeclarationMessage() {
         //formatting: {server-name}|:|{server-ip}|:|{server-port}
-        String serverIP;
-        try {
-            serverIP = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
-            return;
-        }
-        String message = STR."\{Cytosis.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
+
+        String message = STR."\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}";
         try {
             channel.basicPublish("", SERVER_DECLARE_QUEUE, null, message.getBytes());
         } catch (IOException e) {
@@ -89,16 +99,12 @@ public class RabbitMQ {
         Logger.info(STR."Server Declaration message sent! '\{message}'.");
     }
 
+    /**
+     * Sends a message to proxies to unregister the server
+     */
     public void sendServerShutdownMessage() {
         //formatting: {server-name}|:|{server-ip}|:|{server-port}
-        String serverIP;
-        try {
-            serverIP = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
-            return;
-        }
-        String message = STR."\{Cytosis.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
+        String message = STR."\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}";
         try {
             channel.basicPublish("", SHUTDOWN_QUEUE, null, message.getBytes());
         } catch (IOException e) {
@@ -107,6 +113,9 @@ public class RabbitMQ {
         Logger.info(STR."Server Shutdown message sent! '\{message}'.");
     }
 
+    /**
+     * Closes the RabbitMQ connection
+     */
     public void shutdown() {
         try {
             connection.close();
@@ -115,9 +124,18 @@ public class RabbitMQ {
         }
     }
 
+    /**
+     * Sends a message to RabbitMQ to kick a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
+     *
+     * @param player  The player to kick, on this server
+     * @param reason  The reason for kicking the player
+     * @param message The kick message displayed
+     */
     public void kickPlayer(Player player, KickReason reason, Component message) {
         // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
-        String rawMessage = STR."\{player.getUuid().toString()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(message)}|:|\{reason.isRescuable()}";
+        String rawMessage = STR."\{player.getUuid()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(message)}|:|\{reason.isRescuable()}";
         try {
             channel.basicPublish("", PLAYER_KICK_QUEUE, null, rawMessage.getBytes());
         } catch (IOException e) {
@@ -125,9 +143,17 @@ public class RabbitMQ {
         }
     }
 
+    /**
+     * Sends a message to RabbitMQ to kick a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
+     * @param player The player to kick, on another server
+     * @param reason The reason for kicking the player
+     * @param message The kick message displayed
+     */
     public void kickPlayer(OfflinePlayer player, KickReason reason, Component message) {
         // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
-        String rawMessage = STR."\{player.uuid().toString()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(message)}|:|\{reason.isRescuable()}";
+        String rawMessage = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(message)}|:|\{reason.isRescuable()}";
         try {
             channel.basicPublish("", PLAYER_KICK_QUEUE, null, rawMessage.getBytes());
         } catch (IOException e) {
@@ -135,6 +161,11 @@ public class RabbitMQ {
         }
     }
 
+    /**
+     * Sends a chat message to RabbitMQ, for other servers to broadcast to the appropriate chat channel
+     * @param chatMessage The message to send, in component form
+     * @param chatChannel The channel the message is to be sent on
+     */
     public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
         //formatting: {chat-message}|{chat-channel}
         String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
@@ -145,6 +176,9 @@ public class RabbitMQ {
         }
     }
 
+    /**
+     * Initializes the consumers for receiving chat messages
+     */
     public void receiveChatMessages() {
         try {
             DeliverCallback deliverCallback = (_, delivery) -> {
@@ -181,6 +215,76 @@ public class RabbitMQ {
             });
         } catch (IOException e) {
             Logger.error("error", e);
+        }
+    }
+
+    /*
+     * RabbitMQ via the Plugins API
+     */
+    public void registerQueue(String queue) {
+        try {
+            channel.queueDeclare(queue, false, false, false, null);
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to register the queue '\{queue}'", e);
+        }
+    }
+
+    /**
+     * Creates a callback for listening to messages on the specified queue
+     *
+     * @param queue           The queue to listen on
+     * @param deliverCallback The callback for message delivery
+     */
+    public void consumeQueue(String queue, DeliverCallback deliverCallback) {
+        try {
+            channel.basicConsume(queue, true, deliverCallback, _ -> {
+            });
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to consume the queue! '\{queue}'", e);
+        }
+    }
+
+    /**
+     * Sets a callback to consume messages on a queue
+     *
+     * @param queue           The queue to consume
+     * @param deliverCallback The callback for message delivery
+     * @param cancelCallback  The callback for consumer cancellation
+     */
+    public void consumeQueue(String queue, DeliverCallback deliverCallback, CancelCallback cancelCallback) {
+        try {
+            channel.basicConsume(queue, true, deliverCallback, cancelCallback);
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to consume the queue! '\{queue}'", e);
+        }
+    }
+
+    /**
+     * Sends a message to a queue
+     *
+     * @param queue   The queue to send to
+     * @param message The message to send
+     */
+    public void sendMessage(String queue, String message) {
+        try {
+            channel.basicPublish("", queue, null, message.getBytes());
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to send a message to the queue! '\{queue}'", e);
+        }
+    }
+
+    /**
+     * Sends a message to an exchange and queue
+     *
+     * @param queue    The queue to send the message to
+     * @param exchange The exchange to send the message on
+     * @param message  The message to send
+     */
+    public void sendMessage(String queue, String exchange, String message) {
+        try {
+            channel.basicPublish(exchange, queue, null, message.getBytes());
+        } catch (IOException e) {
+            Logger.error(STR."An error occurred whilst attempting to send a message to the queue! '\{queue}' on exchange '\{exchange}'", e);
         }
     }
 }
