@@ -20,21 +20,25 @@ public class RedisDatabase extends JedisPubSub {
     private final String ONLINE_PLAYER_UUID_KEY = "online_player_uuids";
     private final String PLAYER_STATUS_CHANNEL = "player_status";
     private final String SERVER_SHUTDOWN_KEY = "server_shutdown";
-    private final Jedis jedis;
+    private final JedisPooled jedis;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker").factory());
     @Getter
     private final Set<String> onlinePlayers;
     @Getter
     private final Set<UUID> onlineUUIDs;
 
+
     /**
      * Initializes the connection to redis using the loaded settings and the Jedis client
      */
     public RedisDatabase() {
-        HostAndPort hostAndPort = new HostAndPort(CytosisSettings.REDIS_HOST, CytosisSettings.REDIS_PORT);
-        JedisClientConfig config = DefaultJedisClientConfig.builder().password(CytosisSettings.REDIS_PASSWORD).build();
-        this.jedis = new Jedis(hostAndPort, config);
-        this.jedis.auth(CytosisSettings.REDIS_PASSWORD);
+        String host = CytosisSettings.REDIS_HOST;
+        String pass = CytosisSettings.REDIS_PASSWORD;
+
+        HostAndPort hostAndPort = new HostAndPort(host, 6379);
+        JedisClientConfig config = DefaultJedisClientConfig.builder().password(pass).build();
+        this.jedis = new JedisPooled(hostAndPort, config);
+
         onlinePlayers = jedis.smembers(ONLINE_PLAYER_NAME_KEY);
         Set<UUID> uuids = new HashSet<>();
         jedis.smembers(ONLINE_PLAYER_UUID_KEY).forEach(s -> uuids.add(UUID.fromString(s)));
@@ -74,7 +78,6 @@ public class RedisDatabase extends JedisPubSub {
      * Disconnects from the redis server
      */
     public void disconnect() {
-        jedis.disconnect();
         worker.shutdown();
         jedis.close();
     }
