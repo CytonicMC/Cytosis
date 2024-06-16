@@ -25,6 +25,7 @@ public class CommandHandler {
         cm.register(new RankCommand());
         cm.register(new BanCommand());
         cm.register(new ChatChannelCommand());
+        cm.register(new StopCommand());
     }
 
     @SuppressWarnings("UnstableApiUsage")

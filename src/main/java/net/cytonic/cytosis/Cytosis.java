@@ -9,8 +9,9 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
-import net.cytonic.cytosis.managers.SideboardManager;
+import net.cytonic.cytosis.managers.NPCManager;
 import net.cytonic.cytosis.managers.PlayerListManager;
+import net.cytonic.cytosis.managers.SideboardManager;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.playerlist.PlayerListCategory;
 import net.cytonic.cytosis.playerlist.PlayerListEntry;
@@ -32,13 +33,12 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 @Getter
 public class Cytosis {
+
     public static final String SERVER_ID = generateID();
     // manager stuff
     @Getter
@@ -76,13 +76,14 @@ public class Cytosis {
     private static PluginManager pluginManager;
     @Getter
     private static SideboardManager sideboardManager;
+    @Getter
+    private static NPCManager npcManager;
     public static final String VERSION = "0.1";
 
     private static List<String> FLAGS;
 
     public static void main(String[] args) {
         FLAGS = List.of(args);
-        //todo: Add flags for special server functionality (ie env variables)
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
@@ -214,6 +215,7 @@ public class Cytosis {
                 databaseManager.shutdown();
                 messagingManager.shutdown();
                 sideboardManager.shutdown();
+                getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
             Logger.info("Starting Player list manager");
@@ -243,7 +245,6 @@ public class Cytosis {
                     )
             );
 
-
             Logger.info("Initializing server commands");
             commandHandler = new CommandHandler();
             commandHandler.setupConsole();
@@ -270,6 +271,9 @@ public class Cytosis {
             Logger.info("Creating sideboard manager!");
             sideboardManager = new SideboardManager();
             sideboardManager.updateBoards();
+
+            Logger.info("Starting NPC manager!");
+            npcManager = new NPCManager();
 
             if (CytosisSettings.SERVER_PROXY_MODE) {
                 Logger.info("Loading network setup!");
@@ -308,6 +312,6 @@ public class Cytosis {
     }
 
     public static String getRawID() {
-        return SERVER_ID.replace("Cytosis-", "");
+        return Cytosis.SERVER_ID.replace("Cytosis-", "");
     }
 }

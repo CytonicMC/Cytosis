@@ -1,12 +1,11 @@
 package net.cytonic.cytosis.sideboard;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
-
 import java.net.InetAddress;
 import java.util.List;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
@@ -36,8 +35,10 @@ public class DefaultCreator implements SideboardCreator {
                     MM."",
                     MM."<yellow>\{InetAddress.getLocalHost().getHostAddress()}"
             );
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            Logger.error("error", e);
             return List.of(MM."<red>Failed to get server information!");
+
         }
     }
 

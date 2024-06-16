@@ -67,7 +67,7 @@ public class RabbitMQ {
         try {
             channel.queueDeclare(PLAYER_KICK_QUEUE, false, false, false, null);
         } catch (IOException e) {
-            Logger.error("An error occoured whilst initializing the 'PLAYER_KICK_QUEUE'.", e);
+            Logger.error("An error occurred whilst initializing the 'PLAYER_KICK_QUEUE'.", e);
         }
     }
 
@@ -95,16 +95,16 @@ public class RabbitMQ {
         try {
             serverIP = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
-            Logger.error("An error occoured whilst fetching this server's IP address! Bailing out!", e);
+            Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
             return;
         }
         String message = STR."\{Cytosis.SERVER_ID}|:|\{serverIP}|:|\{CytosisSettings.SERVER_PORT}";
         try {
             channel.basicPublish("", SHUTDOWN_QUEUE, null, message.getBytes());
         } catch (IOException e) {
-            Logger.error("An error occoured whilst attempting to send the server declaration message!", e);
+            Logger.error("An error occurred whilst attempting to send the server shutdown message!", e);
         }
-        Logger.info(STR."Server Declaration message sent! '\{message}'.");
+        Logger.info(STR."Server Shutdown message sent! '\{message}'.");
     }
 
     public void shutdown() {
@@ -139,7 +139,7 @@ public class RabbitMQ {
         //formatting: {chat-message}|{chat-channel}
         String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
         try {
-            channel.basicPublish("chat-messages", CHAT_CHANNEL_QUEUE, null, message.getBytes());
+            channel.basicPublish(CHAT_CHANNEL_EXCHANGE, CHAT_CHANNEL_QUEUE, null, message.getBytes());
         } catch (IOException e) {
             Logger.error("An error occurred whilst attempting to send a chat message!", e);
         }
