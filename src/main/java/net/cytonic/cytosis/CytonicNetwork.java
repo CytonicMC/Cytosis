@@ -2,6 +2,7 @@ package net.cytonic.cytosis;
 
 import lombok.Getter;
 import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.obj.CytonicServer;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,8 @@ public class CytonicNetwork {
     private final Set<String> networkPlayers = new HashSet<>();
     private final Set<UUID> networkPlayerUUIDs = new HashSet<>();
 
+    private final Set<CytonicServer> servers = new HashSet<>(); // online servers
+
     /**
      * The default constructor
      */
@@ -24,13 +27,16 @@ public class CytonicNetwork {
     /**
      * Imports online player data from redis
      *
-     * @param redisDatabase The redis instance
+     * @param redis The redis instance
      */
-    public void importDataFromRedis(RedisDatabase redisDatabase) {
+    public void importDataFromRedis(RedisDatabase redis) {
         networkPlayers.clear();
         networkPlayerUUIDs.clear();
-        networkPlayers.addAll(redisDatabase.getOnlinePlayers());
-        networkPlayerUUIDs.addAll(redisDatabase.getOnlineUUIDs());
+        servers.clear();
+
+        networkPlayers.addAll(redis.getSet(RedisDatabase.ONLINE_PLAYER_NAME_KEY));
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_UUID_KEY).forEach(s -> networkPlayerUUIDs.add(UUID.fromString(s)));
+        redis.getSet(RedisDatabase.ONLINE_SERVER_KEY).forEach(s -> servers.add(CytonicServer.deserialize(s)));
     }
 
     /**
