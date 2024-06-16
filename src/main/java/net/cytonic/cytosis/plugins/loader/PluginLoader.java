@@ -15,6 +15,14 @@ import java.util.jar.JarFile;
  * A class that loads plugin classes
  */
 public class PluginLoader {
+
+    /**
+     * Default constructor
+     */
+    public PluginLoader() {
+        // Do nothing
+    }
+
     private final List<PluginClassLoader> pluginClassLoaders = new ArrayList<>();
     private final Map<String, Class<?>> pluginClasses = new HashMap<>();
     private final Map<String, List<String>> pluginDependencies = new HashMap<>();

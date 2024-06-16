@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import redis.clients.jedis.*;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -15,10 +16,10 @@ import java.util.concurrent.Executors;
  */
 public class RedisDatabase extends JedisPubSub {
 
-    public static final String ONLINE_PLAYER_NAME_KEY = "online_player_names";
-    public static final String ONLINE_PLAYER_UUID_KEY = "online_player_uuids";
-    public static final String PLAYER_STATUS_CHANNEL = "player_status";
-    public static final String SERVER_SHUTDOWN_KEY = "server_shutdown";
+    private final String ONLINE_PLAYER_NAME_KEY = "online_player_names";
+    private final String ONLINE_PLAYER_UUID_KEY = "online_player_uuids";
+    private final String PLAYER_STATUS_CHANNEL = "player_status";
+    private final String SERVER_SHUTDOWN_KEY = "server_shutdown";
     private final Jedis jedis;
     private final ExecutorService worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisRedisWorker").factory());
     @Getter
@@ -42,6 +43,9 @@ public class RedisDatabase extends JedisPubSub {
         worker.submit(() -> jedis.subscribe(this, PLAYER_STATUS_CHANNEL));
     }
 
+    /**
+     * Sends a server shutdown message to the redis server
+     */
     public void sendShutdownMessage() {
         jedis.set(SERVER_SHUTDOWN_KEY, "");
     }
@@ -66,6 +70,9 @@ public class RedisDatabase extends JedisPubSub {
         }
     }
 
+    /**
+     * Disconnects from the redis server
+     */
     public void disconnect() {
         jedis.disconnect();
     }

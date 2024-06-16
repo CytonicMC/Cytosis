@@ -15,8 +15,14 @@ import java.util.Optional;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command that allows players to change another player's rank
+ */
 public class RankCommand extends Command {
 
+    /**
+     * A command that allows authorized users to change player ranks
+     */
     public RankCommand() {
         super("rank");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.rank"));
