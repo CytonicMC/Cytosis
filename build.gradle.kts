@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    api("net.minestom:minestom-snapshots:1_21-9219e96f76")
+    api("net.minestom:minestom-snapshots:7320437640")
     api("com.google.code.gson:gson:2.11.0") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
