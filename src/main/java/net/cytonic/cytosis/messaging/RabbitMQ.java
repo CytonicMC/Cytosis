@@ -8,9 +8,11 @@ import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.OfflinePlayer;
 import net.cytonic.cytosis.utils.Utils;
+import net.kyori.adventure.sound.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.sound.SoundEvent;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -189,6 +191,7 @@ public class RabbitMQ {
                     case MOD -> // send a message to all players with cytonic.chat.mod permission
                             Cytosis.getOnlinePlayers().forEach(player -> {
                                 if (player.hasPermission("cytonic.chat.mod")) {
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP,Sound.Source.PLAYER, .7f, 1.0F));
                                     player.sendMessage(chatMessage);
                                 }
                             });
@@ -196,12 +199,14 @@ public class RabbitMQ {
                     case STAFF -> // send a message to all players with cytonic.chat.staff permission
                             Cytosis.getOnlinePlayers().forEach(player -> {
                                 if (player.hasPermission("cytonic.chat.staff")) {
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP,Sound.Source.PLAYER, .7f, 1.0F));
                                     player.sendMessage(chatMessage);
                                 }
                             });
                     case ADMIN -> // send a message to all players with cytonic.chat.admin permission
                             Cytosis.getOnlinePlayers().forEach(player -> {
                                 if (player.hasPermission("cytonic.chat.admin")) {
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP,Sound.Source.PLAYER, .7f, 1.0F));
                                     player.sendMessage(chatMessage);
                                 }
                             });
