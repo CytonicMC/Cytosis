@@ -21,7 +21,7 @@ public class RedisDatabase extends JedisPubSub {
     private final String PLAYER_STATUS_CHANNEL = "player_status";
     private final String SERVER_SHUTDOWN_KEY = "server_shutdown";
     private final Jedis jedis;
-    private final ExecutorService worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisRedisWorker").factory());
+    private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker").factory());
     @Getter
     private final Set<String> onlinePlayers;
     @Getter
@@ -75,5 +75,67 @@ public class RedisDatabase extends JedisPubSub {
      */
     public void disconnect() {
         jedis.disconnect();
+        worker.shutdown();
+        jedis.close();
+    }
+
+    /**
+     * Gets a set from the redis server
+     *
+     * @param key key
+     * @return the set
+     */
+    public Set<String> getSet(String key) {
+        return jedis.smembers(key);
+    }
+
+    /**
+     * Set a key equal to a value
+     *
+     * @param key   key
+     * @param value value
+     */
+    public void setValue(String key, String value) {
+        jedis.set(key, value);
+    }
+
+    /**
+     * Adds a value to a set
+     *
+     * @param key   key
+     * @param value value(s)
+     */
+    public void addValue(String key, String... value) {
+        jedis.sadd(key, value);
+    }
+
+    /**
+     * Remove a value from a set
+     *
+     * @param key   key
+     * @param value value(s)
+     */
+    public void removeValue(String key, String... value) {
+        jedis.srem(key, value);
+    }
+
+    /**
+     * Registers a pubsub listener
+     *
+     * @param jedisPubSub the class to listen to
+     * @param channel     the channel to listen on
+     */
+    public void registerPubSub(JedisPubSub jedisPubSub, String channel) {
+        worker.submit(() -> jedis.subscribe(jedisPubSub, channel));
+    }
+
+    /**
+     * Publishes a message to the specified channel
+     *
+     * @param channel the channel
+     * @param message the message
+     */
+    public void publish(String channel, String message) {
+        jedis.publish(channel, message);
     }
 }
