@@ -2,6 +2,9 @@ package net.cytonic.cytosis.data.enums;
 
 import lombok.Getter;
 
+/**
+ * An enum holding data about kick reasons
+ */
 @Getter
 public enum KickReason {
     /**
