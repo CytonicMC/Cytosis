@@ -43,7 +43,6 @@ public class PluginLoader {
 
                     PluginClassLoader pluginClassLoader = new PluginClassLoader(urls, getClass().getClassLoader());
                     pluginClassLoaders.add(pluginClassLoader);
-
                     // First Phase: Discover all plugin classes and their dependencies
                     for (File jarFile : jarFiles) {
                         discoverPlugins(jarFile, pluginClassLoader);
@@ -54,7 +53,6 @@ public class PluginLoader {
                     for (String pluginName : pluginClasses.keySet()) {
                         loadDependencies(pluginName, loadedPlugins, pluginClassLoader);
                     }
-
                 } catch (Exception e) {
                     Logger.error("An error occurred whilst loading plugin files!", e);
                 }
@@ -82,7 +80,7 @@ public class PluginLoader {
                             pluginClasses.put(annotation.name(), clazz);
                             pluginDependencies.put(annotation.name(), Arrays.asList(annotation.dependencies()));
                         }
-                    } catch (ClassNotFoundException e) {
+                    } catch (Exception e) {
                         Logger.error(STR."An error occurred whilst loading plugin \{className}", e);
                     }
                 }

@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.plugins.loader;
 
+import net.cytonic.cytosis.logging.Logger;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -22,10 +24,14 @@ public class PluginClassLoader extends URLClassLoader {
      * Loads a class
      * @param name The name of the class
      * @return The loaded class
-     * @throws ClassNotFoundException If the class could not be loaded
      */
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        return super.loadClass(name);
+    public Class<?> loadClass(String name) {
+        try {
+            return super.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            Logger.error(STR."An error occured whilst loading plugin class: \{name}", e);
+            return null;
+        }
     }
 }
