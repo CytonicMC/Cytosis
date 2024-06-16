@@ -15,6 +15,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
 import java.net.SocketAddress;
 import java.sql.*;
 import java.time.Instant;
@@ -548,5 +549,43 @@ public class MysqlDatabase {
                 Logger.error("Failed to add a player to the database!", e);
             }
         });
+    }
+
+    /**
+     * Queries the database with the specified SQL
+     *
+     * @param sql The SQL query
+     * @return The {@link ResultSet} of the query
+     */
+    CompletableFuture<ResultSet> query(String sql) {
+        CompletableFuture<ResultSet> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ResultSet rs = ps.executeQuery();
+                future.complete(rs);
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Updates the database with the specified SQL
+     *
+     * @param sql The SQL update
+     * @return A {@link CompletableFuture} for when the update is completed
+     */
+    CompletableFuture<Void> update(String sql) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 }
