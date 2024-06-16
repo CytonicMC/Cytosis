@@ -312,7 +312,7 @@ public final class Cytosis {
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
-            pluginManager.loadPlugins();
+            Thread.ofVirtual().name("CytosisPluginLoader").start(pluginManager::loadPlugins);
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();

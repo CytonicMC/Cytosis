@@ -1,7 +1,9 @@
 package net.cytonic.cytosis.messaging;
 
 import lombok.Getter;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.RedisDatabase;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +16,7 @@ public class MessagingManager {
 
     @Getter
     private final RabbitMQ rabbitMQ;
+    private final RedisDatabase redis;
     private final ExecutorService worker;
 
     /**
@@ -23,6 +26,7 @@ public class MessagingManager {
         worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisMessageWorker").factory());
         if (CytosisSettings.RABBITMQ_ENABLED) this.rabbitMQ = new RabbitMQ();
         else this.rabbitMQ = null;
+        this.redis = Cytosis.getDatabaseManager().getRedisDatabase();
     }
 
     /**
@@ -36,8 +40,8 @@ public class MessagingManager {
             if (rabbitMQ != null) {
                 rabbitMQ.initializeConnection();
                 rabbitMQ.initializeQueues();
-                rabbitMQ.sendServerDeclarationMessage();
                 rabbitMQ.receiveChatMessages();
+                redis.sendStartupMessage();
             }
             future.complete(null);
         });
@@ -49,9 +53,9 @@ public class MessagingManager {
      */
     public void shutdown() {
         if (rabbitMQ != null) {
-            rabbitMQ.sendServerShutdownMessage();
             rabbitMQ.shutdown();
         }
+        redis.sendShutdownMessage();
         worker.shutdown();
     }
 }

@@ -7,7 +7,6 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.OfflinePlayer;
-import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -56,12 +55,13 @@ public class RabbitMQ {
         } catch (IOException | TimeoutException e) {
             Logger.error("An error occurred whilst connecting to RabbitMQ!", e);
         }
-        Logger.info("Connected to RabbitMQ!");
+
         try {
             channel = connection.createChannel();
         } catch (IOException e) {
             Logger.error("An error occurred whilst connecting to RabbitMQ!", e);
         }
+        Logger.info("Connected to RabbitMQ!");
     }
 
     /**
@@ -91,35 +91,6 @@ public class RabbitMQ {
         } catch (IOException e) {
             Logger.error("An error occurred whilst initializing the 'PLAYER_KICK_QUEUE'.", e);
         }
-    }
-
-    /**
-     * Sends a message to proxies to register the server
-     */
-    public void sendServerDeclarationMessage() {
-        //formatting: {server-name}|:|{server-ip}|:|{server-port}
-
-        String message = STR."\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}";
-        try {
-            channel.basicPublish("", SERVER_DECLARE_QUEUE, null, message.getBytes());
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst attempting to send the server declaration message!", e);
-        }
-        Logger.info(STR."Server Declaration message sent! '\{message}'.");
-    }
-
-    /**
-     * Sends a message to proxies to unregister the server
-     */
-    public void sendServerShutdownMessage() {
-        //formatting: {server-name}|:|{server-ip}|:|{server-port}
-        String message = STR."\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}";
-        try {
-            channel.basicPublish("", SHUTDOWN_QUEUE, null, message.getBytes());
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst attempting to send the server shutdown message!", e);
-        }
-        Logger.info(STR."Server Shutdown message sent! '\{message}'.");
     }
 
     /**
