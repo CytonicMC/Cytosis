@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.obj;
+package net.cytonic.cytosis.data.objects;
 
 /**
  * A class that holds data about a Cytosis server
