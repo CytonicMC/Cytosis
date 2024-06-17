@@ -67,6 +67,7 @@ public class MysqlDatabase {
 
     /**
      * connects to the database
+     *
      * @return a future that completes when the connection is successful
      */
     public CompletableFuture<Void> connect() {
@@ -119,6 +120,7 @@ public class MysqlDatabase {
 
     /**
      * Gets the connection
+     *
      * @return the connection to the database
      */
     private Connection getConnection() {
@@ -300,8 +302,8 @@ public class MysqlDatabase {
      *
      * @param uuid The player's UUID
      * @param rank The player's rank constant
-     * @throws IllegalStateException if the database isn't connected
      * @return a future that completes when the update is complete
+     * @throws IllegalStateException if the database isn't connected
      */
     public CompletableFuture<Void> setPlayerRank(UUID uuid, PlayerRank rank) {
         if (!isConnected())
@@ -323,8 +325,9 @@ public class MysqlDatabase {
 
     /**
      * Add a chat message to the log
-     * @param uuid The UUID of the sender
-     * @param message The message to log 
+     *
+     * @param uuid    The UUID of the sender
+     * @param message The message to log
      */
     public void addChat(UUID uuid, String message) {
         worker.submit(() -> {
@@ -342,8 +345,9 @@ public class MysqlDatabase {
 
     /**
      * Adds an auditlog entry
+     *
      * @param entry The entry to add
-     * @return a future that completes when the entry is added 
+     * @return a future that completes when the entry is added
      */
     public CompletableFuture<Void> addAuditLogEntry(Entry entry) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected to add an auditlog entry.");
@@ -368,10 +372,11 @@ public class MysqlDatabase {
 
     /**
      * Bans a player
-     * @param uuid the player to ban
-     * @param reason The reason to ban the player
+     *
+     * @param uuid     the player to ban
+     * @param reason   The reason to ban the player
      * @param toExpire When the ban expires
-     * @return a future that completes when the player is banned 
+     * @return a future that completes when the player is banned
      */
     public CompletableFuture<Void> banPlayer(UUID uuid, String reason, Instant toExpire) {
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -435,8 +440,9 @@ public class MysqlDatabase {
 
     /**
      * Finds a player's UUID by name
+     *
      * @param name the player's name
-     * @return a future that completes with the player's UUID 
+     * @return a future that completes with the player's UUID
      */
     public CompletableFuture<UUID> findUUIDByName(String name) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
@@ -461,8 +467,9 @@ public class MysqlDatabase {
 
     /**
      * Adds a or updates a player's name in the data
+     *
      * @param player The player to update
-     * @return a future that completes when the update is complete 
+     * @return a future that completes when the update is complete
      */
     public CompletableFuture<Void> addPlayer(Player player) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
@@ -485,8 +492,9 @@ public class MysqlDatabase {
 
     /**
      * Unbans a player
+     *
      * @param uuid the player to unban
-     * @return a future that completes when the player is unbanned 
+     * @return a future that completes when the player is unbanned
      */
     public CompletableFuture<Void> unbanPlayer(UUID uuid) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
@@ -507,7 +515,8 @@ public class MysqlDatabase {
 
     /**
      * Sets a player's chat channel
-     * @param uuid the player
+     *
+     * @param uuid        the player
      * @param chatChannel the chat channel to select
      */
     public void setChatChannel(UUID uuid, ChatChannel chatChannel) {
@@ -528,6 +537,7 @@ public class MysqlDatabase {
 
     /**
      * Gets a player's chat channel
+     *
      * @param uuid the player
      * @return a future that completes with the player's chat channel
      */
