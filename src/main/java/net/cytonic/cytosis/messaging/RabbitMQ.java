@@ -33,8 +33,6 @@ public class RabbitMQ {
         // do nothing
     }
 
-    private static final String SERVER_DECLARE_QUEUE = "server-declaration";
-    private static final String SHUTDOWN_QUEUE = "server-shutdown";
     private static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{Cytosis.SERVER_ID}";
     private static final String PLAYER_KICK_QUEUE = "player-kick";
     private static final String CHAT_CHANNEL_EXCHANGE = "chat-exchange";
@@ -69,16 +67,6 @@ public class RabbitMQ {
      */
     public void initializeQueues() {
         Logger.info("Initializing RabbitMQ queues...");
-        try {
-            channel.queueDeclare(SERVER_DECLARE_QUEUE, false, false, false, null);
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst initializing the 'SERVER_DECLARE_QUEUE'.", e);
-        }
-        try {
-            channel.queueDeclare(SHUTDOWN_QUEUE, false, false, false, null);
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst initializing the 'SHUTDOWN_QUEUE'.", e);
-        }
         try {
             channel.exchangeDeclare(CHAT_CHANNEL_EXCHANGE, BuiltinExchangeType.FANOUT);
             channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, true, null);
