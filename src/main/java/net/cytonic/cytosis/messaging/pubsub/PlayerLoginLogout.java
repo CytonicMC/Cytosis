@@ -22,7 +22,7 @@ public class PlayerLoginLogout extends JedisPubSub {
      * Consumes messages on the redis pub/sub interface to determine the online players
      *
      * @param channel The channel that was messaged
-     * @param message The connent of the message
+     * @param message The content of the message
      */
     @Override
     public void onMessage(String channel, String message) {
