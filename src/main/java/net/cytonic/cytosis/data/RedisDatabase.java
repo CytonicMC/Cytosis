@@ -2,12 +2,13 @@ package net.cytonic.cytosis.data;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.PlayerLoginLogout;
 import net.cytonic.cytosis.messaging.pubsub.ServerStatus;
 import net.cytonic.cytosis.utils.Utils;
+import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
-
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,6 +40,10 @@ public class RedisDatabase {
      * Server startup / shutdown
      */
     public static final String SERVER_STATUS_CHANNEL = "server_status";
+    /**
+     * Send player channel
+     */
+    public static final String SEND_PLAYER_CHANNEL = "player_send";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -78,6 +83,11 @@ public class RedisDatabase {
         // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
         jedisPub.publish(SERVER_STATUS_CHANNEL, STR."START|:|\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}");
         Logger.info("Server startup message sent!");
+    }
+
+    public void sendPlayerToServer(Player player, CytonicServer server) {
+        // formatting: <PLAYER_UUID>|:|<SERVER_ID>
+        jedisPub.publish(SEND_PLAYER_CHANNEL, STR."\{player.getUuid()}|:|\{server.id()}");
     }
 
 

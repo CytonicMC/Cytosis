@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -295,11 +296,6 @@ public final class Cytosis {
                     )
             );
 
-            Logger.info("Initializing server commands");
-            commandHandler = new CommandHandler();
-            commandHandler.setupConsole();
-            commandHandler.registerCytosisCommands();
-
             messagingManager = new MessagingManager();
             messagingManager.initialize().whenComplete((_, th) -> {
                 if (th != null) {
@@ -329,7 +325,13 @@ public final class Cytosis {
                 Logger.info("Loading network setup!");
                 cytonicNetwork = new CytonicNetwork();
                 cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
+                cytonicNetwork.getServers().add(new CytonicServer(Utils.getServerIP(),SERVER_ID,CytosisSettings.SERVER_PORT));
             }
+
+            Logger.info("Initializing server commands");
+            commandHandler = new CommandHandler();
+            commandHandler.setupConsole();
+            commandHandler.registerCytosisCommands();
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
@@ -340,6 +342,7 @@ public final class Cytosis {
 
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
+            Logger.info(STR."Server id = \{SERVER_ID}");
 
             if (FLAGS.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
