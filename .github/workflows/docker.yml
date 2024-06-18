@@ -34,11 +34,14 @@ jobs:
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
       - name: Build Docker Image
-        run: |
-          docker build -t cytosis -f docker/basic/Dockerfile .
+        run: docker build -t cytosis -f docker/basic/Dockerfile .
+
+      - name: Tag Docker Image
+        run: docker tag cytosis ghcr.io/cytonicmc/cytosis:latest
+
+      - name: Login to GHCR
+        run: echo $GHCR_TOKEN | docker login ghcr.io -u CytonicMC --password-stdin
 
       - name: Push Docker Image
-        run: |
-          docker login ghcr.io -u CytonicMC -p $GHCR_TOKEN
-          docker push ghcr.io/CytonicMC/cytosis:latest
+        run: docker push ghcr.io/cytonicmc/cytosis:latest
 
