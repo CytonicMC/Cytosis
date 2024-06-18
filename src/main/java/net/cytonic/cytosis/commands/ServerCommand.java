@@ -21,7 +21,6 @@ public class ServerCommand extends Command {
             var serverArgument = ArgumentType.Word("server");
             serverArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The server \{exception.getInput()} is invalid!", NamedTextColor.RED)));
             serverArgument.setSuggestionCallback((_, _, suggestion) -> {
-                Logger.debug("this has been called");
                 for (CytonicServer server : Cytosis.getCytonicNetwork().getServers()) {
                     suggestion.addEntry(new SuggestionEntry(server.id()));
                 }
