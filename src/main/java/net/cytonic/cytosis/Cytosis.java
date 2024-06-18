@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -33,13 +34,25 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * The main class for Cytosis
+ */
 @Getter
-public class Cytosis {
+public final class Cytosis {
 
+    /**
+     * the instance ID is used to identify the server
+     */
     public static final String SERVER_ID = generateID();
+    /**
+     * The version of Cytosis
+     */
+    public static final String VERSION = "0.1";
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -78,10 +91,16 @@ public class Cytosis {
     private static SideboardManager sideboardManager;
     @Getter
     private static NPCManager npcManager;
-    public static final String VERSION = "0.1";
-
     private static List<String> FLAGS;
 
+    private Cytosis() {
+    }
+
+    /**
+     * The entry point for the Minecraft Server
+     *
+     * @param args Runtime flags
+     */
     public static void main(String[] args) {
         FLAGS = List.of(args);
         long start = System.currentTimeMillis();
@@ -135,12 +154,23 @@ public class Cytosis {
         });
     }
 
+    /**
+     * Gets the players currently on THIS instance
+     *
+     * @return a set of players
+     */
     public static Set<Player> getOnlinePlayers() {
         Set<Player> players = new HashSet<>();
         instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
         return players;
     }
 
+    /**
+     * Gets the player if they are on THIS instance, by USERNAME
+     *
+     * @param username The name to fetch the player by
+     * @return The optional holding the player if they exist
+     */
     public static Optional<Player> getPlayer(String username) {
         Player target = null;
         for (Player onlinePlayer : getOnlinePlayers())
@@ -162,19 +192,35 @@ public class Cytosis {
         return Optional.ofNullable(target);
     }
 
+    /**
+     * Gives a player all permissions
+     *
+     * @param player to grant all permissions to
+     */
     public static void opPlayer(Player player) {
         player.addPermission(new Permission("*")); // give them every permission
     }
 
+    /**
+     * Removes the '*' permission from a player
+     *
+     * @param player The player to remove the '*' permission from
+     */
     public static void deopPlayer(Player player) {
         player.removePermission("*"); // remove every permission
     }
 
+    /**
+     * Sets up Mojang Authentication
+     */
     public static void mojangAuth() {
         Logger.info("Initializing Mojang Authentication");
         MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
     }
 
+    /**
+     * Loads the world based on the settings
+     */
     public static void loadWorld() {
         if (CytosisSettings.SERVER_WORLD_NAME.isEmpty()) {
             Logger.info("Generating basic world");
@@ -195,6 +241,11 @@ public class Cytosis {
         });
     }
 
+    /**
+     * Completes nonessential startup tasks for the server
+     *
+     * @param start The time the server started
+     */
     public static void completeNonEssentialTasks(long start) {
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
@@ -245,11 +296,6 @@ public class Cytosis {
                     )
             );
 
-            Logger.info("Initializing server commands");
-            commandHandler = new CommandHandler();
-            commandHandler.setupConsole();
-            commandHandler.registerCytosisCommands();
-
             messagingManager = new MessagingManager();
             messagingManager.initialize().whenComplete((_, th) -> {
                 if (th != null) {
@@ -262,7 +308,7 @@ public class Cytosis {
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
-            pluginManager.loadPlugins();
+            Thread.ofVirtual().name("CytosisPluginLoader").start(pluginManager::loadPlugins);
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
@@ -279,7 +325,13 @@ public class Cytosis {
                 Logger.info("Loading network setup!");
                 cytonicNetwork = new CytonicNetwork();
                 cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
+                cytonicNetwork.getServers().add(new CytonicServer(Utils.getServerIP(),SERVER_ID,CytosisSettings.SERVER_PORT));
             }
+
+            Logger.info("Initializing server commands");
+            commandHandler = new CommandHandler();
+            commandHandler.setupConsole();
+            commandHandler.registerCytosisCommands();
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
@@ -290,6 +342,7 @@ public class Cytosis {
 
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
+            Logger.info(STR."Server id = \{SERVER_ID}");
 
             if (FLAGS.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
@@ -299,6 +352,13 @@ public class Cytosis {
 
     }
 
+    /**
+     * Generates a random Server ID:
+     * <p>
+     * TODO: make a check for existing server ids
+     *
+     * @return a random Server ID
+     */
     private static String generateID() {
         //todo: make a check for existing server ids
         StringBuilder id = new StringBuilder("Cytosis-");
@@ -311,6 +371,13 @@ public class Cytosis {
         return id.toString();
     }
 
+    /**
+     * Gets the Raw ID of the server
+     * <p>
+     * For example, Cytosis-a1234b would return a1234b
+     *
+     * @return The raw ID
+     */
     public static String getRawID() {
         return Cytosis.SERVER_ID.replace("Cytosis-", "");
     }

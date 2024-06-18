@@ -4,17 +4,34 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.cytonic.cytosis.logging.Logger;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.UUID;
 
-public class UuidUtils {
+/**
+ * A class that provides utilities for dealing with UUIDs
+ */
+public final class UuidUtils {
+
+    /**
+     * Default constructor
+     */
+    private UuidUtils() {
+        // do nothing
+    }
 
     private static final String UUID_URL_TEMPLATE = "https://api.mojang.com/users/profiles/minecraft/%s";
 
+    /**
+     * Gets the UUID of a player by their username
+     *
+     * @param username the username
+     * @return the UUID
+     */
     @Nullable
-    public static String getMojandUUID(final String username) {
+    public static String UNSAFE_getMojandUUID(final String username) {
         URL url;
         try {
             url = new URI(String.format(UUID_URL_TEMPLATE, username)).toURL();
@@ -39,14 +56,25 @@ public class UuidUtils {
     }
 
 
-    public static UUID getUUID(final String username) {
-        String raw = getMojandUUID(username);
+    /**
+     * Gets a UUID from a username
+     *
+     * @param username username
+     * @return the UUID
+     */
+    public static UUID UNSAFE_getUUID(final String username) {
+        String raw = UNSAFE_getMojandUUID(username);
         if (raw == null) throw new IllegalArgumentException(STR."A player by the name '\{username}' does not exist!");
         if (raw.length() != 32)
             throw new IllegalArgumentException(STR."Raw UUID provided is not 32 characters! '\{raw}' is \{raw.length()}");
         return UUID.fromString(raw.replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
     }
 
+    /**
+     * Converts a UUID to a mojang UUID by removing the dashes
+     * @param uuid the UUID
+     * @return the mojang UUID
+     */
     public static String toMojang(UUID uuid) {
         return uuid.toString().replace("-", "");
     }

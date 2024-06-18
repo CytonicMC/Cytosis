@@ -19,18 +19,18 @@ repositories {
 }
 
 dependencies {
-    implementation("net.minestom:minestom-snapshots:1_21-9219e96f76")
-    implementation("com.google.code.gson:gson:2.11.0") // serializing
+    api("net.minestom:minestom-snapshots:1_21-9219e96f76")
+    api("com.google.code.gson:gson:2.11.0") // serializing
     implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
     implementation("com.mysql:mysql-connector-j:8.4.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.32") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    implementation("com.rabbitmq:amqp-client:5.21.0") // Message broker
-    implementation("dev.hollowcube:polar:1.10.0") // Polar
-    implementation("com.google.guava:guava:33.2.1-jre") // a lot of things, but mostly caching
-    implementation("redis.clients:jedis:5.1.3") // redis client
+    api("com.rabbitmq:amqp-client:5.21.0") // Message broker
+    api("dev.hollowcube:polar:1.10.0") // Polar
+    api("redis.clients:jedis:5.1.3") // redis client
+    api("com.google.guava:guava:33.2.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
 }
 
@@ -62,7 +62,9 @@ tasks {
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
         destinationDirectory.set(
-            file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString()))
+            file(
+                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
+            )
         )
     }
 }

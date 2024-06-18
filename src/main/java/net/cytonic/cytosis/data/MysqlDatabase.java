@@ -15,6 +15,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
 import java.net.SocketAddress;
 import java.sql.*;
 import java.time.Instant;
@@ -23,6 +24,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * A class handling Cytosis database transactions
+ */
 public class MysqlDatabase {
 
     private final ExecutorService worker;
@@ -34,6 +38,9 @@ public class MysqlDatabase {
     private final boolean ssl;
     private Connection connection;
 
+    /**
+     * Creates and initializes a new MysqlDatabase
+     */
     public MysqlDatabase() {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
@@ -49,10 +56,20 @@ public class MysqlDatabase {
         }
     }
 
+    /**
+     * Checks if the database is connected
+     *
+     * @return if the database is connected
+     */
     public boolean isConnected() {
         return (connection != null);
     }
 
+    /**
+     * connects to the database
+     *
+     * @return a future that completes when the connection is successful
+     */
     public CompletableFuture<Void> connect() {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
@@ -71,6 +88,9 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Disconnects from the database server
+     */
     public void disconnect() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -84,6 +104,9 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Creates the database tables
+     */
     public void createTables() {
         createChatTable();
         createRanksTable();
@@ -95,10 +118,18 @@ public class MysqlDatabase {
         createAuditLogTable();
     }
 
+    /**
+     * Gets the connection
+     *
+     * @return the connection to the database
+     */
     private Connection getConnection() {
         return connection;
     }
 
+    /**
+     * Creates the chat messages table
+     */
     private void createChatTable() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -113,6 +144,9 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Creates the ranks table
+     */
     private void createRanksTable() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -127,6 +161,9 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Creates the bans table
+     */
     private void createBansTable() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -141,6 +178,9 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Creates the player data table
+     */
     private void createPlayersTable() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -155,6 +195,9 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Creates the world table
+     */
     public void createWorldTable() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -189,6 +232,9 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Create the player join logging table
+     */
     private void createPlayerJoinsTable() {
         worker.submit(() -> {
             if (isConnected()) {
@@ -256,6 +302,7 @@ public class MysqlDatabase {
      *
      * @param uuid The player's UUID
      * @param rank The player's rank constant
+     * @return a future that completes when the update is complete
      * @throws IllegalStateException if the database isn't connected
      */
     public CompletableFuture<Void> setPlayerRank(UUID uuid, PlayerRank rank) {
@@ -276,6 +323,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Add a chat message to the log
+     *
+     * @param uuid    The UUID of the sender
+     * @param message The message to log
+     */
     public void addChat(UUID uuid, String message) {
         worker.submit(() -> {
             PreparedStatement ps;
@@ -290,6 +343,12 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Adds an auditlog entry
+     *
+     * @param entry The entry to add
+     * @return a future that completes when the entry is added
+     */
     public CompletableFuture<Void> addAuditLogEntry(Entry entry) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected to add an auditlog entry.");
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -311,6 +370,14 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Bans a player
+     *
+     * @param uuid     the player to ban
+     * @param reason   The reason to ban the player
+     * @param toExpire When the ban expires
+     * @return a future that completes when the player is banned
+     */
     public CompletableFuture<Void> banPlayer(UUID uuid, String reason, Instant toExpire) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -371,6 +438,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Finds a player's UUID by name
+     *
+     * @param name the player's name
+     * @return a future that completes with the player's UUID
+     */
     public CompletableFuture<UUID> findUUIDByName(String name) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<UUID> future = new CompletableFuture<>();
@@ -392,6 +465,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Adds a or updates a player's name in the data
+     *
+     * @param player The player to update
+     * @return a future that completes when the update is complete
+     */
     public CompletableFuture<Void> addPlayer(Player player) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -411,6 +490,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Unbans a player
+     *
+     * @param uuid the player to unban
+     * @return a future that completes when the player is unbanned
+     */
     public CompletableFuture<Void> unbanPlayer(UUID uuid) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -428,6 +513,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Sets a player's chat channel
+     *
+     * @param uuid        the player
+     * @param chatChannel the chat channel to select
+     */
     public void setChatChannel(UUID uuid, ChatChannel chatChannel) {
         worker.submit(() -> {
             if (!isConnected())
@@ -444,6 +535,12 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Gets a player's chat channel
+     *
+     * @param uuid the player
+     * @return a future that completes with the player's chat channel
+     */
     public CompletableFuture<ChatChannel> getChatChannel(@NotNull final UUID uuid) {
         CompletableFuture<ChatChannel> future = new CompletableFuture<>();
         if (!isConnected())
@@ -548,5 +645,43 @@ public class MysqlDatabase {
                 Logger.error("Failed to add a player to the database!", e);
             }
         });
+    }
+
+    /**
+     * Queries the database with the specified SQL
+     *
+     * @param sql The SQL query
+     * @return The {@link ResultSet} of the query
+     */
+    CompletableFuture<ResultSet> query(String sql) {
+        CompletableFuture<ResultSet> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ResultSet rs = ps.executeQuery();
+                future.complete(rs);
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Updates the database with the specified SQL
+     *
+     * @param sql The SQL update
+     * @return A {@link CompletableFuture} for when the update is completed
+     */
+    CompletableFuture<Void> update(String sql) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 }

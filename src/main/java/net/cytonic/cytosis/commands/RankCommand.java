@@ -15,12 +15,17 @@ import java.util.Optional;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command that allows players to change another player's rank
+ */
 public class RankCommand extends Command {
 
+    /**
+     * A command that allows authorized users to change player ranks
+     */
     public RankCommand() {
         super("rank");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.rank"));
-//        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>You must specify a valid player and rank!"));
 
         var rankArg = ArgumentType.Enum("rank", PlayerRank.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         rankArg.setCallback((sender, exception) -> sender.sendMessage(STR."The rank \{exception.getInput()} is invalid!"));
@@ -35,14 +40,14 @@ public class RankCommand extends Command {
             if (sender instanceof Player player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
-            Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().forEach(player ->
+            Cytosis.getCytonicNetwork().getNetworkPlayers().forEach(player ->
                     suggestion.addEntry(new SuggestionEntry(player)));
         });
 
 
         addSyntax((sender, context) -> {
             String name = context.get(playerArg);
-            if (!Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().contains(name)) {
+            if (!Cytosis.getCytonicNetwork().getNetworkPlayers().contains(name)) {
                 sender.sendMessage(MM."<red>The player \{context.get("player")} doesn't exist!");
                 return;
             }

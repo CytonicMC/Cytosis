@@ -41,6 +41,11 @@ public class EventHandler {
         GLOBAL_HANDLER = globalHandler;
     }
 
+    /**
+     * Initializes the event handler.
+     *
+     * @throws IllegalStateException if the event handler has already been initialized.
+     */
     public void init() {
         if (initialized) throw new IllegalStateException("The event handler has already been initialized!");
         setupInternalListeners();
@@ -88,6 +93,11 @@ public class EventHandler {
         }
     }
 
+    /**
+     * Handles the specified event
+     * @param event The event object
+     * @param <T> The type of the event
+     */
     public <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
         for (EventListener<? extends Event> listener : NAMESPACED_HANDLERS.values()) {
@@ -104,6 +114,10 @@ public class EventHandler {
         }
     }
 
+    /**
+     * Regisers a custom event class to implement a listener for it
+     * @param clazz The event class
+     */
     public void registerCustomEvent(Class<? extends Event> clazz) {
         GLOBAL_HANDLER.addListener(clazz, this::handleEvent);
     }

@@ -5,6 +5,9 @@
  */
 package net.cytonic.cytosis.logging.loading;
 
+/**
+ * A statusbar updater
+ */
 public interface StatusUpdater {
     /**
      * Updates the progress bar without changing the text message.

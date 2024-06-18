@@ -20,7 +20,13 @@ import java.time.Instant;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command that allows authorized players to ban players.
+ */
 public class BanCommand extends Command {
+    /**
+     * Creates the command and sets the consumers
+     */
     public BanCommand() {
         super("ban");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.ban"));
@@ -30,7 +36,7 @@ public class BanCommand extends Command {
             if (sender instanceof Player player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
-            Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().forEach(player ->
+            Cytosis.getCytonicNetwork().getNetworkPlayers().forEach(player ->
                     suggestion.addEntry(new SuggestionEntry(player)));
         });
         var durationArg = ArgumentType.Word("duration");
@@ -48,7 +54,7 @@ public class BanCommand extends Command {
                 final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parse(rawDur);
 
-                if (!Cytosis.getDatabaseManager().getRedisDatabase().getOnlinePlayers().contains(player)) {
+                if (!Cytosis.getCytonicNetwork().getNetworkPlayers().contains(player)) {
                     sender.sendMessage(MM."<red>The player \{context.get(playerArg)} doesn't exist!");
                     return;
                 }

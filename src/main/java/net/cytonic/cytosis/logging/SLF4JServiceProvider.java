@@ -11,8 +11,17 @@ import org.slf4j.helpers.BasicMarkerFactory;
 import org.slf4j.helpers.NOPMDCAdapter;
 import org.slf4j.spi.MDCAdapter;
 
+/**
+ * An SLF4J compatible logger
+ *
+ * @see org.slf4j.spi.SLF4JServiceProvider
+ */
 public class SLF4JServiceProvider implements org.slf4j.spi.SLF4JServiceProvider {
+    /**
+     * default constructor
+     */
     public SLF4JServiceProvider() {
+        // do nothing
     }
 
     @Override

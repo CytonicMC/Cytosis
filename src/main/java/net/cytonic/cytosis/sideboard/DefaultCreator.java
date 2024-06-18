@@ -4,15 +4,22 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
+
 import java.net.InetAddress;
 import java.util.List;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The default implementation of {@link SideboardCreator}, creating a baseline sideboard for Cytosis.
  */
 public class DefaultCreator implements SideboardCreator {
-    private static final int thingy = 0;
+
+    /**
+     * The default constructor
+     */
+    public DefaultCreator() {
+    }
 
     @Override
     public Sideboard sideboard(Player player) {
@@ -38,7 +45,6 @@ public class DefaultCreator implements SideboardCreator {
         } catch (Exception e) {
             Logger.error("error", e);
             return List.of(MM."<red>Failed to get server information!");
-
         }
     }
 

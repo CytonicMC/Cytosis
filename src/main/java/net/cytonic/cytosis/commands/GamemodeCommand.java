@@ -9,8 +9,14 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 
+/**
+ * The class representing the gamemode command
+ */
 public class GamemodeCommand extends Command {
 
+    /**
+     * Creates a new command and sets up the consumers and execution logic
+     */
     public GamemodeCommand() {
         super("gamemode", "gm");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.gamemode"));

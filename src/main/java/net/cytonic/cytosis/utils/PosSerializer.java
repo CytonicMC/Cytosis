@@ -2,7 +2,15 @@ package net.cytonic.cytosis.utils;
 
 import net.minestom.server.coordinate.Pos;
 
-public class PosSerializer {
+/**
+ * A class that provides utilities for serializing and deserializing {@link Pos} objects.
+ */
+public final class PosSerializer {
+    /**
+     * Default constructor
+     */
+    private PosSerializer() {
+    }
 
     /**
      * Serializes a {@link Pos} object into a human-readable string format.

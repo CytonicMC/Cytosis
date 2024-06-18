@@ -17,8 +17,21 @@ import java.util.Optional;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
-public class ServerEventListeners {
+/**
+ * A class that registers Cytosis required server events
+ */
+public final class ServerEventListeners {
 
+    /**
+     * Default constructor
+     */
+    private ServerEventListeners() {
+        // do nothing
+    }
+
+    /**
+     * Adds Cytosis required server events
+     */
     public static void initServerEvents() {
         Logger.info("Registering player configuration event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-configuration", true, 1, AsyncPlayerConfigurationEvent.class, (event -> {
