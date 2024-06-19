@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
@@ -42,5 +43,21 @@ public class ContainerizedInstanceManager {
 
         V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod").metadata(new V1ObjectMeta().name("cytosis").labels(labels)).spec(new V1PodSpec().containers(containers));
         api.createNamespacedPod("default", lobbyServerPod);
+    }
+
+    /**
+     * Shuts down all cytosis instances in the cluster
+     */
+    public void shutdownAllInstances() {
+        try {
+            V1PodList list = api.listNamespacedPod("default").execute();
+
+            for (V1Pod pod : list.getItems()) {
+                if (pod.getMetadata().getName().equals("cytosis")) continue;
+                api.deleteNamespacedPod(pod.getMetadata().getName(), "default");
+            }
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
