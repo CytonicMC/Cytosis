@@ -24,12 +24,9 @@ public class ChatChannelCommand extends Command {
         var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "party", "league", "private_message");
         chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
         chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender.hasPermission("cytonic.chat.mod"))
-                suggestion.addEntry(new SuggestionEntry("mod"));
-            if (sender.hasPermission("cytonic.chat.admin"))
-                suggestion.addEntry(new SuggestionEntry("admin"));
-            if (sender.hasPermission("cytonic.chat.staff"))
-                suggestion.addEntry(new SuggestionEntry("staff"));
+            if (sender.hasPermission("cytonic.chat.mod")) suggestion.addEntry(new SuggestionEntry("mod"));
+            if (sender.hasPermission("cytonic.chat.admin")) suggestion.addEntry(new SuggestionEntry("admin"));
+            if (sender.hasPermission("cytonic.chat.staff")) suggestion.addEntry(new SuggestionEntry("staff"));
             suggestion.addEntry(new SuggestionEntry("all"));
             suggestion.addEntry(new SuggestionEntry("party"));
             suggestion.addEntry(new SuggestionEntry("league"));
