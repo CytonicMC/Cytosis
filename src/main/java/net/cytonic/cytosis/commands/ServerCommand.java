@@ -14,7 +14,7 @@ import net.minestom.server.entity.Player;
 public class ServerCommand extends Command {
 
     public ServerCommand() {
-        super("cytosis:server");
+        super("cytosis:server", "server");
         try {
             setCondition((sender, _) -> sender.hasPermission("cytosis.commands.server"));
             setDefaultExecutor((sender, _) -> sender.sendMessage(MiniMessageTemplate.MM."<RED>You must specify a server!"));
