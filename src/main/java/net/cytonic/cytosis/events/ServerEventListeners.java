@@ -80,7 +80,7 @@ public final class ServerEventListeners {
             ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
             switch (channel) {
                 case STAFF, MOD, ADMIN:
-                    if (player.hasPermission(STR."cytonic.chat.\{channel.name()}")) {
+                    if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}")) {
                         sendMessage(originalMessage, channel, player);
                     } else {
                         player.sendMessage(MM."<red>Hey you cannot do that!");
