@@ -37,6 +37,7 @@ public class CommandHandler {
         cm.register(new ChatChannelCommand());
         cm.register(new StopCommand());
         cm.register(new ServerCommand());
+        cm.register(new CreateInstanceCommand());
     }
 
     /**
