@@ -45,8 +45,8 @@ public final class ServerEventListeners {
             Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(event.getPlayer().getUuid()).whenComplete((data, throwable) -> {
                 final Player player = event.getPlayer();
                 if (throwable != null) {
-                    Logger.error("An error occoured whilst checking if the player is banned!", throwable);
-                    player.kick(MM."<red>An error occured whilst initiating the login sequence!");
+                    Logger.error("An error occurred whilst checking if the player is banned!", throwable);
+                    player.kick(MM."<red>An error occurred whilst initiating the login sequence!");
                     return;
                 }
                 if (data.isBanned()) {
@@ -74,34 +74,23 @@ public final class ServerEventListeners {
         Logger.info("Registering player chat event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-chat", false, 1, PlayerChatEvent.class, event -> {
             final Player player = event.getPlayer();
-            if (CytosisSettings.LOG_PLAYER_CHAT)
-                Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
+            Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
             event.setCancelled(true);
             String originalMessage = event.getMessage();
-            if (!originalMessage.contains("|")) {
-                if (Cytosis.getChatManager().getChannel(player.getUuid()) != ChatChannel.ALL) {
-                    ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
-                    Component message = Component.text("")
-                            .append(channel.getPrefix())
-                            .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                            .appendSpace()
-                            .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
-                            .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
-                            .appendSpace()
-                            .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
-                    Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
-                } else {
-                    Component message = Component.text("")
-                            .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                            .appendSpace()
-                            .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
-                            .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
-                            .appendSpace()
-                            .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
-                    Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
-                }
-            } else player.sendMessage(MM."<red>Hey you cannot do that!");
-            Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
+            ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
+            switch (channel) {
+                case STAFF, MOD, ADMIN:
+                    if (player.hasPermission(STR."cytonic.chat.\{channel.name()}")) {
+                        sendMessage(originalMessage, channel, player);
+                    } else {
+                        player.sendMessage(MM."<red>Hey you cannot do that!");
+                        Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
+                    }
+                    break;
+                case ALL:
+                    sendMessage(originalMessage, ChatChannel.ALL, player);
+                    break;
+            }
         }));
 
         Logger.info("Registering player disconnect event.");
@@ -128,5 +117,30 @@ public final class ServerEventListeners {
                 npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
             }
         }));
+    }
+
+    private static void sendMessage(String originalMessage, ChatChannel channel, Player player) {
+        if (!originalMessage.contains("|")) {
+            if (channel != ChatChannel.ALL) {
+                Component message = Component.text("")
+                        .append(channel.getPrefix())
+                        .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                        .appendSpace()
+                        .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
+                        .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
+                        .appendSpace()
+                        .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
+                Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
+            } else {
+                Component message = Component.text("")
+                        .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                        .appendSpace()
+                        .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
+                        .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
+                        .appendSpace()
+                        .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
+                Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
+            }
+        } else player.sendMessage(MM."<red>Hey you cannot do that!");
     }
 }
