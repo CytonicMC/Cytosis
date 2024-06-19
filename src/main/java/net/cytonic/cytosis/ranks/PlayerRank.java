@@ -23,11 +23,11 @@ public enum PlayerRank {
     /**
      * The [MOD] rank
      */
-    MODERATOR(MM."<green>[MOD]", NamedTextColor.GREEN, NamedTextColor.WHITE, new String[]{}),
+    MODERATOR(MM."<green>[MOD]", NamedTextColor.GREEN, NamedTextColor.WHITE, new String[]{"cytonic.chat.staff"}),
     /**
      * The [HELPER] rank
      */
-    HELPER(MM."<aqua>[HELPER]", NamedTextColor.AQUA, NamedTextColor.WHITE, new String[]{}),
+    HELPER(MM."<aqua>[HELPER]", NamedTextColor.AQUA, NamedTextColor.WHITE, new String[]{"cytonic.chat.staff"}),
 
     // player ranks
     /**
