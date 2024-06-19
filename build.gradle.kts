@@ -32,6 +32,7 @@ dependencies {
     api("redis.clients:jedis:5.1.3") // redis client
     api("com.google.guava:guava:33.2.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
+    implementation("io.kubernetes:client-java:20.0.1")
 }
 
 tasks.withType<Jar> {
@@ -62,9 +63,7 @@ tasks {
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
         destinationDirectory.set(
-            file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
-            )
+            file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString()))
         )
     }
 }

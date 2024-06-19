@@ -9,10 +9,7 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.ChatManager;
-import net.cytonic.cytosis.managers.NPCManager;
-import net.cytonic.cytosis.managers.PlayerListManager;
-import net.cytonic.cytosis.managers.SideboardManager;
+import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.playerlist.PlayerListCategory;
 import net.cytonic.cytosis.playerlist.PlayerListEntry;
@@ -43,6 +40,7 @@ import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
  * The main class for Cytosis
  */
 @Getter
+@SuppressWarnings("unused")
 public final class Cytosis {
 
     /**
@@ -92,6 +90,8 @@ public final class Cytosis {
     @Getter
     private static NPCManager npcManager;
     private static List<String> FLAGS;
+    @Getter
+    public static ContainerizedInstanceManager containerizedInstanceManager;
 
     private Cytosis() {
     }
@@ -335,6 +335,8 @@ public final class Cytosis {
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
+            Logger.info("Starting Containerized Instance Manager");
+            containerizedInstanceManager = new ContainerizedInstanceManager();
 
             // Start the server
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
