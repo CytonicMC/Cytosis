@@ -83,7 +83,7 @@ public final class ServerEventListeners {
                     if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}")) {
                         sendMessage(originalMessage, channel, player);
                     } else {
-                        player.sendMessage(MM."<red>Hey you cannot do that!");
+                        player.sendMessage(MM."Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
                         Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
                     }
                     break;
