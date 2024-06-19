@@ -8,6 +8,7 @@ import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.ServerPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
+import net.minestom.server.utils.PacketUtils;
 
 import java.util.*;
 
@@ -35,7 +36,7 @@ public class PlayerListManager {
      */
     public void setupPlayer(Player player) {
         // remove them from the player list, but keep skin data
-        player.sendPacket(new PlayerInfoUpdatePacket(
+        PacketUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(
                 PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                 new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
                         new PlayerInfoUpdatePacket.Property("textures", player.getSkin().textures(), player.getSkin().signature())
