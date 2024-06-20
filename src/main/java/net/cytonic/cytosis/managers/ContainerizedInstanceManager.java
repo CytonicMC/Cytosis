@@ -40,10 +40,14 @@ public class ContainerizedInstanceManager {
         envVars.add(new V1EnvFromSource().configMapRef(new V1ConfigMapEnvSource().name("cytosis-config")));
         envVars.add(new V1EnvFromSource().configMapRef(new V1ConfigMapEnvSource().name("general-config")));
 
-        V1Container container = new V1Container().name("cytosis-container").image("ghcr.io/cytonicmc/cytosis:latest").envFrom(envVars).imagePullPolicy("Always");
+        V1Container container = new V1Container().name("cytosis-container").image("ghcr.io/cytonicmc/cytosis:latest")
+                .envFrom(envVars).imagePullPolicy("Always");
         containers.add(container);
 
-        V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod").metadata(new V1ObjectMeta().name("cytosis").labels(labels)).spec(new V1PodSpec().containers(containers));
+        V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod")
+                .metadata(new V1ObjectMeta().name("cytosis")
+                        .labels(labels)).spec(new V1PodSpec().containers(containers)
+                        .addImagePullSecretsItem(new V1LocalObjectReference().name("ghcr-login-secret")));
         try {
             api.createNamespacedPod("default", lobbyServerPod).execute();
         } catch (ApiException e) {
