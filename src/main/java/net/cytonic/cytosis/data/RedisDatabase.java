@@ -9,6 +9,7 @@ import net.cytonic.cytosis.messaging.pubsub.ServerStatus;
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
+
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,6 +63,7 @@ public class RedisDatabase {
         this.jedis = new JedisPooled(hostAndPort, config);
         this.jedisPub = new JedisPooled(hostAndPort, config);
         this.jedisSub = new JedisPooled(hostAndPort, config);
+        Logger.info("Connected to Redis!");
 
         worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));

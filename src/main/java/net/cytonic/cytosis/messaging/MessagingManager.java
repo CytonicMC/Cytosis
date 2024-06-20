@@ -41,7 +41,6 @@ public class MessagingManager {
                 rabbitMQ.initializeConnection();
                 rabbitMQ.initializeQueues();
                 rabbitMQ.receiveChatMessages();
-                redis.sendStartupMessage();
             }
             future.complete(null);
         });
