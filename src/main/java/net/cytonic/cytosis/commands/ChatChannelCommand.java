@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.MiniMessageTemplate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -50,6 +51,7 @@ public class ChatChannelCommand extends Command {
         addSyntax((sender, context) -> {
             if (sender instanceof final Player player) {
                 final String channel = context.get(chatChannelArgument);
+                Logger.debug("");
                 if (!channel.equalsIgnoreCase(Cytosis.getChatManager().getChannel(player.getUuid()).name())) {
                     switch (channel) {
                         case "all" -> {

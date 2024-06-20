@@ -72,4 +72,8 @@ public class ChatManager {
             default -> throw new IllegalArgumentException(STR."Unexpected value: \{chatChannel}");
         }
     }
+
+    public void getShorthandChatChannel(ChatChannel channel) {
+        switch (channel) {}
+    }
 }
