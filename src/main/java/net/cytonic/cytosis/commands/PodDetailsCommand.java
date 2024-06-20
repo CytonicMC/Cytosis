@@ -11,7 +11,7 @@ import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 public class PodDetailsCommand extends Command {
 
     public PodDetailsCommand() {
-        super("poddetails");
+        super("poddetails", "pod");
         setCondition((sender, _) -> sender.hasPermission("cytosis.command.poddetails"));
         addSyntax(((sender, _) -> {
             if (!CytosisSettings.KUBERNETES_SUPPORTED) {
@@ -26,7 +26,7 @@ public class PodDetailsCommand extends Command {
                     String hostname = System.getenv("HOSTNAME");
                     String kubernetes_service_host = System.getenv("KUBERNETES_SERVICE_HOST");
                     String pwd = System.getenv("PWD");
-                    Component message = MM."<GREEN>Language: \{language}\nHostname: \{hostname}\nKUBERNETES_SERVICE_HOST: \{kubernetes_service_host}\nPwd: \{pwd}";
+                    Component message = MM."<bold><yellow>Pod Details:</yellow></bold>\n\n<green>Language:</green><gray> \{language}\n<green>Pod Name: <gray>\{hostname}\n<green>Service Host: <gray>\{kubernetes_service_host}\n<green>Pwd: <gray>\{pwd}";
                     player.sendMessage(message);
                 } else sender.sendMessage(Component.text("Hey! You can't do this.", NamedTextColor.RED));
         }));
