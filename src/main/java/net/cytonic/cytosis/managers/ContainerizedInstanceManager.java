@@ -46,7 +46,7 @@ public class ContainerizedInstanceManager {
         containers.add(container);
 
         V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod")
-                .metadata(new V1ObjectMeta().name(STR."\{Instant.now().hashCode()}")
+                .metadata(new V1ObjectMeta().name(STR."cytosis-\{Math.abs(Instant.now().hashCode())}")
                         .labels(labels)).spec(new V1PodSpec().containers(containers)
                         .addImagePullSecretsItem(new V1LocalObjectReference().name("ghcr-login-secret")));
         try {
@@ -64,7 +64,7 @@ public class ContainerizedInstanceManager {
             V1PodList list = api.listNamespacedPod("default").execute();
 
             for (V1Pod pod : list.getItems()) {
-                if (pod.getMetadata().getName().equals("cytosis")) continue;
+                if (!pod.getMetadata().getName().contains("cytosis")) continue;
                 api.deleteNamespacedPod(pod.getMetadata().getName(), "default").execute();
             }
         } catch (ApiException e) {
