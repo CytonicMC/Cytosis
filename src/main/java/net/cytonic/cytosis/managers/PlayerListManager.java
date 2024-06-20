@@ -2,6 +2,7 @@ package net.cytonic.cytosis.managers;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.playerlist.PlayerListCategory;
 import net.cytonic.cytosis.playerlist.PlayerListEntry;
 import net.minestom.server.entity.GameMode;
@@ -35,13 +36,17 @@ public class PlayerListManager {
      * @param player The player to set up
      */
     public void setupPlayer(Player player) {
-        // remove them from the player list, but keep skin data
+        // remove them from the player list for everyone, but keep skin data
         PacketUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(
                 PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                 new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
                         new PlayerInfoUpdatePacket.Property("textures", player.getSkin().textures(), player.getSkin().signature())
                 ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null)
         ));
+
+        // remove everyone from the player
+
+
         for (ServerPacket packet : createPackets()) {
             player.sendPacket(packet);
         }
@@ -81,6 +86,16 @@ public class PlayerListManager {
 //                packets.add(espawn);
             }
             currentLetter++;
+        }
+
+        // remove online players too
+        for (Player player : Cytosis.getOnlinePlayers()) {
+            packets.add(new PlayerInfoUpdatePacket(
+                    PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+                    new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
+                            new PlayerInfoUpdatePacket.Property("textures", player.getSkin().textures(), player.getSkin().signature())
+                    ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null)
+            ));
         }
 
         return packets;
