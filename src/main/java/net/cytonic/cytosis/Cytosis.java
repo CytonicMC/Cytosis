@@ -309,6 +309,7 @@ public final class Cytosis {
                     Logger.error("An error occurred whilst initializing the messaging manager!", th);
                 } else {
                     Logger.info("Messaging manager initialized!");
+                    databaseManager.getRedisDatabase().sendStartupMessage();
                 }
             });
 
