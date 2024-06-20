@@ -26,7 +26,7 @@ public class PodDetailsCommand extends Command {
                     String hostname = System.getenv("HOSTNAME");
                     String kubernetes_service_host = System.getenv("KUBERNETES_SERVICE_HOST");
                     String pwd = System.getenv("PWD");
-                    Component message = MM."<GREEN>Language: \{language}\nHostname: \{hostname}\nKUBERNETES_SERVICE_HOST: \{kubernetes_service_host}\n Pwd: \{pwd}";
+                    Component message = MM."<GREEN>Language: \{language}\nHostname: \{hostname}\nKUBERNETES_SERVICE_HOST: \{kubernetes_service_host}\nPwd: \{pwd}";
                     player.sendMessage(message);
                 } else sender.sendMessage(Component.text("Hey! You can't do this.", NamedTextColor.RED));
         }));
