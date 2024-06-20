@@ -11,8 +11,6 @@ plugins {
 group = "net.cytonic"
 version = "1.0-SNAPSHOT"
 
-serviceLoader.serviceInterfaces.add("org.slf4j.spi.SLF4JServiceProvider")
-
 repositories {
     mavenCentral()
     maven("https://jitpack.io")
@@ -21,7 +19,6 @@ repositories {
 dependencies {
     api("net.minestom:minestom-snapshots:1_21-9219e96f76")
     api("com.google.code.gson:gson:2.11.0") // serializing
-    implementation("org.slf4j:slf4j-api:2.0.13") // logging
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
     implementation("com.mysql:mysql-connector-j:8.4.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.32") // lombok
@@ -33,6 +30,9 @@ dependencies {
     api("com.google.guava:guava:33.2.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("io.kubernetes:client-java:20.0.1")
+    implementation("org.slf4j:slf4j-api:2.0.13")  // SLF4J API
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")  // Log4j core
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
 }
 
 tasks.withType<Jar> {
@@ -63,7 +63,9 @@ tasks {
         archiveFileName.set("cytosis.jar")
         archiveClassifier.set("")
         destinationDirectory.set(
-            file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString()))
+            file(
+                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
+            )
         )
     }
 }
