@@ -45,7 +45,7 @@ public class ContainerizedInstanceManager {
         containers.add(container);
 
         V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod")
-                .metadata(new V1ObjectMeta().name("cytosis")
+                .metadata(new V1ObjectMeta()
                         .labels(labels)).spec(new V1PodSpec().containers(containers)
                         .addImagePullSecretsItem(new V1LocalObjectReference().name("ghcr-login-secret")));
         try {
