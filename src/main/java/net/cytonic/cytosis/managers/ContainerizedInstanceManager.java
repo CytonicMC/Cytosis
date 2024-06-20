@@ -10,6 +10,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,7 @@ public class ContainerizedInstanceManager {
         containers.add(container);
 
         V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod")
-                .metadata(new V1ObjectMeta()
+                .metadata(new V1ObjectMeta().name(STR."\{Instant.now().hashCode()}")
                         .labels(labels)).spec(new V1PodSpec().containers(containers)
                         .addImagePullSecretsItem(new V1LocalObjectReference().name("ghcr-login-secret")));
         try {
