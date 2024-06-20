@@ -102,6 +102,13 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        System.out.println("This is a test for gke1");
+        System.out.println("This is a test for gke2");
+        System.out.println("This is a test for gke3");
+        System.out.println("This is a test for gke4");
+
+
+
         FLAGS = List.of(args);
         long start = System.currentTimeMillis();
         // Initialize the server
@@ -335,12 +342,16 @@ public final class Cytosis {
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
-            try {
-                Logger.info("Starting Containerized Instance Manager");
-                containerizedInstanceManager = new ContainerizedInstanceManager();
-
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst loading the kubernetes setup!", e);
+            if (FLAGS.contains("--skip-kubernetes") || FLAGS.contains("--skip-k8s")) {
+                Logger.warn("Skipping Kubernetes setup");
+                CytosisSettings.KUBERNETES_SUPPORTED = false;
+            } else {
+                try {
+                    Logger.info("Starting Containerized Instance Manager");
+                    containerizedInstanceManager = new ContainerizedInstanceManager();
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading the kubernetes setup!", e);
+                }
             }
 
             // Start the server
@@ -350,6 +361,7 @@ public final class Cytosis {
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
             Logger.info(STR."Server id = \{SERVER_ID}");
+            System.out.println("This is a test for gke5");
 
             if (FLAGS.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
