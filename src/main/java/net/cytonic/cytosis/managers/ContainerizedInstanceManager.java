@@ -6,6 +6,7 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.ClientBuilder;
+import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class ContainerizedInstanceManager {
         }
         Configuration.setDefaultApiClient(client);
         api = new CoreV1Api();
+        CytosisSettings.KUBERNETES_SUPPORTED = true;
     }
 
     public void createCytosisInstance() {

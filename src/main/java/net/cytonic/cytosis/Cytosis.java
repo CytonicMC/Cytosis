@@ -335,8 +335,13 @@ public final class Cytosis {
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
-            Logger.info("Starting Containerized Instance Manager");
-            containerizedInstanceManager = new ContainerizedInstanceManager();
+            try {
+                Logger.info("Starting Containerized Instance Manager");
+                containerizedInstanceManager = new ContainerizedInstanceManager();
+
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst loading the kubernetes setup!", e);
+            }
 
             // Start the server
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");

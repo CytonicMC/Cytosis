@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.ContainerizedInstanceManager;
 import net.cytonic.cytosis.utils.PosSerializer;
 import net.minestom.server.coordinate.Pos;
 
@@ -121,6 +122,14 @@ public final class CytosisSettings {
      * The redis password
      */
     public static String REDIS_PASSWORD = "";
+
+    // Kubernetes
+    /**
+     * If the instance is connected to a k8s cluster
+     * <p>
+     * Used by {@link ContainerizedInstanceManager}
+     */
+    public static boolean KUBERNETES_SUPPORTED = false;
 
     /**
      * Loads the config from a config map
