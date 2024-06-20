@@ -44,7 +44,11 @@ public class ContainerizedInstanceManager {
         containers.add(container);
 
         V1Pod lobbyServerPod = new V1Pod().apiVersion("v1").kind("Pod").metadata(new V1ObjectMeta().name("cytosis").labels(labels)).spec(new V1PodSpec().containers(containers));
-        api.createNamespacedPod("default", lobbyServerPod);
+        try {
+            api.createNamespacedPod("default", lobbyServerPod).execute();
+        } catch (ApiException e) {
+            Logger.error("An error occoured whilst creating the Cytosis instance!", e);
+        }
     }
 
     /**
@@ -56,10 +60,10 @@ public class ContainerizedInstanceManager {
 
             for (V1Pod pod : list.getItems()) {
                 if (pod.getMetadata().getName().equals("cytosis")) continue;
-                api.deleteNamespacedPod(pod.getMetadata().getName(), "default");
+                api.deleteNamespacedPod(pod.getMetadata().getName(), "default").execute();
             }
         } catch (ApiException e) {
-            throw new RuntimeException(e);
+            Logger.error("An error occoured whilst shutting down the Cytosis instances!", e);
         }
     }
 }
