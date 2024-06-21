@@ -83,7 +83,6 @@ public class PlayerListManager {
                                 GameMode.CREATIVE, entry.getName(), null)));
                 currentInt++;
                 packets.add(entryPacket);
-//                packets.add(espawn);
             }
             currentLetter++;
         }
@@ -97,7 +96,6 @@ public class PlayerListManager {
                     ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null)
             ));
         }
-
         return packets;
     }
 }
