@@ -1,10 +1,12 @@
 package net.cytonic.cytosis.commands;
 
+import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
+import net.minestom.server.utils.entity.EntityFinder;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
@@ -14,38 +16,45 @@ public class TeleportCommand extends Command {
         super("teleport", "tp");
         setCondition((source, _) -> source.hasPermission("cytosis.commands.teleport"));
 
-        var entityArgument = ArgumentType.Entity("entity").singleEntity(true);
+        var entityArgument = ArgumentType.Entity("entity").singleEntity(true).onlyPlayers(true);
+//        entityArgument.setSuggestionCallback((sender, _, suggestion) -> {
+//            if (!(sender instanceof Player player && player.hasPermission("cytosis.commands.teleport"))) return;
+//            Cytosis.getOnlinePlayers().forEach(entity -> suggestion.addEntry(new SuggestionEntry(entity.getUsername())));
+//        });
+
         var positionArgument = ArgumentType.RelativeBlockPosition("position");
 
         var xArg = ArgumentType.Double("x");
         var yArg = ArgumentType.Double("y");
         var zArg = ArgumentType.Double("z");
-        var yawArg = ArgumentType.Float("yaw").setDefaultValue(0.0f);
-        var pitchArg = ArgumentType.Float("pitch").setDefaultValue(0.0f);
+        var yawArg = ArgumentType.Float("yaw").setDefaultValue(-181.0f); // intentionally invalid
+        var pitchArg = ArgumentType.Float("pitch").setDefaultValue(-91.0f); // intentionally invalid
 
         addSyntax((sender, context) -> {
             if (sender instanceof Player player) {
-                Pos pos = new Pos(context.get(xArg), context.get(yArg), context.get(zArg),
-                        context.get(yawArg), context.get(pitchArg));
-                player.teleport(pos);
-                player.sendMessage(MM."<green>Teleported to \{xArg} \{yArg} \{zArg} \{yawArg} \{pitchArg}");
+                float yaw = context.get(yawArg) == -181.0F ? player.getPosition().yaw() : context.get(yawArg);
+                float pitch = context.get(pitchArg) == -91.0F ? player.getPosition().pitch() : context.get(pitchArg);
+                Pos p = new Pos(context.get(xArg), context.get(yArg), context.get(zArg), yaw, pitch);
+                player.teleport(p);
+                player.sendMessage(MM."<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(\{Utils.TWO_PLACES.format(p.x())}, \{Utils.TWO_PLACES.format(p.y())}, \{Utils.TWO_PLACES.format(p.z())})");
             } else {
                 sender.sendMessage(MM."Only players can use this command");
             }
         }, xArg, yArg, zArg, yawArg, pitchArg);
 
-        setDefaultExecutor((source, _) -> source.sendMessage(MM."<red>Usage: /tp <player> <x> <y> <z> <yaw> <pitch> | /tp <entity>"));
+        setDefaultExecutor((source, _) -> source.sendMessage(MM."<red>Usage: /tp <x> <y> <z> [yaw] [pitch] | /tp <player> | /tp <relative>"));
 
         // entity arg
         addSyntax((sender, context) -> {
             if (sender instanceof Player player) {
-                Entity entity = context.get(entityArgument).findFirstEntity(sender);
+                EntityFinder finder = context.get(entityArgument);
+                Entity entity = finder.findFirstEntity(sender);
                 if (entity == null) {
-                    player.sendMessage(MM."Failed to find entity.");
+                    player.sendMessage(MM."<red>Failed to find player.");
                     return;
                 }
                 player.teleport(entity.getPosition());
-                player.sendMessage(MM."<green>Teleported to \{entity.getEntityType().name().toLowerCase()}");
+                player.sendMessage(MM."<green>Teleported!");
             } else {
                 sender.sendMessage(MM."Only players can use this command");
             }
@@ -54,9 +63,11 @@ public class TeleportCommand extends Command {
         // relative
         addSyntax((sender, context) -> {
             if (sender instanceof Player player) {
-                Pos pos = player.getPosition().add(context.get(positionArgument).fromSender(player));
-                player.teleport(pos);
-                player.sendMessage(MM."<green>Teleported to \{pos.x()} \{pos.y()} \{pos.z()}");
+                Pos p = context.get(positionArgument).from(player).asPosition();
+
+                player.teleport(p.withPitch(player.getPosition().pitch()).withYaw(player.getPosition().yaw()));
+                player.sendMessage(MM."<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(\{Utils.TWO_PLACES.format(p.x())}, \{Utils.TWO_PLACES.format(p.y())}, \{Utils.TWO_PLACES.format(p.z())})");
+
             } else {
                 sender.sendMessage(MM."Only players can use this command");
             }
