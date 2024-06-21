@@ -4,6 +4,7 @@ import net.cytonic.cytosis.logging.Logger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,8 @@ import java.util.List;
  * A class holding utility methods
  */
 public final class Utils {
+
+    public static final DecimalFormat TWO_PLACES = new DecimalFormat("0.00");
 
     /**
      * Default constructor
