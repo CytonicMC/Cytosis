@@ -46,7 +46,7 @@ public class DatabaseManager {
         } catch (Exception ex) {
             Logger.error("An error occurred!", ex);
         }
-        Logger.info("All mysqlDatabases connected.");
+        Logger.info("All Databases connected.");
         return future;
     }
 }
