@@ -21,7 +21,7 @@ public class ServerCommand extends Command {
             var serverArgument = ArgumentType.Word("server");
             serverArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The server \{exception.getInput()} is invalid!", NamedTextColor.RED)));
             serverArgument.setSuggestionCallback((_, _, suggestion) -> {
-                for (CytonicServer server : Cytosis.getCytonicNetwork().getServers()) {
+                for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
                     suggestion.addEntry(new SuggestionEntry(server.id()));
                 }
             });
@@ -29,7 +29,7 @@ public class ServerCommand extends Command {
                 if (sender instanceof Player player)
                     if (player.hasPermission("cytosis.commands.server")) {
                         if (!context.get(serverArgument).equalsIgnoreCase(Cytosis.SERVER_ID)) {
-                            for (CytonicServer server : Cytosis.getCytonicNetwork().getServers()) {
+                            for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
                                 if (server.id().equals(context.get(serverArgument))) {
                                     player.sendMessage(Component.text(STR."Connecting to \{server.id()}", NamedTextColor.GREEN));
                                     Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerToServer(player, server);

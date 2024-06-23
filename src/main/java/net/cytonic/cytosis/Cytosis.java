@@ -326,7 +326,7 @@ public final class Cytosis {
                 Logger.info("Loading network setup!");
                 cytonicNetwork = new CytonicNetwork();
                 cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
-                cytonicNetwork.getServers().add(new CytonicServer(Utils.getServerIP(),SERVER_ID,CytosisSettings.SERVER_PORT));
+                cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
             }
 
             Logger.info("Initializing server commands");

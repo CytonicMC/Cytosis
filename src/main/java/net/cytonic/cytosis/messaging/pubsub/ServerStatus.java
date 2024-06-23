@@ -33,7 +33,7 @@ public class ServerStatus extends JedisPubSub {
         String[] parts = message.split("\\|:\\|");
         if (parts[1].equalsIgnoreCase(Cytosis.SERVER_ID)) return;
         if (parts[0].equalsIgnoreCase("START")) {
-            network.getServers().add(new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
+            network.getServers().put(parts[1], new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
         } else if (parts[0].equalsIgnoreCase("STOP")) {
             network.getServers().remove(new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
         }
