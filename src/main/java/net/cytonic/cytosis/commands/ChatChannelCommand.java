@@ -2,7 +2,6 @@ package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.MiniMessageTemplate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -23,58 +22,49 @@ public class ChatChannelCommand extends Command {
         super("chat");
         setDefaultExecutor((sender, _) -> sender.sendMessage(Component.text("You must specify a channel!", NamedTextColor.RED)));
 
-        var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "party", "league", "private_message");
+        var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "party", "league", "private_message","m","ad","s","a","p","l");
         chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
         chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender.hasPermission("cytonic.chat.mod")) suggestion.addEntry(new SuggestionEntry("mod"));
-            if (sender.hasPermission("cytonic.chat.admin")) suggestion.addEntry(new SuggestionEntry("admin"));
-            if (sender.hasPermission("cytonic.chat.staff")) suggestion.addEntry(new SuggestionEntry("staff"));
+            if (sender.hasPermission("cytonic.chat.mod")) {
+                suggestion.addEntry(new SuggestionEntry("mod"));
+                suggestion.addEntry(new SuggestionEntry("m"));
+            }
+            if (sender.hasPermission("cytonic.chat.admin")) {
+                suggestion.addEntry(new SuggestionEntry("admin"));
+                suggestion.addEntry(new SuggestionEntry("ad"));
+            }
+            if (sender.hasPermission("cytonic.chat.staff")) {
+                suggestion.addEntry(new SuggestionEntry("staff"));
+                suggestion.addEntry(new SuggestionEntry("s"));
+            }
             suggestion.addEntry(new SuggestionEntry("all"));
+            suggestion.addEntry(new SuggestionEntry("a"));
             suggestion.addEntry(new SuggestionEntry("party"));
+            suggestion.addEntry(new SuggestionEntry("p"));
             suggestion.addEntry(new SuggestionEntry("league"));
+            suggestion.addEntry(new SuggestionEntry("l"));
             suggestion.addEntry(new SuggestionEntry("private_message"));
         });
 
-        var shorthand = ArgumentType.Word("shorthand").from("m", "ad", "s", "a");
-        shorthand.setCallback((sender, exception) -> sender.sendMessage(STR."The shorthand \{exception.getInput()} is invalid!"));
-        shorthand.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender.hasPermission("cytonic.chat.mod"))
-                suggestion.addEntry(new SuggestionEntry("m"));
-            if (sender.hasPermission("cytonic.chat.admin"))
-                suggestion.addEntry(new SuggestionEntry("ad"));
-            if (sender.hasPermission("cytonic.chat.staff"))
-                suggestion.addEntry(new SuggestionEntry("s"));
-            suggestion.addEntry(new SuggestionEntry("a"));
-        });
-        shorthand.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The shorthand '\{exception.getInput()}' is invalid!", NamedTextColor.RED)));
-
         addSyntax((sender, context) -> {
             if (sender instanceof final Player player) {
-                final String channel = context.get(chatChannelArgument);
-                if (!channel.equalsIgnoreCase(Cytosis.getChatManager().getChannel(player.getUuid()).name())) {
-                    ChatChannel chatChannel = switch (context.get(chatChannelArgument).toLowerCase()) {
-                        case "all";
-                        case "admin";
-                        case "mod";
-                        case "staff";
-                        case "party";
-                        case "l"
-                        case "private_message";
-
-                    };
+                ChatChannel chatChannel = switch (context.get(chatChannelArgument).toLowerCase()) {
+                    case "all", "a" -> ChatChannel.ALL;
+                    case "admin", "ad" -> ChatChannel.ADMIN;
+                    case "mod", "m" -> ChatChannel.MOD;
+                    case "staff", "s" -> ChatChannel.STAFF;
+                    case "party", "p" -> ChatChannel.PARTY;
+                    case "league", "l" -> ChatChannel.LEAGUE;
+                    case "private_message" -> ChatChannel.PRIVATE_MESSAGE;
+                    default -> throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
+                };
+                if (!chatChannel.name().equals(Cytosis.getChatManager().getChannel(player.getUuid()).name())) {
                     message(player, chatChannel);
                 } else player.sendMessage(MiniMessageTemplate.MM."<RED>You are already in this channel!");
             } else {
                 sender.sendMessage(Component.text("Hey! You can't do this.", NamedTextColor.RED));
             }
         }, chatChannelArgument);
-
-        addSyntax((sender, context) -> {
-            if (sender instanceof final Player player) {
-                final String channel = context.get(shorthand);
-
-            }
-        }, shorthand);
     }
 
     private void message(Player player, ChatChannel channel) {
@@ -82,7 +72,6 @@ public class ChatChannelCommand extends Command {
             case ALL -> {
                 Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
                 player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("ALL", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
-                player.getAllPermissions().forEach((permission -> player.sendMessage(permission.getPermissionName())));
             }
             case ADMIN -> {
                 if (player.hasPermission("cytonic.chat.admin")) {
