@@ -263,8 +263,8 @@ public final class Cytosis {
             ServerEventListeners.initServerEvents();
 
             MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
-                databaseManager.shutdown();
                 messagingManager.shutdown();
+                databaseManager.shutdown();
                 sideboardManager.shutdown();
                 getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
