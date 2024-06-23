@@ -5,11 +5,11 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.PlayerLoginLogout;
+import net.cytonic.cytosis.messaging.pubsub.PlayerServerChange;
 import net.cytonic.cytosis.messaging.pubsub.ServerStatus;
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
-
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +32,15 @@ public class RedisDatabase {
      * Cached Servers
      */
     public static final String ONLINE_SERVER_KEY = "online_servers";
+    /**
+     * Cached player servers
+     */
+    public static final String ONLINE_PLAYER_SERVER_KEY = "online_player_server";
 
+    /**
+     * Player change servers channel
+     */
+    public static final String PLAYER_SERVER_CHANGE_CHANNEL = "player_server_change";
     /**
      * Player login/out channel
      */
@@ -51,9 +59,6 @@ public class RedisDatabase {
     private final JedisPooled jedisSub;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker").factory());
 
-    // server cache
-
-
     /**
      * Initializes the connection to redis using the loaded settings and the Jedis client
      */
@@ -67,6 +72,7 @@ public class RedisDatabase {
 
         worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
     }
 
     /**
