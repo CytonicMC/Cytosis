@@ -4,9 +4,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.PlayerServer;
-import net.cytonic.cytosis.logging.Logger;
 import redis.clients.jedis.JedisPubSub;
-
 import java.util.UUID;
 
 public class PlayerServerChange extends JedisPubSub {
