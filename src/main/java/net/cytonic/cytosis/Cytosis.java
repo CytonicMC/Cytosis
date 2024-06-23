@@ -1,5 +1,8 @@
 package net.cytonic.cytosis;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -47,6 +50,12 @@ public final class Cytosis {
      * the instance ID is used to identify the server
      */
     public static final String SERVER_ID = generateID();
+
+    /**
+     * The instance of Gson for serializing and deserializing objects
+     */
+    public static final Gson GSON = new GsonBuilder().setStrictness(Strictness.LENIENT).create();
+
     /**
      * The version of Cytosis
      */
@@ -92,6 +101,8 @@ public final class Cytosis {
     private static List<String> FLAGS;
     @Getter
     public static ContainerizedInstanceManager containerizedInstanceManager;
+    @Getter
+    public static FriendManager friendManager;
 
     private Cytosis() {
     }
@@ -305,6 +316,11 @@ public final class Cytosis {
                     databaseManager.getRedisDatabase().sendStartupMessage();
                 }
             });
+
+            Logger.info("Starting Friend manager!");
+            friendManager = new FriendManager();
+            friendManager.init();
+
 
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
