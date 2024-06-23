@@ -11,8 +11,14 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 
+/**
+ * A class representing the server command
+ */
 public class ServerCommand extends Command {
 
+    /**
+     * Sends players to a server from the command
+     */
     public ServerCommand() {
         super("cytosis:server", "server");
         try {

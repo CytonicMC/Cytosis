@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.defaultMinecraft;
 
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.command.builder.Command;
@@ -10,8 +10,14 @@ import net.minestom.server.utils.entity.EntityFinder;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command for teleporting :)
+ */
 public class TeleportCommand extends Command {
 
+    /**
+     * A command for teleporting to a player, exact location, or relative block position
+     */
     public TeleportCommand() {
         super("teleport", "tp");
         setCondition((source, _) -> source.hasPermission("cytosis.commands.teleport"));

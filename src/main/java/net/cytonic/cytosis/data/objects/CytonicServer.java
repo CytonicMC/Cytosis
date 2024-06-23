@@ -2,6 +2,10 @@ package net.cytonic.cytosis.data.objects;
 
 /**
  * A class that holds data about a Cytosis server
+ * @param id The server ID
+ * @param ip The ip address of the server
+ *             (for example, 127.0.0.1)
+ * @param port The port of the server, usually 25565
  */
 @SuppressWarnings("unused")
 public record CytonicServer(String ip, String id, int port) {

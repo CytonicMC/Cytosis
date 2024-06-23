@@ -4,15 +4,23 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.PlayerServer;
 import net.cytonic.cytosis.utils.MiniMessageTemplate;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.*;
-import net.kyori.adventure.text.format.*;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 
+/**
+ * Locates a player on the network
+ */
 public class FindCommand extends Command {
 
+    /**
+     * A command to find a player on the network
+     */
     public FindCommand() {
         super("find");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.find"));

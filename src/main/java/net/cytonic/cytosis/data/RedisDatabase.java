@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
+
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -101,6 +102,12 @@ public class RedisDatabase {
         Logger.info("Server startup message sent!");
     }
 
+    /**
+     * Sends a message to the redis server telling the proxies to move a player to a different server
+     *
+     * @param player The player to move
+     * @param server the destination server
+     */
     public void sendPlayerToServer(Player player, CytonicServer server) {
         // formatting: <PLAYER_UUID>|:|<SERVER_ID>
         jedisPub.publish(SEND_PLAYER_CHANNEL, STR."\{player.getUuid()}|:|\{server.id()}");

@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.utils.MiniMessageTemplate;
 import net.minestom.server.MinecraftServer;

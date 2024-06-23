@@ -5,8 +5,12 @@ import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.PlayerServer;
 import redis.clients.jedis.JedisPubSub;
+
 import java.util.UUID;
 
+/**
+ * A pub sub listener that handles player server changes
+ */
 public class PlayerServerChange extends JedisPubSub {
 
     /**
