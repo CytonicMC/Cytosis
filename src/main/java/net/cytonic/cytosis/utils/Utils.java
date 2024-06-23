@@ -1,12 +1,15 @@
 package net.cytonic.cytosis.utils;
 
+import com.google.common.reflect.TypeToken;
 import net.cytonic.cytosis.logging.Logger;
 
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A class holding utility methods
@@ -49,4 +52,7 @@ public final class Utils {
         }
         return serverIP;
     }
+
+    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
+    }.getType();
 }
