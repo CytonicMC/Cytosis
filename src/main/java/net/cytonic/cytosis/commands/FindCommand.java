@@ -4,7 +4,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.PlayerServer;
 import net.cytonic.cytosis.utils.MiniMessageTemplate;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.event.*;
+import net.kyori.adventure.text.format.*;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -24,7 +25,10 @@ public class FindCommand extends Command {
                 String playerName = context.get(playerArgument);
                 for (PlayerServer server : Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().values()) {
                     if (server.playerName().equalsIgnoreCase(playerName)) {
-                        Component message = Component.text(STR."The player \{playerName} is online on server \{server.server().id()}",NamedTextColor.YELLOW);
+                        Component message = Component.text(STR."The player \{playerName} is online on server \{server.server().id()} ",NamedTextColor.YELLOW)
+                        .append(Component.text("[GO THERE]", NamedTextColor.GREEN, TextDecoration.BOLD)
+                                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(STR."Click to travel to server: '\{server.server().id()}'"))))
+                                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, STR."/server \{server.server().id()}"));
                         player.sendMessage(message);
                     }
                 }
