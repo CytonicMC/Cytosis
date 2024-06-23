@@ -39,6 +39,8 @@ public class CommandHandler {
         cm.register(new ServerCommand());
         cm.register(new CreateInstanceCommand());
         cm.register(new ShutdownInstancesCommand());
+        cm.register(new PodDetailsCommand());
+        cm.register(new TeleportCommand());
     }
 
     /**
