@@ -1,5 +1,8 @@
 package net.cytonic.cytosis;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -47,6 +50,12 @@ public final class Cytosis {
      * the instance ID is used to identify the server
      */
     public static final String SERVER_ID = generateID();
+
+    /**
+     * The instance of Gson for serializing and deserializing objects
+     */
+    public static final Gson GSON = new GsonBuilder().setStrictness(Strictness.LENIENT).create();
+
     /**
      * The version of Cytosis
      */
@@ -92,6 +101,8 @@ public final class Cytosis {
     private static List<String> FLAGS;
     @Getter
     public static ContainerizedInstanceManager containerizedInstanceManager;
+    @Getter
+    public static FriendManager friendManager;
 
     private Cytosis() {
     }
@@ -102,13 +113,6 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
-        System.out.println("This is a test for gke1");
-        System.out.println("This is a test for gke2");
-        System.out.println("This is a test for gke3");
-        System.out.println("This is a test for gke4");
-
-
-
         FLAGS = List.of(args);
         long start = System.currentTimeMillis();
         // Initialize the server
@@ -313,6 +317,11 @@ public final class Cytosis {
                 }
             });
 
+            Logger.info("Starting Friend manager!");
+            friendManager = new FriendManager();
+            friendManager.init();
+
+
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
@@ -362,7 +371,6 @@ public final class Cytosis {
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
             Logger.info(STR."Server id = \{SERVER_ID}");
-            System.out.println("This is a test for gke5");
 
             if (FLAGS.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
