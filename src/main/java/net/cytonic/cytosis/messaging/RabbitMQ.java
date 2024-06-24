@@ -115,8 +115,9 @@ public class RabbitMQ {
      * Sends a message to RabbitMQ to kick a player.
      * <p>
      * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
-     * @param player The player to kick, on another server
-     * @param reason The reason for kicking the player
+     *
+     * @param player  The player to kick, on another server
+     * @param reason  The reason for kicking the player
      * @param message The kick message displayed
      */
     public void kickPlayer(OfflinePlayer player, KickReason reason, Component message) {
@@ -131,6 +132,7 @@ public class RabbitMQ {
 
     /**
      * Sends a chat message to RabbitMQ, for other servers to broadcast to the appropriate chat channel
+     *
      * @param chatMessage The message to send, in component form
      * @param chatChannel The channel the message is to be sent on
      */
@@ -157,7 +159,7 @@ public class RabbitMQ {
                     case MOD -> // send a message to all players with cytonic.chat.mod permission
                             Cytosis.getOnlinePlayers().forEach(player -> {
                                 if (player.hasPermission("cytonic.chat.mod")) {
-                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP,Sound.Source.PLAYER, .7f, 1.0F));
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                                     player.sendMessage(chatMessage);
                                 }
                             });
@@ -165,14 +167,14 @@ public class RabbitMQ {
                     case STAFF -> // send a message to all players with cytonic.chat.staff permission
                             Cytosis.getOnlinePlayers().forEach(player -> {
                                 if (player.hasPermission("cytonic.chat.staff")) {
-                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP,Sound.Source.PLAYER, .7f, 1.0F));
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                                     player.sendMessage(chatMessage);
                                 }
                             });
                     case ADMIN -> // send a message to all players with cytonic.chat.admin permission
                             Cytosis.getOnlinePlayers().forEach(player -> {
                                 if (player.hasPermission("cytonic.chat.admin")) {
-                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP,Sound.Source.PLAYER, .7f, 1.0F));
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                                     player.sendMessage(chatMessage);
                                 }
                             });
