@@ -32,12 +32,9 @@ public class PlayerLoginLogout extends JedisPubSub {
         // <PLAYER_NAME>|:|<PLAYER_UUID>|:|<JOIN/LEAVE>
         String[] parts = message.split("\\|:\\|");
         if (parts[2].equalsIgnoreCase("JOIN")) {
-            network.getNetworkPlayers().add(parts[0]);
-            network.getNetworkPlayerUUIDs().add(UUID.fromString(parts[1]));
+            network.addPlayer(parts[0], UUID.fromString(parts[1]));
         } else if (parts[2].equalsIgnoreCase("LEAVE")) {
-            network.getNetworkPlayers().remove(parts[0]);
-            network.getNetworkPlayerUUIDs().remove(UUID.fromString(parts[1]));
-            network.getNetoworkPlayersOnServers().remove(parts[0]);
+            network.addPlayer(parts[0], UUID.fromString(parts[1]));
         }
     }
 }
