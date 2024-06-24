@@ -4,8 +4,6 @@ import lombok.Getter;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.PlayerServer;
-import net.cytonic.cytosis.logging.Logger;
-
 import java.util.*;
 
 /**
@@ -30,7 +28,6 @@ public class CytonicNetwork {
      * @param redis The redis instance
      */
     public void importDataFromRedis(RedisDatabase redis) {
-        Logger.info("Hey this thing was called!");
         networkPlayers.clear();
         networkPlayerUUIDs.clear();
         servers.clear();
@@ -39,11 +36,7 @@ public class CytonicNetwork {
         networkPlayers.addAll(redis.getSet(RedisDatabase.ONLINE_PLAYER_NAME_KEY));
         redis.getSet(RedisDatabase.ONLINE_PLAYER_UUID_KEY).forEach(s -> networkPlayerUUIDs.add(UUID.fromString(s)));
         redis.getSet(RedisDatabase.ONLINE_SERVER_KEY).forEach(s -> servers.put(CytonicServer.deserialize(s).id(), CytonicServer.deserialize(s)));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> {
-            netoworkPlayersOnServers.put(s.split("\\|:\\|")[0],PlayerServer.deserialize(s));
-            Logger.info(STR."hey this is in the CytonicNetwork class s = \{s}");
-        });
-        Logger.info("All done!");
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> netoworkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
     }
 
     /**
