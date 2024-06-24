@@ -24,7 +24,7 @@ public class PlayerServerChange extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.PLAYER_SERVER_CHANGE_CHANNEL)) return;
-        // formatting: <PLAYER_UUID>|:|<SERVER_ID>
+        //<PLAYER_NAME>|:|<PLAYER_UUID>|:|<OLD_SERVER_NAME>|:|<NEW_SERVER_NAME>
         String[] parts = message.split("\\|:\\|");
         String playerName = parts[0];
         UUID playerUuid = UUID.fromString(parts[1]);
