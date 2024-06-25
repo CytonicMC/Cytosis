@@ -12,7 +12,7 @@ public class PodDetailsCommand extends Command {
 
     public PodDetailsCommand() {
         super("poddetails", "pod");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.command.poddetails"));
+        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.poddetails"));
         addSyntax(((sender, _) -> {
             if (!CytosisSettings.KUBERNETES_SUPPORTED) {
                 sender.sendMessage(MM."<RED>This command is not supported on this server!");
