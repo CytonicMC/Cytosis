@@ -52,12 +52,14 @@ public class ServerStatus extends JedisPubSub {
             network.getServers().remove(new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
             network.getServerAlerts().forEach((uuid, server) -> {
                 if (server && Cytosis.getPlayer(uuid).isPresent()) {
-                    Cytosis.getPlayer(uuid).get().sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stoped with the id of \{parts[2]}");
-                } else {
                     Player player = Cytosis.getPlayer(uuid).get();
-                    player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
-                    Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
-                    Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
+                    if (player.hasPermission("cytosis.commands.serveralerts")) {
+                        player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stoped with the id of \{parts[2]}");
+                    } else {
+                        player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
+                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
+                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
+                    }
                 }
             });
         }
