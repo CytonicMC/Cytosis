@@ -5,6 +5,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.utils.MiniMessageTemplate;
+import net.minestom.server.entity.Player;
 import redis.clients.jedis.JedisPubSub;
 
 /**
@@ -36,14 +37,28 @@ public class ServerStatus extends JedisPubSub {
         if (parts[0].equalsIgnoreCase("START")) {
             network.getServers().put(parts[1], new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
             network.getServerAlerts().forEach((uuid, server) -> {
-                if (server && Cytosis.getPlayer(uuid).isPresent())
-                    Cytosis.getPlayer(uuid).get().sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{parts[2]}");
+                if (server && Cytosis.getPlayer(uuid).isPresent()) {
+                    Player player = Cytosis.getPlayer(uuid).get();
+                    if (player.hasPermission("cytosis.commands.serveralerts")) {
+                        player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{parts[2]}");
+                    } else {
+                        player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
+                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
+                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
+                    }
+                }
             });
         } else if (parts[0].equalsIgnoreCase("STOP")) {
             network.getServers().remove(new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
             network.getServerAlerts().forEach((uuid, server) -> {
-                if (server && Cytosis.getPlayer(uuid).isPresent())
+                if (server && Cytosis.getPlayer(uuid).isPresent()) {
                     Cytosis.getPlayer(uuid).get().sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stoped with the id of \{parts[2]}");
+                } else {
+                    Player player = Cytosis.getPlayer(uuid).get();
+                    player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
+                    Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
+                    Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
+                }
             });
         }
     }
