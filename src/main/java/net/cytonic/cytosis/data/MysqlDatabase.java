@@ -116,6 +116,7 @@ public class MysqlDatabase {
         createChatChannelsTable();
         createPlayerJoinsTable();
         createAuditLogTable();
+        createServerAlertsTable();
     }
 
     /**
@@ -138,7 +139,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicchat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst fetching data from the database. Please report the following stacktrace to Cy:", e);
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Cy:", e);
                 }
             }
         });
@@ -155,7 +156,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_ranks (uuid VARCHAR(36), rank_id VARCHAR(16), PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst creating the `cytonic_ranks` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
                 }
             }
         });
@@ -172,7 +173,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_bans (uuid VARCHAR(36), to_expire VARCHAR(100), reason TINYTEXT, PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst creating the `cytonic_bans` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_bans` table.", e);
                 }
             }
         });
@@ -189,7 +190,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (uuid VARCHAR(36), name VARCHAR(16), PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst creating the `cytonic_players` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
                 }
             }
         });
@@ -261,10 +262,63 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_audit_log (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), reason TINYTEXT, category VARCHAR(50), actor VARCHAR(36), PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
                 }
             }
         });
+    }
+
+    private void createServerAlertsTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_server_alerts (uuid VARCHAR(36), value BOOLEAN, PRIMARY KEY(uuid))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
+                }
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> getServerAlerts(@NotNull final UUID uuid) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a player's server alerts!");
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement("SELECT value FROM cytonic_server_alerts WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    future.complete(rs.getBoolean("value"));
+                } else {
+                    future.complete(false);
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst fetching a player's server alerts.", e);
+            }
+        });
+        return future;
+    }
+
+    public CompletableFuture<Void> setServerAlerts(@NotNull final UUID uuid, boolean value) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to set a player's server alerts!");
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_server_alerts (uuid, value) VALUES (?,?) ON DUPLICATE KEY UPDATE value = VALUES(value)");
+                ps.setString(1, uuid.toString());
+                ps.setBoolean(2, value);
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst setting a player's server alerts.", e);
+            }
+        });
+        return future;
     }
 
     /**

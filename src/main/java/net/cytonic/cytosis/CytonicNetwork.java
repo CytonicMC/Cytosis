@@ -15,6 +15,7 @@ public class CytonicNetwork {
     private final Set<UUID> networkPlayerUUIDs = new HashSet<>();
     private final Map<String, CytonicServer> servers = new HashMap<>(); // online servers
     private final Map<String, PlayerServer> netoworkPlayersOnServers = new HashMap<>();
+    private final Map<UUID, Boolean> serverAlerts = new HashMap<>();
 
     /**
      * The default constructor
