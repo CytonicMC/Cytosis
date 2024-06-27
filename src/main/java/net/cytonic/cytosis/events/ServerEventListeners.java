@@ -68,6 +68,11 @@ public final class ServerEventListeners {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
                 } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
             }));
+            Cytosis.getDatabaseManager().getMysqlDatabase().getServerAlerts(player.getUuid()).whenComplete((value, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("An error occurred whilst getting a player's server alerts!", throwable);
+                } else Cytosis.getCytonicNetwork().getServerAlerts().put(player.getUuid(), value);
+            });
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
@@ -100,6 +105,7 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
+            Cytosis.getCytonicNetwork().getServerAlerts().remove(player.getUuid());
         }));
 
         Logger.info("Registering interact events.");

@@ -41,6 +41,7 @@ public class CommandHandler {
         cm.register(new PodDetailsCommand());
         cm.register(new TeleportCommand());
         cm.register(new FindCommand());
+        cm.register(new ServerAlertsCommand());
     }
 
     /**
