@@ -3,19 +3,15 @@ package net.cytonic.cytosis.events;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
-import net.cytonic.cytosis.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
-
 import java.util.Optional;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
@@ -43,26 +39,11 @@ public final class ServerEventListeners {
 
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
-            Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(event.getPlayer().getUuid()).whenComplete((data, throwable) -> {
-                final Player player = event.getPlayer();
-                if (throwable != null) {
-                    Logger.error("An error occurred whilst checking if the player is banned!", throwable);
-                    player.kick(MM."<red>An error occurred whilst initiating the login sequence!");
-                    return;
-                }
-                if (data.isBanned()) {
-                    Cytosis.getMessagingManager().getRabbitMQ().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data));
-                    return;
-                }
-
-                Logger.info(STR."\{event.getPlayer().getUsername()} (\{event.getPlayer().getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
-                Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
-                Cytosis.getRankManager().addPlayer(player);
-            });
             final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             Cytosis.getRankManager().addPlayer(player);
+            Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
             Cytosis.getDatabaseManager().getMysqlDatabase().getChatChannel(player.getUuid()).whenComplete(((chatChannel, throwable) -> {
                 if (throwable != null) {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
