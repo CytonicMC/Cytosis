@@ -21,8 +21,8 @@ dependencies {
     api("com.google.code.gson:gson:2.11.0") // serializing
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
     implementation("com.mysql:mysql-connector-j:8.4.0") //mysql connector
-    compileOnly("org.projectlombok:lombok:1.18.32") // lombok
-    annotationProcessor("org.projectlombok:lombok:1.18.32") // lombok
+    compileOnly("org.projectlombok:lombok:1.18.34") // lombok
+    annotationProcessor("org.projectlombok:lombok:1.18.34") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     api("com.rabbitmq:amqp-client:5.21.0") // Message broker
     api("dev.hollowcube:polar:1.10.0") // Polar
