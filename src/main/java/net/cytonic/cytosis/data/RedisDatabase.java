@@ -2,12 +2,13 @@ package net.cytonic.cytosis.data;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.pubsub.PlayerLoginLogout;
-import net.cytonic.cytosis.messaging.pubsub.PlayerServerChange;
-import net.cytonic.cytosis.messaging.pubsub.ServerStatus;
+import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.cytosis.utils.Utils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 import java.util.Set;
@@ -53,6 +54,10 @@ public class RedisDatabase {
      * Send player channel
      */
     public static final String SEND_PLAYER_CHANNEL = "player_send";
+    /**
+     * Chat channels channel
+     */
+    public static final String CHAT_CHANNELS_CHANNEL = "chat-channels";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -73,6 +78,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new ChatChannels(), CHAT_CHANNELS_CHANNEL));
     }
 
     /**
@@ -98,6 +104,17 @@ public class RedisDatabase {
     public void sendPlayerToServer(Player player, CytonicServer server) {
         // formatting: <PLAYER_UUID>|:|<SERVER_ID>
         jedisPub.publish(SEND_PLAYER_CHANNEL, STR."\{player.getUuid()}|:|\{server.id()}");
+    }
+
+    /**
+     * Sends a chat message to all servers
+     * @param chatMessage the chat message
+     * @param chatChannel the chat channel
+     */
+    public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
+        //formatting: {chat-message}|{chat-channel}
+        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
+        jedisPub.publish(CHAT_CHANNELS_CHANNEL, message);
     }
 
 

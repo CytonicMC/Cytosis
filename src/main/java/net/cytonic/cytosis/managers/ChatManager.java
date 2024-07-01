@@ -58,7 +58,7 @@ public class ChatManager {
     public void sendMessageToChannel(Component component, ChatChannel chatChannel) {
         switch (chatChannel) {
             case ADMIN, MOD, STAFF -> // send a message to all servers
-                    Cytosis.getMessagingManager().getRabbitMQ().sendChatMessage(component, chatChannel);
+                    Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(component, chatChannel);
             case PARTY -> {
                 //todo parties..
             }
@@ -71,9 +71,5 @@ public class ChatManager {
             case ALL -> throw new UnsupportedOperationException(STR."Unimplemented case: \{chatChannel}");
             default -> throw new IllegalArgumentException(STR."Unexpected value: \{chatChannel}");
         }
-    }
-
-    public void getShorthandChatChannel(ChatChannel channel) {
-        switch (channel) {}
     }
 }
