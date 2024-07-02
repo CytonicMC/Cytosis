@@ -112,8 +112,8 @@ public class RedisDatabase {
      * @param chatChannel the chat channel
      */
     public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
-        //formatting: {chat-message}|{chat-channel}
-        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
+        //formatting: {chat-message}|:|{chat-channel}
+        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|:|\{chatChannel.name()}";
         jedisPub.publish(CHAT_CHANNELS_CHANNEL, message);
     }
 
