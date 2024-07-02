@@ -1,20 +1,14 @@
 package net.cytonic.cytosis.messaging;
 
 import com.rabbitmq.client.*;
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.OfflinePlayer;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
-import net.minestom.server.sound.SoundEvent;
-
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -33,9 +27,7 @@ public class RabbitMQ {
         // do nothing
     }
 
-    private static final String CHAT_CHANNEL_QUEUE = STR."chat-channel-\{Cytosis.SERVER_ID}";
     private static final String PLAYER_KICK_QUEUE = "player-kick";
-    private static final String CHAT_CHANNEL_EXCHANGE = "chat-exchange";
     private Connection connection;
     private Channel channel;
 
@@ -67,13 +59,6 @@ public class RabbitMQ {
      */
     public void initializeQueues() {
         Logger.info("Initializing RabbitMQ queues...");
-        try {
-            channel.exchangeDeclare(CHAT_CHANNEL_EXCHANGE, BuiltinExchangeType.FANOUT);
-            channel.queueDeclare(CHAT_CHANNEL_QUEUE, false, false, true, null);
-            channel.queueBind(CHAT_CHANNEL_QUEUE, CHAT_CHANNEL_EXCHANGE, "");
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst initializing the 'CHAT_CHANNEL_QUEUE'.", e);
-        }
         try {
             channel.queueDeclare(PLAYER_KICK_QUEUE, false, false, false, null);
         } catch (IOException e) {
@@ -127,67 +112,6 @@ public class RabbitMQ {
             channel.basicPublish("", PLAYER_KICK_QUEUE, null, rawMessage.getBytes());
         } catch (IOException e) {
             Logger.error(STR."An error occoured whilst attempting to kick the player \{player.name()}.", e);
-        }
-    }
-
-    /**
-     * Sends a chat message to RabbitMQ, for other servers to broadcast to the appropriate chat channel
-     *
-     * @param chatMessage The message to send, in component form
-     * @param chatChannel The channel the message is to be sent on
-     */
-    public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
-        //formatting: {chat-message}|{chat-channel}
-        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|\{chatChannel.name()}";
-        try {
-            channel.basicPublish(CHAT_CHANNEL_EXCHANGE, CHAT_CHANNEL_QUEUE, null, message.getBytes());
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst attempting to send a chat message!", e);
-        }
-    }
-
-    /**
-     * Initializes the consumers for receiving chat messages
-     */
-    public void receiveChatMessages() {
-        try {
-            DeliverCallback deliverCallback = (_, delivery) -> {
-                String[] thing = new String(delivery.getBody(), StandardCharsets.UTF_8).split("\\|");
-                Component chatMessage = JSONComponentSerializer.json().deserialize(thing[0]);
-                ChatChannel chatChannel = ChatChannel.valueOf(thing[1]);
-                switch (chatChannel) {
-                    case MOD -> // send a message to all players with cytonic.chat.mod permission
-                            Cytosis.getOnlinePlayers().forEach(player -> {
-                                if (player.hasPermission("cytonic.chat.mod")) {
-                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                                    player.sendMessage(chatMessage);
-                                }
-                            });
-
-                    case STAFF -> // send a message to all players with cytonic.chat.staff permission
-                            Cytosis.getOnlinePlayers().forEach(player -> {
-                                if (player.hasPermission("cytonic.chat.staff")) {
-                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                                    player.sendMessage(chatMessage);
-                                }
-                            });
-                    case ADMIN -> // send a message to all players with cytonic.chat.admin permission
-                            Cytosis.getOnlinePlayers().forEach(player -> {
-                                if (player.hasPermission("cytonic.chat.admin")) {
-                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                                    player.sendMessage(chatMessage);
-                                }
-                            });
-                    case LEAGUE -> {// leagues..
-                    }
-                    case PARTY -> {// parties..
-                    }
-                }
-            };
-            channel.basicConsume(CHAT_CHANNEL_QUEUE, true, deliverCallback, _ -> {
-            });
-        } catch (IOException e) {
-            Logger.error("error", e);
         }
     }
 
