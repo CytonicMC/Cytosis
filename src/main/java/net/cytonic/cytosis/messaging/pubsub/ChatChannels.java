@@ -18,7 +18,7 @@ public class ChatChannels extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.CHAT_CHANNELS_CHANNEL)) return;
-        String[] thing = message.split("\\|");
+        String[] thing = message.split("\\|:\\|");
         Component chatMessage = JSONComponentSerializer.json().deserialize(thing[0]);
         ChatChannel chatChannel = ChatChannel.valueOf(thing[1]);
         switch (chatChannel) {
