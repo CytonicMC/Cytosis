@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    api("net.minestom:minestom-snapshots:1_21-9219e96f76")
+    api("net.minestom:minestom-snapshots:a49e1673e9")
     api("com.google.code.gson:gson:2.11.0") // serializing
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
     implementation("com.mysql:mysql-connector-j:9.0.0") //mysql connector
