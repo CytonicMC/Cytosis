@@ -4,9 +4,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
-
-import java.util.Arrays;
-
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class BroadcastCommand extends Command {
