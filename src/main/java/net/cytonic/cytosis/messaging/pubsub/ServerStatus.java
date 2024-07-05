@@ -54,7 +54,7 @@ public class ServerStatus extends JedisPubSub {
                 if (server && Cytosis.getPlayer(uuid).isPresent()) {
                     Player player = Cytosis.getPlayer(uuid).get();
                     if (player.hasPermission("cytosis.commands.serveralerts")) {
-                        player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stoped with the id of \{parts[1]}");
+                        player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stopped with the id of \{parts[1]}");
                     } else {
                         player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
                         Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
