@@ -9,7 +9,6 @@ password = ""  # Password to connect to the database
 use_ssl = false # Whether to use SSL
 
 [redis]
-enabled = false
 port = 6379
 host = ""
 password = "" #No username :)

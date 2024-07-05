@@ -111,10 +111,6 @@ public final class CytosisSettings {
 
     //Redis
     /**
-     * Should Cytosis use Redis?
-     */
-    public static boolean REDIS_ENABLED = false;
-    /**
      * The redis port
      */
     public static int REDIS_PORT = 6379;
@@ -171,7 +167,6 @@ public final class CytosisSettings {
                     case "rabbitmq.port" -> RABBITMQ_PORT = toInt(value);
                     case "rabbitmq.enabled" -> RABBITMQ_ENABLED = (boolean) value;
                     // Redis
-                    case "redis.enabled" -> REDIS_ENABLED = (boolean) value;
                     case "redis.port" -> REDIS_PORT = toInt(value);
                     case "redis.host" -> REDIS_HOST = (String) value;
                     case "redis.password" -> REDIS_PASSWORD = (String) value;
@@ -227,7 +222,6 @@ public final class CytosisSettings {
         if (System.getenv("RABBITMQ_USERNAME") != null) RABBITMQ_USERNAME = System.getenv("RABBITMQ_USERNAME");
         if (System.getenv("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getenv("RABBITMQ_PORT"));
         // redis
-        if (System.getenv("REDIS_ENABLED") != null) REDIS_ENABLED = Boolean.parseBoolean(System.getenv("REDIS_ENABLED"));
         if (System.getenv("REDIS_HOST") != null) REDIS_HOST = System.getenv("REDIS_HOST");
         if (System.getenv("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
         if (System.getenv("REDIS_PASSWORD") != null) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
@@ -270,7 +264,6 @@ public final class CytosisSettings {
         if (System.getProperty("RABBITMQ_USERNAME") != null) RABBITMQ_USERNAME = System.getProperty("RABBITMQ_USERNAME");
         if (System.getProperty("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getProperty("RABBITMQ_PORT"));
         // redis
-        if (System.getProperty("REDIS_ENABLED") != null) REDIS_ENABLED = Boolean.parseBoolean(System.getProperty("REDIS_ENABLED"));
         if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
         if (System.getProperty("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getProperty("REDIS_PORT"));
         if (System.getProperty("REDIS_PASSWORD") != null) REDIS_PASSWORD = System.getProperty("REDIS_PASSWORD");

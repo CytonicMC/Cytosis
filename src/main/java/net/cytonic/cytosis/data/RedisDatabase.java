@@ -12,6 +12,7 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,6 +59,10 @@ public class RedisDatabase {
      * Chat channels channel
      */
     public static final String CHAT_CHANNELS_CHANNEL = "chat-channels";
+    /**
+     * Message channel
+     */
+    public static final String MESSAGE_CHANNEL = "message";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -79,6 +84,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatChannels(), CHAT_CHANNELS_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new Messages(), MESSAGE_CHANNEL));
     }
 
     /**
@@ -115,6 +121,13 @@ public class RedisDatabase {
         //formatting: {chat-message}|:|{chat-channel}
         String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|:|\{chatChannel.name()}";
         jedisPub.publish(CHAT_CHANNELS_CHANNEL, message);
+    }
+
+    public void sendMessage(Component message, UUID target) {
+        //formatting {message}|:|{target_uuid}
+        Logger.debug("sent message!");
+        String publishMessage = STR."\{JSONComponentSerializer.json().serialize(message)}|:|\{target}";
+        jedisPub.publish(MESSAGE_CHANNEL, publishMessage);
     }
 
 
