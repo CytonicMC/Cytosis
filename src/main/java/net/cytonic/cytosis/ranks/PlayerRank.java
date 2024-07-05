@@ -23,37 +23,37 @@ public enum PlayerRank {
     /**
      * The [MOD] rank
      */
-    MODERATOR(MM."<green>[MOD]", NamedTextColor.GREEN, NamedTextColor.WHITE, new String[]{"cytonic.chat.staff"}),
+    MODERATOR(MM."<green>[MOD]", NamedTextColor.GREEN, NamedTextColor.WHITE, new String[]{"cytonic.chat.staff", "cytosis.commands.fly"}),
     /**
      * The [HELPER] rank
      */
-    HELPER(MM."<aqua>[HELPER]", NamedTextColor.AQUA, NamedTextColor.WHITE, new String[]{"cytonic.chat.staff"}),
+    HELPER(MM."<aqua>[HELPER]", NamedTextColor.AQUA, NamedTextColor.WHITE, new String[]{"cytonic.chat.staff", "cytosis.commands.fly"}),
 
     // player ranks
     /**
      * The [ELYSIAN] rank
      */
-    ELYSIAN(MM."<gold>[ELYSIAN]", NamedTextColor.GOLD, NamedTextColor.WHITE, new String[]{}),
+    ELYSIAN(MM."<gold>[ELYSIAN]", NamedTextColor.GOLD, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
     /**
      * The [CELESTIAL] rank
      */
-    CELESTIAL(MM."<dark_aqua>[CELESTIAL]", NamedTextColor.DARK_AQUA, NamedTextColor.WHITE, new String[]{}),
+    CELESTIAL(MM."<dark_aqua>[CELESTIAL]", NamedTextColor.DARK_AQUA, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
     /**
      * The [MASTER] rank
      */
-    MASTER(MM."<dark_red>[MASTER]", NamedTextColor.DARK_RED, NamedTextColor.WHITE, new String[]{}),
+    MASTER(MM."<dark_red>[MASTER]", NamedTextColor.DARK_RED, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
     /**
      * The [VALIENT] rank
      */
-    VALIENT(MM."<dark_green>[VALIENT]", NamedTextColor.DARK_GREEN, NamedTextColor.WHITE, new String[]{}),
+    VALIENT(MM."<dark_green>[VALIENT]", NamedTextColor.DARK_GREEN, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
     /**
      * The [NOBLE] rank
      */
-    NOBLE(MM."<dark_purple>[NOBLE]", NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE, new String[]{}),
+    NOBLE(MM."<dark_purple>[NOBLE]", NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
     /**
      * The [DEFAULT] rank
      */
-    DEFAULT(MM."<rainbow>[DEFAULT]", NamedTextColor.GRAY, NamedTextColor.GRAY, new String[]{"cytosis.commands.gamemode"});
+    DEFAULT(MM."<GRAY>[DEFAULT]", NamedTextColor.GRAY, NamedTextColor.GRAY, new String[]{});
 
     private final Component prefix;
     private final NamedTextColor teamColor;
