@@ -13,6 +13,9 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.Scheduler;
 import net.minestom.server.timer.TaskSchedule;
+
+import java.time.Duration;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
@@ -38,14 +41,13 @@ public class KaboomCommand extends Command {
                         Pos spawnPosition = online.getPosition();
                         Entity lightning = new Entity(EntityType.LIGHTNING_BOLT);
                         lightning.setInstance(instance, spawnPosition);
-                        online.playSound(Sound.sound(SoundEvent.ENTITY_LIGHTNING_BOLT_THUNDER, Sound.Source.WEATHER, 2f, 1f));
+                        online.playSound(Sound.sound(SoundEvent.ENTITY_LIGHTNING_BOLT_IMPACT, Sound.Source.WEATHER, 5f, 1f));
 
                         // Remove lightning
                         Scheduler scheduler = MinecraftServer.getSchedulerManager();
-                        scheduler.submitTask(() -> {
+                        scheduler.buildTask(() -> {
                             lightning.remove();
-                            return TaskSchedule.seconds(2);
-                        });
+                        }).delay(Duration.ofSeconds(1)).schedule();
 
                         // Launch player
                         online.setVelocity(new Vec(0, 50, 0));
