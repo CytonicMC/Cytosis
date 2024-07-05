@@ -38,7 +38,7 @@ public class KaboomCommand extends Command {
                         Pos spawnPosition = online.getPosition();
                         Entity lightning = new Entity(EntityType.LIGHTNING_BOLT);
                         lightning.setInstance(instance, spawnPosition);
-                        online.playSound(Sound.sound(SoundEvent.ENTITY_LIGHTNING_BOLT_THUNDER, Sound.Source.WEATHER, 1f, 1f));
+                        online.playSound(Sound.sound(SoundEvent.ENTITY_LIGHTNING_BOLT_THUNDER, Sound.Source.WEATHER, 2f, 1f));
 
                         // Remove lightning
                         Scheduler scheduler = MinecraftServer.getSchedulerManager();
