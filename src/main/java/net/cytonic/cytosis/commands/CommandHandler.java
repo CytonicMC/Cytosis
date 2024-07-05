@@ -44,6 +44,7 @@ public class CommandHandler {
         cm.register(new ServerAlertsCommand());
         cm.register(new HelloCommand());
         cm.register(new FlyCommand());
+        cm.register(new KaboomCommand());
     }
 
     /**
