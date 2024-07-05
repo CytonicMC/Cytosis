@@ -33,23 +33,23 @@ public enum PlayerRank {
     /**
      * The [ELYSIAN] rank
      */
-    ELYSIAN(MM."<gold>[ELYSIAN]", NamedTextColor.GOLD, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
+    ELYSIAN(MM."<gold>[ELYSIAN]", NamedTextColor.GOLD, NamedTextColor.WHITE, new String[]{}),
     /**
      * The [CELESTIAL] rank
      */
-    CELESTIAL(MM."<dark_aqua>[CELESTIAL]", NamedTextColor.DARK_AQUA, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
+    CELESTIAL(MM."<dark_aqua>[CELESTIAL]", NamedTextColor.DARK_AQUA, NamedTextColor.WHITE, new String[]{}),
     /**
      * The [MASTER] rank
      */
-    MASTER(MM."<dark_red>[MASTER]", NamedTextColor.DARK_RED, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
+    MASTER(MM."<dark_red>[MASTER]", NamedTextColor.DARK_RED, NamedTextColor.WHITE, new String[]{}),
     /**
      * The [VALIENT] rank
      */
-    VALIENT(MM."<dark_green>[VALIENT]", NamedTextColor.DARK_GREEN, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
+    VALIENT(MM."<dark_green>[VALIENT]", NamedTextColor.DARK_GREEN, NamedTextColor.WHITE, new String[]{}),
     /**
      * The [NOBLE] rank
      */
-    NOBLE(MM."<dark_purple>[NOBLE]", NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE, new String[]{"cytosis.commands.fly"}),
+    NOBLE(MM."<dark_purple>[NOBLE]", NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE, new String[]{}),
     /**
      * The [DEFAULT] rank
      */
