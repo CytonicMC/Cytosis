@@ -1,6 +1,6 @@
 # Database Connection Details
 [database]
-enabled = true
+enabled = false
 host = ""  # Database host or IP address
 port = 3306  # Default MySQL/MariaDB port
 name = ""  # Name of the database
@@ -9,6 +9,7 @@ password = ""  # Password to connect to the database
 use_ssl = false # Whether to use SSL
 
 [redis]
+enabled = false
 port = 6379
 host = ""
 password = "" #No username :)
