@@ -9,7 +9,7 @@ import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 public class BroadcastCommand extends Command {
 
     public BroadcastCommand() {
-        super("broadcast");
+        super("broadcast", "bc");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.broadcast"));
         var broadcastArgument = ArgumentType.StringArray("broadcastArgument");
         setDefaultExecutor((sender, _) -> {
