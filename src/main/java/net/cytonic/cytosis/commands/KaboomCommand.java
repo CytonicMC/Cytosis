@@ -45,9 +45,7 @@ public class KaboomCommand extends Command {
 
                         // Remove lightning
                         Scheduler scheduler = MinecraftServer.getSchedulerManager();
-                        scheduler.buildTask(() -> {
-                            lightning.remove();
-                        }).delay(Duration.ofSeconds(1)).schedule();
+                        scheduler.buildTask(() -> lightning.remove()).delay(Duration.ofSeconds(1)).schedule();
 
                         // Launch player
                         online.setVelocity(new Vec(0, 50, 0));
