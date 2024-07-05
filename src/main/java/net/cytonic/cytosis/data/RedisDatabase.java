@@ -117,7 +117,6 @@ public class RedisDatabase {
         jedisPub.publish(CHAT_CHANNELS_CHANNEL, message);
     }
 
-
     /**
      * Disconnects from the redis server
      */
