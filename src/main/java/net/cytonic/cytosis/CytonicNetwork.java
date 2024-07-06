@@ -2,19 +2,30 @@ package net.cytonic.cytosis;
 
 import lombok.Getter;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.PlayerServer;
-import java.util.*;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.BiMap;
+import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.PlayerPair;
+
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 
 /**
  * A class that holds data about the status of the Cytonic network
  */
 @Getter
 public class CytonicNetwork {
-    private final Set<String> networkPlayers = new HashSet<>();
-    private final Set<UUID> networkPlayerUUIDs = new HashSet<>();
-    private final Map<String, CytonicServer> servers = new HashMap<>(); // online servers
-    private final Map<String, PlayerServer> netoworkPlayersOnServers = new HashMap<>();
+    private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
+    private final Map<UUID, PlayerRank> playerRanks = new ConcurrentHashMap<>(); // <player, rank> ** This is for reference and should not be used to set data **
+    private final BiMap<UUID, String> onlinePlayers = new BiMap<>();
+    private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
+    private final Map<String, PlayerServer> networkPlayersOnServers = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> serverAlerts = new HashMap<>();
 
     /**
@@ -28,16 +39,47 @@ public class CytonicNetwork {
      *
      * @param redis The redis instance
      */
-    public void importDataFromRedis(RedisDatabase redis) {
-        networkPlayers.clear();
-        networkPlayerUUIDs.clear();
+    public void importData(RedisDatabase redis) {
+        onlinePlayers.clear();
         servers.clear();
-        netoworkPlayersOnServers.clear();
+        networkPlayersOnServers.clear();
 
-        networkPlayers.addAll(redis.getSet(RedisDatabase.ONLINE_PLAYER_NAME_KEY));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_UUID_KEY).forEach(s -> networkPlayerUUIDs.add(UUID.fromString(s)));
+
+        QUERY."SELECT * FROM cytonic_players".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading players!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    lifetimePlayers.put(UUID.fromString(rs.getString("uuid")), rs.getString("name"));
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading players!", e);
+            }
+        });
+
+        QUERY."SELECT * FROM cytonic_ranks".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading ranks!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    playerRanks.put(UUID.fromString(rs.getString("uuid")), PlayerRank.valueOf(rs.getString("rank_id")));
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading ranks!", e);
+            }
+        });
+
+
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_KEY).forEach(s -> {
+            PlayerPair pp = PlayerPair.deserialize(s);
+            onlinePlayers.put(pp.uuid(), pp.name());
+        });
         redis.getSet(RedisDatabase.ONLINE_SERVER_KEY).forEach(s -> servers.put(CytonicServer.deserialize(s).id(), CytonicServer.deserialize(s)));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> netoworkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> networkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
     }
 
     /**
@@ -47,8 +89,36 @@ public class CytonicNetwork {
      * @param uuid The player's UUID
      */
     public void addPlayer(String name, UUID uuid) {
-        networkPlayers.add(name);
-        networkPlayerUUIDs.add(uuid);
+        onlinePlayers.put(uuid, name);
+        lifetimePlayers.put(uuid, name);
+        // the player has not played before
+        playerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
+
+        // update it to see if the player's rank changed since the server started
+        QUERY."SELECT rank_id FROM cytonic_ranks where uuid = '\{uuid.toString()}'".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading ranks!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    playerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank_id")));
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading ranks!", e);
+            }
+        });
+        //todo: add the player to the networkPlayersOnServers?
+    }
+
+    /**
+     * Updates the player's cached rank.
+     *
+     * @param uuid The player's UUID
+     * @param rank The player's new rank
+     */
+    public void updatePlayerRank(UUID uuid, PlayerRank rank) {
+        playerRanks.put(uuid, rank);
     }
 
     /**
@@ -58,7 +128,17 @@ public class CytonicNetwork {
      * @param uuid The player's UUID
      */
     public void removePlayer(String name, UUID uuid) {
-        networkPlayers.remove(name);
-        networkPlayerUUIDs.remove(uuid);
+        onlinePlayers.remove(uuid, name);
+        networkPlayersOnServers.remove(name);
+    }
+
+    /**
+     * Determines if the specfied UUID has played before
+     *
+     * @param uuid the uuid to try
+     * @return if the player has played on the network before.
+     */
+    public boolean hasPlayedBefore(UUID uuid) {
+        return lifetimePlayers.containsKey(uuid);
     }
 }
