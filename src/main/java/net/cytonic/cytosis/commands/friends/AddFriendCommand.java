@@ -48,6 +48,7 @@ public class AddFriendCommand extends Command {
             }
             //todo: blocking system
             //todo: send friend request
+            //todo: handle errors
             Cytosis.getCynwaveWrapper().sendFriendRequest(target, player.getUuid());
 
         }, playerArg);
