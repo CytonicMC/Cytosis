@@ -17,6 +17,7 @@ import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.entity.EntityFinder;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
@@ -49,7 +50,9 @@ public class KaboomCommand extends Command {
                     player.sendMessage(MM."<red>Failed to find player.");
                     return;
                 }
-                kaboom(player);
+                Optional<Player> inputPlayer = Cytosis.getPlayer(entity.getUuid());
+                kaboom(inputPlayer.get());
+                player.sendMessage(MM."<GREEN>Success.");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
