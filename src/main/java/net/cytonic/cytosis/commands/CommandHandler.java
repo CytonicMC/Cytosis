@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
+import net.cytonic.cytosis.commands.friends.AddFriendCommand;
 import net.cytonic.cytosis.commands.moderation.BanCommand;
 import net.cytonic.cytosis.commands.server.CreateInstanceCommand;
 import net.cytonic.cytosis.commands.server.PodDetailsCommand;
@@ -48,6 +49,8 @@ public class CommandHandler {
         cm.register(new PodDetailsCommand());
         cm.register(new TeleportCommand());
         cm.register(new FindCommand());
+        cm.register(new AddFriendCommand());
+        cm.register(new PreferenceCommand());
         cm.register(new ServerAlertsCommand());
         cm.register(new HelloCommand());
         cm.register(new FlyCommand());
