@@ -17,7 +17,7 @@ public class HelpCommand extends Command {
         super("help");
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
-                player.sendMessage(MM."<aqua><b>CytonicMC</b></aqua>");
+                player.sendMessage(MM."<dark_green><st>                          </st> <gold>[<aqua>!</aqua>] <aqua><b>CytonicMC</b></aqua> [<aqua>!</aqua>]</gold> <st>                         </st>");
                 player.sendMessage(" ");
                 player.sendMessage(MM."<white><b>◆</b></white> <gold><click:open_url:'https://discord.gg/yrmv9WSGGV'>Discord</click>");
                 player.sendMessage(MM."<white><b>◆</b></white> <gold><click:open_url:'https://cytonic.net/forums'>Forums</click>");

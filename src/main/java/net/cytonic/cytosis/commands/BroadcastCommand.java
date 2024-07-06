@@ -20,7 +20,7 @@ public class BroadcastCommand extends Command {
         var broadcastArgument = ArgumentType.StringArray("broadcastArgument");
         setDefaultExecutor((sender, _) -> {
             if (sender.hasPermission("cytosis.commands.broadcast")) {
-                sender.sendMessage(MM."<RED>/broadcast (message)");
+                sender.sendMessage(MM."<RED>Usage: /broadcast (message)");
             }
         });
         addSyntax((sender, context) -> {

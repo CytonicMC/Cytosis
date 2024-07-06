@@ -20,7 +20,7 @@ public class AllChatCommand extends Command {
         var chatMessage = ArgumentType.StringArray("chatMessage");
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
-                player.sendMessage(MM."<RED>/achat (message)");
+                player.sendMessage(MM."<RED>Usage: /achat (message)");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
