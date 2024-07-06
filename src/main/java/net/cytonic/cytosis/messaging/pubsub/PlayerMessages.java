@@ -8,13 +8,13 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import redis.clients.jedis.JedisPubSub;
 import java.util.UUID;
 
-public class Messages extends JedisPubSub {
+public class PlayerMessages extends JedisPubSub {
 
-    public Messages() {}
+    public PlayerMessages() {}
 
     @Override
     public void onMessage(String channel, String message) {
-        if (!channel.equals(RedisDatabase.MESSAGE_CHANNEL)) {
+        if (!channel.equals(RedisDatabase.PLAYER_MESSAGE_CHANNEL)) {
             //formatting {message}|:|{target_uuid}
             Logger.debug("got message!");
             String[] parts = message.split("\\|:\\|");

@@ -12,6 +12,7 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,6 +59,10 @@ public class RedisDatabase {
      * Chat channels channel
      */
     public static final String CHAT_CHANNELS_CHANNEL = "chat-channels";
+    /**
+     * Player messages channel
+     */
+    public static final String PLAYER_MESSAGE_CHANNEL = "player_message";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -79,6 +84,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatChannels(), CHAT_CHANNELS_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new PlayerMessages(), PLAYER_MESSAGE_CHANNEL));
     }
 
     /**
@@ -108,6 +114,7 @@ public class RedisDatabase {
 
     /**
      * Sends a chat message to all servers
+     *
      * @param chatMessage the chat message
      * @param chatChannel the chat channel
      */
@@ -115,6 +122,18 @@ public class RedisDatabase {
         //formatting: {chat-message}|:|{chat-channel}
         String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|:|\{chatChannel.name()}";
         jedisPub.publish(CHAT_CHANNELS_CHANNEL, message);
+    }
+
+    /**
+     * Sends a message to a player
+     *
+     * @param message the message
+     * @param target  the target uuid
+     */
+    public void sendPlayerMessage(Component message, UUID target) {
+        // Formatting: {message}|:|{target_uuid}
+        String msg = STR."\{JSONComponentSerializer.json().serialize(message)}|:|\{target.toString()}";
+        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, msg);
     }
 
     /**
