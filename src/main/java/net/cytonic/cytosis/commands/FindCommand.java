@@ -18,12 +18,12 @@ public class FindCommand extends Command {
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.find"));
         setDefaultExecutor((sender, _) -> sender.sendMessage(MiniMessageTemplate.MM."<RED>You must specify a player!"));
         var playerArgument = ArgumentType.Word("player");
-        playerArgument.setSuggestionCallback((_, _, suggestion) -> Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().values().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.playerName()))));
+        playerArgument.setSuggestionCallback((_, _, suggestion) -> Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().values().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.playerName()))));
         playerArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The player \{exception.getInput()} is invalid!", NamedTextColor.RED)));
         addSyntax((sender, context) -> {
             if (sender.hasPermission("cytosis.commands.find")) if (sender instanceof final Player player) {
                 String playerName = context.get(playerArgument);
-                for (PlayerServer server : Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().values()) {
+                for (PlayerServer server : Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().values()) {
                     if (server.playerName().equalsIgnoreCase(playerName)) {
                         Component message = Component.text(STR."The player \{playerName} is online on server \{server.server().id()} ",NamedTextColor.YELLOW)
                         .append(Component.text("[GO THERE]", NamedTextColor.GREEN, TextDecoration.BOLD)
