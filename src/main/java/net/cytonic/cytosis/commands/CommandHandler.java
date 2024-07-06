@@ -54,6 +54,7 @@ public class CommandHandler {
         cm.register(new TeleportAllCommand());
         cm.register(new PingCommand());
         cm.register(new TPSCommand());
+        cm.register(new ReportCommand());
     }
 
     /**

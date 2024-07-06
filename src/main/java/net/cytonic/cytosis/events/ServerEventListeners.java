@@ -77,6 +77,7 @@ public final class ServerEventListeners {
             });
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
+            player.sendPlayerListHeaderAndFooter(MM."<aqua><bold>CytonicMC", MM."<aqua>mc.cytonic.net");
             Cytosis.getPlayerListManager().setupPlayer(player);
         })));
 
