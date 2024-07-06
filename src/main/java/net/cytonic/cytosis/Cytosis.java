@@ -7,7 +7,6 @@ import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -19,7 +18,9 @@ import net.cytonic.cytosis.playerlist.PlayerListEntry;
 import net.cytonic.cytosis.playerlist.PlayerListFavicon;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
+import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.objects.CytonicServer;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The main class for Cytosis
@@ -54,7 +55,7 @@ public final class Cytosis {
     /**
      * The instance of Gson for serializing and deserializing objects
      */
-    public static final Gson GSON = new GsonBuilder().setStrictness(Strictness.LENIENT).create();
+    public static final Gson GSON = new GsonBuilder().enableComplexMapKeySerialization().setStrictness(Strictness.LENIENT).create();
 
     /**
      * The version of Cytosis
@@ -100,9 +101,13 @@ public final class Cytosis {
     private static NPCManager npcManager;
     private static List<String> FLAGS;
     @Getter
-    public static ContainerizedInstanceManager containerizedInstanceManager;
+    private static ContainerizedInstanceManager containerizedInstanceManager;
     @Getter
-    public static FriendManager friendManager;
+    private static FriendManager friendManager;
+    @Getter
+    private static PreferenceManager preferenceManager;
+    @Getter
+    private static CynwaveWrapper cynwaveWrapper;
 
     private Cytosis() {
     }
@@ -113,6 +118,9 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        // handle uncaught exceptions
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error(STR."Uncaught exception in thread \{t.getName()}", e));
+
         FLAGS = List.of(args);
         long start = System.currentTimeMillis();
         // Initialize the server
@@ -270,6 +278,9 @@ public final class Cytosis {
             eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
             eventHandler.init();
 
+            Logger.info("Loading player preferences");
+            preferenceManager = new PreferenceManager();
+
             Logger.info("Initializing server events");
             ServerEventListeners.initServerEvents();
 
@@ -341,7 +352,7 @@ public final class Cytosis {
             if (CytosisSettings.SERVER_PROXY_MODE) {
                 Logger.info("Loading network setup!");
                 cytonicNetwork = new CytonicNetwork();
-                cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
+                cytonicNetwork.importData(databaseManager.getRedisDatabase());
                 cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
             }
 
@@ -364,9 +375,12 @@ public final class Cytosis {
                 }
             }
 
+            cynwaveWrapper = new CynwaveWrapper();
+
             // Start the server
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
+            MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
 
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
@@ -377,7 +391,6 @@ public final class Cytosis {
                 MinecraftServer.stopCleanly();
             }
         });
-
     }
 
     /**
