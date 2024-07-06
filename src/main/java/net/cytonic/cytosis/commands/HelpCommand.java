@@ -14,7 +14,7 @@ public class HelpCommand extends Command {
      * Creates a new command and sets up the consumers and execution logic
      */
     public HelpCommand() {
-        super("help");
+        super("help", "?");
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
                 player.sendMessage(MM."<dark_green><st>                          </st> <gold>[<aqua>!</aqua>] <aqua><b>CytonicMC</b></aqua> [<aqua>!</aqua>]</gold> <st>                         </st>");
