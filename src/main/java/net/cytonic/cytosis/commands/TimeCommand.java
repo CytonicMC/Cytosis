@@ -68,10 +68,13 @@ public class TimeCommand extends Command {
                         return;
                     }
                 };
-
-                Cytosis.getDefaultInstance().setTime(context.get(timeInteger)); // Set time to input
-                sender.sendMessage(MM."<GREEN>Time set to " + context.get(timeInteger).toString() + ".");
             }
-        }, timeArgument, timeInteger);
+        }, timeArgument);
+        addSyntax((sender, context) -> {
+            if (sender.hasPermission("cytosis.commands.time")) {
+                Cytosis.getDefaultInstance().setTime(context.get(timeInteger)); // Set time to input
+                sender.sendMessage(MM."<GREEN>Time set to \{context.get(timeInteger)}.");
+            }
+        }, timeInteger);
     }
 }
