@@ -5,6 +5,7 @@ import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.playerlist.PlayerListCategory;
 import net.cytonic.cytosis.playerlist.PlayerListEntry;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.ServerPacket;
@@ -12,6 +13,8 @@ import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.utils.PacketUtils;
 
 import java.util.*;
+
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that manages the player list
@@ -30,12 +33,19 @@ public class PlayerListManager {
     //todo make it per player?
     private List<PlayerListCategory> globalCategories = new ArrayList<>();
 
+    // Header and Footer
+    @Setter private static Component header = MM."<aqua><bold>CytonicMC";
+    @Setter private static Component footer = MM."<aqua>mc.cytonic.net";
+
     /**
      * Injects the player list packets into the player's connection
      *
      * @param player The player to set up
      */
     public void setupPlayer(Player player) {
+        // setup tab header & footer
+        player.sendPlayerListHeaderAndFooter(header, footer);
+
         // remove them from the player list for everyone, but keep skin data
         PacketUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(
                 PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
