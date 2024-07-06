@@ -19,7 +19,7 @@ public class FlyCommand extends Command {
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
                 if (player.hasPermission("cytosis.commands.fly")) {
-                    if (player.isAllowFlying() == false) {
+                    if (!player.isAllowFlying()) {
                         player.setAllowFlying(true);
                         player.setFlying(true);
                         player.sendMessage(MM."<GREEN>Flight enabled.");
