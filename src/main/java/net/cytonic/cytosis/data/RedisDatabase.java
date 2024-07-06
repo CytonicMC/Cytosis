@@ -2,11 +2,10 @@ package net.cytonic.cytosis.data;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.objects.CytonicServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
@@ -23,13 +22,11 @@ import java.util.concurrent.Executors;
 public class RedisDatabase {
 
     /**
-     * Cached player names
+     * Cached players.
+     * <p>
+     * Stored in a format consistent with {@link net.cytonic.objects.PlayerPair}
      */
-    public static final String ONLINE_PLAYER_NAME_KEY = "online_player_names";
-    /**
-     * Cached player UUIDs
-     */
-    public static final String ONLINE_PLAYER_UUID_KEY = "online_player_uuids";
+    public static final String ONLINE_PLAYER_KEY = "online_players";
     /**
      * Cached Servers
      */
@@ -60,10 +57,29 @@ public class RedisDatabase {
      */
     public static final String CHAT_CHANNELS_CHANNEL = "chat-channels";
 
+    // friend requests
+    /**
+     * Send friend request
+     */
+    public static final String FRIEND_REQUEST_SENT = "friend-request-sent";
+    /**
+     * Published when a friend request expires
+     */
+    public static final String FRIEND_REQUEST_EXPIRED = "friend-request-expired";
+    /**
+     * Publushed when a friend request is declined
+     */
+    public static final String FRIEND_REQUEST_DECLINED = "friend-request-declined";
+    /**
+     * Published when a friend request is accepted
+     */
+    public static final String FRIEND_REQUEST_ACCEPTED = "friend-request-accepted";
+
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
     private final JedisPooled jedisSub;
-    private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker").factory());
+    private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
+            .uncaughtExceptionHandler((throwable, runnable) -> Logger.error("An error occured on the CytosisRedisWorker", throwable)).factory());
 
     /**
      * Initializes the connection to redis using the loaded settings and the Jedis client
@@ -80,6 +96,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatChannels(), CHAT_CHANNELS_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new FriendRequest(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT));
     }
 
     /**
