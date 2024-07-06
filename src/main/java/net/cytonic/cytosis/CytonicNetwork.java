@@ -10,6 +10,7 @@ import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.PlayerPair;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

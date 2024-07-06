@@ -27,8 +27,6 @@ public class FriendManager {
         // do nothing
     }
 
-    private final ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
-
     /**
      * Gets a player's friends
      *
