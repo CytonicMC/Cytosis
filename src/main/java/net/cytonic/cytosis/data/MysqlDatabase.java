@@ -3,11 +3,11 @@ package net.cytonic.cytosis.data;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.ranks.PlayerRank;
-import net.cytonic.cytosis.utils.BanData;
 import net.cytonic.cytosis.utils.PosSerializer;
+import net.cytonic.enums.ChatChannel;
+import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.BanData;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -42,7 +42,8 @@ public class MysqlDatabase {
      * Creates and initializes a new MysqlDatabase
      */
     public MysqlDatabase() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
+                .uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
         this.port = CytosisSettings.DATABASE_PORT;
         this.database = CytosisSettings.DATABASE_NAME;
@@ -116,6 +117,7 @@ public class MysqlDatabase {
         createChatChannelsTable();
         createPlayerJoinsTable();
         createAuditLogTable();
+        createServerAlertsTable();
     }
 
     /**
@@ -138,7 +140,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicchat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst fetching data from the database. Please report the following stacktrace to Cy:", e);
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Cy:", e);
                 }
             }
         });
@@ -155,7 +157,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_ranks (uuid VARCHAR(36), rank_id VARCHAR(16), PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst creating the `cytonic_ranks` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
                 }
             }
         });
@@ -172,7 +174,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_bans (uuid VARCHAR(36), to_expire VARCHAR(100), reason TINYTEXT, PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst creating the `cytonic_bans` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_bans` table.", e);
                 }
             }
         });
@@ -189,7 +191,7 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (uuid VARCHAR(36), name VARCHAR(16), PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst creating the `cytonic_players` table.", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
                 }
             }
         });
@@ -261,10 +263,63 @@ public class MysqlDatabase {
                     ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_audit_log (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), reason TINYTEXT, category VARCHAR(50), actor VARCHAR(36), PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occoured whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
                 }
             }
         });
+    }
+
+    private void createServerAlertsTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_server_alerts (uuid VARCHAR(36), value BOOLEAN, PRIMARY KEY(uuid))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
+                }
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> getServerAlerts(@NotNull final UUID uuid) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a player's server alerts!");
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement("SELECT value FROM cytonic_server_alerts WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    future.complete(rs.getBoolean("value"));
+                } else {
+                    future.complete(false);
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst fetching a player's server alerts.", e);
+            }
+        });
+        return future;
+    }
+
+    public CompletableFuture<Void> setServerAlerts(@NotNull final UUID uuid, boolean value) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to set a player's server alerts!");
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_server_alerts (uuid, value) VALUES (?,?) ON DUPLICATE KEY UPDATE value = VALUES(value)");
+                ps.setString(1, uuid.toString());
+                ps.setBoolean(2, value);
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst setting a player's server alerts.", e);
+            }
+        });
+        return future;
     }
 
     /**
@@ -654,6 +709,7 @@ public class MysqlDatabase {
      * @return The {@link ResultSet} of the query
      */
     CompletableFuture<ResultSet> query(String sql) {
+        Logger.debug(STR."Querying SQL: \{sql}");
         CompletableFuture<ResultSet> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -673,12 +729,14 @@ public class MysqlDatabase {
      * @return A {@link CompletableFuture} for when the update is completed
      */
     CompletableFuture<Void> update(String sql) {
+        Logger.debug(STR."Updating SQL: \{sql}");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
+                Logger.error("An error occurred whilst updating the database!", e);
                 future.completeExceptionally(e);
             }
         });

@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.defaultMinecraft;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

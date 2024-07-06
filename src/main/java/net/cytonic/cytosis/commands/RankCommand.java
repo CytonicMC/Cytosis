@@ -2,7 +2,7 @@ package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.ranks.PlayerRank;
+import net.cytonic.enums.PlayerRank;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -13,7 +13,7 @@ import net.minestom.server.entity.Player;
 import java.util.Locale;
 import java.util.Optional;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A command that allows players to change another player's rank
@@ -40,14 +40,14 @@ public class RankCommand extends Command {
             if (sender instanceof Player player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
-            Cytosis.getCytonicNetwork().getNetworkPlayers().forEach(player ->
-                    suggestion.addEntry(new SuggestionEntry(player)));
+            Cytosis.getCytonicNetwork().getOnlinePlayers().forEach(player ->
+                    suggestion.addEntry(new SuggestionEntry(player.getValue())));
         });
 
 
         addSyntax((sender, context) -> {
             String name = context.get(playerArg);
-            if (!Cytosis.getCytonicNetwork().getNetworkPlayers().contains(name)) {
+            if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(name)) {
                 sender.sendMessage(MM."<red>The player \{context.get("player")} doesn't exist!");
                 return;
             }

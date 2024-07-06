@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.plugins;
 
+import lombok.Getter;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.plugins.loader.PluginLoader;
 
@@ -18,7 +19,7 @@ public class PluginManager {
         // Do nothing
     }
 
-    private final List<CytosisPlugin> plugins = new ArrayList<>();
+    @Getter private final List<CytosisPlugin> plugins = new ArrayList<>();
     private final PluginLoader pluginLoader = new PluginLoader();
 
     /**

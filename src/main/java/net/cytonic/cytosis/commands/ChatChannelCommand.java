@@ -1,14 +1,15 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.utils.MiniMessageTemplate;
+import net.cytonic.enums.ChatChannel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that handles the chat channel command
@@ -60,7 +61,7 @@ public class ChatChannelCommand extends Command {
                 };
                 if (!chatChannel.name().equals(Cytosis.getChatManager().getChannel(player.getUuid()).name())) {
                     message(player, chatChannel);
-                } else player.sendMessage(MiniMessageTemplate.MM."<RED>You are already in this channel!");
+                } else player.sendMessage(MM."<RED>You are already in this channel!");
             } else {
                 sender.sendMessage(Component.text("Hey! You can't do this.", NamedTextColor.RED));
             }

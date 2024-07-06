@@ -17,7 +17,8 @@ public class DatabaseManager {
     /**
      * The default constructor
      */
-    public DatabaseManager() {}
+    public DatabaseManager() {
+    }
 
     /**
      * Disconnects from the databases
@@ -46,6 +47,7 @@ public class DatabaseManager {
         } catch (Exception ex) {
             Logger.error("An error occurred!", ex);
         }
+
         Logger.info("All Databases connected.");
         return future;
     }

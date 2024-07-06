@@ -1,6 +1,6 @@
 # Database Connection Details
 [database]
-enabled = true
+enabled = false
 host = ""  # Database host or IP address
 port = 3306  # Default MySQL/MariaDB port
 name = ""  # Name of the database
@@ -12,6 +12,11 @@ use_ssl = false # Whether to use SSL
 port = 6379
 host = ""
 password = "" #No username :)
+
+# Friend requests and parties
+[cynwave]
+url = ""
+token = ""
 
 # Networking stuff
 [server]

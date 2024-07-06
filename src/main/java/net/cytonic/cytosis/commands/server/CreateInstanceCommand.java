@@ -1,13 +1,19 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.minestom.server.command.builder.Command;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command to create a new instance
+ */
 public class CreateInstanceCommand extends Command {
 
+    /**
+     * A command to create a new instance
+     */
     public CreateInstanceCommand() {
         //todo: specify different kinds of instances
         super("createinstance");

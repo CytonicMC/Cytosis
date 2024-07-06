@@ -1,22 +1,24 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.utils.MessageUtils;
+import net.cytonic.enums.ChatChannel;
+import net.cytonic.enums.KickReason;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
+import net.minestom.server.event.server.ServerTickMonitorEvent;
 
 import java.util.Optional;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that registers Cytosis required server events
@@ -68,9 +70,16 @@ public final class ServerEventListeners {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
                 } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
             }));
+            Cytosis.getDatabaseManager().getMysqlDatabase().getServerAlerts(player.getUuid()).whenComplete((value, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("An error occurred whilst getting a player's server alerts!", throwable);
+                } else Cytosis.getCytonicNetwork().getServerAlerts().put(player.getUuid(), value);
+            });
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
+            player.sendPlayerListHeaderAndFooter(MM."<aqua><bold>CytonicMC", MM."<aqua>mc.cytonic.net");
             Cytosis.getPlayerListManager().setupPlayer(player);
+            Cytosis.getPreferenceManager().loadPlayerPreferences(player.getUuid());
         })));
 
         Logger.info("Registering player chat event.");
@@ -100,6 +109,7 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
+            Cytosis.getCytonicNetwork().getServerAlerts().remove(player.getUuid());
         }));
 
         Logger.info("Registering interact events.");
@@ -119,6 +129,9 @@ public final class ServerEventListeners {
                 npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
             }
         }));
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> {
+            TPSCommand.getLastTick().set(event.getTickMonitor());
+        })));
     }
 
     private static void sendMessage(String originalMessage, ChatChannel channel, Player player) {

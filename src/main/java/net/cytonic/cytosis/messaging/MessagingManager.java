@@ -40,7 +40,6 @@ public class MessagingManager {
             if (rabbitMQ != null) {
                 rabbitMQ.initializeConnection();
                 rabbitMQ.initializeQueues();
-                rabbitMQ.receiveChatMessages();
             }
             future.complete(null);
         });

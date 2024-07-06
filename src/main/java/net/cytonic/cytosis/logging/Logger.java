@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
  * The logger interface
  */
 public interface Logger {
+    /**
+     * The logger instance
+     */
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger("Cytosis");
 
     /**
