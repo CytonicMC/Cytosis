@@ -25,7 +25,7 @@ public class HelpCommand extends Command {
                 player.sendMessage(MM."<white><b>◆</b></white> <gold><hover:show_text:'<gold>Click to go to bug reports!'><click:open_url:'https://cytonic.net/forums/topics/BUG_REPORTS'>Bug Reports</click>");
                 player.sendMessage(" ");
                 player.sendMessage(MM."<aqua>Don't be afraid to ask a staff member for help either in-game, on our forums, or on discord.");
-                player.sendMessage(MM."<st><dark_green>                                                                                 ");
+                player.sendMessage(MM."<st><dark_green>                                                                                ");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
