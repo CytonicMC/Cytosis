@@ -4,7 +4,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the time command
@@ -67,7 +68,7 @@ public class TimeCommand extends Command {
                         sender.sendMessage(MM."<GREEN>Time set to sunset.");
                         return;
                     }
-                };
+                }
             }
         }, timeArgument);
         addSyntax((sender, context) -> {

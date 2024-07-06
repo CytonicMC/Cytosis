@@ -5,7 +5,8 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the achat command

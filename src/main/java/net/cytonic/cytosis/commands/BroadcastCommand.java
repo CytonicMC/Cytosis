@@ -4,7 +4,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the broadcast command

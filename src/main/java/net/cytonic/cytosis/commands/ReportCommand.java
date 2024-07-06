@@ -6,7 +6,8 @@ import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 public class ReportCommand extends Command {
 
@@ -18,7 +19,7 @@ public class ReportCommand extends Command {
             if (sender instanceof Player player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
-            Cytosis.getCytonicNetwork().getNetworkPlayers().forEach(player ->
+            Cytosis.getCytonicNetwork().getOnlinePlayers().getValues().forEach(player ->
                     suggestion.addEntry(new SuggestionEntry(player)));
         });
         setDefaultExecutor((sender, _) -> {
@@ -31,7 +32,7 @@ public class ReportCommand extends Command {
         addSyntax((sender, context) -> {
             if (sender instanceof final Player player) {
                 String playerName = context.get(playerArg);
-                for (PlayerServer server : Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().values()) {
+                for (PlayerServer server : Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().values()) {
                     if (server.playerName().equalsIgnoreCase(playerName)) {
 
                         player.sendMessage(MM."<RED>Comming soon!");

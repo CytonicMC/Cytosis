@@ -2,7 +2,7 @@ package net.cytonic.cytosis.messaging.pubsub;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.enums.ChatChannel;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
