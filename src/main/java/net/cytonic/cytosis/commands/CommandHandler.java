@@ -48,6 +48,7 @@ public class CommandHandler {
         cm.register(new BroadcastCommand());
         cm.register(new HelpCommand());
         cm.register(new AllChatCommand());
+        cm.register(new TimeCommand());
     }
 
     /**
