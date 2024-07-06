@@ -49,7 +49,7 @@ public class KaboomCommand extends Command {
                     player.sendMessage(MM."<red>Failed to find player.");
                     return;
                 }
-                kaboom(player);
+                kaboom(entity);
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }

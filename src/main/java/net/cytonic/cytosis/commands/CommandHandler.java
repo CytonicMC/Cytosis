@@ -51,6 +51,7 @@ public class CommandHandler {
         cm.register(new TimeCommand());
         cm.register(new PluginsCommand());
         cm.register(new VersionCommand());
+        cm.register(new TeleportAllCommand());
     }
 
     /**
