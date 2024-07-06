@@ -12,7 +12,7 @@ public class HelloCommand extends Command {
      * Creates a new command and sets up the consumers and execution logic
      */
     public HelloCommand() {
-        super("hello");
+        super("hello", "hi");
         setDefaultExecutor((sender, _) -> {
             sender.sendMessage(MM."<GREEN>Hello!");
         });
