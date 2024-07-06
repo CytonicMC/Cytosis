@@ -3,13 +3,13 @@ package net.cytonic.cytosis.commands.moderation;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
-import net.cytonic.cytosis.data.enums.BanReason;
-import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.BanData;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.MessageUtils;
-import net.cytonic.cytosis.utils.OfflinePlayer;
+import net.cytonic.enums.BanReason;
+import net.cytonic.enums.KickReason;
+import net.cytonic.objects.BanData;
+import net.cytonic.objects.OfflinePlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -18,7 +18,7 @@ import net.minestom.server.entity.Player;
 
 import java.time.Instant;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A command that allows authorized players to ban players.
@@ -36,8 +36,8 @@ public class BanCommand extends Command {
             if (sender instanceof Player player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
-            Cytosis.getCytonicNetwork().getNetworkPlayers().forEach(player ->
-                    suggestion.addEntry(new SuggestionEntry(player)));
+            Cytosis.getCytonicNetwork().getOnlinePlayers().forEach((_, name) ->
+                    suggestion.addEntry(new SuggestionEntry(name)));
         });
         var durationArg = ArgumentType.Word("duration");
         var reasonArg = ArgumentType.Enum("reason", BanReason.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
@@ -54,7 +54,7 @@ public class BanCommand extends Command {
                 final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parse(rawDur);
 
-                if (!Cytosis.getCytonicNetwork().getNetworkPlayers().contains(player)) {
+                if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(player)) {
                     sender.sendMessage(MM."<red>The player \{context.get(playerArg)} doesn't exist!");
                     return;
                 }
