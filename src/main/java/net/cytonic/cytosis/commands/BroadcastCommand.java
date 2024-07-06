@@ -25,7 +25,7 @@ public class BroadcastCommand extends Command {
         });
         addSyntax((sender, context) -> {
             if (sender.hasPermission("cytonic.commands.broadcast")) {
-                if (Cytosis.getOnlinePlayers().size() > 0) {
+                if (!Cytosis.getOnlinePlayers().isEmpty()) {
                     for (Player online : Cytosis.getOnlinePlayers()) {
                         online.sendMessage(MM."<aqua><b>Broadcast</b></aqua> <gray>»</gray> <white>\{String.join(" ", context.get(broadcastArgument))}");
                     }
