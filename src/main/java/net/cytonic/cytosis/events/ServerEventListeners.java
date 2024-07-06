@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.TPSCommand;
+import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;

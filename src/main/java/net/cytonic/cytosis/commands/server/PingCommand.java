@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;

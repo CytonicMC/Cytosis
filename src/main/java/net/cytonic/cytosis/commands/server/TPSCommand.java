@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import lombok.Getter;
 import net.minestom.server.MinecraftServer;
