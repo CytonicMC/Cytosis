@@ -31,7 +31,7 @@ public class ReportCommand extends Command {
         addSyntax((sender, context) -> {
             if (sender instanceof final Player player) {
                 String playerName = context.get(playerArg);
-                for (PlayerServer server : Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().values()) {
+                for (PlayerServer server : Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().values()) {
                     if (server.playerName().equalsIgnoreCase(playerName)) {
 
                         player.sendMessage(MM."<RED>Comming soon!");

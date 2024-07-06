@@ -14,7 +14,7 @@ public class CytonicNetwork {
     private final Set<String> networkPlayers = new HashSet<>();
     private final Set<UUID> networkPlayerUUIDs = new HashSet<>();
     private final Map<String, CytonicServer> servers = new HashMap<>(); // online servers
-    private final Map<String, PlayerServer> netoworkPlayersOnServers = new HashMap<>();
+    private final Map<String, PlayerServer> networkPlayersOnServers = new HashMap<>();
     private final Map<UUID, Boolean> serverAlerts = new HashMap<>();
 
     /**
@@ -32,12 +32,12 @@ public class CytonicNetwork {
         networkPlayers.clear();
         networkPlayerUUIDs.clear();
         servers.clear();
-        netoworkPlayersOnServers.clear();
+        networkPlayersOnServers.clear();
 
         networkPlayers.addAll(redis.getSet(RedisDatabase.ONLINE_PLAYER_NAME_KEY));
         redis.getSet(RedisDatabase.ONLINE_PLAYER_UUID_KEY).forEach(s -> networkPlayerUUIDs.add(UUID.fromString(s)));
         redis.getSet(RedisDatabase.ONLINE_SERVER_KEY).forEach(s -> servers.put(CytonicServer.deserialize(s).id(), CytonicServer.deserialize(s)));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> netoworkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> networkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
     }
 
     /**
