@@ -37,7 +37,7 @@ public class PlayerLoginLogout extends JedisPubSub {
         } else if (parts[2].equalsIgnoreCase("LEAVE")) {
             network.getNetworkPlayers().remove(parts[0]);
             network.getNetworkPlayerUUIDs().remove(UUID.fromString(parts[1]));
-            network.getNetoworkPlayersOnServers().remove(parts[0]);
+            network.getNetworkPlayersOnServers().remove(parts[0]);
         }
     }
 }

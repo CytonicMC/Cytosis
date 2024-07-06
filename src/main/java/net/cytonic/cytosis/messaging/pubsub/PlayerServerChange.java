@@ -32,9 +32,9 @@ public class PlayerServerChange extends JedisPubSub {
         String newServerName = parts[3];
         CytonicServer newServer = Cytosis.getCytonicNetwork().getServers().get(newServerName);
         if (!oldServerName.equals("null")) {
-            Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().remove(playerName);
+            Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().remove(playerName);
             return;
         }
-        Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().put(playerName, new PlayerServer(playerName, playerUuid, newServer));
+        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(playerName, new PlayerServer(playerName, playerUuid, newServer));
     }
 }
