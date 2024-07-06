@@ -18,6 +18,7 @@ import static net.cytonic.cytosis.data.DatabaseTemplate.UPDATE;
  * A class to manage friends
  */
 public class FriendManager {
+    public ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
 
     /**
      * The default constructor
