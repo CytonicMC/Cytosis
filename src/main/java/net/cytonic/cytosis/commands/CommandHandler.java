@@ -45,6 +45,10 @@ public class CommandHandler {
         cm.register(new HelloCommand());
         cm.register(new FlyCommand());
         cm.register(new KaboomCommand());
+        cm.register(new BroadcastCommand());
+        cm.register(new HelpCommand());
+        cm.register(new AllChatCommand());
+        cm.register(new TimeCommand());
     }
 
     /**
