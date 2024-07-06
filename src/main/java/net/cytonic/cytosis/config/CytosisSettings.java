@@ -131,6 +131,10 @@ public final class CytosisSettings {
      */
     public static boolean KUBERNETES_SUPPORTED = false;
 
+    // cynwave
+    public static String CYNWAVE_URL = "";
+    public static String CYNWAVE_TOKEN = "";
+
     /**
      * Loads the config from a config map
      *
@@ -166,10 +170,15 @@ public final class CytosisSettings {
                     case "rabbitmq.username" -> RABBITMQ_USERNAME = (String) value;
                     case "rabbitmq.port" -> RABBITMQ_PORT = toInt(value);
                     case "rabbitmq.enabled" -> RABBITMQ_ENABLED = (boolean) value;
+
                     // Redis
                     case "redis.port" -> REDIS_PORT = toInt(value);
                     case "redis.host" -> REDIS_HOST = (String) value;
                     case "redis.password" -> REDIS_PASSWORD = (String) value;
+
+                    case "cynwave.url" -> CYNWAVE_URL = (String) value;
+                    case "cynwave.token" -> CYNWAVE_TOKEN = (String) value;
+
 
                     default -> { /*Do nothing*/ }
                 }
@@ -222,9 +231,13 @@ public final class CytosisSettings {
         if (System.getenv("RABBITMQ_USERNAME") != null) RABBITMQ_USERNAME = System.getenv("RABBITMQ_USERNAME");
         if (System.getenv("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getenv("RABBITMQ_PORT"));
         // redis
-        if (System.getenv("REDIS_HOST") != null) REDIS_HOST = System.getenv("REDIS_HOST");
-        if (System.getenv("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
-        if (System.getenv("REDIS_PASSWORD") != null) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
+        if (!(System.getenv("REDIS_HOST") == null)) REDIS_HOST = System.getenv("REDIS_HOST");
+        if (!(System.getenv("REDIS_PORT") == null)) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
+        if (!(System.getenv("REDIS_PASSWORD") == null)) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
+
+        // cynwave
+        if (System.getenv("CYNWAVE_URL") != null) CYNWAVE_URL = System.getenv("CYNWAVE_URL");
+        if (System.getenv("CYNWAVE_TOKEN") != null) CYNWAVE_URL = System.getenv("CYNWAVE_TOKEN");
     }
 
     /**
@@ -263,6 +276,10 @@ public final class CytosisSettings {
         if (System.getProperty("RABBITMQ_PASSWORD") != null) RABBITMQ_PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
         if (System.getProperty("RABBITMQ_USERNAME") != null) RABBITMQ_USERNAME = System.getProperty("RABBITMQ_USERNAME");
         if (System.getProperty("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getProperty("RABBITMQ_PORT"));
+          // cynwave
+        if (System.getProperty("CYNWAVE_URL") != null) CYNWAVE_URL = System.getProperty("CYNWAVE_URL");
+        if (System.getProperty("CYNWAVE_TOKEN") != null) CYNWAVE_URL = System.getProperty("CYNWAVE_TOKEN");
+
         // redis
         if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
         if (System.getProperty("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getProperty("REDIS_PORT"));
