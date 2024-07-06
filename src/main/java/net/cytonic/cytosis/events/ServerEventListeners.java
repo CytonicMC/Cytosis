@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
@@ -13,6 +14,7 @@ import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
+import net.minestom.server.event.server.ServerTickMonitorEvent;
 
 import java.util.Optional;
 
@@ -125,6 +127,9 @@ public final class ServerEventListeners {
                 npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
             }
         }));
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> {
+            TPSCommand.getLastTick().set(event.getTickMonitor());
+        })));
     }
 
     private static void sendMessage(String originalMessage, ChatChannel channel, Player player) {
