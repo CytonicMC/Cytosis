@@ -18,6 +18,7 @@ public class TimeCommand extends Command {
         super("time");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.time"));
         var timeArgument = ArgumentType.Word("time").from("day", "night", "noon", "midnight", "sunrise", "sunset");
+        var timeInteger = ArgumentType.Integer("timeInteger");
         timeArgument.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender.hasPermission("cytonic.commands.time")) {
                 suggestion.addEntry(new SuggestionEntry("day"));
@@ -39,29 +40,38 @@ public class TimeCommand extends Command {
                     case "day" -> {
                         Cytosis.getDefaultInstance().setTime(1000); // Day
                         sender.sendMessage(MM."<GREEN>Time set to day.");
+                        return;
                     }
                     case "night" -> {
                         Cytosis.getDefaultInstance().setTime(13000); // Night
                         sender.sendMessage(MM."<GREEN>Time set to night.");
+                        return;
                     }
                     case "midnight" -> {
                         Cytosis.getDefaultInstance().setTime(18000); // Midnight
                         sender.sendMessage(MM."<GREEN>Time set to midnight.");
+                        return;
                     }
                     case "noon" -> {
                         Cytosis.getDefaultInstance().setTime(6000); // Noon
                         sender.sendMessage(MM."<GREEN>Time set to noon.");
+                        return;
                     }
                     case "sunrise" -> {
                         Cytosis.getDefaultInstance().setTime(23000); // Sunrise
                         sender.sendMessage(MM."<GREEN>Time set to sunrise.");
+                        return;
                     }
                     case "sunset" -> {
                         Cytosis.getDefaultInstance().setTime(12000); // Sunset
                         sender.sendMessage(MM."<GREEN>Time set to sunset.");
+                        return;
                     }
                 };
+
+                Cytosis.getDefaultInstance().setTime(context.get(timeInteger)); // Set time to input
+                sender.sendMessage(MM."<GREEN>Time set to " + context.get(timeInteger).toString() + ".");
             }
-        }, timeArgument);
+        }, timeArgument, timeInteger);
     }
 }
