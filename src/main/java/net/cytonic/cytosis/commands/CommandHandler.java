@@ -47,6 +47,7 @@ public class CommandHandler {
         cm.register(new KaboomCommand());
         cm.register(new BroadcastCommand());
         cm.register(new HelpCommand());
+        cm.register(new AllChatCommand());
     }
 
     /**

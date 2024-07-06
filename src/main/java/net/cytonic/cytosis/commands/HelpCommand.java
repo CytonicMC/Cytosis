@@ -19,13 +19,13 @@ public class HelpCommand extends Command {
             if (sender instanceof final Player player) {
                 player.sendMessage(MM."<aqua><b>CytonicMC</b></aqua>");
                 player.sendMessage(" ");
-                player.sendMessage(MM."<gold><click:open_url:'https://discord.gg/yrmv9WSGGV'>Discord</click>");
-                player.sendMessage(MM."<gold><click:open_url:'https://cytonic.net/forums'>Forums</click>");
-                player.sendMessage(MM."<gold><click:open_url:'https://cytonic.net/forums/topics/PUNISHMENT_APPEALS'>Ban Appeals</click>");
-                player.sendMessage(MM."<gold><click:open_url:'https://cytonic.net/forums/topics/BUG_REPORTS'>Bug Reports</click>");
+                player.sendMessage(MM."<white><b>◆</b></white> <gold><click:open_url:'https://discord.gg/yrmv9WSGGV'>Discord</click>");
+                player.sendMessage(MM."<white><b>◆</b></white> <gold><click:open_url:'https://cytonic.net/forums'>Forums</click>");
+                player.sendMessage(MM."<white><b>◆</b></white> <gold><click:open_url:'https://cytonic.net/forums/topics/PUNISHMENT_APPEALS'>Appeals</click>");
+                player.sendMessage(MM."<white><b>◆</b></white> <gold><click:open_url:'https://cytonic.net/forums/topics/BUG_REPORTS'>Bug Reports</click>");
                 player.sendMessage(" ");
-                player.sendMessage(MM."<green>Don't be afraid to ask a staff member for help");
-                player.sendMessage(MM."<green>either in-game, on our forums, or on discord.");
+                player.sendMessage(MM."<aqua>Don't be afraid to ask a staff member for help");
+                player.sendMessage(MM."<aqua>either in-game, on our forums, or on discord.");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
