@@ -42,9 +42,17 @@ public class TimeCommand extends Command {
                         Cytosis.getDefaultInstance().setTime(13000); // Night
                         sender.sendMessage(MM."<GREEN>Time set to night.");
                     }
+                    case "midnight" -> {
+                        Cytosis.getDefaultInstance().setTime(18000); // Midnight
+                        sender.sendMessage(MM."<GREEN>Time set to midnight.");
+                    }
                     case "noon" -> {
                         Cytosis.getDefaultInstance().setTime(6000); // Noon
                         sender.sendMessage(MM."<GREEN>Time set to noon.");
+                    }
+                    case "sunrise" -> {
+                        Cytosis.getDefaultInstance().setTime(23000); // Sunrise
+                        sender.sendMessage(MM."<GREEN>Time set to sunrise.");
                     }
                     case "sunset" -> {
                         Cytosis.getDefaultInstance().setTime(12000); // Sunset
