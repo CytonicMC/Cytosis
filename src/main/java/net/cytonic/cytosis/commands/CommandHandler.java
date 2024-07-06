@@ -49,6 +49,8 @@ public class CommandHandler {
         cm.register(new HelpCommand());
         cm.register(new AllChatCommand());
         cm.register(new TimeCommand());
+        cm.register(new PluginsCommand());
+        cm.register(new VersionCommand());
     }
 
     /**
