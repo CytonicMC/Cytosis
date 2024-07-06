@@ -17,12 +17,14 @@ public class TimeCommand extends Command {
     public TimeCommand() {
         super("time");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.time"));
-        var timeArgument = ArgumentType.Word("time").from("day", "night", "noon", "sunset");
+        var timeArgument = ArgumentType.Word("time").from("day", "night", "noon", "midnight", "sunrise", "sunset");
         timeArgument.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender.hasPermission("cytonic.commands.time")) {
                 suggestion.addEntry(new SuggestionEntry("day"));
                 suggestion.addEntry(new SuggestionEntry("night"));
                 suggestion.addEntry(new SuggestionEntry("noon"));
+                suggestion.addEntry(new SuggestionEntry("midnight"));
+                suggestion.addEntry(new SuggestionEntry("sunrise"));
                 suggestion.addEntry(new SuggestionEntry("sunset"));
             }
         });
