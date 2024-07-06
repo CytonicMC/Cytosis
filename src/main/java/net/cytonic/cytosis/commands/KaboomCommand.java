@@ -52,6 +52,7 @@ public class KaboomCommand extends Command {
                 }
                 Optional<Player> inputPlayer = Cytosis.getPlayer(entity.getUuid());
                 kaboom(inputPlayer.get());
+                player.sendMessage(MM."<GREEN>Success.");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
