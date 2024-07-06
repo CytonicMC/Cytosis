@@ -3,12 +3,12 @@ package net.cytonic.cytosis.events;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.utils.MessageUtils;
+import net.cytonic.enums.ChatChannel;
+import net.cytonic.enums.KickReason;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
@@ -18,7 +18,7 @@ import net.minestom.server.event.server.ServerTickMonitorEvent;
 
 import java.util.Optional;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that registers Cytosis required server events
@@ -79,6 +79,7 @@ public final class ServerEventListeners {
             Cytosis.getSideboardManager().addPlayer(player);
             player.sendPlayerListHeaderAndFooter(MM."<aqua><bold>CytonicMC", MM."<aqua>mc.cytonic.net");
             Cytosis.getPlayerListManager().setupPlayer(player);
+            Cytosis.getPreferenceManager().loadPlayerPreferences(player.getUuid());
         })));
 
         Logger.info("Registering player chat event.");

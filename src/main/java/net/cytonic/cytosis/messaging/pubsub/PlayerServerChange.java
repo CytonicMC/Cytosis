@@ -2,8 +2,8 @@ package net.cytonic.cytosis.messaging.pubsub;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.PlayerServer;
+import net.cytonic.objects.CytonicServer;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.UUID;
@@ -36,9 +36,9 @@ public class PlayerServerChange extends JedisPubSub {
         String newServerName = parts[3];
         CytonicServer newServer = Cytosis.getCytonicNetwork().getServers().get(newServerName);
         if (!oldServerName.equals("null")) {
-            Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().remove(playerName);
+            Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().remove(playerName);
             return;
         }
-        Cytosis.getCytonicNetwork().getNetoworkPlayersOnServers().put(playerName, new PlayerServer(playerName, playerUuid, newServer));
+        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(playerName, new PlayerServer(playerName, playerUuid, newServer));
     }
 }

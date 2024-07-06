@@ -3,11 +3,11 @@ package net.cytonic.cytosis.data;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.ranks.PlayerRank;
-import net.cytonic.cytosis.utils.BanData;
 import net.cytonic.cytosis.utils.PosSerializer;
+import net.cytonic.enums.ChatChannel;
+import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.BanData;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -42,7 +42,8 @@ public class MysqlDatabase {
      * Creates and initializes a new MysqlDatabase
      */
     public MysqlDatabase() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
+                .uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
         this.port = CytosisSettings.DATABASE_PORT;
         this.database = CytosisSettings.DATABASE_NAME;
@@ -708,6 +709,7 @@ public class MysqlDatabase {
      * @return The {@link ResultSet} of the query
      */
     CompletableFuture<ResultSet> query(String sql) {
+        Logger.debug(STR."Querying SQL: \{sql}");
         CompletableFuture<ResultSet> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -727,12 +729,14 @@ public class MysqlDatabase {
      * @return A {@link CompletableFuture} for when the update is completed
      */
     CompletableFuture<Void> update(String sql) {
+        Logger.debug(STR."Updating SQL: \{sql}");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
+                Logger.error("An error occurred whilst updating the database!", e);
                 future.completeExceptionally(e);
             }
         });

@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data.objects;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.objects.CytonicServer;
 
 import java.util.UUID;
 

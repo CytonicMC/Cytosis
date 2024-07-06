@@ -4,7 +4,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.minestom.server.command.builder.Command;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A command for closing all instances of cytosis on a kubernetes cluster
