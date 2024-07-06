@@ -17,13 +17,13 @@ public class HelpCommand extends Command {
         super("help");
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
-                player.sendMessage("<aqua><b>CytonicMC</b></aqua>");
+                player.sendMessage(MM."<aqua><b>CytonicMC</b></aqua>");
                 player.sendMessage(" ");
-                player.sendMessage("<gold>Forums: https://cytonic.net/forums");
-                player.sendMessage("<gold>Discord: https://discord.gg/yrmv9WSGGV");
+                player.sendMessage(MM."<gold>Forums: https://cytonic.net/forums");
+                player.sendMessage(MM."<gold>Discord: https://discord.gg/yrmv9WSGGV");
                 player.sendMessage(" ");
-                player.sendMessage("<green>Don't be afraid to ask a staff member for help");
-                player.sendMessage("<green>either in-game, on our forums, or on discord.");
+                player.sendMessage(MM."<green>Don't be afraid to ask a staff member for help");
+                player.sendMessage(MM."<green>either in-game, on our forums, or on discord.");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
