@@ -6,8 +6,14 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * The class representing the broadcast command
+ */
 public class BroadcastCommand extends Command {
 
+    /**
+     * Creates a new command and sets up the consumers and execution logic
+     */
     public BroadcastCommand() {
         super("broadcast", "bc");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.broadcast"));
