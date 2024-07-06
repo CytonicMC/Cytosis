@@ -33,8 +33,10 @@ public class PlayerLoginLogout extends JedisPubSub {
         String[] parts = message.split("\\|:\\|");
         if (parts[2].equalsIgnoreCase("JOIN")) {
             network.addPlayer(parts[0], UUID.fromString(parts[1]));
+            Cytosis.getPreferenceManager().loadPlayerPreferences(UUID.fromString(parts[1]));
         } else if (parts[2].equalsIgnoreCase("LEAVE")) {
             network.removePlayer(parts[0], UUID.fromString(parts[1]));
+            Cytosis.getPreferenceManager().unloadPlayerPreferences(UUID.fromString(parts[1]));
         }
     }
 }
