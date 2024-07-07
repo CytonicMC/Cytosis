@@ -37,7 +37,7 @@ public class AcceptFriendCommand extends Command {
             }
 
             if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(context.get(playerArg))) {
-                player.sendMessage(MM."<red>That player \{context.get(playerArg)} has never played!");
+                player.sendMessage(MM."<red>The player \{context.get(playerArg)} doesn't exist!");
                 return;
             }
 

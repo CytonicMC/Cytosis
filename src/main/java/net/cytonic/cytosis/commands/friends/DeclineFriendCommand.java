@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.commands.friends;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -37,7 +36,7 @@ public class DeclineFriendCommand extends Command {
             }
 
             if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(context.get(playerArg))) {
-                player.sendMessage(MM."<red>That player \{context.get(playerArg)} has never played!");
+                player.sendMessage(MM."<red>The player \{context.get(playerArg)} doesn't exist!");
                 return;
             }
 
