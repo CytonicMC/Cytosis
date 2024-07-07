@@ -38,7 +38,7 @@ public class KaboomCommand extends Command {
                 if (player.hasPermission("cytosis.commands.kaboom")) {
                     for (Player online : Cytosis.getOnlinePlayers()) {
                         kaboom(online);
-                        player.sendMessage(MM."<GREEN>Launched \{online.getName()}!");
+                        player.sendMessage(MM."<GREEN>Launched \{online.getUsername()}!");
                     }
                 }
             } else {
@@ -55,7 +55,7 @@ public class KaboomCommand extends Command {
                 }
                 Optional<Player> inputPlayer = Cytosis.getPlayer(entity.getUuid());
                 kaboom(inputPlayer.get());
-                player.sendMessage(MM."<GREEN>Launched \{inputPlayer.get().getName()}!");
+                player.sendMessage(MM."<GREEN>Launched \{inputPlayer.get().getUsername()}!");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
