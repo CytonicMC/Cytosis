@@ -36,17 +36,16 @@ public class AcceptFriendCommand extends Command {
                 return;
             }
 
-            if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(context.get(playerArg))) {
-                player.sendMessage(MM."<red>The player \{context.get(playerArg)} is not online!");
+            if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(context.get(playerArg))) {
+                player.sendMessage(MM."<red>That player \{context.get(playerArg)} has never played!");
                 return;
             }
 
-            UUID target = Cytosis.getCytonicNetwork().getOnlinePlayers().getByValue(context.get(playerArg));
+            UUID target = Cytosis.getCytonicNetwork().getLifetimePlayers().getByValue(context.get(playerArg));
 
             //todo: blocking system
             //todo: accept friend request
             //todo: handle errors
-            //todo: make it useable with offline players
             Cytosis.getCynwaveWrapper().acceptFriendRequest(target, player.getUuid());
 
         }, playerArg);
