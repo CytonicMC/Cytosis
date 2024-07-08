@@ -16,7 +16,7 @@ public class BroadcastCommand extends Command {
      * Creates a new command and sets up the consumers and execution logic
      */
     public BroadcastCommand() {
-        super("broadcast", "bc", "b");
+        super("broadcast", "bc");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.broadcast"));
         var broadcastArgument = ArgumentType.StringArray("broadcastArgument");
         var serverArgument = ArgumentType.Word("type").from("all", "this");
