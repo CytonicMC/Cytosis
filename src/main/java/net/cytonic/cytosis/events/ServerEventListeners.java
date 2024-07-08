@@ -92,7 +92,7 @@ public final class ServerEventListeners {
                     if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}")) {
                         sendMessage(originalMessage, channel, player);
                     } else {
-                        player.sendMessage(MM."Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
+                        player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
                         Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
                     }
                     break;
@@ -138,7 +138,6 @@ public final class ServerEventListeners {
                 Component message = Component.text("")
                         .append(channel.getPrefix())
                         .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                        .appendSpace()
                         .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
                         .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
                         .appendSpace()
@@ -147,7 +146,6 @@ public final class ServerEventListeners {
             } else {
                 Component message = Component.text("")
                         .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                        .appendSpace()
                         .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
                         .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
                         .appendSpace()

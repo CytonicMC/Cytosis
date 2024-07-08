@@ -61,11 +61,11 @@ public final class DurationParser {
         if (instant == null) return null;
         Duration duration = Duration.between(Instant.now(), instant);
 
-        long years = duration.toDays() / 365;
-        long days = duration.toDays() % 365;
-        long hours = duration.toHours() % 24;
-        long minutes = duration.toMinutes() % 60;
-        long seconds = duration.getSeconds() % 60;
+        long years = Math.abs(duration.toDays() / 365);
+        long days = Math.abs(duration.toDays() % 365);
+        long hours = Math.abs(duration.toHours() % 24);
+        long minutes = Math.abs(duration.toMinutes() % 60);
+        long seconds = Math.abs(duration.getSeconds() % 60);
 
         StringBuilder builder = new StringBuilder();
 
