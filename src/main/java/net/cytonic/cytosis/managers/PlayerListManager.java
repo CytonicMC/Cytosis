@@ -119,6 +119,11 @@ public class PlayerListManager {
         return packets;
     }
 
+    /**
+     * Update a player's player list
+     *
+     * @param player the player to update
+     */
     public void update(Player player) {
         List<Column> columns = creator.createColumns(player);
         if (columns.size() != creator.getColumnCount())
@@ -181,7 +186,9 @@ public class PlayerListManager {
         Cytosis.getOnlinePlayers().forEach(this::update);
     }
 
-
+    /**
+     * Shedules the next update
+     */
     private void scheduleUpdate() {
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             updateAll();
@@ -189,6 +196,11 @@ public class PlayerListManager {
         }).delay(TaskSchedule.tick(updateInterval)).schedule();
     }
 
+    /**
+     * Converts a list of columns to the components arrays
+     * @param columns the columns to convert
+     * @return an array with the components
+     */
     private Component[][] toComponents(List<Column> columns) {
         Component[][] components = new Component[creator.getColumnCount()][20];
         for (int i = 0; i < components.length; i++) {
@@ -206,6 +218,11 @@ public class PlayerListManager {
         return components;
     }
 
+    /**
+     * Converts a list of columns to the favicons
+     * @param columns the columns to convert
+     * @return an array with the favicons
+     */
     private PlayerInfoUpdatePacket.Property[][] toFavicons(List<Column> columns) {
         PlayerInfoUpdatePacket.Property[][] favicons = new PlayerInfoUpdatePacket.Property[creator.getColumnCount()][20];
         for (int i = 0; i < favicons.length; i++) {
@@ -242,5 +259,4 @@ public class PlayerListManager {
         }
         return !p1.value().equals(p2.value());
     }
-
 }

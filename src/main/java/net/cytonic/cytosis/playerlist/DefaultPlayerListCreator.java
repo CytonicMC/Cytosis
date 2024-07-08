@@ -14,10 +14,19 @@ import java.util.List;
 
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+/**
+ * A class providing the default player list for Cytosis
+ */
 public class DefaultPlayerListCreator implements PlayerlistCreator {
     private final int colCount = 4;
     private final Instant start = Instant.now();
 
+    /**
+     * Creates the default player list
+     *
+     * @param player the player for personalization
+     * @return the list of columns whose size is {@code colCount}
+     */
     @Override
     public List<Column> createColumns(Player player) {
         List<Column> columns = new ArrayList<>();
@@ -67,16 +76,30 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
         return columns;
     }
 
+    /**
+     * Creates the header for the player
+     * @param player the player for personalization
+     * @return the component to be displayed as the header
+     */
     @Override
     public Component header(Player player) {
         return MM."<aqua><b>CytonicMC";
     }
 
+    /**
+     * Creates the footer for the player
+     * @param player the player for personalization
+     * @return the component to be displayed as the footer
+     */
     @Override
     public Component footer(Player player) {
         return MM."<aqua>mc.cytonic.net".appendNewline().append(MM."<gold>forums.cytonic.net");
     }
 
+    /**
+     * Gets the column count
+     * @return the number of columns, between 1 and 4 inclusive
+     */
     @Override
     public int getColumnCount() {
         return colCount;
