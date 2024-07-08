@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
+
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
@@ -29,7 +30,6 @@ public class AllChatCommand extends Command {
             if (sender instanceof final Player player) {
                 Component message = Component.text("")
                         .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                        .appendSpace()
                         .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
                         .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
                         .appendSpace()
