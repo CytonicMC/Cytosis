@@ -47,7 +47,7 @@ public class Sideboard {
     private final List<Component> lines = new ArrayList<>();
     private Component title = emptyLine();
     private boolean deleted = false;
-    String[] objective = new String[]{"§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9", "§a", "§b", "§c", "§d", "§e", "§f"};
+    String[] objective = new String[]{"\u00A70", "\u00A71", "\u00A72", "\u00A73", "\u00A74", "\u00A75", "\u00A76", "\u00A77", "\u00A78", "\u00A79", "\u00A7a", "\u00A7b", "\u00A7c", "\u00A7d", "\u00A7e", "\u00A7f"};
 
     /**
      * Creates a new Sideboard.
@@ -374,7 +374,7 @@ public class Sideboard {
     }
 
     /**
-     * Gets a score from a line bynver
+     * Gets a score from a line by number
      * @param line the line
      * @return the score
      */
@@ -392,7 +392,7 @@ public class Sideboard {
     }
 
     /**
-     * gets a sline by score
+     * gets a line by score
      * @param lines The existing lines
      * @param score The score
      * @return The Line

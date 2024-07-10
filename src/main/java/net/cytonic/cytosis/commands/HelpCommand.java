@@ -20,10 +20,10 @@ public class HelpCommand extends Command {
             if (sender instanceof final Player player) {
                 player.sendMessage(MM."<dark_green><st>                            </st> <gold>[<aqua>!</aqua>] <aqua><b>CytonicMC</b></aqua> [<aqua>!</aqua>]</gold> <st>                           </st>");
                 player.sendMessage(" ");
-                player.sendMessage(MM."<white><b>◆</b></white> <gold><hover:show_text:'<gold>Click to join our discord!'><click:open_url:'https://discord.gg/yrmv9WSGGV'>Discord</click>");
-                player.sendMessage(MM."<white><b>◆</b></white> <gold><hover:show_text:'<gold>Click to open our forums!'><click:open_url:'https://cytonic.net/forums'>Forums</click>");
-                player.sendMessage(MM."<white><b>◆</b></white> <gold><hover:show_text:'<gold>Click to go to appeals!'><click:open_url:'https://cytonic.net/forums/topics/PUNISHMENT_APPEALS'>Appeals</click>");
-                player.sendMessage(MM."<white><b>◆</b></white> <gold><hover:show_text:'<gold>Click to go to bug reports!'><click:open_url:'https://cytonic.net/forums/topics/BUG_REPORTS'>Bug Reports</click>");
+                player.sendMessage(MM."<white><b>\u25C6</b></white> <gold><hover:show_text:'<gold>Click to join our discord!'><click:open_url:'https://discord.gg/yrmv9WSGGV'>Discord</click>");
+                player.sendMessage(MM."<white><b>\u25C6</b></white> <gold><hover:show_text:'<gold>Click to open our forums!'><click:open_url:'https://cytonic.net/forums'>Forums</click>");
+                player.sendMessage(MM."<white><b>\u25C6</b></white> <gold><hover:show_text:'<gold>Click to go to appeals!'><click:open_url:'https://cytonic.net/forums/topics/PUNISHMENT_APPEALS'>Appeals</click>");
+                player.sendMessage(MM."<white><b>\u25C6</b></white> <gold><hover:show_text:'<gold>Click to go to bug reports!'><click:open_url:'https://cytonic.net/forums/topics/BUG_REPORTS'>Bug Reports</click>");
                 player.sendMessage(" ");
                 player.sendMessage(MM."<aqua>Don't be afraid to ask a staff member for help either in-game, on our forums, or on discord.");
                 player.sendMessage(MM."<st><dark_green>                                                                                ");

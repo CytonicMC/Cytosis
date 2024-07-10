@@ -87,8 +87,7 @@ public class RankManager {
     }
 
     /**
-     * Sets up the cosmetics. (Team, tab list, etc)
-     *
+     * Sets up the cosmetics. (Team, tab list, etc.)
      * @param player The player
      * @param rank   The rank
      */

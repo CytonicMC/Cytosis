@@ -62,6 +62,7 @@ public class CommandHandler {
         cm.register(new PingCommand());
         cm.register(new TPSCommand());
         cm.register(new ReportCommand());
+        cm.register(new OPMeCommand());
         try {
             cm.register(new AcceptFriendCommand());
             cm.register(new AddFriendCommand());

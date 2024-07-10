@@ -73,6 +73,7 @@ public class CytonicNetwork {
                 Logger.error("An error occurred whilst loading ranks!", e);
             }
         });
+        networkPlayersOnServers.clear();
 
 
         redis.getSet(RedisDatabase.ONLINE_PLAYER_KEY).forEach(s -> {

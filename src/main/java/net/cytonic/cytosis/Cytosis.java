@@ -13,9 +13,6 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
-import net.cytonic.cytosis.playerlist.PlayerListCategory;
-import net.cytonic.cytosis.playerlist.PlayerListEntry;
-import net.cytonic.cytosis.playerlist.PlayerListFavicon;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.CynwaveWrapper;
@@ -293,30 +290,6 @@ public final class Cytosis {
 
             Logger.info("Starting Player list manager");
             playerListManager = new PlayerListManager();
-
-            Logger.info("Building player list");
-            playerListManager.setGlobalCategories(
-                    Utils.list(
-                            new PlayerListCategory(MM."<bold><yellow>Server Data</yellow></bold>", PlayerListFavicon.YELLOW,
-                                    1, Utils.list(new PlayerListEntry(MM."Server ID: <green>\{Cytosis.getRawID()}", PlayerListFavicon.GREY, 1),
-                                    new PlayerListEntry(MM."Something: <green>Yay!!", PlayerListFavicon.GREY, 2),
-                                    new PlayerListEntry(MM."Players: <red>No.", PlayerListFavicon.GREY, 3)
-                            )),
-                            new PlayerListCategory(MM."<bold><rainbow>Rainbow</rainbow></bold>", PlayerListFavicon.GREY,
-                                    1, Utils.list(
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.RED, 1),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.ORANGE, 2),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.YELLOW, 3),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.GREEN, 4),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.BLUE, 5),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.PURPLE, 6),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.WHITE, 7),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.GREY, 8),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.BLACK, 9)
-
-                            ))
-                    )
-            );
 
             messagingManager = new MessagingManager();
             messagingManager.initialize().whenComplete((_, th) -> {

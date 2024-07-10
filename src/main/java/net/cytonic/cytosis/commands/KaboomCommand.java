@@ -36,7 +36,10 @@ public class KaboomCommand extends Command {
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
                 if (player.hasPermission("cytosis.commands.kaboom")) {
-                    for (Player online : Cytosis.getOnlinePlayers()) kaboom(online);
+                    for (Player online : Cytosis.getOnlinePlayers()) {
+                        kaboom(online);
+                        player.sendMessage(MM."<GREEN>Launched \{online.getUsername()}!");
+                    }
                 }
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
@@ -52,7 +55,7 @@ public class KaboomCommand extends Command {
                 }
                 Optional<Player> inputPlayer = Cytosis.getPlayer(entity.getUuid());
                 kaboom(inputPlayer.get());
-                player.sendMessage(MM."<GREEN>Success.");
+                player.sendMessage(MM."<GREEN>Launched \{inputPlayer.get().getUsername()}!");
             } else {
                 sender.sendMessage(MM."<RED>Only players may execute this command!");
             }
@@ -60,9 +63,6 @@ public class KaboomCommand extends Command {
     }
 
     private void kaboom(Player player) {
-        // Send messsage
-        player.sendMessage(MM."<GREEN>Kaboom!");
-
         // Strike lightning
         Instance instance = Cytosis.getDefaultInstance();
         Pos spawnPosition = player.getPosition();

@@ -12,7 +12,6 @@ import redis.clients.jedis.JedisPubSub;
 public class ChatChannels extends JedisPubSub {
 
     public ChatChannels() {
-
     }
 
     @Override
