@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.commands.friends;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -15,15 +14,15 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * Sends a request to add a friend
  */
-public class AddFriendCommand extends Command {
+public class DeclineFriendCommand extends Command {
 
     /**
      * A command to add a friend
      */
-    public AddFriendCommand() {
-        super("addfriend", "fadd", "af");
+    public DeclineFriendCommand() {
+        super("declinefriend", "fdecline");
 
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>Please specify a player to add as a friend!"));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>Please specify a player to decline a friend request from!"));
         var playerArg = ArgumentType.Word("player");
         playerArg.setSuggestionCallback((_, _, suggestion) -> {
             for (String networkPlayer : Cytosis.getCytonicNetwork().getOnlinePlayers().getValues()) {
@@ -37,29 +36,21 @@ public class AddFriendCommand extends Command {
                 return;
             }
 
-            if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(context.get(playerArg))) {
-                player.sendMessage(MM."<red>The player \{context.get(playerArg)} is not online!");
+            UUID target = Cytosis.getCytonicNetwork().getOnlinePlayers().getByValue(context.get(playerArg));
+
+            if (target == player.getUuid()) {
+                player.sendMessage(MM."<red>You cannot decline a friend request from yourself!");
                 return;
             }
 
-            UUID target = Cytosis.getCytonicNetwork().getOnlinePlayers().getByValue(context.get(playerArg));
-            if (!Cytosis.getPreferenceManager().getPlayerPreference(target, CytosisPreferences.ACCEPT_FRIEND_REQUESTS)) {
-                player.sendMessage(MM."<red>The player \{context.get(playerArg)} is not accepting friend requests!");
-                return;
-            }
-            if (target == player.getUuid()) {
-                player.sendMessage(MM."<red>You cannot add yourself as a friend!");
-                return;
-            }
-            //todo: blocking system
-            Cytosis.getCynwaveWrapper().sendFriendRequest(target, player.getUuid()).whenComplete((s, throwable) -> {
+            Cytosis.getCynwaveWrapper().declineFriendRequest(target, player.getUuid()).whenComplete((s, throwable) -> {
                 if (throwable != null) {
                     player.sendMessage(MM."<red>Error: " + throwable.getMessage());
                 } else {
-                    if (Objects.equals(s, "ALREADY_SENT")) {
-                        player.sendMessage(MM."<red>You have already sent a friend request to \{context.get(playerArg)}!");
-                    } else if (Objects.equals(s, "FRIEND_SELF")) {
-                        player.sendMessage(MM."<red>You cannot add yourself as a friend!");
+                    if (Objects.equals(s, "NOT_FOUND")) {
+                        player.sendMessage(MM."<red>You don't have an active friend request from \{context.get(playerArg)}!!");
+                    } else if (Objects.equals(s, "UNAUTHORIZED")) {
+                        player.sendMessage(MM."<red>For some reason, you don't have permission to decline a friend request from \{context.get(playerArg)}!");
                     }
                 }
             });

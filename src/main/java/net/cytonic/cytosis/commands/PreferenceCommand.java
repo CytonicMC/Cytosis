@@ -27,7 +27,7 @@ public class PreferenceCommand extends Command {
             }
         });
 
-        var valueArg = ArgumentType.String("value").setDefaultValue("");
+        var valueArg = ArgumentType.StringArray("value").setDefaultValue(new String[]{""});
 
         addSyntax(((sender, context) -> {
             if (!(sender instanceof Player player)) {
@@ -40,9 +40,11 @@ public class PreferenceCommand extends Command {
             if (context.get(opperationArg) == Operation.SET) {
                 Object value = context.get(valueArg);
                 if (type.isAssignableFrom(Integer.class)) {
-                    value = Integer.parseInt(context.get(valueArg));
+                    value = Integer.parseInt(context.get(valueArg)[0]);
                 } else if (type.isAssignableFrom(Boolean.class)) {
-                    value = Boolean.parseBoolean(context.get(valueArg));
+                    value = Boolean.parseBoolean(context.get(valueArg)[0]);
+                } else if (type.isAssignableFrom(String.class)) {
+                    value = String.join(" ", context.get(valueArg));
                 }
                 manager.updatePlayerPreference(player.getUuid(), node, value);
                 player.sendMessage(MM."<green>Successfully updated preference node <yellow>\{node.asString()}</yellow> to '<light_purple>\{value}</light_purple>'");
