@@ -40,7 +40,7 @@ public class RankManager {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager())
                     .collisionRule(TeamsPacket.CollisionRule.NEVER)
                     .teamColor(value.getTeamColor())
-                    .prefix(value.getPrefix().appendSpace())
+                    .prefix(value.getPrefix())
                     .build();
             teamMap.put(value, team);
         }
@@ -94,7 +94,7 @@ public class RankManager {
     private void setupCosmetics(Player player, PlayerRank rank) {
         addPermissions(player, rank.getPermissions());
         teamMap.get(rank).addMember(player.getUsername());
-        player.setCustomName(rank.getPrefix().appendSpace().append(player.getName()));
+        player.setCustomName(rank.getPrefix().append(player.getName()));
         Cytosis.getCommandHandler().recalculateCommands(player);
     }
 
