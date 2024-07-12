@@ -3,10 +3,8 @@ package net.cytonic.cytosis.commands;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
-import net.cytonic.cytosis.commands.friends.*;
 import net.cytonic.cytosis.commands.moderation.BanCommand;
 import net.cytonic.cytosis.commands.server.*;
-import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
@@ -63,19 +61,7 @@ public class CommandHandler {
         cm.register(new TPSCommand());
         cm.register(new ReportCommand());
         cm.register(new OPMeCommand());
-        try {
-            cm.register(new AcceptFriendCommand());
-            cm.register(new AddFriendCommand());
-            cm.register(new DeclineFriendCommand());
-            cm.register(new ListFriendsCommand());
-            cm.register(new RemoveFriendCommand());
-            cm.register(new FriendCommand());
-        } catch (Exception e) {
-            Logger.error("An error occurred whilst registering Cytosis commands. Please report the following stacktrace to CytonicMC: ", e);
-        }
-
-        // friends
-
+        cm.register(new FriendCommand());
     }
 
     /**
