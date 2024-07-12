@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.npcs;
 
 import lombok.Setter;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -71,7 +70,6 @@ public class Humanoid extends EntityCreature implements NPC {
         super.updateNewViewer(player);
         player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
 
-        Logger.debug(STR."Color: \{glowingColor.toString()}");
         var team = new TeamsPacket(STR."NPC-\{getUuid().toString()}",
                 new TeamsPacket.CreateTeamAction(Component.empty(),
                         (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
