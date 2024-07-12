@@ -51,9 +51,7 @@ public class PreferenceManager {
             }
 
             try {
-                Logger.debug(STR."Loading preferences for \{uuid.toString()}");
                 if (rs.next()) {
-                    Logger.debug(STR."Preferences found: \{rs.getString("preferences")}");
                     PreferenceData data;
                     try {
                         data = PreferenceData.deserialize(rs.getString("preferences"));
