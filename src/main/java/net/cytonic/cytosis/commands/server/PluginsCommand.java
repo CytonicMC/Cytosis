@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.plugins.CytosisPlugin;
@@ -8,7 +8,8 @@ import net.minestom.server.command.builder.Command;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
+
 
 /**
  * The class representing the plugins command
@@ -37,15 +38,15 @@ public class PluginsCommand extends Command {
                     // Append the plugin name
                     result.append(plugin.name());
 
-                    // Append seperation between plugin names.
+                    // Append separation between plugin names.
                     if (i < pluginsList.size() - 1) {
                         result.append(", ");
                     }
                 }
 
                 sender.sendMessage(MM."<st><dark_green>                                                                                 ");
-                if (pluginsList.size() > 0) sender.sendMessage(MM."<aqua><bold>PLUGINS:</bold></aqua> <green>\{result}");
-                if (pluginsList.size() == 0) sender.sendMessage(MM."<aqua><bold>PLUGINS:</bold></aqua> <red>No plugins!");
+                if (pluginsList.isEmpty()) sender.sendMessage(MM."<aqua><bold>PLUGINS:</bold></aqua> <red>No plugins!");
+                else sender.sendMessage(MM."<aqua><bold>PLUGINS:</bold></aqua> <green>\{result}");
                 sender.sendMessage(MM."<st><dark_green>                                                                                 ");
             }
         });

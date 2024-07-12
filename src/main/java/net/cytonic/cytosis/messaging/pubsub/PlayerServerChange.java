@@ -2,11 +2,15 @@ package net.cytonic.cytosis.messaging.pubsub;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.PlayerServer;
+import net.cytonic.objects.CytonicServer;
 import redis.clients.jedis.JedisPubSub;
+
 import java.util.UUID;
 
+/**
+ * A pub sub listener that handles player server changes
+ */
 public class PlayerServerChange extends JedisPubSub {
 
     /**

@@ -3,11 +3,11 @@ package net.cytonic.cytosis.data;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.ranks.PlayerRank;
-import net.cytonic.cytosis.utils.BanData;
 import net.cytonic.cytosis.utils.PosSerializer;
+import net.cytonic.enums.ChatChannel;
+import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.BanData;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -42,7 +42,8 @@ public class MysqlDatabase {
      * Creates and initializes a new MysqlDatabase
      */
     public MysqlDatabase() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
+                .uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
         this.port = CytosisSettings.DATABASE_PORT;
         this.database = CytosisSettings.DATABASE_NAME;
@@ -282,6 +283,14 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Fetches a player's server alerts status
+     *
+     * @param uuid The player
+     * @return if the player has server alerts enabled
+     * @deprecated In favour of the PreferenceManager
+     */
+    @Deprecated
     public CompletableFuture<Boolean> getServerAlerts(@NotNull final UUID uuid) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         if (!isConnected())
@@ -303,6 +312,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Sets the player's server alerts status
+     * @param uuid the player
+     * @param value the boolean value
+     * @return the future that completes when the update is done
+     */
     public CompletableFuture<Void> setServerAlerts(@NotNull final UUID uuid, boolean value) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (!isConnected())
@@ -630,14 +645,12 @@ public class MysqlDatabase {
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
-                Logger.debug("Writing SQL!");
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
                 ps.executeUpdate();
-                Logger.debug("World Loaded into database!!");
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }
@@ -733,6 +746,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
+                Logger.error("An error occurred whilst updating the database!", e);
                 future.completeExceptionally(e);
             }
         });

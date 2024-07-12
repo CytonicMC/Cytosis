@@ -1,16 +1,13 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import lombok.Getter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
-import net.minestom.server.event.Event;
-import net.minestom.server.event.EventNode;
-import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.monitoring.TickMonitor;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the tps command
@@ -20,7 +17,12 @@ public class TPSCommand extends Command {
     /**
      * Creates a new command and sets up the consumers and execution logic
      */
-    @Getter private static AtomicReference<TickMonitor> lastTick = new AtomicReference<>();
+    @Getter
+    private static final AtomicReference<TickMonitor> lastTick = new AtomicReference<>();
+
+    /**
+     * A command for getting the current server tps
+     */
     public TPSCommand() {
         super("tps");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.tps"));

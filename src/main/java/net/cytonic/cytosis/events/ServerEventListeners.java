@@ -1,14 +1,14 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.TPSCommand;
+import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.utils.MessageUtils;
+import net.cytonic.enums.ChatChannel;
+import net.cytonic.enums.KickReason;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
@@ -18,7 +18,7 @@ import net.minestom.server.event.server.ServerTickMonitorEvent;
 
 import java.util.Optional;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that registers Cytosis required server events
@@ -41,6 +41,10 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             event.setSpawningInstance(Cytosis.getDefaultInstance());
             player.setRespawnPoint(CytosisSettings.SERVER_SPAWN_POS);
+
+            // load things as easily as possible
+            Cytosis.getFriendManager().loadFriends(player.getUuid());
+            Cytosis.getPreferenceManager().loadPlayerPreferences(player.getUuid());
         })));
 
         Logger.info("Registering player spawn event.");
@@ -64,7 +68,6 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
-            Cytosis.getRankManager().addPlayer(player);
             Cytosis.getDatabaseManager().getMysqlDatabase().getChatChannel(player.getUuid()).whenComplete(((chatChannel, throwable) -> {
                 if (throwable != null) {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
@@ -78,6 +81,7 @@ public final class ServerEventListeners {
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
+            Cytosis.getRankManager().addPlayer(player);
         })));
 
         Logger.info("Registering player chat event.");
@@ -108,6 +112,7 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getCytonicNetwork().getServerAlerts().remove(player.getUuid());
+            Cytosis.getFriendManager().unloadPlayer(player.getUuid());
         }));
 
         Logger.info("Registering interact events.");

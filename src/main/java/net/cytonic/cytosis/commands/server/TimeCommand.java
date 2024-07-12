@@ -1,10 +1,11 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the time command
@@ -40,34 +41,28 @@ public class TimeCommand extends Command {
                     case "day" -> {
                         Cytosis.getDefaultInstance().setTime(1000); // Day
                         sender.sendMessage(MM."<GREEN>Time set to day.");
-                        return;
                     }
                     case "night" -> {
                         Cytosis.getDefaultInstance().setTime(13000); // Night
                         sender.sendMessage(MM."<GREEN>Time set to night.");
-                        return;
                     }
                     case "midnight" -> {
                         Cytosis.getDefaultInstance().setTime(18000); // Midnight
                         sender.sendMessage(MM."<GREEN>Time set to midnight.");
-                        return;
                     }
                     case "noon" -> {
                         Cytosis.getDefaultInstance().setTime(6000); // Noon
                         sender.sendMessage(MM."<GREEN>Time set to noon.");
-                        return;
                     }
                     case "sunrise" -> {
                         Cytosis.getDefaultInstance().setTime(23000); // Sunrise
                         sender.sendMessage(MM."<GREEN>Time set to sunrise.");
-                        return;
                     }
                     case "sunset" -> {
                         Cytosis.getDefaultInstance().setTime(12000); // Sunset
                         sender.sendMessage(MM."<GREEN>Time set to sunset.");
-                        return;
                     }
-                };
+                }
             }
         }, timeArgument);
         addSyntax((sender, context) -> {

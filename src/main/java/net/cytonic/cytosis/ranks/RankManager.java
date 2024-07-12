@@ -4,6 +4,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.ranks.RankChangeEvent;
 import net.cytonic.cytosis.events.ranks.RankSetupEvent;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.enums.PlayerRank;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
@@ -22,15 +23,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RankManager {
 
+    private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
     /**
      * Default constructor
      */
     public RankManager() {
         // Do nothing
     }
-
-    private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
 
     /**
      * Creates the teams for cosmetic ranks
@@ -68,8 +68,9 @@ public class RankManager {
 
     /**
      * Changes a players rank
+     *
      * @param player the player
-     * @param rank the rank
+     * @param rank   the rank
      */
     public void changeRank(Player player, PlayerRank rank) {
         if (!rankMap.containsKey(player.getUuid()))
@@ -81,12 +82,14 @@ public class RankManager {
         removePermissions(player, old.getPermissions());
         rankMap.put(player.getUuid(), rank);
         setupCosmetics(player, rank);
+        if (Cytosis.getCytonicNetwork() != null)
+            Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
     }
 
     /**
      * Sets up the cosmetics. (Team, tab list, etc.)
      * @param player The player
-     * @param rank The rank
+     * @param rank   The rank
      */
     private void setupCosmetics(Player player, PlayerRank rank) {
         addPermissions(player, rank.getPermissions());
@@ -97,6 +100,7 @@ public class RankManager {
 
     /**
      * Removes a player from the manager. It also strips permissions
+     *
      * @param player The player
      */
     public void removePlayer(Player player) {
@@ -106,8 +110,9 @@ public class RankManager {
 
     /**
      * Adds permissions to a player
+     *
      * @param player the player
-     * @param nodes the permission nodes
+     * @param nodes  the permission nodes
      */
     public final void addPermissions(@NotNull final Player player, @NotNull final String... nodes) {
         for (String node : nodes) player.addPermission(new Permission(node));
@@ -115,8 +120,9 @@ public class RankManager {
 
     /**
      * Strips permissions from a player
+     *
      * @param player the player
-     * @param nodes the nodes to remove
+     * @param nodes  the nodes to remove
      */
     public final void removePermissions(@NotNull final Player player, @NotNull final String... nodes) {
         for (String node : nodes) player.removePermission(node);
@@ -124,6 +130,7 @@ public class RankManager {
 
     /**
      * Gets a player's rank
+     *
      * @param uuid The uuid of the player
      * @return the player's Rank, if it exists
      */

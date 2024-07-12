@@ -1,18 +1,27 @@
 package net.cytonic.cytosis.utils;
 
+import com.google.common.reflect.TypeToken;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.objects.Preference;
+import net.minestom.server.utils.NamespaceID;
 
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * A class holding utility methods
  */
 public final class Utils {
 
+    /**
+     * A decimal format rounding to two decimal places
+     */
     public static final DecimalFormat TWO_PLACES = new DecimalFormat("0.00");
 
     /**
@@ -49,4 +58,16 @@ public final class Utils {
         }
         return serverIP;
     }
+
+    /**
+     * A type token for a list of UUIDs
+     */
+    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
+    }.getType();
+
+    /**
+     * A type token for a map of namespaced preferences keyed by NamespaceID
+     */
+    public final static Type PREFERENCE_MAP = new TypeToken<Map<NamespaceID, Preference<?>>>() {
+    }.getType();
 }

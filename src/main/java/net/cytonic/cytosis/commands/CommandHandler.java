@@ -1,9 +1,13 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
+import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.moderation.BanCommand;
+import net.cytonic.cytosis.commands.server.*;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
+
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,6 +45,7 @@ public class CommandHandler {
         cm.register(new PodDetailsCommand());
         cm.register(new TeleportCommand());
         cm.register(new FindCommand());
+        cm.register(new PreferenceCommand());
         cm.register(new ServerAlertsCommand());
         cm.register(new HelloCommand());
         cm.register(new FlyCommand());
@@ -56,6 +61,7 @@ public class CommandHandler {
         cm.register(new TPSCommand());
         cm.register(new ReportCommand());
         cm.register(new OPMeCommand());
+        cm.register(new FriendCommand());
     }
 
     /**

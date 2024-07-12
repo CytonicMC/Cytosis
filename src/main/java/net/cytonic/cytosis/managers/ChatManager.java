@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.enums.ChatChannel;
 import net.kyori.adventure.text.Component;
 
 import java.util.HashMap;

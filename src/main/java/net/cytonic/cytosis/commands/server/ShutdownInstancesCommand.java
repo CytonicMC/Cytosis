@@ -1,12 +1,19 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.minestom.server.command.builder.Command;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command for closing all instances of cytosis on a kubernetes cluster
+ */
 public class ShutdownInstancesCommand extends Command {
+
+    /**
+     * A command to close all instances
+     */
     public ShutdownInstancesCommand() {
         super("shutdowninstances");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.shutdowninstances"));

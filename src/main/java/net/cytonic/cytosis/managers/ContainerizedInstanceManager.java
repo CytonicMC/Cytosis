@@ -17,15 +17,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A manager class to aid in the organisation of containerized instances
+ */
 public class ContainerizedInstanceManager {
     private CoreV1Api api;
 
+    /**
+     * Creates the manager
+     */
     public ContainerizedInstanceManager() {
         ApiClient client;
         try {
             client = ClientBuilder.cluster().build();
         } catch (IOException e) {
-            Logger.error("An error occoured whilst initializing the Kubernetes API!", e);
+            Logger.error("An error occurred whilst initializing the Kubernetes API!", e);
             return;
         }
         Configuration.setDefaultApiClient(client);
@@ -33,6 +39,9 @@ public class ContainerizedInstanceManager {
         CytosisSettings.KUBERNETES_SUPPORTED = true;
     }
 
+    /**
+     * Creates a new cytosis instance on the k8s cluster
+     */
     public void createCytosisInstance() {
         Map<String, String> labels = new HashMap<>();
         List<V1Container> containers = new ArrayList<>();
@@ -65,7 +74,7 @@ public class ContainerizedInstanceManager {
         try {
             api.createNamespacedPod("default", lobbyServerPod).execute();
         } catch (ApiException e) {
-            Logger.error("An error occoured whilst creating the Cytosis instance!", e);
+            Logger.error("An error occurred whilst creating the Cytosis instance!", e);
         }
     }
 
@@ -81,7 +90,7 @@ public class ContainerizedInstanceManager {
                 api.deleteNamespacedPod(pod.getMetadata().getName(), "default").execute();
             }
         } catch (ApiException e) {
-            Logger.error("An error occoured whilst shutting down the Cytosis instances!", e);
+            Logger.error("An error occurred whilst shutting down the Cytosis instances!", e);
         }
     }
 }

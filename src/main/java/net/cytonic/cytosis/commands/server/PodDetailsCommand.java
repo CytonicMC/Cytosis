@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.kyori.adventure.text.Component;
@@ -6,10 +6,16 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command to show the user the details of the pod the instance is running in
+ */
 public class PodDetailsCommand extends Command {
 
+    /**
+     * See above, but details for pods.
+     */
     public PodDetailsCommand() {
         super("poddetails", "pod");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.poddetails"));

@@ -1,11 +1,12 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the broadcast command
