@@ -79,6 +79,10 @@ public class RedisDatabase {
      * Published when a friend request is accepted
      */
     public static final String FRIEND_REQUEST_ACCEPTED = "friend-request-accepted";
+    /**
+     * Friend removed
+     */
+    public static final String FRIEND_REMOVED = "friend-removed";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -102,7 +106,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatChannels(), CHAT_CHANNELS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new FriendRequest(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT));
+        worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
     }
 
     /**
