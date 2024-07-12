@@ -36,6 +36,7 @@ public class CynwaveWrapper {
             Request request = new Request.Builder()
                     .url(STR."\{CytosisSettings.CYNWAVE_URL}/friend-requests/\{target.toString()}")
                     .header("User-Agent", sender.toString())
+                    .header("Authorization", CytosisSettings.CYNWAVE_TOKEN)
                     .post(RequestBody.create(new byte[0]))
                     .build();
 
@@ -60,6 +61,7 @@ public class CynwaveWrapper {
             Request request = new Request.Builder()
                     .url(STR."\{CytosisSettings.CYNWAVE_URL}/friend-requests/\{target.toString()}")
                     .header("User-Agent", sender.toString())
+                    .header("Authorization", CytosisSettings.CYNWAVE_TOKEN)
                     .put(RequestBody.create(new byte[0]))
                     .build();
 
@@ -84,6 +86,7 @@ public class CynwaveWrapper {
             Request request = new Request.Builder()
                     .url(STR."\{CytosisSettings.CYNWAVE_URL}/friend-requests/\{target.toString()}")
                     .header("User-Agent", sender.toString())
+                    .header("Authorization", CytosisSettings.CYNWAVE_TOKEN)
                     .delete()
                     .build();
 
