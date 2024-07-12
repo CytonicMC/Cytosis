@@ -41,6 +41,10 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             event.setSpawningInstance(Cytosis.getDefaultInstance());
             player.setRespawnPoint(CytosisSettings.SERVER_SPAWN_POS);
+
+            // load things as easily as possible
+            Cytosis.getFriendManager().loadFriends(player.getUuid());
+            Cytosis.getPreferenceManager().loadPlayerPreferences(player.getUuid());
         })));
 
         Logger.info("Registering player spawn event.");
@@ -64,7 +68,6 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
-            Cytosis.getRankManager().addPlayer(player);
             Cytosis.getDatabaseManager().getMysqlDatabase().getChatChannel(player.getUuid()).whenComplete(((chatChannel, throwable) -> {
                 if (throwable != null) {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
@@ -78,7 +81,7 @@ public final class ServerEventListeners {
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
-            Cytosis.getPreferenceManager().loadPlayerPreferences(player.getUuid());
+            Cytosis.getRankManager().addPlayer(player);
         })));
 
         Logger.info("Registering player chat event.");
@@ -109,6 +112,7 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getCytonicNetwork().getServerAlerts().remove(player.getUuid());
+            Cytosis.getFriendManager().unloadPlayer(player.getUuid());
         }));
 
         Logger.info("Registering interact events.");
