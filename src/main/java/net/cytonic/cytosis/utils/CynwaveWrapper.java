@@ -35,7 +35,7 @@ public class CynwaveWrapper {
         });
     }
 
-    public CompletableFuture<?> acceptFriendRequest(UUID target, UUID sender) {
+    public CompletableFuture<String> acceptFriendRequest(UUID target, UUID sender) {
         return CompletableFuture.supplyAsync(() -> {
             Request request = new Request.Builder()
                     .url(STR."\{CytosisSettings.CYNWAVE_URL}/friend-requests/\{target.toString()}")
@@ -52,7 +52,7 @@ public class CynwaveWrapper {
         });
     }
 
-    public CompletableFuture<?> declineFriendRequest(UUID target, UUID sender) {
+    public CompletableFuture<String> declineFriendRequest(UUID target, UUID sender) {
         return CompletableFuture.supplyAsync(() -> {
             Request request = new Request.Builder()
                     .url(STR."\{CytosisSettings.CYNWAVE_URL}/friend-requests/\{target.toString()}")
