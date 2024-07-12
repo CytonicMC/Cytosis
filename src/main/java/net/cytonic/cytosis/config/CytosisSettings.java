@@ -244,7 +244,7 @@ public final class CytosisSettings {
 
         // cynwave
         if (System.getenv("CYNWAVE_URL") != null) CYNWAVE_URL = System.getenv("CYNWAVE_URL");
-        if (System.getenv("CYNWAVE_TOKEN") != null) CYNWAVE_URL = System.getenv("CYNWAVE_TOKEN");
+        if (System.getenv("CYNWAVE_TOKEN") != null) CYNWAVE_TOKEN = System.getenv("CYNWAVE_TOKEN");
     }
 
     /**
@@ -285,7 +285,7 @@ public final class CytosisSettings {
         if (System.getProperty("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getProperty("RABBITMQ_PORT"));
           // cynwave
         if (System.getProperty("CYNWAVE_URL") != null) CYNWAVE_URL = System.getProperty("CYNWAVE_URL");
-        if (System.getProperty("CYNWAVE_TOKEN") != null) CYNWAVE_URL = System.getProperty("CYNWAVE_TOKEN");
+        if (System.getProperty("CYNWAVE_TOKEN") != null) CYNWAVE_TOKEN = System.getProperty("CYNWAVE_TOKEN");
 
         // redis
         if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
