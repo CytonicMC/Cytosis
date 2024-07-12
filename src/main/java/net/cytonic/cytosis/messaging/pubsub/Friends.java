@@ -16,20 +16,16 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * A pub sub that handles player friend requests
  */
-public class FriendRequest extends JedisPubSub {
+public class Friends extends JedisPubSub {
 
     private static final Component line = MM."<st><dark_aqua>                                                                                 ";
 
     @Override
     public void onMessage(String channel, String message) {
-        Logger.debug(STR."Received friend request: \{message} on channel \{channel}");
         Tuple<UUID, UUID> tuple = Tuple.deserialize(message, Tuple.UUID_TYPE); // <sender, target>
-        Logger.debug(STR."Tuple: \{tuple}");
         if (Cytosis.getCytonicNetwork() == null) {
             Logger.warn("Recieved friend request but cytonic network is not loaded!");
             return; // friend request system disabled
-        } else {
-            Logger.warn("Recieved friend request but cytonic network is loaded!");
         }
 
 
@@ -39,8 +35,8 @@ public class FriendRequest extends JedisPubSub {
         PlayerRank senderRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(tuple.getFirst());
 
 
-        Component target = targetRank.getPrefix().appendSpace().append(Component.text(targetName));
-        Component sender = senderRank.getPrefix().appendSpace().append(Component.text(senderName));
+        Component target = targetRank.getPrefix().append(Component.text(targetName));
+        Component sender = senderRank.getPrefix().append(Component.text(senderName));
 
         switch (channel) {
             case RedisDatabase.FRIEND_REQUEST_SENT -> {
@@ -86,11 +82,24 @@ public class FriendRequest extends JedisPubSub {
                 for (Player player : Cytosis.getOnlinePlayers()) {
                     if (player.getUuid().equals(tuple.getSecond())) {
                         player.sendMessage(line);
-                        player.sendMessage(MM."<yellow>Your friend request from ".append(sender).append(MM."<yellow> has expired!"));
+                        player.sendMessage(MM."<aqua>Your friend request from ".append(sender).append(MM."<aqua> has expired!"));
                         player.sendMessage(line);
                     } else if (player.getUuid().equals(tuple.getFirst())) {
                         player.sendMessage(line);
-                        player.sendMessage(MM."<yellow>Your friend request to ".append(target).append(MM."<yellow> has expired!"));
+                        player.sendMessage(MM."<aqua>Your friend request to ".append(target).append(MM."<aqua> has expired!"));
+                        player.sendMessage(line);
+                    }
+                }
+            }
+            case RedisDatabase.FRIEND_REMOVED -> {
+                for (Player player : Cytosis.getOnlinePlayers()) {
+                    if (player.getUuid().equals(tuple.getSecond())) {
+                        player.sendMessage(line);
+                        player.sendMessage(sender.append(MM."<aqua> removed you from their friend list!"));
+                        player.sendMessage(line);
+                    } else if (player.getUuid().equals(tuple.getFirst())) {
+                        player.sendMessage(line);
+                        player.sendMessage(MM."<aqua>You removed ".append(target).append(MM." from your friend list!"));
                         player.sendMessage(line);
                     }
                 }
