@@ -631,14 +631,12 @@ public class MysqlDatabase {
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
-                Logger.debug("Writing SQL!");
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
                 ps.executeUpdate();
-                Logger.debug("World Loaded into database!!");
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }
@@ -709,7 +707,6 @@ public class MysqlDatabase {
      * @return The {@link ResultSet} of the query
      */
     CompletableFuture<ResultSet> query(String sql) {
-        Logger.debug(STR."Querying SQL: \{sql}");
         CompletableFuture<ResultSet> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -729,7 +726,6 @@ public class MysqlDatabase {
      * @return A {@link CompletableFuture} for when the update is completed
      */
     CompletableFuture<Void> update(String sql) {
-        Logger.debug(STR."Updating SQL: \{sql}");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
