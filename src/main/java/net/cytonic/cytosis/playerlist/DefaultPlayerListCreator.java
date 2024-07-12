@@ -19,6 +19,14 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
  * A class providing the default player list for Cytosis
  */
 public class DefaultPlayerListCreator implements PlayerlistCreator {
+
+    /**
+     * The default player list creator
+     */
+    public DefaultPlayerListCreator() {
+        // do nothing
+    }
+
     private final int colCount = 4;
     private final Instant start = Instant.now();
 

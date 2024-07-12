@@ -18,6 +18,13 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
  */
 public class Friends extends JedisPubSub {
 
+    /**
+     * The default constructor
+     */
+    public Friends() {
+        // do nothing
+    }
+
     private static final Component line = MM."<st><dark_aqua>                                                                                 ";
 
     @Override

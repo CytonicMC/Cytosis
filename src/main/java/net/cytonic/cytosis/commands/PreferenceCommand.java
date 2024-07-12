@@ -12,7 +12,14 @@ import net.minestom.server.utils.NamespaceID;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command for updating the preferences of a player
+ */
 public class PreferenceCommand extends Command {
+
+    /**
+     * A simple command for debugging preferences
+     */
     public PreferenceCommand() {
         super("preference", "pref");
 

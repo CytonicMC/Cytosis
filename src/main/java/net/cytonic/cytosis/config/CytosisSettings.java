@@ -132,7 +132,14 @@ public final class CytosisSettings {
     public static boolean KUBERNETES_SUPPORTED = false;
 
     // cynwave
+    /**
+     * The URL of the cynwave instance
+     */
     public static String CYNWAVE_URL = "";
+
+    /**
+     * The token for authentication of the cynwave instance
+     */
     public static String CYNWAVE_TOKEN = "";
 
     /**

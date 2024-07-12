@@ -16,7 +16,14 @@ import java.util.UUID;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command to handle friends
+ */
 public class FriendCommand extends Command {
+
+    /**
+     * Creates the command
+     */
     public FriendCommand() {
         super("friend", "f");
         setCondition(Conditions::playerOnly);

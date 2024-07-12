@@ -20,6 +20,9 @@ public class TPSCommand extends Command {
     @Getter
     private static final AtomicReference<TickMonitor> lastTick = new AtomicReference<>();
 
+    /**
+     * A command for getting the current server tps
+     */
     public TPSCommand() {
         super("tps");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.tps"));

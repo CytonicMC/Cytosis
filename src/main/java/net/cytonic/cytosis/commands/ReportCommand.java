@@ -9,8 +9,14 @@ import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command for reporting players
+ */
 public class ReportCommand extends Command {
 
+    /**
+     * A command to report players
+     */
     public ReportCommand() {
         super("report");
 

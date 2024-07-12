@@ -98,9 +98,9 @@ public final class Cytosis {
     private static NPCManager npcManager;
     private static List<String> FLAGS;
     @Getter
-    public static ContainerizedInstanceManager containerizedInstanceManager;
+    private static ContainerizedInstanceManager containerizedInstanceManager;
     @Getter
-    public static FriendManager friendManager;
+    private static FriendManager friendManager;
     @Getter
     private static PreferenceManager preferenceManager;
     @Getter

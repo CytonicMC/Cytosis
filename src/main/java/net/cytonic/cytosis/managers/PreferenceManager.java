@@ -140,6 +140,11 @@ public class PreferenceManager {
         return preferenceData.get(uuid).get(namespaceID.namespaceID());
     }
 
+    /**
+     * Returns the registry of preferences
+     *
+     * @return the registry of preferences, keyed by namespace
+     */
     public Map<NamespaceID, NamespacedPreference<?>> getPreferenceRegistry() {
         return PREFERENCE_REGISTRY;
     }

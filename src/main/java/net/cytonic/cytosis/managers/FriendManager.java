@@ -23,7 +23,7 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
  * A class to manage friends
  */
 public class FriendManager {
-    public ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
 
     /**
      * The default constructor
@@ -144,6 +144,11 @@ public class FriendManager {
         Cytosis.getDatabaseManager().getRedisDatabase().publish(RedisDatabase.FRIEND_REMOVED, Tuple.of(uuid, friend).toString());
     }
 
+    /**
+     * Sends the player their list of friends
+     *
+     * @param player the player
+     */
     public void listFriends(Player player) {
         if (getFriends(player.getUuid()).isEmpty()) {
             player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You have no friends :(");
@@ -161,6 +166,10 @@ public class FriendManager {
         }
     }
 
+    /**
+     * Sends the logout message for the player
+     * @param uuid the player who logged out
+     */
     public void sendLogoutMessage(UUID uuid) {
         PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
         Component message = MM."<dark_aqua>Friend » </dark_aqua>".append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(MM."<gray> left.");
@@ -171,6 +180,10 @@ public class FriendManager {
         });
     }
 
+    /**
+     * Sends the login message for the player
+     * @param uuid the player who logged in
+     */
     public void sendLoginMessage(UUID uuid) {
         PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
         Component message = MM."<dark_aqua>Friend » </dark_aqua>".append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(MM."<gray> joined.");

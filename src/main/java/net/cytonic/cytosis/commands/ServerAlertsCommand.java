@@ -6,8 +6,14 @@ import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
+/**
+ * A command to toggle server alerts for when they start and stop
+ */
 public class ServerAlertsCommand extends Command {
 
+    /**
+     * A command to toggle server alerts
+     */
     public ServerAlertsCommand() {
         super("serveralerts");
         setCondition(((sender, _) -> sender.hasPermission("cytosis.commands.serveralerts")));

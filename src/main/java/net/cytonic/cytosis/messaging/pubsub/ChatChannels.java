@@ -9,11 +9,24 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.sound.SoundEvent;
 import redis.clients.jedis.JedisPubSub;
 
+/**
+ * A pub sub that handles chat channels
+ */
 public class ChatChannels extends JedisPubSub {
 
+    /**
+     * The default constructor
+     */
     public ChatChannels() {
+        // do nothing
     }
 
+    /**
+     * Handles chat channel messages
+     *
+     * @param channel the channel that the message came from
+     * @param message the message that was sent
+     */
     @Override
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.CHAT_CHANNELS_CHANNEL)) return;

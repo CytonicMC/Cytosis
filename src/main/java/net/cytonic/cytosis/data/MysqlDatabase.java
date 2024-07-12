@@ -283,6 +283,14 @@ public class MysqlDatabase {
         });
     }
 
+    /**
+     * Fetches a player's server alerts status
+     *
+     * @param uuid The player
+     * @return if the player has server alerts enabled
+     * @deprecated In favour of the PreferenceManager
+     */
+    @Deprecated
     public CompletableFuture<Boolean> getServerAlerts(@NotNull final UUID uuid) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         if (!isConnected())
@@ -304,6 +312,12 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Sets the player's server alerts status
+     * @param uuid the player
+     * @param value the boolean value
+     * @return the future that completes when the update is done
+     */
     public CompletableFuture<Void> setServerAlerts(@NotNull final UUID uuid, boolean value) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (!isConnected())
