@@ -120,6 +120,8 @@ public class FriendCommand extends Command {
                         }
                         if (s.equalsIgnoreCase("ALREADY_SENT")) {
                             player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You have already sent a friend request to ".append(targetComp).append(MM."<gray>!"));
+                        } else {
+                            player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{s}");
                         }
                     });
                 }
@@ -141,6 +143,7 @@ public class FriendCommand extends Command {
                                 case "UNAUTHORIZED" ->
                                         player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>For some reason, you don't have permission to accept a friend request from ".append(targetComp).append(MM."<gray>!"));
                                 case "OK" -> Cytosis.getFriendManager().addFriend(player.getUuid(), finalTarget);
+                                default -> player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{s}");
                             }
                         });
                 case "decline" ->
@@ -150,6 +153,8 @@ public class FriendCommand extends Command {
                             }
                             if (s.equalsIgnoreCase("NOT_FOUND")) {
                                 player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You don't have an active friend request from ".append(targetComp).append(MM."<gray>!"));
+                            } else {
+                                player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{s}");
                             }
                         });
             }
