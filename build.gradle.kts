@@ -21,7 +21,7 @@ dependencies {
     api("net.cytonic:Commons:1.2.0")
     api("net.minestom:minestom-snapshots:a49e1673e9")
     api("com.google.code.gson:gson:2.11.0") // serializing
-    api("com.squareup.okhttp3:okhttp:4.10.0") // http api requests
+    api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
     implementation("com.mysql:mysql-connector-j:9.0.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.34") // lombok
