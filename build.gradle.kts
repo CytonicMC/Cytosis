@@ -29,7 +29,7 @@ dependencies {
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     api("com.rabbitmq:amqp-client:5.21.0") // Message broker
     api("dev.hollowcube:polar:1.11.1") // Polar
-    api("redis.clients:jedis:5.1.3") // redis client
+    api("redis.clients:jedis:5.1.4") // redis client
     api("com.google.guava:guava:33.2.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("io.kubernetes:client-java:21.0.0")
