@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.2.0")
+    api("net.cytonic:Commons:1.3.0")
     api("net.minestom:minestom-snapshots:a49e1673e9")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
