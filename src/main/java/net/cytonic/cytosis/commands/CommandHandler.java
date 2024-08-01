@@ -3,7 +3,7 @@ package net.cytonic.cytosis.commands;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
-import net.cytonic.cytosis.commands.moderation.BanCommand;
+import net.cytonic.cytosis.commands.moderation.*;
 import net.cytonic.cytosis.commands.server.*;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
@@ -62,6 +62,7 @@ public class CommandHandler {
         cm.register(new ReportCommand());
         cm.register(new OPMeCommand());
         cm.register(new FriendCommand());
+        cm.register(new ClearchatCommand());
     }
 
     /**
