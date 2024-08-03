@@ -25,7 +25,7 @@ public class ClearchatCommand extends Command {
                 if (sender.hasPermission("cytosis.commands.clearchat")) {
                     for (Player online : Cytosis.getOnlinePlayers()) {
                         if (online.hasPermission("cytosis.commands.clearchat")) {
-                            online.sendMessage(MM."<GREEN>Chat has been cleared by \{Cytosis.getRankManager().getPlayerRank(player.getUuid()) + player.getUsername()}!");
+                            online.sendMessage(MM."<GREEN>Chat has been cleared by".append(Cytosis.getRankManager().getPlayerRank(online.getUuid()).orElseThrow().getPrefix()).append(player.getName()).append(MM."<GREEN>!"));
                         }
                         else {
                             for (int i = 0; i < 150; i++)
