@@ -81,16 +81,30 @@ public class ContainerizedInstanceManager {
     /**
      * Shuts down all cytosis instances in the cluster
      */
-    public void shutdownAllInstances() {
+    public void shutdownAllCytosisInstances() {
         try {
             V1PodList list = api.listNamespacedPod("default").execute();
-
             for (V1Pod pod : list.getItems()) {
                 if (!pod.getMetadata().getName().contains("cytosis")) continue;
                 api.deleteNamespacedPod(pod.getMetadata().getName(), "default").execute();
             }
         } catch (ApiException e) {
             Logger.error("An error occurred whilst shutting down the Cytosis instances!", e);
+        }
+    }
+
+    /**
+     * Shuts down all proxy instances in the cluster
+     */
+    public void shutdownAllProxyInstances() {
+        try {
+            V1PodList list = api.listNamespacedPod("default").execute();
+            for (V1Pod pod : list.getItems()) {
+                if (!pod.getMetadata().getName().contains("cynturion")) continue;
+                api.deleteNamespacedPod(pod.getMetadata().getName(), "default").execute();
+            }
+        } catch (ApiException e) {
+            Logger.error("An error occurred whilst shutting down the Proxy instances!", e);
         }
     }
 }
