@@ -117,7 +117,6 @@ public class MysqlDatabase {
         createChatChannelsTable();
         createPlayerJoinsTable();
         createAuditLogTable();
-        createServerAlertsTable();
     }
 
     /**
@@ -267,73 +266,6 @@ public class MysqlDatabase {
                 }
             }
         });
-    }
-
-    private void createServerAlertsTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_server_alerts (uuid VARCHAR(36), value BOOLEAN, PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
-                }
-            }
-        });
-    }
-
-    /**
-     * Fetches a player's server alerts status
-     *
-     * @param uuid The player
-     * @return if the player has server alerts enabled
-     * @deprecated In favour of the PreferenceManager
-     */
-    @Deprecated
-    public CompletableFuture<Boolean> getServerAlerts(@NotNull final UUID uuid) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to fetch a player's server alerts!");
-        worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("SELECT value FROM cytonic_server_alerts WHERE uuid = ?");
-                ps.setString(1, uuid.toString());
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    future.complete(rs.getBoolean("value"));
-                } else {
-                    future.complete(false);
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst fetching a player's server alerts.", e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Sets the player's server alerts status
-     * @param uuid the player
-     * @param value the boolean value
-     * @return the future that completes when the update is done
-     */
-    public CompletableFuture<Void> setServerAlerts(@NotNull final UUID uuid, boolean value) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to set a player's server alerts!");
-        worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_server_alerts (uuid, value) VALUES (?,?) ON DUPLICATE KEY UPDATE value = VALUES(value)");
-                ps.setString(1, uuid.toString());
-                ps.setBoolean(2, value);
-                ps.executeUpdate();
-                future.complete(null);
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst setting a player's server alerts.", e);
-            }
-        });
-        return future;
     }
 
     /**

@@ -73,11 +73,6 @@ public final class ServerEventListeners {
                     Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
                 } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
             }));
-            Cytosis.getDatabaseManager().getMysqlDatabase().getServerAlerts(player.getUuid()).whenComplete((value, throwable) -> {
-                if (throwable != null) {
-                    Logger.error("An error occurred whilst getting a player's server alerts!", throwable);
-                } else Cytosis.getCytonicNetwork().getServerAlerts().put(player.getUuid(), value);
-            });
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
@@ -111,7 +106,6 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
-            Cytosis.getCytonicNetwork().getServerAlerts().remove(player.getUuid());
             Cytosis.getFriendManager().unloadPlayer(player.getUuid());
         }));
 
@@ -132,9 +126,7 @@ public final class ServerEventListeners {
                 npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
             }
         }));
-        Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> {
-            TPSCommand.getLastTick().set(event.getTickMonitor());
-        })));
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> TPSCommand.getLastTick().set(event.getTickMonitor()))));
     }
 
     private static void sendMessage(String originalMessage, ChatChannel channel, Player player) {

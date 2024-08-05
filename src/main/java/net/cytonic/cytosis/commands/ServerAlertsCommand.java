@@ -1,8 +1,10 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.managers.PreferenceManager;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
+import net.minestom.server.utils.NamespaceID;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -20,14 +22,13 @@ public class ServerAlertsCommand extends Command {
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof Player player) {
                 if (player.hasPermission("cytosis.commands.serveralerts")) {
-                    if (!Cytosis.getCytonicNetwork().getServerAlerts().get(player.getUuid())) {
+                    PreferenceManager manager = Cytosis.getPreferenceManager();
+                    if (!Boolean.parseBoolean(manager.getPlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts")))) {
                         player.sendMessage(MM."<GREEN>Server alerts are now enabled!");
-                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(),true);
-                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(),true);
+                        Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), true);
                     } else {
                         player.sendMessage(MM."<RED>Server alerts are now disabled!");
-                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
-                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
+                        Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
                     }
                 }
             }

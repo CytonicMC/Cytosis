@@ -10,7 +10,6 @@ import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.PlayerPair;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +28,6 @@ public class CytonicNetwork {
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
     private final Map<String, PlayerServer> networkPlayersOnServers = new ConcurrentHashMap<>();
-    private final Map<UUID, Boolean> serverAlerts = new HashMap<>();
 
     /**
      * The default constructor

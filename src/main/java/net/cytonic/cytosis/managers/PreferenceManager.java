@@ -33,6 +33,7 @@ public class PreferenceManager {
      */
     public PreferenceManager() {
         PREFERENCE_REGISTRY.put(NamespaceID.from("cytosis:accept_friend_request"), CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
+        PREFERENCE_REGISTRY.put(NamespaceID.from("cytosis:server_alerts"), CytosisPreferences.SERVER_ALERTS);
         UPDATE."CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36), preferences TEXT)".whenComplete((_, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst creating the preferences table!", throwable);
         });
