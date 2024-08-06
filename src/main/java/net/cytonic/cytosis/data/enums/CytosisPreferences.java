@@ -18,4 +18,9 @@ public class CytosisPreferences {
      * A preference to accept or decline friend requests, type of BOOLEAN
      */
     public static final NamespacedPreference<Boolean> ACCEPT_FRIEND_REQUESTS = new NamespacedPreference<>(NamespaceID.from("cytosis", "accept_friend_request"), true);
+
+    /**
+     * A preference to send or not send server alerts, type of BOOLEAN
+     */
+    public static final NamespacedPreference<Boolean> SERVER_ALERTS = new NamespacedPreference<>(NamespaceID.from("cytosis", "server_alerts"), false);
 }

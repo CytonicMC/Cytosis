@@ -1,11 +1,12 @@
 package net.cytonic.cytosis.messaging.pubsub;
 
-import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.utils.MiniMessageTemplate;
-import net.minestom.server.entity.Player;
+import net.minestom.server.utils.NamespaceID;
 import redis.clients.jedis.JedisPubSub;
 
 /**
@@ -29,38 +30,33 @@ public class ServerStatus extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.SERVER_STATUS_CHANNEL)) return;
-        CytonicNetwork network = Cytosis.getCytonicNetwork();
-        if (network == null) return;
+        if (Cytosis.getCytonicNetwork() == null) return;
         // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
         String[] parts = message.split("\\|:\\|");
         if (parts[1].equalsIgnoreCase(Cytosis.SERVER_ID)) return;
+        CytonicServer server = new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3]));
+        PreferenceManager manager = Cytosis.getPreferenceManager();
         if (parts[0].equalsIgnoreCase("START")) {
-            network.getServers().put(parts[1], new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
-            network.getServerAlerts().forEach((uuid, server) -> {
-                if (server && Cytosis.getPlayer(uuid).isPresent()) {
-                    Player player = Cytosis.getPlayer(uuid).get();
-                    if (player.hasPermission("cytosis.commands.serveralerts")) {
-                        player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{parts[1]}");
-                    } else {
-                        player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
-                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
-                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
-                    }
+            Cytosis.getCytonicNetwork().getServers().put(parts[1], server);
+            Cytosis.getOnlinePlayers().forEach((player) -> {
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
+                    Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
+                    player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
+                    return;
                 }
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && player.hasPermission("cytosis.commands.serveralerts"))
+                    player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{parts[1]}");
             });
         } else if (parts[0].equalsIgnoreCase("STOP")) {
-            network.getServers().remove(new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3])));
-            network.getServerAlerts().forEach((uuid, server) -> {
-                if (server && Cytosis.getPlayer(uuid).isPresent()) {
-                    Player player = Cytosis.getPlayer(uuid).get();
-                    if (player.hasPermission("cytosis.commands.serveralerts")) {
-                        player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stopped with the id of \{parts[1]}");
-                    } else {
-                        player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
-                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
-                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
-                    }
+            Cytosis.getCytonicNetwork().getServers().remove(server);
+            Cytosis.getOnlinePlayers().forEach((player) -> {
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
+                    manager.updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
+                    player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
+                    return;
                 }
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && player.hasPermission("cytosis.commands.serveralerts"))
+                    player.sendMessage(MiniMessageTemplate.MM."<RED>A server has stopped with the id of \{parts[1]}");
             });
         }
     }
