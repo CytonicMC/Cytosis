@@ -47,20 +47,15 @@ public class CommandHandler {
         cm.register(new FindCommand());
         cm.register(new PreferenceCommand());
         cm.register(new ServerAlertsCommand());
-        cm.register(new HelloCommand());
         cm.register(new FlyCommand());
-        cm.register(new KaboomCommand());
         cm.register(new BroadcastCommand());
         cm.register(new HelpCommand());
         cm.register(new AllChatCommand());
         cm.register(new TimeCommand());
-        cm.register(new PluginsCommand());
         cm.register(new VersionCommand());
-        cm.register(new TeleportAllCommand());
         cm.register(new PingCommand());
         cm.register(new TPSCommand());
         cm.register(new ReportCommand());
-        cm.register(new OPMeCommand());
         cm.register(new FriendCommand());
         cm.register(new ClearchatCommand());
     }
