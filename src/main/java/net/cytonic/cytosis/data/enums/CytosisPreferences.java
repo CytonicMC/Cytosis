@@ -29,4 +29,9 @@ public class CytosisPreferences {
      * A preference to store the players chat channel, type of ChatChannel
      */
     public static final NamespacedPreference<ChatChannel> CHAT_CHANNEL = new NamespacedPreference<>(NamespaceID.from("cytosis", "chat_channel"), ChatChannel.ALL);
+
+    /**
+     * A preference if the player is vanished, type of BOOLEAN
+     */
+    public static final NamespacedPreference<Boolean> VANISHED = new NamespacedPreference<>(NamespaceID.from("cytosis", "vanished"), false);
 }

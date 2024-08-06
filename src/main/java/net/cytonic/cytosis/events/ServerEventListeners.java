@@ -1,8 +1,10 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.moderation.VanishCommand;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
@@ -72,7 +74,9 @@ public final class ServerEventListeners {
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
         })));
-
+        if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+            VanishCommand.enableVanish(player);
+        }
         Logger.info("Registering player chat event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-chat", false, 1, PlayerChatEvent.class, event -> {
             final Player player = event.getPlayer();
@@ -94,6 +98,9 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getFriendManager().unloadPlayer(player.getUuid());
+            if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+                VanishCommand.disableVanish(player);
+            }
         }));
 
         Logger.info("Registering interact events.");
