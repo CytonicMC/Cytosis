@@ -2,6 +2,7 @@ package net.cytonic.cytosis.messaging.pubsub;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.utils.MiniMessageTemplate;
@@ -38,24 +39,24 @@ public class ServerStatus extends JedisPubSub {
         if (parts[0].equalsIgnoreCase("START")) {
             Cytosis.getCytonicNetwork().getServers().put(parts[1], server);
             Cytosis.getOnlinePlayers().forEach((player) -> {
-                if (Boolean.parseBoolean(manager.getPlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"))) && !player.hasPermission("cytosis.commands.serveralerts")) {
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
                     Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
                     player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
                     return;
                 }
-                if (Boolean.parseBoolean(manager.getPlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"))) && player.hasPermission("cytosis.commands.serveralerts"))
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && player.hasPermission("cytosis.commands.serveralerts"))
                     player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{parts[1]}");
             });
         } else if (parts[0].equalsIgnoreCase("STOP")) {
             Cytosis.getCytonicNetwork().getServers().remove(server);
             Cytosis.getOnlinePlayers().forEach((player) -> {
-                if (Boolean.parseBoolean(manager.getPlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"))) && !player.hasPermission("cytosis.commands.serveralerts")) {
-                    Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
+                    manager.updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
                     player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
                     return;
                 }
-                if (Boolean.parseBoolean(manager.getPlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"))) && player.hasPermission("cytosis.commands.serveralerts"))
-                    player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has stopped with the id of \{parts[1]}");
+                if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && player.hasPermission("cytosis.commands.serveralerts"))
+                    player.sendMessage(MiniMessageTemplate.MM."<RED>A server has stopped with the id of \{parts[1]}");
             });
         }
     }
