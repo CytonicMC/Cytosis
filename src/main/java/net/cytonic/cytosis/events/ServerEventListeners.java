@@ -3,6 +3,7 @@ package net.cytonic.cytosis.events;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
@@ -48,8 +49,8 @@ public final class ServerEventListeners {
 
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
+            final Player player = event.getPlayer();
             Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(event.getPlayer().getUuid()).whenComplete((data, throwable) -> {
-                final Player player = event.getPlayer();
                 if (throwable != null) {
                     Logger.error("An error occurred whilst checking if the player is banned!", throwable);
                     player.kick(MM."<red>An error occurred whilst initiating the login sequence!");
@@ -64,13 +65,15 @@ public final class ServerEventListeners {
                 Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
                 Cytosis.getRankManager().addPlayer(player);
             });
-            final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
+            if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+                Cytosis.getVanishManager().enableVanish(player);
+            }
         })));
 
         Logger.info("Registering player chat event.");
@@ -94,6 +97,9 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getFriendManager().unloadPlayer(player.getUuid());
+            if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+                Cytosis.getVanishManager().disableVanish(player);
+            }
         }));
 
         Logger.info("Registering interact events.");

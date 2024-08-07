@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.playerlist;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.enums.PlayerRank;
@@ -43,6 +44,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
         List<PlayerListEntry> players = new ArrayList<>();
 
         for (Player p : Cytosis.getOnlinePlayers()) {
+            if (Cytosis.getPreferenceManager().getPlayerPreference(p.getUuid(), CytosisPreferences.VANISHED)) continue;
             PlayerRank rank = Cytosis.getRankManager().getPlayerRank(p.getUuid()).orElse(PlayerRank.DEFAULT);
             players.add(new PlayerListEntry(rank.getPrefix().append(p.getName()), rank.ordinal(),
                     new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())));
@@ -87,6 +89,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
 
     /**
      * Creates the header for the player
+     *
      * @param player the player for personalization
      * @return the component to be displayed as the header
      */
@@ -97,6 +100,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
 
     /**
      * Creates the footer for the player
+     *
      * @param player the player for personalization
      * @return the component to be displayed as the footer
      */
@@ -107,6 +111,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
 
     /**
      * Gets the column count
+     *
      * @return the number of columns, between 1 and 4 inclusive
      */
     @Override

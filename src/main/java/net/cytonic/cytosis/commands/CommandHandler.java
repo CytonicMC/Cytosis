@@ -58,6 +58,7 @@ public class CommandHandler {
         cm.register(new ReportCommand());
         cm.register(new FriendCommand());
         cm.register(new ClearchatCommand());
+        cm.register(new VanishCommand());
     }
 
     /**
