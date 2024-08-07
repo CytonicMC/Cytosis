@@ -30,7 +30,7 @@ public class ChatManager {
      * @param channel The channel to set
      */
     public void setChannel(UUID uuid, ChatChannel channel) {
-        Cytosis.getPreferenceManager().updatePlayerPreference(uuid, NamespaceID.from("cytosis:chat_channel"), channel);
+        Cytosis.getPreferenceManager().updatePlayerPreference(uuid, NamespaceID.from("cytosis:chat_channel"), channel.name());
     }
 
     /**
@@ -40,7 +40,7 @@ public class ChatManager {
      * @return the player's currently selected chat channel
      */
     public ChatChannel getChannel(UUID uuid) {
-        return Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
+        return ChatChannel.valueOf(Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL));
     }
 
     public void sendMessage(String originalMessage, ChatChannel channel, Player player) {

@@ -23,7 +23,7 @@ public class ChatChannelCommand extends Command {
         super("chat");
         setDefaultExecutor((sender, _) -> sender.sendMessage(Component.text("You must specify a channel!", NamedTextColor.RED)));
 
-        var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "party", "league", "private_message","m","ad","s","a","p","l");
+        var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "party", "league", "private_message", "m", "ad", "s", "a", "p", "l");
         chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
         chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender.hasPermission("cytonic.chat.mod")) {
@@ -59,7 +59,7 @@ public class ChatChannelCommand extends Command {
                     case "private_message" -> ChatChannel.PRIVATE_MESSAGE;
                     default -> throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
                 };
-                if (!chatChannel.name().equals(Cytosis.getChatManager().getChannel(player.getUuid()).name())) {
+                if (!chatChannel.equals(Cytosis.getChatManager().getChannel(player.getUuid()))) {
                     message(player, chatChannel);
                 } else player.sendMessage(MM."<RED>You are already in this channel!");
             } else {
@@ -69,34 +69,17 @@ public class ChatChannelCommand extends Command {
     }
 
     private void message(Player player, ChatChannel channel) {
+        if (channel == ChatChannel.ADMIN || channel == ChatChannel.MOD || channel == ChatChannel.STAFF) {
+            if (player.hasPermission(channel.name().toLowerCase())) {
+                Cytosis.getChatManager().setChannel(player.getUuid(), channel);
+                player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text(channel.name(), NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
+            }
+            return;
+        }
         switch (channel) {
             case ALL -> {
                 Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
                 player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("ALL", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
-            }
-            case ADMIN -> {
-                if (player.hasPermission("cytonic.chat.admin")) {
-                    Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ADMIN);
-                    player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("ADMIN", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
-                } else {
-                    player.sendMessage(Component.text("You do not have access to this channel.", NamedTextColor.RED));
-                }
-            }
-            case MOD -> {
-                if (player.hasPermission("cytonic.chat.mod")) {
-                    Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.MOD);
-                    player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("MOD", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
-                } else {
-                    player.sendMessage(Component.text("You do not have access to this channel.", NamedTextColor.RED));
-                }
-            }
-            case STAFF -> {
-                if (player.hasPermission("cytonic.chat.staff")) {
-                    Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.STAFF);
-                    player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("STAFF", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
-                } else {
-                    player.sendMessage(Component.text("You do not have access to this channel.", NamedTextColor.RED));
-                }
             }
             case PARTY -> player.sendMessage("party");
             case LEAGUE -> player.sendMessage("league");
