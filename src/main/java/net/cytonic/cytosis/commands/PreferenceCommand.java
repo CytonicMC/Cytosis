@@ -2,7 +2,9 @@ package net.cytonic.cytosis.commands;
 
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.objects.Preference;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -29,7 +31,7 @@ public class PreferenceCommand extends Command {
 
         var nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((_, _, suggestion) -> {
-            for (NamespaceID preference : Cytosis.getPreferenceManager().getPreferenceRegistry().keySet()) {
+            for (NamespaceID preference : Cytosis.getPreferenceManager().getPreferenceRegistry().namespaces()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -43,20 +45,39 @@ public class PreferenceCommand extends Command {
             }
             NamespaceID node = NamespaceID.from(context.get(nodeArg));
             PreferenceManager manager = Cytosis.getPreferenceManager();
-            Class<?> type = manager.getPreferenceRegistry().get(node).value().getClass();
+            Preference<?> preference = manager.getPreferenceRegistry().getUNSAFE(node);
+            if (preference == null) {
+                sender.sendMessage(MM."<red>Preference node <yellow>\{node.asString()}</yellow> does not exist!");
+                return;
+            }
+            Class<?> type = preference.value().getClass();
+            player.sendMessage(type.getSimpleName());
             if (context.get(opperationArg) == Operation.SET) {
-                Object value = context.get(valueArg);
-                if (type.isAssignableFrom(Integer.class)) {
-                    value = Integer.parseInt(context.get(valueArg)[0]);
-                } else if (type.isAssignableFrom(Boolean.class)) {
-                    value = Boolean.parseBoolean(context.get(valueArg)[0]);
-                } else if (type.isAssignableFrom(String.class)) {
+                String raw = context.get(valueArg)[0];
+                Object value = null;
+                if (type.isEnum()) {
+                    player.sendMessage(STR."<gray>Value: <yellow>\{raw}</yellow>");
+                    try {
+                        value = Enum.valueOf((Class<Enum>) type, raw);
+                    } catch (Exception e) {
+                        Logger.debug("", e);
+                        sender.sendMessage(MM."<red>The value <yellow>\{context.get(valueArg)[0]}</yellow> is not a valid enum value!");
+                        return;
+                    }
+                } else if (type == String.class) {
                     value = String.join(" ", context.get(valueArg));
+                } else if (type == Integer.class) {
+                    value = Integer.parseInt(raw);
+                } else if (type == Boolean.class) {
+                    value = Boolean.parseBoolean(raw);
+                } else {
+                    sender.sendMessage(MM."<red>The value <yellow>\{context.get(valueArg)[0]}</yellow> is not a valid value for preference node <yellow>\{node.asString()}</yellow>!");
+                    return;
                 }
-                manager.updatePlayerPreference(player.getUuid(), node, value);
+                manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
                 player.sendMessage(MM."<green>Successfully updated preference node <yellow>\{node.asString()}</yellow> to '<light_purple>\{value}</light_purple>'");
             } else if (context.get(opperationArg).equals(Operation.GET)) {
-                sender.sendMessage(MM."<gray>The value of preference node <yellow>\{node.asString()}</yellow> is '<light_purple>\{manager.getPlayerPreference(player.getUuid(), node)}</light_purple>'");
+                sender.sendMessage(MM."<gray>The value of preference node <yellow>\{node.asString()}</yellow> is '<light_purple>\{manager.getPlayerPreference_UNSAFE(player.getUuid(), node)}</light_purple>'");
             }
         }), opperationArg, nodeArg, valueArg);
     }
