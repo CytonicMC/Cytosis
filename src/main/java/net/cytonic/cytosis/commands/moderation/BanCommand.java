@@ -34,9 +34,9 @@ public class BanCommand extends Command {
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof Player player) {
-                player.sendActionBar(MM."<green>Fetching online players...");
+                player.sendActionBar(MM."<green>Fetching players...");
             }
-            Cytosis.getCytonicNetwork().getOnlinePlayers().forEach((_, name) ->
+            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((_, name) ->
                     suggestion.addEntry(new SuggestionEntry(name)));
         });
         var durationArg = ArgumentType.Word("duration");
@@ -54,7 +54,7 @@ public class BanCommand extends Command {
                 final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parse(rawDur);
 
-                if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(player)) {
+                if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(player)) {
                     sender.sendMessage(MM."<red>The player \{context.get(playerArg)} doesn't exist!");
                     return;
                 }
