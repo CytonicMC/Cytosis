@@ -34,10 +34,10 @@ public class PreferenceRegistry {
      * @param value     the value
      * @param <T>       the type of the preference
      */
-    public <T> void write(TypedNamespace<T> namespace, Preference<T> value) {
+    public <T> void write(TypedNamespace<T> namespace, @Nullable Preference<T> value) {
         if (preferences.containsKey(namespace))
             throw new IllegalArgumentException(STR."There is already a preference registered under the namespace \{namespace.namespaceID().asString()}");
-        if (!namespace.type().equals(value.value().getClass()))
+        if (value != null && value.value() != null && !namespace.type().equals(value.value().getClass()))
             throw new IllegalArgumentException(STR."The preference value must be of type \{namespace.type().getSimpleName()}");
         preferences.put(namespace, new Entry<>(namespace, value));
     }
@@ -49,7 +49,11 @@ public class PreferenceRegistry {
      * @param value     a namespaced preference
      * @param <T>       the type of the preference
      */
-    public <T> void write(TypedNamespace<T> namespace, NamespacedPreference<T> value) {
+    public <T> void write(TypedNamespace<T> namespace, @Nullable NamespacedPreference<T> value) {
+        if (value == null || value.value() == null) {
+            write(namespace, (Preference<T>) null);
+            return;
+        }
         if (!namespace.namespaceID().equals(value.namespaceID().namespaceID()))
             throw new IllegalArgumentException(STR."The preference namespace must be \{namespace.namespaceID()}");
         if (!namespace.type().equals(value.value().getClass()))
@@ -67,10 +71,16 @@ public class PreferenceRegistry {
      * @throws IllegalArgumentException if the entry does not exist
      */
     @SuppressWarnings("unchecked")
+    @Nullable
     public <T> Entry<T> get(TypedNamespace<T> namespace) {
-        Entry<?> entry = preferences.get(namespace);
-        if (entry == null)
+        if (!contains(namespace))
             throw new IllegalArgumentException(STR."There is no preference registered under the namespace \{namespace.namespaceID().asString()}");
+
+        Entry<?> entry = preferences.get(namespace);
+        if (entry == null) {
+            return null;
+        }
+
         if (entry.namespaceID().type().equals(namespace.type())) {
             return (Entry<T>) entry;
         }
@@ -104,6 +114,7 @@ public class PreferenceRegistry {
      * @param namespaceID the namespace
      * @return if the registry contains the preference
      */
+    @ApiStatus.Internal
     public boolean contains_UNSAFE(NamespaceID namespaceID) {
         return preferences.keySet().stream().map(TypedNamespace::namespaceID).collect(Collectors.toSet()).contains(namespaceID);
     }
@@ -125,7 +136,7 @@ public class PreferenceRegistry {
      */
     @ApiStatus.Internal
     @Nullable
-    public Preference<?> getUNSAFE(NamespaceID namespaceID) {
+    public Preference<?> get_UNSAFE(NamespaceID namespaceID) {
         Set<Entry<?>> ids = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().asString().equals(namespaceID.asString())).collect(Collectors.toSet());
         return Iterables.getFirst(ids, null).value();
     }
@@ -137,7 +148,7 @@ public class PreferenceRegistry {
      * @param value       the preference
      * @param <T>         the type of the preference
      */
-    public record Entry<T>(TypedNamespace<T> namespaceID, Preference<T> value) {
+    public record Entry<T>(TypedNamespace<T> namespaceID, @Nullable Preference<T> value) {
         // records are cool
     }
 }

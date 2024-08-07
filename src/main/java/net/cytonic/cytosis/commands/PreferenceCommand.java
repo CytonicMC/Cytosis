@@ -45,7 +45,7 @@ public class PreferenceCommand extends Command {
             }
             NamespaceID node = NamespaceID.from(context.get(nodeArg));
             PreferenceManager manager = Cytosis.getPreferenceManager();
-            Preference<?> preference = manager.getPreferenceRegistry().getUNSAFE(node);
+            Preference<?> preference = manager.getPreferenceRegistry().get_UNSAFE(node);
             if (preference == null) {
                 sender.sendMessage(MM."<red>Preference node <yellow>\{node.asString()}</yellow> does not exist!");
                 return;
