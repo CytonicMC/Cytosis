@@ -2,11 +2,11 @@ package net.cytonic.cytosis.messaging.pubsub;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.enums.CytosisNamespaces;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.utils.MiniMessageTemplate;
-import net.minestom.server.utils.NamespaceID;
 import redis.clients.jedis.JedisPubSub;
 
 /**
@@ -40,7 +40,7 @@ public class ServerStatus extends JedisPubSub {
             Cytosis.getCytonicNetwork().getServers().put(parts[1], server);
             Cytosis.getOnlinePlayers().forEach((player) -> {
                 if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
-                    Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
+                    Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.SERVER_ALERTS, false);
                     player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
                     return;
                 }
@@ -51,7 +51,7 @@ public class ServerStatus extends JedisPubSub {
             Cytosis.getCytonicNetwork().getServers().remove(server);
             Cytosis.getOnlinePlayers().forEach((player) -> {
                 if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
-                    manager.updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:server_alerts"), false);
+                    manager.updatePlayerPreference(player.getUuid(), CytosisNamespaces.SERVER_ALERTS, false);
                     player.sendMessage(MiniMessageTemplate.MM."<RED>How did you do this");
                     return;
                 }
