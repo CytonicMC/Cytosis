@@ -105,6 +105,8 @@ public final class Cytosis {
     private static PreferenceManager preferenceManager;
     @Getter
     private static CynwaveWrapper cynwaveWrapper;
+    @Getter
+    private static VanishManager vanishManager;
 
     private Cytosis() {
     }

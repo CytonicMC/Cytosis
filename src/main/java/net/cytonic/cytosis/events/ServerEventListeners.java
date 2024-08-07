@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.moderation.VanishCommand;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
@@ -73,7 +72,7 @@ public final class ServerEventListeners {
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-                VanishCommand.enableVanish(player);
+                Cytosis.getVanishManager().enableVanish(player);
             }
         })));
 
@@ -99,7 +98,7 @@ public final class ServerEventListeners {
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getFriendManager().unloadPlayer(player.getUuid());
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-                VanishCommand.disableVanish(player);
+                Cytosis.getVanishManager().disableVanish(player);
             }
         }));
 
