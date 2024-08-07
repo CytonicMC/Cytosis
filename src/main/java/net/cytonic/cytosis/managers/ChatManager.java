@@ -1,11 +1,11 @@
 package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.CytosisNamespaces;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
-import net.minestom.server.utils.NamespaceID;
 
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ public class ChatManager {
      * @param channel The channel to set
      */
     public void setChannel(UUID uuid, ChatChannel channel) {
-        Cytosis.getPreferenceManager().updatePlayerPreference(uuid, NamespaceID.from("cytosis:chat_channel"), channel);
+        Cytosis.getPreferenceManager().updatePlayerPreference(uuid, CytosisNamespaces.CHAT_CHANNEL, channel);
     }
 
     /**
@@ -43,6 +43,12 @@ public class ChatManager {
         return Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
     }
 
+    /**
+     * Sends a message out to redis.
+     * @param originalMessage The original content of the message
+     * @param channel The channel to send the message to
+     * @param player The player who sent the message
+     */
     public void sendMessage(String originalMessage, ChatChannel channel, Player player) {
         if (!originalMessage.contains("|:|")) {
             Component channelComponent = Component.empty();
