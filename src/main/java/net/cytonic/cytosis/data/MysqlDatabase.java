@@ -115,6 +115,7 @@ public class MysqlDatabase {
         createWorldTable();
         createPlayerJoinsTable();
         createAuditLogTable();
+        createUnbansTable();
     }
 
     /**
@@ -241,6 +242,18 @@ public class MysqlDatabase {
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
+                }
+            }
+        });
+    }
+
+    private void createUnbansTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_unbans (actor_uuid VARCHAR(36), unbanned_uuid VARCHAR(36), unbanned_at TIMESTAMP)")) {
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_unbans` table.", e);
                 }
             }
         });
@@ -482,6 +495,8 @@ public class MysqlDatabase {
             try {
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+                PreparedStatement ps1 = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_unbans (actor_uuid, unbanned_uuid, unbanned_at) VALUES (?, ?, CURRENT_TIMESTAMP)");
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {

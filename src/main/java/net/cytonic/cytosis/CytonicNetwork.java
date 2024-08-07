@@ -5,11 +5,13 @@ import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.objects.PlayerServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.BanData;
 import net.cytonic.objects.BiMap;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.PlayerPair;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +30,7 @@ public class CytonicNetwork {
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
     private final Map<String, PlayerServer> networkPlayersOnServers = new ConcurrentHashMap<>();
+    private final Map<UUID, BanData> bannedPlayers = new ConcurrentHashMap<>();
 
     /**
      * The default constructor
@@ -70,6 +73,25 @@ public class CytonicNetwork {
             try {
                 while (rs.next()) {
                     playerRanks.put(UUID.fromString(rs.getString("uuid")), PlayerRank.valueOf(rs.getString("rank_id")));
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading ranks!", e);
+            }
+        });
+
+        QUERY."SELECT * FROM cytonic_bans".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading bans!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    Instant expiry = Instant.parse(rs.getString("to_expire"));
+                    if (expiry.isBefore(Instant.now())) {
+                        return;
+                    }
+                    BanData banData = new BanData(rs.getString("reason"), expiry, true);
+                    bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading ranks!", e);
