@@ -33,6 +33,7 @@ import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.*;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -287,6 +288,7 @@ public final class Cytosis {
                 messagingManager.shutdown();
                 databaseManager.shutdown();
                 sideboardManager.shutdown();
+                pluginManager.unloadPlugins();
                 getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
@@ -311,7 +313,13 @@ public final class Cytosis {
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
-            Thread.ofVirtual().name("CytosisPluginLoader").start(pluginManager::loadPlugins);
+            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
+                try {
+                    pluginManager.loadPlugins(Path.of("plugins"));
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading plugins!", e);
+                }
+            });
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
