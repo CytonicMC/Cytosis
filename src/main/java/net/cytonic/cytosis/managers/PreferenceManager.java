@@ -95,6 +95,7 @@ public class PreferenceManager {
      * @param uuid        the player to update
      * @param namespaceID the id of the preference
      * @param value       the value to set
+     * @param <T>         the type of the preference
      * @throws IllegalStateException    if the player has no preference data
      * @throws IllegalArgumentException if the value is of the incorrect type
      */
@@ -125,6 +126,7 @@ public class PreferenceManager {
      * @param uuid       the player to update
      * @param preference the namespace
      * @param value      the value to set
+     * @param <T>        the type of the preference
      * @throws IllegalStateException    if the player has no preference data
      * @throws IllegalArgumentException if the value is of the incorrect type
      * @throws ClassCastException       if the value is of the incorrect type

@@ -72,6 +72,7 @@ public class PreferenceData {
      *
      * @param namespace The namespace of the preference
      * @param value     The new value
+     * @param <T>       The type of the preference
      */
     public <T> void set(TypedNamespace<T> namespace, T value) {
         preferences.put(namespace, new Preference<>(value));

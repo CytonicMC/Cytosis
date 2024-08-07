@@ -11,7 +11,22 @@ import net.minestom.server.utils.NamespaceID;
 
 import java.io.IOException;
 
+
+/**
+ * A type adapter for {@link TypedNamespace}, allow Gson to serialize and deserialize it easily.
+ */
 public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implements TypeAdapterFactory {
+
+    /**
+     * A default constructor
+     */
+    public TypedNamespaceAdapter() {
+        // do nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void write(JsonWriter out, TypedNamespace<?> value) throws IOException {
         if (value == null) {
@@ -32,6 +47,9 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
         out.endObject();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypedNamespace<?> read(JsonReader in) throws IOException {
         in.beginObject();
@@ -61,6 +79,9 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
         return new TypedNamespace<>(namespaceID, type);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         if (!TypedNamespace.class.isAssignableFrom(type.getRawType())) {

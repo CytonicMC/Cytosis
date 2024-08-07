@@ -43,6 +43,12 @@ public class ChatManager {
         return Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
     }
 
+    /**
+     * Sends a message out to redis.
+     * @param originalMessage The original content of the message
+     * @param channel The channel to send the message to
+     * @param player The player who sent the message
+     */
     public void sendMessage(String originalMessage, ChatChannel channel, Player player) {
         if (!originalMessage.contains("|:|")) {
             Component channelComponent = Component.empty();
