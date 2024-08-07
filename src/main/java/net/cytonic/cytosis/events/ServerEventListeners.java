@@ -9,7 +9,6 @@ import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.utils.MessageUtils;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.enums.KickReason;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
@@ -68,11 +67,6 @@ public final class ServerEventListeners {
             final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
-            Cytosis.getDatabaseManager().getMysqlDatabase().getChatChannel(player.getUuid()).whenComplete(((chatChannel, throwable) -> {
-                if (throwable != null) {
-                    Logger.error("An error occurred whilst getting a player's chat channel!", throwable);
-                } else Cytosis.getChatManager().setChannel(player.getUuid(), chatChannel);
-            }));
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
@@ -86,18 +80,11 @@ public final class ServerEventListeners {
             event.setCancelled(true);
             String originalMessage = event.getMessage();
             ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
-            switch (channel) {
-                case STAFF, MOD, ADMIN:
-                    if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}")) {
-                        sendMessage(originalMessage, channel, player);
-                    } else {
-                        player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
-                        Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
-                    }
-                    break;
-                case ALL:
-                    sendMessage(originalMessage, ChatChannel.ALL, player);
-                    break;
+            if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}") || channel == ChatChannel.ALL) {
+                Cytosis.getChatManager().sendMessage(originalMessage, channel, player);
+            } else {
+                player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
+                Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
             }
         }));
 
@@ -127,28 +114,5 @@ public final class ServerEventListeners {
             }
         }));
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> TPSCommand.getLastTick().set(event.getTickMonitor()))));
-    }
-
-    private static void sendMessage(String originalMessage, ChatChannel channel, Player player) {
-        if (!originalMessage.contains("|")) {
-            if (channel != ChatChannel.ALL) {
-                Component message = Component.text("")
-                        .append(channel.getPrefix())
-                        .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                        .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
-                        .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
-                        .appendSpace()
-                        .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
-                Cytosis.getChatManager().sendMessageToChannel(message, Cytosis.getChatManager().getChannel(player.getUuid()));
-            } else {
-                Component message = Component.text("")
-                        .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                        .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
-                        .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
-                        .appendSpace()
-                        .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
-                Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
-            }
-        } else player.sendMessage(MM."<red>Hey you cannot do that!");
     }
 }

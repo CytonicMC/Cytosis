@@ -5,7 +5,6 @@ import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.PosSerializer;
-import net.cytonic.enums.ChatChannel;
 import net.cytonic.enums.PlayerRank;
 import net.cytonic.objects.BanData;
 import net.hollowcube.polar.PolarReader;
@@ -114,7 +113,6 @@ public class MysqlDatabase {
         createBansTable();
         createPlayersTable();
         createWorldTable();
-        createChatChannelsTable();
         createPlayerJoinsTable();
         createAuditLogTable();
     }
@@ -136,10 +134,10 @@ public class MysqlDatabase {
             if (isConnected()) {
                 PreparedStatement ps;
                 try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicchat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Cy:", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
                 }
             }
         });
@@ -208,26 +206,6 @@ public class MysqlDatabase {
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
-                }
-            }
-        });
-    }
-
-    /**
-     * Creates the 'cytonic_chat_channels' table in the database if it doesn't exist.
-     * The table contains information about player's chat channels.
-     *
-     * @throws IllegalStateException if the database connection is not open.
-     */
-    private void createChatChannelsTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat_channels (uuid VARCHAR(36), chat_channel VARCHAR(16), PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_chat_channels` table.", e);
                 }
             }
         });
@@ -509,55 +487,6 @@ public class MysqlDatabase {
             } catch (SQLException e) {
                 Logger.error(STR."An error occurred whilst unbanning the player \{uuid}.", e);
                 future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Sets a player's chat channel
-     *
-     * @param uuid        the player
-     * @param chatChannel the chat channel to select
-     */
-    public void setChatChannel(UUID uuid, ChatChannel chatChannel) {
-        worker.submit(() -> {
-            if (!isConnected())
-                throw new IllegalStateException("The database must have an open connection to add a player's chat!");
-            PreparedStatement ps;
-            try {
-                ps = connection.prepareStatement("INSERT INTO cytonic_chat_channels (uuid, chat_channel) VALUES (?, ?) ON DUPLICATE KEY UPDATE chat_channel = VALUES(chat_channel)");
-                ps.setString(1, uuid.toString());
-                ps.setString(2, chatChannel.name());
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst setting a players chat channel.", e);
-            }
-        });
-    }
-
-    /**
-     * Gets a player's chat channel
-     *
-     * @param uuid the player
-     * @return a future that completes with the player's chat channel
-     */
-    public CompletableFuture<ChatChannel> getChatChannel(@NotNull final UUID uuid) {
-        CompletableFuture<ChatChannel> future = new CompletableFuture<>();
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to fetch a player's chat channel!");
-        worker.submit(() -> {
-            String channel = "ALL";
-            try {
-                PreparedStatement ps = connection.prepareStatement("SELECT chat_channel FROM cytonic_chat_channels WHERE uuid = ?");
-                ps.setString(1, uuid.toString());
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    channel = rs.getString("chat_channel");
-                }
-                future.complete(ChatChannel.valueOf(channel));
-            } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst fetching the chat channel of '\{uuid}'", e);
             }
         });
         return future;

@@ -1,12 +1,15 @@
 package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
+import net.minestom.server.utils.NamespaceID;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * This class handles chat messages and channels
@@ -20,56 +23,44 @@ public class ChatManager {
     public ChatManager() {
     }
 
-    private final Map<UUID, ChatChannel> channels = new HashMap<>();
-
-    /**
-     * Removes the players from the channel list
-     *
-     * @param uuid The player to remove
-     */
-    public void removeChannel(UUID uuid) {
-        channels.remove(uuid);
-    }
-
     /**
      * Sets a specified players chat channel
-     * @param uuid The player to set
+     *
+     * @param uuid    The player to set
      * @param channel The channel to set
      */
     public void setChannel(UUID uuid, ChatChannel channel) {
-        channels.put(uuid, channel);
-        Cytosis.getDatabaseManager().getMysqlDatabase().setChatChannel(uuid, channel);
+        Cytosis.getPreferenceManager().updatePlayerPreference(uuid, NamespaceID.from("cytosis:chat_channel"), channel);
     }
 
     /**
      * Gets the player's chat channel
-     * @param uuid The player to
-     * @return the player's curretly selected chat channel
+     *
+     * @param uuid The player's uuid
+     * @return the player's currently selected chat channel
      */
     public ChatChannel getChannel(UUID uuid) {
-        return channels.getOrDefault(uuid, ChatChannel.ALL);
+        return Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
     }
 
-    /**
-     * Sends a message to the specified chat channel
-     * @param component The message
-     * @param chatChannel The channel to send the message to
-     */
-    public void sendMessageToChannel(Component component, ChatChannel chatChannel) {
-        switch (chatChannel) {
-            case ADMIN, MOD, STAFF -> // send a message to all servers
-                    Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(component, chatChannel);
-            case PARTY -> {
-                //todo parties..
+    public void sendMessage(String originalMessage, ChatChannel channel, Player player) {
+        if (!originalMessage.contains("|:|")) {
+            Component channelComponent = Component.empty();
+            if (channel != ChatChannel.ALL) {
+                channelComponent = channel.getPrefix();
             }
-            case LEAGUE -> {
-                //todo leagues..
+            Component message = Component.text("")
+                    .append(channelComponent)
+                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
+                    .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
+                    .appendSpace()
+                    .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
+            if (channel == ChatChannel.ALL) {
+                Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
+            } else {
+                Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(message, channel);
             }
-            case PRIVATE_MESSAGE -> {
-                //todo private messages
-            }
-            case ALL -> throw new UnsupportedOperationException(STR."Unimplemented case: \{chatChannel}");
-            default -> throw new IllegalArgumentException(STR."Unexpected value: \{chatChannel}");
-        }
+        } else player.sendMessage(MM."<red>Hey you cannot do that!");
     }
 }
