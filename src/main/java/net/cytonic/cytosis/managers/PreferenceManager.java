@@ -1,9 +1,13 @@
 package net.cytonic.cytosis.managers;
 
+import net.cytonic.cytosis.data.enums.CytosisNamespaces;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.data.objects.PreferenceData;
+import net.cytonic.cytosis.data.objects.PreferenceRegistry;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.objects.NamespacedPreference;
+import net.cytonic.objects.Preference;
+import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
 
 import java.sql.SQLException;
@@ -25,18 +29,20 @@ public class PreferenceManager {
      * The registry of preferences currently registered. The held value of the {@link NamespacedPreference} is
      * the default value passed if none is found in the player's preferences
      */
-    public static final Map<NamespaceID, NamespacedPreference<?>> PREFERENCE_REGISTRY = new ConcurrentHashMap<>();
+    public static final PreferenceRegistry PREFERENCE_REGISTRY = new PreferenceRegistry();
     private final Map<UUID, PreferenceData> preferenceData = new ConcurrentHashMap<>();
 
     /**
      * Default constructor
      */
     public PreferenceManager() {
-        PREFERENCE_REGISTRY.put(NamespaceID.from("cytosis:accept_friend_request"), CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
-        PREFERENCE_REGISTRY.put(NamespaceID.from("cytosis:server_alerts"), CytosisPreferences.SERVER_ALERTS);
-        PREFERENCE_REGISTRY.put(NamespaceID.from("cytosis:chat_channel"), CytosisPreferences.CHAT_CHANNEL);
-        PREFERENCE_REGISTRY.put(NamespaceID.from("cytosis:vanished"),CytosisPreferences.VANISHED);
-        UPDATE."CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36), preferences TEXT)".whenComplete((_, throwable) -> {
+
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.ACCEPT_FRIEND_REQUESTS, CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_CHANNEL, CytosisPreferences.CHAT_CHANNEL);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.VANISHED, CytosisPreferences.VANISHED);
+
+        UPDATE."CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)".whenComplete((_, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst creating the preferences table!", throwable);
         });
     }
@@ -92,8 +98,8 @@ public class PreferenceManager {
      * @throws IllegalStateException    if the player has no preference data
      * @throws IllegalArgumentException if the value is of the incorrect type
      */
-    public void updatePlayerPreference(UUID uuid, NamespaceID namespaceID, Object value) {
-        NamespacedPreference<?> preference = PREFERENCE_REGISTRY.get(namespaceID);
+    public <T> void updatePlayerPreference(UUID uuid, TypedNamespace<T> namespaceID, T value) {
+        Preference<T> preference = PREFERENCE_REGISTRY.get(namespaceID).value();
         if (!preferenceData.containsKey(uuid)) {
             PreferenceData data = new PreferenceData(new ConcurrentHashMap<>());
             data.set(namespaceID, value);
@@ -114,18 +120,20 @@ public class PreferenceManager {
     }
 
     /**
-     * Gets the preference of a player
+     * Update a player's preference data
      *
-     * @param uuid        The player
-     * @param namespaceID the namespace
-     * @param <T>         the type of the preference
-     * @return the player's preference
+     * @param uuid       the player to update
+     * @param preference the namespace
+     * @param value      the value to set
+     * @throws IllegalStateException    if the player has no preference data
+     * @throws IllegalArgumentException if the value is of the incorrect type
+     * @throws ClassCastException       if the value is of the incorrect type
      */
-    public <T> T getPlayerPreference(UUID uuid, NamespaceID namespaceID) {
-        if (!PREFERENCE_REGISTRY.containsKey(namespaceID))
-            throw new IllegalArgumentException(STR."The preference \{namespaceID} does not exist!");
-        if (!preferenceData.containsKey(uuid)) return (T) PREFERENCE_REGISTRY.get(namespaceID).value();
-        return preferenceData.get(uuid).get(namespaceID);
+    public <T> void updatePlayerPreference_UNSAFE(UUID uuid, NamespaceID preference, T value) {
+        TypedNamespace<?> typed = CytosisNamespaces.ALL.stream().filter(t -> t.namespaceID().equals(preference)).findFirst().orElse(null);
+        if (typed == null) throw new IllegalArgumentException(STR."The preference \{preference} does not exist!");
+        if (typed.type() != value.getClass()) throw new IllegalArgumentException(STR."Cannot set a preference \{preference.asString()} of type \{value.getClass().getSimpleName()} with a preference of type \{typed.type().getSimpleName()}");
+        updatePlayerPreference(uuid, (TypedNamespace<T>) typed, value);
     }
 
     /**
@@ -136,11 +144,40 @@ public class PreferenceManager {
      * @param <T>         the type of the preference
      * @return the player's preference
      */
-    public <T> T getPlayerPreference(UUID uuid, NamespacedPreference<T> namespaceID) {
-        if (!PREFERENCE_REGISTRY.containsKey(namespaceID.namespaceID()))
-            throw new IllegalArgumentException(STR."The preference \{namespaceID.namespaceID()} does not exist!");
-        if (!preferenceData.containsKey(uuid)) return (T) PREFERENCE_REGISTRY.get(namespaceID.namespaceID()).value();
-        return preferenceData.get(uuid).get(namespaceID.namespaceID());
+    public <T> T getPlayerPreference_UNSAFE(UUID uuid, NamespaceID namespaceID) {
+        TypedNamespace<?> typed = CytosisNamespaces.ALL.stream().filter(t -> t.namespaceID().equals(namespaceID)).findFirst().orElse(null);
+        if (typed == null) throw new IllegalArgumentException(STR."The preference \{namespaceID} does not exist!");
+        return getPlayerPreference(uuid, (TypedNamespace<T>) typed);
+    }
+
+    /**
+     * Gets the preference of a player
+     *
+     * @param uuid        The player
+     * @param namespaceID the namespace
+     * @param <T>         the type of the preference
+     * @return the player's preference
+     */
+    public <T> T getPlayerPreference(UUID uuid, TypedNamespace<T> namespaceID) {
+        if (!PREFERENCE_REGISTRY.contains(namespaceID))
+            throw new IllegalArgumentException(STR."The preference \{namespaceID} does not exist!");
+        if (!preferenceData.containsKey(uuid)) return PREFERENCE_REGISTRY.get(namespaceID).value().value();
+        return preferenceData.get(uuid).get(namespaceID);
+    }
+
+    /**
+     * Gets the preference of a player
+     *
+     * @param uuid       The player
+     * @param preference the namespace
+     * @param <T>        the type of the preference
+     * @return the player's preference
+     */
+    public <T> T getPlayerPreference(UUID uuid, NamespacedPreference<T> preference) {
+        if (!PREFERENCE_REGISTRY.contains(preference.namespaceID()))
+            throw new IllegalArgumentException(STR."The preference \{preference.namespaceID()} does not exist!");
+        if (!preferenceData.containsKey(uuid)) return PREFERENCE_REGISTRY.get(preference.namespaceID()).value().value();
+        return preferenceData.get(uuid).get(preference);
     }
 
     /**
@@ -148,7 +185,7 @@ public class PreferenceManager {
      *
      * @return the registry of preferences, keyed by namespace
      */
-    public Map<NamespaceID, NamespacedPreference<?>> getPreferenceRegistry() {
+    public PreferenceRegistry getPreferenceRegistry() {
         return PREFERENCE_REGISTRY;
     }
 }
