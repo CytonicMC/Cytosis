@@ -7,6 +7,7 @@ import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -18,6 +19,7 @@ import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.TypedNamespace;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -53,7 +55,13 @@ public final class Cytosis {
     /**
      * The instance of Gson for serializing and deserializing objects
      */
-    public static final Gson GSON = new GsonBuilder().enableComplexMapKeySerialization().setStrictness(Strictness.LENIENT).create();
+    public static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
+            .registerTypeAdapterFactory(new TypedNamespaceAdapter())
+            .enableComplexMapKeySerialization()
+            .setStrictness(Strictness.LENIENT)
+            .serializeNulls()
+            .create();
 
     /**
      * The version of Cytosis
