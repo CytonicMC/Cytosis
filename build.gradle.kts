@@ -34,7 +34,7 @@ dependencies {
     api("com.google.guava:guava:33.2.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("io.kubernetes:client-java:21.0.1")
-    implementation("org.slf4j:slf4j-api:2.0.13")  // SLF4J API
+    implementation("org.slf4j:slf4j-api:2.0.14")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.23.1")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
 }
