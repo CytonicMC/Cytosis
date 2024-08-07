@@ -50,8 +50,8 @@ public final class ServerEventListeners {
 
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
+            final Player player = event.getPlayer();
             Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(event.getPlayer().getUuid()).whenComplete((data, throwable) -> {
-                final Player player = event.getPlayer();
                 if (throwable != null) {
                     Logger.error("An error occurred whilst checking if the player is banned!", throwable);
                     player.kick(MM."<red>An error occurred whilst initiating the login sequence!");
@@ -66,17 +66,17 @@ public final class ServerEventListeners {
                 Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
                 Cytosis.getRankManager().addPlayer(player);
             });
-            final Player player = event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
+            if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+                VanishCommand.enableVanish(player);
+            }
         })));
-        if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-            VanishCommand.enableVanish(player);
-        }
+
         Logger.info("Registering player chat event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-chat", false, 1, PlayerChatEvent.class, event -> {
             final Player player = event.getPlayer();
