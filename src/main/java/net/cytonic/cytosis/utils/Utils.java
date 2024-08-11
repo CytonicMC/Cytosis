@@ -3,7 +3,7 @@ package net.cytonic.cytosis.utils;
 import com.google.common.reflect.TypeToken;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.objects.Preference;
-import net.minestom.server.utils.NamespaceID;
+import net.cytonic.objects.TypedNamespace;
 
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -23,6 +23,14 @@ public final class Utils {
      * A decimal format rounding to two decimal places
      */
     public static final DecimalFormat TWO_PLACES = new DecimalFormat("0.00");
+    /**
+     * A type token for a list of UUIDs
+     */
+    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {}.getType();
+    /**
+     * A type token for a map of namespaced preferences keyed by NamespaceID
+     */
+    public final static Type PREFERENCE_MAP = new TypeToken<Map<TypedNamespace<?>, Preference<?>>>() {}.getType();
 
     /**
      * Default constructor
@@ -35,7 +43,7 @@ public final class Utils {
      * Creates a MUTABLE list from a vararg, for immutable lists, use {@link List#of(Object...)}
      *
      * @param vararg The elements to be added to the list
-     * @param <E> The type of the list
+     * @param <E>    The type of the list
      * @return The elements as a List object
      */
     @SafeVarargs
@@ -58,16 +66,4 @@ public final class Utils {
         }
         return serverIP;
     }
-
-    /**
-     * A type token for a list of UUIDs
-     */
-    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
-    }.getType();
-
-    /**
-     * A type token for a map of namespaced preferences keyed by NamespaceID
-     */
-    public final static Type PREFERENCE_MAP = new TypeToken<Map<NamespaceID, Preference<?>>>() {
-    }.getType();
 }

@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.CytosisNamespaces;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
-import net.minestom.server.utils.NamespaceID;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -28,12 +28,12 @@ public class VanishCommand extends Command {
             }
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 player.sendMessage(MM."<RED>Vanish is now disabled!");
-                Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:vanished"), false);
+                Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.VANISHED, false);
                 Cytosis.getVanishManager().disableVanish(player);
                 return;
             }
             player.sendMessage(MM."<GREEN>Vanish is now enabled!");
-            Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), NamespaceID.from("cytosis:vanished"), true);
+            Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.VANISHED, true);
             Cytosis.getVanishManager().enableVanish(player);
         });
     }
