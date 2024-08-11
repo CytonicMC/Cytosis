@@ -23,7 +23,7 @@ public class ChatChannelCommand extends Command {
         super("chat");
         setDefaultExecutor((sender, _) -> sender.sendMessage(Component.text("You must specify a channel!", NamedTextColor.RED)));
 
-        var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "party", "league", "private_message", "m", "ad", "s", "a", "p", "l");
+        var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "m", "ad", "s", "a");
         chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
         chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender.hasPermission("cytonic.chat.mod")) {
@@ -40,11 +40,6 @@ public class ChatChannelCommand extends Command {
             }
             suggestion.addEntry(new SuggestionEntry("all"));
             suggestion.addEntry(new SuggestionEntry("a"));
-            suggestion.addEntry(new SuggestionEntry("party"));
-            suggestion.addEntry(new SuggestionEntry("p"));
-            suggestion.addEntry(new SuggestionEntry("league"));
-            suggestion.addEntry(new SuggestionEntry("l"));
-            suggestion.addEntry(new SuggestionEntry("private_message"));
         });
 
         addSyntax((sender, context) -> {
@@ -54,9 +49,6 @@ public class ChatChannelCommand extends Command {
                     case "admin", "ad" -> ChatChannel.ADMIN;
                     case "mod", "m" -> ChatChannel.MOD;
                     case "staff", "s" -> ChatChannel.STAFF;
-                    case "party", "p" -> ChatChannel.PARTY;
-                    case "league", "l" -> ChatChannel.LEAGUE;
-                    case "private_message" -> ChatChannel.PRIVATE_MESSAGE;
                     default -> throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
                 };
                 if (!chatChannel.equals(Cytosis.getChatManager().getChannel(player.getUuid()))) {
@@ -76,14 +68,9 @@ public class ChatChannelCommand extends Command {
             }
             return;
         }
-        switch (channel) {
-            case ALL -> {
-                Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
-                player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("ALL", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
-            }
-            case PARTY -> player.sendMessage("party");
-            case LEAGUE -> player.sendMessage("league");
-            case PRIVATE_MESSAGE -> player.sendMessage("private message");
+        if (channel == ChatChannel.ALL) {
+            Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
+            player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN).append(Component.text("ALL", NamedTextColor.GOLD)).append(Component.text(" channel.", NamedTextColor.GREEN)));
         }
     }
 }
