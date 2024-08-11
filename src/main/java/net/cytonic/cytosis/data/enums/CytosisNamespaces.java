@@ -24,7 +24,7 @@ public class CytosisNamespaces {
     public static final TypedNamespace<Boolean> ACCEPT_FRIEND_REQUESTS = new TypedNamespace<>(NamespaceID.from("cytosis", "accept_friend_request"), Boolean.class); // <Boolean>
 
     /**
-     * If the player should recieve server alerts
+     * If the player should receive server alerts
      */
     public static final TypedNamespace<Boolean> SERVER_ALERTS = new TypedNamespace<>(NamespaceID.from("cytosis", "server_alerts"), Boolean.class); // <Boolean>
 
@@ -39,7 +39,7 @@ public class CytosisNamespaces {
     public static final TypedNamespace<Boolean> VANISHED = new TypedNamespace<>(NamespaceID.from("cytosis", "vanished"), Boolean.class); // <Boolean>
 
     /**
-     * A convienient set of all the namespaces
+     * A convenient set of all the namespaces
      */
     public static final Set<TypedNamespace<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED);
 }
