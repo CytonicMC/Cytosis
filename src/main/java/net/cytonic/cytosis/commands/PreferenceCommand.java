@@ -5,12 +5,15 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.objects.Preference;
+import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.NamespaceID;
+
+import java.util.UUID;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -36,7 +39,7 @@ public class PreferenceCommand extends Command {
             }
         });
 
-        var valueArg = ArgumentType.StringArray("value").setDefaultValue(new String[]{""});
+        var valueArg = ArgumentType.StringArray("preference").setDefaultValue(new String[]{""});
 
         addSyntax(((sender, context) -> {
             if (!(sender instanceof Player player)) {
@@ -50,11 +53,17 @@ public class PreferenceCommand extends Command {
                 sender.sendMessage(MM."<red>Preference node <yellow>\{node.asString()}</yellow> does not exist!");
                 return;
             }
-            Class<?> type = preference.value().getClass();
-            player.sendMessage(type.getSimpleName());
+
             if (context.get(opperationArg) == Operation.SET) {
+                TypedNamespace<?> typedNamespace = Cytosis.getPreferenceManager().getPreferenceRegistry().typedNamespaces().stream().filter(ns -> ns.namespaceID().equals(node)).findFirst().orElseThrow();
+                Class<?> type = typedNamespace.type();
                 String raw = context.get(valueArg)[0];
                 Object value = null;
+                if (raw.equalsIgnoreCase("null")) {
+                    manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, null);
+                    player.sendMessage(MM."<#db0d74><b>NULLIFIED!</b></#db0d74> <gray>Successfully set preference node <yellow>\{node.asString()}</yellow> to null.");
+                    return;
+                }
                 if (type.isEnum()) {
                     player.sendMessage(STR."<gray>Value: <yellow>\{raw}</yellow>");
                     try {
@@ -70,6 +79,8 @@ public class PreferenceCommand extends Command {
                     value = Integer.parseInt(raw);
                 } else if (type == Boolean.class) {
                     value = Boolean.parseBoolean(raw);
+                } else if (type == UUID.class) {
+                    value = UUID.fromString(raw);
                 } else {
                     sender.sendMessage(MM."<red>The value <yellow>\{context.get(valueArg)[0]}</yellow> is not a valid value for preference node <yellow>\{node.asString()}</yellow>!");
                     return;
@@ -77,7 +88,7 @@ public class PreferenceCommand extends Command {
                 manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
                 player.sendMessage(MM."<green>Successfully updated preference node <yellow>\{node.asString()}</yellow> to '<light_purple>\{value}</light_purple>'");
             } else if (context.get(opperationArg).equals(Operation.GET)) {
-                sender.sendMessage(MM."<gray>The value of preference node <yellow>\{node.asString()}</yellow> is '<light_purple>\{manager.getPlayerPreference_UNSAFE(player.getUuid(), node)}</light_purple>'");
+                sender.sendMessage(MM."<gray>The value of preference node <yellow>\{node.asString()}</yellow> is '<light_purple>\{preference.value()}</light_purple>'");
             }
         }), opperationArg, nodeArg, valueArg);
     }
