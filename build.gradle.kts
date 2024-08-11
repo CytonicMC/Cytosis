@@ -18,8 +18,8 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.3.0")
-    api("net.cytonic:CytosisPluginProcessor:1.0-SNAPSHOT")
+    api("net.cytonic:Commons:1.4.0")
+    api("net.cytonic:CytosisPluginProcessor:1.0")
     api("net.minestom:minestom-snapshots:461c56e749")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
@@ -34,7 +34,7 @@ dependencies {
     api("com.google.guava:guava:33.2.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("io.kubernetes:client-java:21.0.1")
-    implementation("org.slf4j:slf4j-api:2.0.13")  // SLF4J API
+    implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.23.1")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
 }

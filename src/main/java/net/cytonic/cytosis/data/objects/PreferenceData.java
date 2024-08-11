@@ -5,7 +5,7 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.NamespacedPreference;
 import net.cytonic.objects.Preference;
-import net.minestom.server.utils.NamespaceID;
+import net.cytonic.objects.TypedNamespace;
 
 import java.util.Map;
 
@@ -13,15 +13,26 @@ import java.util.Map;
  * A class holding a user's preference data.
  */
 public class PreferenceData {
-    private final Map<NamespaceID, Preference<?>> preferences;
+    private final Map<TypedNamespace<?>, Preference<?>> preferences;
 
     /**
      * Creates a new PreferenceData object with the specified preferences
      *
      * @param preferences the preferences
      */
-    public PreferenceData(Map<NamespaceID, Preference<?>> preferences) {
+    public PreferenceData(Map<TypedNamespace<?>, Preference<?>> preferences) {
         this.preferences = preferences;
+    }
+
+    /**
+     * Deserializes the string into a {@link PreferenceData} object. Effectivley the same as {@link #loadData(String)}, but this creates a new object
+     *
+     * @param data The serialized json data
+     * @return a new {@link PreferenceData} object with the specified data
+     */
+    public static PreferenceData deserialize(String data) {
+        Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP); // <NamespaceID, Preference>
+        return new PreferenceData(preferences);
     }
 
     /**
@@ -32,7 +43,7 @@ public class PreferenceData {
      * @return The preference. Null if it does not exist
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(NamespaceID namespaceID) {
+    public <T> T get(TypedNamespace<T> namespaceID) {
         if (preferences.containsKey(namespaceID)) {
             return (T) preferences.get(namespaceID).value();
         } else {
@@ -61,8 +72,9 @@ public class PreferenceData {
      *
      * @param namespace The namespace of the preference
      * @param value     The new value
+     * @param <T>       The type of the preference
      */
-    public void set(NamespaceID namespace, Object value) {
+    public <T> void set(TypedNamespace<T> namespace, T value) {
         preferences.put(namespace, new Preference<>(value));
     }
 
@@ -82,16 +94,5 @@ public class PreferenceData {
      */
     public String serialize() {
         return Cytosis.GSON.toJson(preferences, Utils.PREFERENCE_MAP);
-    }
-
-    /**
-     * Deserializes the string into a {@link PreferenceData} object. Effectivley the same as {@link #loadData(String)}, but this creates a new object
-     *
-     * @param data The serialized json data
-     * @return a new {@link PreferenceData} object with the specified data
-     */
-    public static PreferenceData deserialize(String data) {
-        Map<NamespaceID, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP); // <NamespaceID, Preference>
-        return new PreferenceData(preferences);
     }
 }
