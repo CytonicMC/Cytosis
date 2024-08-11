@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data.enums;
 
+import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.NamespacedPreference;
 
 import java.util.Set;

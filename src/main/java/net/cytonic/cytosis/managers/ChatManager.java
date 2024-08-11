@@ -40,7 +40,7 @@ public class ChatManager {
      * @return the player's currently selected chat channel
      */
     public ChatChannel getChannel(UUID uuid) {
-        return ChatChannel.valueOf(Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL));
+        return Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
     }
 
     /**
