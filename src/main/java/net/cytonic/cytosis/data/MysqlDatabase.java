@@ -609,6 +609,42 @@ public class MysqlDatabase {
         return future;
     }
 
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return connection.prepareStatement(sql);
+    }
+
+    public CompletableFuture<ResultSet> query(PreparedStatement preparedStatement) {
+        CompletableFuture<ResultSet> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                future.complete(preparedStatement.executeQuery());
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Updates the database with the specified SQL
+     *
+     * @param sql The SQL update
+     * @return A {@link CompletableFuture} for when the update is completed
+     */
+    CompletableFuture<Void> update(PreparedStatement sql) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                sql.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst updating the database!", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
     /**
      * Updates the database with the specified SQL
      *
