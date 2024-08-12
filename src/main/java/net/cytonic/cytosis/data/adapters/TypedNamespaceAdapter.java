@@ -84,9 +84,9 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
      */
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        if (!TypedNamespace.class.isAssignableFrom(type.getRawType())) {
-            return null; // This factory does not handle this type
+        if (TypedNamespace.class.isAssignableFrom(type.getRawType())) {
+            return (TypeAdapter<T>) gson.getDelegateAdapter(this, TypeToken.get(TypedNamespace.class));
         }
-        return (TypeAdapter<T>) gson.getDelegateAdapter(this, TypeToken.get(TypedNamespace.class));
+        return null;
     }
 }

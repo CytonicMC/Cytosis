@@ -42,12 +42,11 @@ public class PreferenceData {
      * @param <T>         The type of the preference
      * @return The preference. Null if it does not exist
      */
-    @SuppressWarnings("unchecked")
     public <T> T get(TypedNamespace<T> namespaceID) {
         if (preferences.containsKey(namespaceID)) {
             return (T) preferences.get(namespaceID).value();
         } else {
-            return (T) PreferenceManager.PREFERENCE_REGISTRY.get(namespaceID).value();
+            return PreferenceManager.PREFERENCE_REGISTRY.get(namespaceID).preference().value();
         }
     }
 

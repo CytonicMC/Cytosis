@@ -7,6 +7,7 @@ import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
@@ -19,6 +20,7 @@ import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.Preference;
 import net.cytonic.objects.TypedNamespace;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
@@ -57,7 +59,9 @@ public final class Cytosis {
      */
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
+            .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
             .registerTypeAdapterFactory(new TypedNamespaceAdapter())
+            .registerTypeAdapterFactory(new PreferenceAdapter<>())
             .enableComplexMapKeySerialization()
             .setStrictness(Strictness.LENIENT)
             .serializeNulls()
@@ -187,9 +191,8 @@ public final class Cytosis {
      * @return a set of players
      */
     public static Set<Player> getOnlinePlayers() {
-        Set<Player> players = new HashSet<>();
-        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
-        return players;
+        //        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
+        return new HashSet<>(MinecraftServer.getConnectionManager().getOnlinePlayers());
     }
 
     /**
@@ -199,10 +202,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<Player> getPlayer(String username) {
-        Player target = null;
-        for (Player onlinePlayer : getOnlinePlayers())
-            if (onlinePlayer.getUsername().equals(username)) target = onlinePlayer;
-        return Optional.ofNullable(target);
+        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
     /**
@@ -212,11 +212,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<Player> getPlayer(UUID uuid) {
-        Player target = null;
-        for (Player onlinePlayer : getOnlinePlayers()) {
-            if (onlinePlayer.getUuid() == uuid) target = onlinePlayer;
-        }
-        return Optional.ofNullable(target);
+        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
     /**
