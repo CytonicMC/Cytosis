@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * A type adapter for {@link Preference<>}, allow Gson to serialize and deserialize it easily.
+ * A type adapter for {@link Preference}, allow Gson to serialize and deserialize it easily.
+ * @param <T> The type of the preference
  */
 public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements TypeAdapterFactory {
     /**
@@ -46,6 +47,8 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
             out.value(uuid.toString());
         } else if (val instanceof Enum<?> constant) {
             out.value(constant.name());
+        } else if (val == null) {
+            out.nullValue();
         }
 
         // Serialize Class<T>
