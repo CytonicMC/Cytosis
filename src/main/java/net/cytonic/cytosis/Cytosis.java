@@ -55,7 +55,7 @@ public final class Cytosis {
     public static final String SERVER_ID = generateID();
 
     /**
-     * The instance of Gson for serializing and deserializing objects
+     * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
      */
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
