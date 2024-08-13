@@ -13,6 +13,7 @@ import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,6 +62,10 @@ public class RedisDatabase {
      * Broadcast channel
      */
     public static final String BROADCAST_CHANNEL = "broadcast";
+    /**
+     * Player message channel
+     */
+    public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
 
     // friend requests
     /**
@@ -107,6 +112,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
+        worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
     }
 
     /**
@@ -157,6 +163,11 @@ public class RedisDatabase {
     public void sendBroadcast(Component broadcast) {
         String message = JSONComponentSerializer.json().serialize(broadcast);
         jedisPub.publish(BROADCAST_CHANNEL, message);
+    }
+
+    public void sendPlayerMessage(Component message, UUID target) {
+        // formatting: <MESSAGE>|:|<TARGET_UUID>
+        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, STR."\{JSONComponentSerializer.json().serialize(message)}|:|\{target.toString()}");
     }
 
     /**
