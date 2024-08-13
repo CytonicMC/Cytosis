@@ -46,6 +46,8 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
             out.value(uuid.toString());
         } else if (val instanceof Enum<?> constant) {
             out.value(constant.name());
+        } else if (val == null) {
+            out.nullValue();
         }
 
         // Serialize Class<T>
