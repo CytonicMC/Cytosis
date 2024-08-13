@@ -69,7 +69,6 @@ public class PreferenceCommand extends Command {
                     try {
                         value = Enum.valueOf((Class<Enum>) type, raw);
                     } catch (Exception e) {
-                        Logger.debug("", e);
                         sender.sendMessage(MM."<red>The value <yellow>\{context.get(valueArg)[0]}</yellow> is not a valid enum value!");
                         return;
                     }
@@ -88,7 +87,8 @@ public class PreferenceCommand extends Command {
                 manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
                 player.sendMessage(MM."<green>Successfully updated preference node <yellow>\{node.asString()}</yellow> to '<light_purple>\{value}</light_purple>'");
             } else if (context.get(opperationArg).equals(Operation.GET)) {
-                sender.sendMessage(MM."<gray>The value of preference node <yellow>\{node.asString()}</yellow> is '<light_purple>\{preference.value()}</light_purple>'");
+                Object pref = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
+                sender.sendMessage(MM."<gray>The value of preference node <yellow>\{node.asString()}</yellow> is '<light_purple>\{pref}</light_purple>'");
             }
         }), opperationArg, nodeArg, valueArg);
     }

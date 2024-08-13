@@ -30,7 +30,7 @@ public final class Utils {
     /**
      * A type token for a map of namespaced preferences keyed by NamespaceID
      */
-    public final static Type PREFERENCE_MAP = new TypeToken<Map<TypedNamespace<?>, Preference<?>>>() {}.getType();
+    public final static TypeToken<Map<TypedNamespace<?>, Preference<?>>> PREFERENCE_MAP = new TypeToken<>() {};
 
     /**
      * Default constructor

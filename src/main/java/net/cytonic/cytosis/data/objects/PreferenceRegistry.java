@@ -50,16 +50,16 @@ public class PreferenceRegistry {
      * @param value     a namespaced preference
      * @param <T>       the type of the preference
      */
-    public <T> void write(TypedNamespace<T> namespace, @Nullable NamespacedPreference<T> value) {
+    public <T> void write(TypedNamespace<T> namespace, @NotNull NamespacedPreference<T> value) {
         if (value.value() == null) {
-            write(namespace, new Preference<>(null));
+            write(namespace, new Preference<>(namespace.type(), null));
             return;
         }
         if (!namespace.namespaceID().equals(value.namespaceID().namespaceID()))
             throw new IllegalArgumentException(STR."The preference namespace must be \{namespace.namespaceID()}");
         if (!namespace.type().equals(value.value().getClass()))
             throw new IllegalArgumentException(STR."The preference value must be of type \{namespace.type().getSimpleName()}");
-        write(namespace, new Preference<>(value.value()));
+        write(namespace, new Preference<>(namespace.type(), value.value()));
     }
 
     /**
