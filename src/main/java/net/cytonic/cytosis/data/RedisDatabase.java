@@ -5,7 +5,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.enums.ChatChannel;
+import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -143,13 +143,10 @@ public class RedisDatabase {
     /**
      * Sends a chat message to all servers
      *
-     * @param chatMessage the chat message
-     * @param chatChannel the chat channel
+     * @param message the serialized message
      */
-    public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
-        //formatting: {chat-message}|:|{chat-channel}
-        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|:|\{chatChannel.name()}";
-        jedisPub.publish(CHAT_MESSAGES_CHANNEL, message);
+    public void sendChatMessage(ChatMessage message) {
+        jedisPub.publish(CHAT_MESSAGES_CHANNEL, message.toJson());
     }
 
     /**
