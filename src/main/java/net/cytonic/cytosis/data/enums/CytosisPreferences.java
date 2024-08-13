@@ -22,6 +22,17 @@ public class CytosisPreferences {
      */
     public static final NamespacedPreference<ChatChannel> CHAT_CHANNEL = new NamespacedPreference<>(CytosisNamespaces.CHAT_CHANNEL, ChatChannel.ALL);
     /**
+     * A preference to store the players ignored chat channels, type of JsonObject
+     */
+    public static final NamespacedPreference<String> IGNORED_CHAT_CHANNELS = new NamespacedPreference<>(CytosisNamespaces.IGNORED_CHAT_CHANNELS, """
+            {
+              "ALL": false,
+              "MOD": false,
+              "ADMIN": false,
+              "STAFF": false
+            }
+            """);
+    /**
      * A preference if the player is vanished, type of BOOLEAN
      */
     public static final NamespacedPreference<Boolean> VANISHED = new NamespacedPreference<>(CytosisNamespaces.VANISHED, false);
@@ -29,7 +40,7 @@ public class CytosisPreferences {
     /**
      * A set of all the preferences that are available here.
      */
-    public static final Set<NamespacedPreference<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED);
+    public static final Set<NamespacedPreference<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED, IGNORED_CHAT_CHANNELS);
 
     /**
      * A private constructor to prevent instantiation

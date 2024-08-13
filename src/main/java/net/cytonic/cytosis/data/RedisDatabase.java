@@ -5,7 +5,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.enums.ChatChannel;
+import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -56,7 +56,7 @@ public class RedisDatabase {
     /**
      * Chat channels channel
      */
-    public static final String CHAT_CHANNELS_CHANNEL = "chat-channels";
+    public static final String CHAT_MESSAGES_CHANNEL = "chat-messages";
     /**
      * Broadcast channel
      */
@@ -72,7 +72,7 @@ public class RedisDatabase {
      */
     public static final String FRIEND_REQUEST_EXPIRED = "friend-request-expired";
     /**
-     * Publushed when a friend request is declined
+     * Published when a friend request is declined
      */
     public static final String FRIEND_REQUEST_DECLINED = "friend-request-declined";
     /**
@@ -88,7 +88,7 @@ public class RedisDatabase {
     private final JedisPooled jedisPub;
     private final JedisPooled jedisSub;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
-            .uncaughtExceptionHandler((throwable, runnable) -> Logger.error("An error occured on the CytosisRedisWorker", throwable)).factory());
+            .uncaughtExceptionHandler((throwable, runnable) -> Logger.error("An error occurred on the CytosisRedisWorker", throwable)).factory());
 
     /**
      * Initializes the connection to redis using the loaded settings and the Jedis client
@@ -104,7 +104,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new ChatChannels(), CHAT_CHANNELS_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
     }
@@ -143,13 +143,10 @@ public class RedisDatabase {
     /**
      * Sends a chat message to all servers
      *
-     * @param chatMessage the chat message
-     * @param chatChannel the chat channel
+     * @param message the serialized message
      */
-    public void sendChatMessage(Component chatMessage, ChatChannel chatChannel) {
-        //formatting: {chat-message}|:|{chat-channel}
-        String message = STR."\{JSONComponentSerializer.json().serialize(chatMessage)}|:|\{chatChannel.name()}";
-        jedisPub.publish(CHAT_CHANNELS_CHANNEL, message);
+    public void sendChatMessage(ChatMessage message) {
+        jedisPub.publish(CHAT_MESSAGES_CHANNEL, message.toJson());
     }
 
     /**

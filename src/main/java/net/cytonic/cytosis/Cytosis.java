@@ -288,6 +288,9 @@ public final class Cytosis {
             Logger.info("Initializing server events");
             ServerEventListeners.initServerEvents();
 
+            Logger.info("Loading vanish manager!");
+            vanishManager = new VanishManager();
+
             MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
                 messagingManager.shutdown();
                 databaseManager.shutdown();
