@@ -34,6 +34,11 @@ public class CytosisNamespaces {
     public static final TypedNamespace<ChatChannel> CHAT_CHANNEL = new TypedNamespace<>(NamespaceID.from("cytosis", "chat_channel"), ChatChannel.class); // <ChatChannel>
 
     /**
+     * A preference to store the players ignored chat channels
+     */
+    public static final TypedNamespace<String> IGNORED_CHAT_CHANNELS = new TypedNamespace<>(NamespaceID.from("cytosis", "ignored_chat_channels"), String.class); // <String>
+
+    /**
      * If the user should be vanished
      */
     public static final TypedNamespace<Boolean> VANISHED = new TypedNamespace<>(NamespaceID.from("cytosis", "vanished"), Boolean.class); // <Boolean>
@@ -41,5 +46,5 @@ public class CytosisNamespaces {
     /**
      * A convenient set of all the namespaces
      */
-    public static final Set<TypedNamespace<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED);
+    public static final Set<TypedNamespace<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED, IGNORED_CHAT_CHANNELS);
 }

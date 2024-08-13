@@ -1,7 +1,9 @@
 package net.cytonic.cytosis.messaging.pubsub;
 
+import com.google.gson.JsonObject;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.sound.Sound;
@@ -34,7 +36,7 @@ public class ChatMessages extends JedisPubSub {
         ChatChannel chatChannel = chatMessage.channel();
         if (chatChannel == ChatChannel.ADMIN || chatChannel == ChatChannel.MOD || chatChannel == ChatChannel.STAFF) {
             Cytosis.getOnlinePlayers().forEach(player -> {
-                if (player.hasPermission(chatChannel.name().toLowerCase())) {
+                if (player.hasPermission(chatChannel.name().toLowerCase()) && !Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(chatChannel.name()).getAsBoolean()) {
                     player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                     player.sendMessage(JSONComponentSerializer.json().deserialize(chatMessage.serializedMessage()));
                 }

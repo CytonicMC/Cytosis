@@ -43,6 +43,7 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_CHANNEL, CytosisPreferences.CHAT_CHANNEL);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.VANISHED, CytosisPreferences.VANISHED);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.IGNORED_CHAT_CHANNELS, CytosisPreferences.IGNORED_CHAT_CHANNELS);
 
         UPDATE."CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)".whenComplete((_, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst creating the preferences table!", throwable);
