@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -28,11 +29,7 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
      * {@inheritDoc}
      */
     @Override
-    public void write(JsonWriter out, TypedNamespace<?> value) throws IOException {
-        if (value == null) {
-            out.nullValue();
-            return;
-        }
+    public void write(JsonWriter out, @NotNull TypedNamespace<?> value) throws IOException {
 
         out.beginObject();
 
