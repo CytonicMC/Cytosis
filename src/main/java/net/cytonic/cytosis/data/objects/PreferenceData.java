@@ -31,7 +31,7 @@ public class PreferenceData {
      * @return a new {@link PreferenceData} object with the specified data
      */
     public static PreferenceData deserialize(String data) {
-        Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP); // <NamespaceID, Preference>
+        Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP.getType()); // <NamespaceID, Preference>
         return new PreferenceData(preferences);
     }
 
@@ -74,7 +74,7 @@ public class PreferenceData {
      * @param <T>       The type of the preference
      */
     public <T> void set(TypedNamespace<T> namespace, T value) {
-        preferences.put(namespace, new Preference<>(value));
+        preferences.put(namespace, new Preference<>(namespace.type(), value));
     }
 
     /**
@@ -83,7 +83,7 @@ public class PreferenceData {
      * @param data the json string produced from the {@link PreferenceData#serialize} method
      */
     public void loadData(String data) {
-        preferences.putAll(Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP));
+        preferences.putAll(deserialize(data).preferences);
     }
 
     /**
@@ -92,6 +92,6 @@ public class PreferenceData {
      * @return the json data of this object
      */
     public String serialize() {
-        return Cytosis.GSON.toJson(preferences, Utils.PREFERENCE_MAP);
+        return Cytosis.GSON.toJson(preferences, Utils.PREFERENCE_MAP.getType());
     }
 }

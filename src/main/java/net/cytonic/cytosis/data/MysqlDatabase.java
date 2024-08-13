@@ -609,10 +609,21 @@ public class MysqlDatabase {
         return future;
     }
 
+    /**
+     * Prepares a statement
+     * @param sql the sql to use
+     * @return the prepared statement object
+     * @throws SQLException if an exception occured
+     */
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return connection.prepareStatement(sql);
     }
 
+    /**
+     * Queries the database with the specified prepared statement
+     * @param preparedStatement the query
+     * @return the result set of the query, completed once the query is complete
+     */
     public CompletableFuture<ResultSet> query(PreparedStatement preparedStatement) {
         CompletableFuture<ResultSet> future = new CompletableFuture<>();
         worker.submit(() -> {
