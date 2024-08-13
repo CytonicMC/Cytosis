@@ -170,7 +170,6 @@ public class PreferenceManager {
         if (!PREFERENCE_REGISTRY.contains(namespaceID))
             throw new IllegalArgumentException(STR."The preference \{namespaceID} is not in the registry!");
         if (!preferenceData.containsKey(uuid)) return PREFERENCE_REGISTRY.get(namespaceID).preference().value();
-        Logger.warn(STR."\{namespaceID.type().getSimpleName()} \{namespaceID.namespaceID().asString()}");
         return preferenceData.get(uuid).get(namespaceID);
     }
 
