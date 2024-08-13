@@ -7,8 +7,10 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
+import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 public class UnbanCommand extends Command {
@@ -20,10 +22,24 @@ public class UnbanCommand extends Command {
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof Player player) {
-                player.sendActionBar(MM."<green>Fetching players...");
+                player.sendActionBar(MM."<green>Fetching banned players...");
+
+                QUERY."SELECT * FROM cytonic_bans".whenComplete((rs, throwable) -> {
+                    if (throwable != null) {
+                        Logger.error("An error occurred while fetching banned players!", throwable);
+                        return;
+                    }
+                    try {
+                        while (rs.next()) {
+                            String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(UUID.fromString(rs.getString("uuid")));
+                            suggestion.addEntry(new SuggestionEntry(name));
+                        }
+                    } catch (SQLException e) {
+                        Logger.error("error", e);
+                    }
+
+                });
             }
-            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((_, name) ->
-                    suggestion.addEntry(new SuggestionEntry(name)));
         });
         addSyntax((sender, context) -> {
             if (!(sender instanceof Player actor)) {
@@ -43,7 +59,7 @@ public class UnbanCommand extends Command {
             Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(uuid).whenComplete((banned, throwable1) -> {
                 if (throwable1 != null) {
                     sender.sendMessage(MM."<red>An error occured whilst finding if \{player} is banned!");
-                    Logger.error("error; ", throwable1);
+                    Logger.error("error", throwable1);
                     return;
                 }
                 if (!banned.isBanned()) {
