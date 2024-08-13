@@ -125,6 +125,10 @@ public class PreferenceRegistry {
         return preferences.keySet().stream().map(TypedNamespace::namespaceID).collect(Collectors.toSet());
     }
 
+    /**
+     * Gets the typed namespaces contained in this registry
+     * @return the set of typed namespaces
+     */
     public Set<TypedNamespace<?>> typedNamespaces() {
         return preferences.keySet();
     }

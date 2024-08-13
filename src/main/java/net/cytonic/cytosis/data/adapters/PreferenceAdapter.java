@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * A type adapter for {@link Preference<>}, allow Gson to serialize and deserialize it easily.
+ * A type adapter for {@link Preference}, allow Gson to serialize and deserialize it easily.
+ * @param <T> The type of the preference
  */
 public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements TypeAdapterFactory {
     /**
