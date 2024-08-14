@@ -88,7 +88,7 @@ public class CytonicNetwork {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        return;
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")));
                     }
                     BanData banData = new BanData(rs.getString("reason"), expiry, true);
                     bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);

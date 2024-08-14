@@ -115,7 +115,6 @@ public class MysqlDatabase {
         createWorldTable();
         createPlayerJoinsTable();
         createAuditLogTable();
-        createUnbansTable();
     }
 
     /**
@@ -242,18 +241,6 @@ public class MysqlDatabase {
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
-                }
-            }
-        });
-    }
-
-    private void createUnbansTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_unbans (actor_uuid VARCHAR(36), unbanned_uuid VARCHAR(36), unbanned_at TIMESTAMP)")) {
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_unbans` table.", e);
                 }
             }
         });
@@ -499,34 +486,6 @@ public class MysqlDatabase {
                 future.complete(null);
             } catch (SQLException e) {
                 Logger.error(STR."An error occurred whilst unbanning the player \{uuid}.", e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Unbans a player
-     *
-     * @param actor  the actor
-     * @param target the player to unban
-     * @return a future that completes when the player is unbanned
-     */
-    public CompletableFuture<Void> unbanPlayer(UUID actor, UUID target) {
-        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        worker.submit(() -> {
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
-                ps.setString(1, target.toString());
-                ps.executeUpdate();
-                PreparedStatement ps2 = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_unbans (actor_uuid, unbanned_uuid, unbanned_at) VALUES (?, ?, CURRENT_TIMESTAMP)");
-                ps2.setString(1, actor.toString());
-                ps2.setString(2, target.toString());
-                ps2.executeUpdate();
-                future.complete(null);
-            } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst unbanning the player \{target}.", e);
                 future.completeExceptionally(e);
             }
         });
