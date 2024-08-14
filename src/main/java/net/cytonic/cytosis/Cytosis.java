@@ -35,7 +35,6 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -100,7 +99,6 @@ public final class Cytosis {
     private static ChatManager chatManager;
     @Getter
     private static PlayerListManager playerListManager;
-    @Nullable
     @Getter
     private static CytonicNetwork cytonicNetwork;
     @Getter
