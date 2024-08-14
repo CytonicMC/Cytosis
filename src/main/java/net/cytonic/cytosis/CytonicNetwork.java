@@ -1,6 +1,8 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
+import net.cytonic.cytosis.auditlog.Category;
+import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.objects.PlayerServer;
 import net.cytonic.cytosis.logging.Logger;
@@ -88,7 +90,7 @@ public class CytonicNetwork {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")));
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNBAN, "Natural Expiration"));
                     }
                     BanData banData = new BanData(rs.getString("reason"), expiry, true);
                     bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);

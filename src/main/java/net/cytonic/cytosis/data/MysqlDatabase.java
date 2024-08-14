@@ -396,7 +396,7 @@ public class MysqlDatabase {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
                         future.complete(new BanData(null, null, false));
-                        unbanPlayer(uuid);
+                        unbanPlayer(uuid, new Entry(uuid, null, Category.UNBAN, "Natural Expiration"));
                     } else {
                         try {
                             BanData banData = new BanData(rs.getString("reason"), expiry, true);
@@ -475,12 +475,12 @@ public class MysqlDatabase {
      * @param uuid the player to unban
      * @return a future that completes when the player is unbanned
      */
-    public CompletableFuture<Void> unbanPlayer(UUID uuid) {
+    public CompletableFuture<Void> unbanPlayer(UUID uuid, Entry entry) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
-                addAuditLogEntry(new Entry(uuid, null, Category.UNBAN, null));
+                addAuditLogEntry(entry);
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();

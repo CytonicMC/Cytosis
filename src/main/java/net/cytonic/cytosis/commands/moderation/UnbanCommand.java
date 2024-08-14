@@ -1,6 +1,8 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.auditlog.Category;
+import net.cytonic.cytosis.auditlog.Entry;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -41,7 +43,7 @@ public class UnbanCommand extends Command {
                 sender.sendMessage(MM."<red>\{player} is not banned!");
                 return;
             }
-            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid);
+            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid,new Entry(uuid, actor.getUuid(), Category.UNBAN, "command"));
             sender.sendMessage(MM."<GREEN><b>UNBANNED!</green></b><gray>\{player} was successfully unbanned!");
         }, playerArg);
     }
