@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import net.cytonic.cytosis.Cytosis;
 import net.minestom.server.entity.Player;
 
 /**
@@ -21,10 +20,8 @@ public class VanishManager {
      * @param player the player to vanish
      */
     public void enableVanish(Player player) {
-        player.setAutoViewable(false);
-        for (Player onlinePlayer : Cytosis.getOnlinePlayers()) {
-            onlinePlayer.removeViewer(player);
-        }
+        player.updateViewableRule(p -> p.hasPermission("cytosis.vanish.can_see_vanished"));
+        //todo events?
     }
 
     /**
@@ -33,9 +30,6 @@ public class VanishManager {
      * @param player the player to unvanish
      */
     public void disableVanish(Player player) {
-        player.setAutoViewable(true);
-        for (Player onlinePlayer : Cytosis.getOnlinePlayers()) {
-            onlinePlayer.addViewer(player);
-        }
+        player.updateViewableRule(_ -> true);
     }
 }
