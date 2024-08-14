@@ -61,6 +61,7 @@ public class CommandHandler {
         cm.register(new FriendCommand());
         cm.register(new ClearchatCommand());
         cm.register(new VanishCommand());
+        cm.register(new IgnoreChatChannelCommand());
         cm.register(new UnbanCommand());
     }
 

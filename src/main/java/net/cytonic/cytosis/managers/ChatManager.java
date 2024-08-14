@@ -1,10 +1,13 @@
 package net.cytonic.cytosis.managers;
 
+import com.google.gson.JsonObject;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.CytosisNamespaces;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
+import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 
 import java.util.UUID;
@@ -45,9 +48,10 @@ public class ChatManager {
 
     /**
      * Sends a message out to redis.
+     *
      * @param originalMessage The original content of the message
-     * @param channel The channel to send the message to
-     * @param player The player who sent the message
+     * @param channel         The channel to send the message to
+     * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, Player player) {
         if (!originalMessage.contains("|:|")) {
@@ -63,10 +67,13 @@ public class ChatManager {
                     .appendSpace()
                     .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
             if (channel == ChatChannel.ALL) {
-                Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
-            } else {
-                Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(message, channel);
+                Cytosis.getOnlinePlayers().forEach((p) -> {
+                    if (!Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(channel.name()).getAsBoolean())
+                        p.sendMessage(message);
+                });
+                return;
             }
+            Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message)));
         } else player.sendMessage(MM."<red>Hey you cannot do that!");
     }
 }
