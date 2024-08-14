@@ -41,7 +41,7 @@ public class UnbanCommand extends Command {
                 sender.sendMessage(MM."<red>\{player} is not banned!");
                 return;
             }
-            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(actor.getUuid(), uuid);
+            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid);
             sender.sendMessage(MM."<GREEN><b>UNBANNED!</green></b><gray>\{player} was successfully unbanned!");
         }, playerArg);
     }
