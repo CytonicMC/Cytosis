@@ -600,7 +600,7 @@ public class MysqlDatabase {
      *
      * @param sql the sql to use
      * @return the prepared statement object
-     * @throws SQLException if an exception occured
+     * @throws SQLException if an exception occurred
      */
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return connection.prepareStatement(sql);
