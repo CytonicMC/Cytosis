@@ -480,6 +480,7 @@ public class MysqlDatabase {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
+                addAuditLogEntry(new Entry(uuid, null, Category.UNBAN, null));
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
