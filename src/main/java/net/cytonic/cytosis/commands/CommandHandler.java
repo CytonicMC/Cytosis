@@ -5,6 +5,7 @@ import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.moderation.BanCommand;
 import net.cytonic.cytosis.commands.moderation.ClearchatCommand;
+import net.cytonic.cytosis.commands.moderation.UnbanCommand;
 import net.cytonic.cytosis.commands.moderation.VanishCommand;
 import net.cytonic.cytosis.commands.server.*;
 import net.minestom.server.command.CommandManager;

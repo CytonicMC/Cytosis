@@ -137,6 +137,20 @@ public class CytonicNetwork {
                 Logger.error("An error occurred whilst loading ranks!", e);
             }
         });
+
+        QUERY."SELECT * FROM cytonic_bans WHERE uuid = '\{uuid.toString()}'".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading bans!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    bannedPlayers.put(uuid, new BanData(rs.getString("reason"), Instant.parse(rs.getString("to_expire")), true));
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading bans!", e);
+            }
+        });
         //todo: add the player to the networkPlayersOnServers?
     }
 
@@ -163,7 +177,7 @@ public class CytonicNetwork {
     }
 
     /**
-     * Determines if the specfied UUID has played before
+     * Determines if the specified UUID has played before
      *
      * @param uuid the uuid to try
      * @return if the player has played on the network before.

@@ -496,11 +496,37 @@ public class MysqlDatabase {
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
-                PreparedStatement ps1 = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_unbans (actor_uuid, unbanned_uuid, unbanned_at) VALUES (?, ?, CURRENT_TIMESTAMP)");
-                ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
                 Logger.error(STR."An error occurred whilst unbanning the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Unbans a player
+     *
+     * @param actor  the actor
+     * @param target the player to unban
+     * @return a future that completes when the player is unbanned
+     */
+    public CompletableFuture<Void> unbanPlayer(UUID actor, UUID target) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
+                ps.setString(1, target.toString());
+                ps.executeUpdate();
+                PreparedStatement ps2 = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_unbans (actor_uuid, unbanned_uuid, unbanned_at) VALUES (?, ?, CURRENT_TIMESTAMP)");
+                ps2.setString(1, actor.toString());
+                ps2.setString(2, target.toString());
+                ps2.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst unbanning the player \{target}.", e);
                 future.completeExceptionally(e);
             }
         });
@@ -611,6 +637,7 @@ public class MysqlDatabase {
 
     /**
      * Prepares a statement
+     *
      * @param sql the sql to use
      * @return the prepared statement object
      * @throws SQLException if an exception occured
@@ -621,6 +648,7 @@ public class MysqlDatabase {
 
     /**
      * Queries the database with the specified prepared statement
+     *
      * @param preparedStatement the query
      * @return the result set of the query, completed once the query is complete
      */
