@@ -15,6 +15,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.CynwaveWrapper;
@@ -138,6 +139,7 @@ public final class Cytosis {
         // Initialize the server
         Logger.info("Starting server.");
         minecraftServer = MinecraftServer.init();
+        MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
 
         Logger.info("Starting instance manager.");
