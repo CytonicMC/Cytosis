@@ -70,7 +70,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
             String name = in.nextName();
             if (name.equals("value")) {
                 if(in.peek() == JsonToken.NULL) {
-                    value = null;
+                    in.nextNull();
                 } else if (in.peek() == JsonToken.STRING) {
                     value = in.nextString();
                 } else if (in.peek() == JsonToken.NUMBER) {
