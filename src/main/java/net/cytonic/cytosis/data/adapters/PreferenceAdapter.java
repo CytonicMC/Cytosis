@@ -96,10 +96,10 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
 
 
         // Convert value to the correct type if it's not null
-        if (type == UUID.class) {
+        if (type == UUID.class && value != null) {
             assert value instanceof String;
             value = UUID.fromString((String) value);
-        } else if (type.isEnum()) {
+        } else if (type.isEnum() && value != null) {
             assert value instanceof String;
             value = Enum.valueOf((Class<Enum>) type, (String) value);
         }
