@@ -37,18 +37,16 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         out.name("value");
         Object val = value.value();
 
-        if (val instanceof String str) {
-            out.value(str);
-        } else if (val instanceof Number num) {
-            out.value(num);
-        } else if (val instanceof Boolean bool) {
-            out.value(bool);
-        } else if (val instanceof UUID uuid) {
-            out.value(uuid.toString());
-        } else if (val instanceof Enum<?> constant) {
-            out.value(constant.name());
-        } else if (val == null) {
-            out.nullValue();
+        switch (val) {
+            case String str -> out.value(str);
+            case Number num -> out.value(num);
+            case Boolean bool -> out.value(bool);
+            case UUID uuid -> out.value(uuid.toString());
+            case Enum<?> constant -> out.value(constant.name());
+            case null -> out.nullValue();
+            default -> {
+                throw new UnsupportedOperationException(STR."Unsupported type: \{val.getClass().getName()}");
+            }
         }
 
         // Serialize Class<T>
@@ -71,7 +69,9 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         while (in.hasNext()) {
             String name = in.nextName();
             if (name.equals("value")) {
-                if (in.peek() == JsonToken.STRING) {
+                if(in.peek() == JsonToken.NULL) {
+                    value = null;
+                } else if (in.peek() == JsonToken.STRING) {
                     value = in.nextString();
                 } else if (in.peek() == JsonToken.NUMBER) {
                     value = in.nextDouble();  // Use nextDouble() for general number handling
