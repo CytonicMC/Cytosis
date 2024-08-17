@@ -14,9 +14,13 @@ import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 
 /**
  * A class that manages player ranks
@@ -44,6 +48,24 @@ public class RankManager {
                     .build();
             teamMap.put(value, team);
         }
+
+        QUERY."SELECT * FROM `cytonic_ranks`".whenComplete((resultSet, throwable) -> {
+            if(throwable != null) {
+                Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
+                MinecraftServer.stopCleanly();
+                return;
+            }
+
+            try {
+                while (resultSet.next()) {
+                    rankMap.put(UUID.fromString(resultSet.getString("uuid")), PlayerRank.valueOf(resultSet.getString("rank_id")));
+                }
+            } catch (SQLException ex) {
+                Logger.error(" ===== FATAL: Failed to load player ranks =====", ex);
+                MinecraftServer.stopCleanly();
+                return;
+            }
+        });
     }
 
     /**
