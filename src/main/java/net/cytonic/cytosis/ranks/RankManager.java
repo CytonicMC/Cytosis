@@ -14,7 +14,6 @@ import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +28,7 @@ public class RankManager {
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
+
     /**
      * Default constructor
      */
@@ -50,7 +50,7 @@ public class RankManager {
         }
 
         QUERY."SELECT * FROM `cytonic_ranks`".whenComplete((resultSet, throwable) -> {
-            if(throwable != null) {
+            if (throwable != null) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
                 MinecraftServer.stopCleanly();
                 return;
@@ -63,7 +63,6 @@ public class RankManager {
             } catch (SQLException ex) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", ex);
                 MinecraftServer.stopCleanly();
-                return;
             }
         });
     }
@@ -104,8 +103,7 @@ public class RankManager {
         removePermissions(player, old.getPermissions());
         rankMap.put(player.getUuid(), rank);
         setupCosmetics(player, rank);
-        if (Cytosis.getCytonicNetwork() != null)
-            Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
+        Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
     }
 
     /**
@@ -113,7 +111,7 @@ public class RankManager {
      * @param player The player
      * @param rank   The rank
      */
-    private void setupCosmetics(Player player, PlayerRank rank) {
+    public void setupCosmetics(Player player, PlayerRank rank) {
         addPermissions(player, rank.getPermissions());
         teamMap.get(rank).addMember(player.getUsername());
         player.setCustomName(rank.getPrefix().append(player.getName()));
