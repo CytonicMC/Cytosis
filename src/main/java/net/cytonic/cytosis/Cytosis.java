@@ -15,6 +15,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
@@ -39,6 +40,7 @@ import net.minestom.server.permission.Permission;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -190,9 +192,9 @@ public final class Cytosis {
      *
      * @return a set of players
      */
-    public static Set<Player> getOnlinePlayers() {
-        //        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
-        return new HashSet<>(MinecraftServer.getConnectionManager().getOnlinePlayers());
+    public static Set<CytosisPlayer> getOnlinePlayers() {
+        return MinecraftServer.getConnectionManager().getOnlinePlayers().stream()
+                .map(player -> (CytosisPlayer) player).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -201,8 +203,8 @@ public final class Cytosis {
      * @param username The name to fetch the player by
      * @return The optional holding the player if they exist
      */
-    public static Optional<Player> getPlayer(String username) {
-        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
+    public static Optional<CytosisPlayer> getPlayer(String username) {
+        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
     /**
@@ -211,8 +213,8 @@ public final class Cytosis {
      * @param uuid The uuid to fetch the player by
      * @return The optional holding the player if they exist
      */
-    public static Optional<Player> getPlayer(UUID uuid) {
-        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
+    public static Optional<CytosisPlayer> getPlayer(UUID uuid) {
+        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
     /**

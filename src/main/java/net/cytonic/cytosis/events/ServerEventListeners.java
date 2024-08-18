@@ -7,6 +7,7 @@ import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.MessageUtils;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.enums.KickReason;
@@ -73,6 +74,9 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().addPlayer(player);
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 Cytosis.getVanishManager().enableVanish(player);
+            }
+            for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
+                if (p.isVanished()) p.setVanished(true);
             }
         })));
 

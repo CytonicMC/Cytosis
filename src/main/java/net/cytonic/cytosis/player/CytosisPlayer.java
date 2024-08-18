@@ -19,7 +19,23 @@ public class CytosisPlayer extends Player {
         rank = Cytosis.getRankManager().getPlayerRank(uuid).orElse(PlayerRank.DEFAULT); // todo: watch out for cache invalidations
     }
 
+    public void updateRank(PlayerRank rank) {
+        this.rank = rank;
+    }
+
     public void setRank(PlayerRank rank) {
         Cytosis.getRankManager().changeRank(this, rank);
+    }
+
+    public boolean isVanished() {
+        return Cytosis.getVanishManager().isVanished(getUuid());
+    }
+
+    public void setVanished(boolean vanished) {
+        if (vanished) {
+            Cytosis.getVanishManager().enableVanish(this);
+        } else {
+            Cytosis.getVanishManager().disableVanish(this);
+        }
     }
 }

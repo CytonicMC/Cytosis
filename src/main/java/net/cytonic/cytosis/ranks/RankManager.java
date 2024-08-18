@@ -84,6 +84,9 @@ public class RankManager {
             if (event.isCanceled()) return;
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
+            Cytosis.getPlayer(player.getUuid()).ifPresent(p -> {
+                p.setRank(playerRank);
+            });
         });
     }
 
