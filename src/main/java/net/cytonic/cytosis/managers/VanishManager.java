@@ -57,7 +57,7 @@ public class VanishManager {
     }
 
     /**
-     * Disables vanish a player
+     * Disables vanish for a player
      *
      * @param player the player to unvanish
      */
@@ -67,7 +67,7 @@ public class VanishManager {
         player.updateViewableRule(p -> {
             EntityMetaDataPacket invis = new EntityMetaDataPacket(player.getEntityId(), Map.of(0, Metadata.Byte((byte) 0)));
             p.sendPacket(invis);
-            Cytosis.getRankManager().setupCosmetics(player, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow());
+            Cytosis.getRankManager().setupCosmetics(player, Cytosis.getCytonicNetwork().getPlayerRanks().get(player.getUuid()));
             return true;
         });
     }

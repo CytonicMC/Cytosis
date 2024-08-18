@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.player;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.enums.PlayerRank;
 import net.minestom.server.entity.Player;
