@@ -79,16 +79,26 @@ public final class ServerEventListeners {
         Logger.info("Registering player chat event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-chat", false, 1, PlayerChatEvent.class, event -> {
             final Player player = event.getPlayer();
-            Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
             event.setCancelled(true);
-            String originalMessage = event.getMessage();
-            ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
-            if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}") || channel == ChatChannel.ALL) {
-                Cytosis.getChatManager().sendMessage(originalMessage, channel, player);
-            } else {
-                player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
-                Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
-            }
+            Cytosis.getDatabaseManager().getMysqlDatabase().isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("An error occurred whilst checking if the player is muted!", throwable);
+                    return;
+                }
+                if (!isMuted) {
+                    Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
+                    String originalMessage = event.getMessage();
+                    ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
+                    if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}") || channel == ChatChannel.ALL) {
+                        Cytosis.getChatManager().sendMessage(originalMessage, channel, player);
+                    } else {
+                        player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
+                        Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
+                    }
+                    return;
+                }
+                player.sendMessage(MM."<red>Whoops! You're currently muted.");
+            });
         }));
 
         Logger.info("Registering player disconnect event.");
