@@ -5,8 +5,10 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.enums.KickReason;
 import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
@@ -88,6 +90,10 @@ public class RedisDatabase {
      * Friend removed
      */
     public static final String FRIEND_REMOVED = "friend-removed";
+    /**
+     * Player kicked
+     */
+    public static final String PLAYER_KICK = "player-kick";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -168,6 +174,36 @@ public class RedisDatabase {
     public void sendPlayerMessage(Component message, UUID target) {
         // formatting: <MESSAGE>|:|<TARGET_UUID>
         jedisPub.publish(PLAYER_MESSAGE_CHANNEL, STR."\{JSONComponentSerializer.json().serialize(message)}|:|\{target.toString()}");
+    }
+
+    /**
+     * Sends a message to Redis to kick a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
+     *
+     * @param player    The player to kick, on this server
+     * @param reason    The reason for kicking the player
+     * @param component The kick message displayed
+     */
+    public void kickPlayer(Player player, KickReason reason, Component component) {
+        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
+        String message = STR."\{player.getUuid()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
+        jedisPub.publish(PLAYER_KICK, message);
+    }
+
+    /**
+     * Sends a message to RabbitMQ to kick a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
+     *
+     * @param player    The player to kick, on another server
+     * @param reason    The reason for kicking the player
+     * @param component The kick message displayed
+     */
+    public void kickPlayer(OfflinePlayer player, KickReason reason, Component component) {
+        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
+        String message = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
+        jedisPub.publish(PLAYER_KICK, message);
     }
 
     /**

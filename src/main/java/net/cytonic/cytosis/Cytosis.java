@@ -15,6 +15,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.CynwaveWrapper;
@@ -35,7 +36,6 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -100,7 +100,6 @@ public final class Cytosis {
     private static ChatManager chatManager;
     @Getter
     private static PlayerListManager playerListManager;
-    @Nullable
     @Getter
     private static CytonicNetwork cytonicNetwork;
     @Getter
@@ -138,6 +137,7 @@ public final class Cytosis {
         // Initialize the server
         Logger.info("Starting server.");
         minecraftServer = MinecraftServer.init();
+        MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
 
         Logger.info("Starting instance manager.");

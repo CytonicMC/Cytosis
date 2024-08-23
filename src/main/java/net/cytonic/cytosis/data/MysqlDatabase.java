@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -115,6 +116,7 @@ public class MysqlDatabase {
         createWorldTable();
         createPlayerJoinsTable();
         createAuditLogTable();
+        createMutesTable();
     }
 
     /**
@@ -244,6 +246,108 @@ public class MysqlDatabase {
                 }
             }
         });
+    }
+
+    /**
+     * Creates the bans table
+     */
+    private void createMutesTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_mutes (uuid VARCHAR(36), to_expire VARCHAR(100), PRIMARY KEY(uuid))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_mutes` table.", e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Mutes a player
+     *
+     * @param uuid     the player to mute
+     * @param toExpire When the mute expires
+     * @return a future that completes when the player is muted
+     */
+    public CompletableFuture<Void> mutePlayer(UUID uuid, Instant toExpire, Entry entry) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected()) throw new IllegalStateException("The database must be connected to mute players.");
+            try {
+                addAuditLogEntry(entry);
+                Cytosis.getCytonicNetwork().getMutedPlayers().put(uuid, true);
+                PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_mutes (uuid, to_expire) VALUES (?,?)");
+                ps.setString(1, uuid.toString());
+                ps.setString(2, toExpire.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst muting the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Unmutes a player
+     *
+     * @param uuid the player to unmute
+     * @return a future that completes when the player is unmuted
+     */
+    public CompletableFuture<Void> unmutePlayer(UUID uuid, Entry entry) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                addAuditLogEntry(entry);
+                Cytosis.getCytonicNetwork().getMutedPlayers().remove(uuid);
+                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst unmuting the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * The concurrent friendly way to fetch a player's mute status
+     *
+     * @param uuid THe player to check
+     * @return The CompletableFuture that holds the player's mute status
+     */
+    public CompletableFuture<Boolean> isMuted(UUID uuid) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    Instant expiry = Instant.parse(rs.getString("to_expire"));
+                    if (expiry.isBefore(Instant.now())) {
+                        future.complete(false);
+                        unmutePlayer(uuid, new Entry(uuid, null, Category.UNMUTE, "Natural Expiration"));
+                    } else {
+                        future.complete(true);
+                    }
+                } else {
+                    future.complete(false);
+                }
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst determining if the player \{uuid} is muted.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 
     /**
@@ -396,7 +500,7 @@ public class MysqlDatabase {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
                         future.complete(new BanData(null, null, false));
-                        unbanPlayer(uuid);
+                        unbanPlayer(uuid, new Entry(uuid, null, Category.UNBAN, "Natural Expiration"));
                     } else {
                         try {
                             BanData banData = new BanData(rs.getString("reason"), expiry, true);
@@ -475,11 +579,12 @@ public class MysqlDatabase {
      * @param uuid the player to unban
      * @return a future that completes when the player is unbanned
      */
-    public CompletableFuture<Void> unbanPlayer(UUID uuid) {
+    public CompletableFuture<Void> unbanPlayer(UUID uuid, Entry entry) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
+                addAuditLogEntry(entry);
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
@@ -596,9 +701,10 @@ public class MysqlDatabase {
 
     /**
      * Prepares a statement
+     *
      * @param sql the sql to use
      * @return the prepared statement object
-     * @throws SQLException if an exception occured
+     * @throws SQLException if an exception occurred
      */
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return connection.prepareStatement(sql);
@@ -606,6 +712,7 @@ public class MysqlDatabase {
 
     /**
      * Queries the database with the specified prepared statement
+     *
      * @param preparedStatement the query
      * @return the result set of the query, completed once the query is complete
      */
