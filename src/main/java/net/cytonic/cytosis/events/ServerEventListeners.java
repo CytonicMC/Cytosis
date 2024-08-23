@@ -57,7 +57,7 @@ public final class ServerEventListeners {
                     return;
                 }
                 if (data.isBanned()) {
-                    Cytosis.getMessagingManager().getRabbitMQ().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data));
+                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data));
                     return;
                 }
 
