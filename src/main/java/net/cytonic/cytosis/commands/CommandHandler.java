@@ -63,6 +63,7 @@ public class CommandHandler {
         cm.register(new UnbanCommand());
         cm.register(new MuteCommand());
         cm.register(new UnmuteCommand());
+        cm.register(new KickCommand());
     }
 
     /**

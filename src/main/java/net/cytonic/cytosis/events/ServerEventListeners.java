@@ -1,6 +1,8 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.auditlog.Category;
+import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
@@ -57,7 +59,7 @@ public final class ServerEventListeners {
                     return;
                 }
                 if (data.isBanned()) {
-                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data));
+                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data), new Entry(player.getUuid(), null, Category.KICK, "banned"));
                     return;
                 }
 
