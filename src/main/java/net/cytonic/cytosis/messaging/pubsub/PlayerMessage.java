@@ -16,7 +16,7 @@ public class PlayerMessage extends JedisPubSub {
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.PLAYER_MESSAGE_CHANNEL)) return;
         String[] strings = message.split("\\|:\\|");
-        if (!Cytosis.getPlayer(UUID.fromString(strings[1])).isPresent()) return;
+        if (Cytosis.getPlayer(UUID.fromString(strings[1])).isEmpty()) return;
         Cytosis.getPlayer(UUID.fromString(strings[1])).get().sendMessage(JSONComponentSerializer.json().deserialize(strings[0]));
     }
 }
