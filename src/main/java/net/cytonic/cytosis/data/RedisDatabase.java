@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
@@ -185,8 +186,9 @@ public class RedisDatabase {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(Player player, KickReason reason, Component component) {
+    public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
         // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
         String message = STR."\{player.getUuid()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
         jedisPub.publish(PLAYER_KICK, message);
     }
@@ -200,8 +202,9 @@ public class RedisDatabase {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(OfflinePlayer player, KickReason reason, Component component) {
+    public void kickPlayer(OfflinePlayer player, KickReason reason, Component component, Entry entry) {
         // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
         String message = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
         jedisPub.publish(PLAYER_KICK, message);
     }
