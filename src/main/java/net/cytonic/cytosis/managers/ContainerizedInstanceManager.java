@@ -79,6 +79,45 @@ public class ContainerizedInstanceManager {
     }
 
     /**
+     * Creates a new cytosis instance on the k8s cluster
+     */
+    public void createProxyInstance() {
+        Map<String, String> labels = new HashMap<>();
+        List<V1Container> containers = new ArrayList<>();
+        List<V1EnvFromSource> envVars = new ArrayList<>();
+
+        Map<String, Quantity> requests = new HashMap<>();
+        requests.put("cpu", Quantity.fromString("500m")); // 0.5 CPU
+        requests.put("memory", Quantity.fromString("1Gi")); // 1 GiB
+
+        Map<String, Quantity> limits = new HashMap<>();
+        limits.put("cpu", Quantity.fromString("1")); // 1 CPU
+        limits.put("memory", Quantity.fromString("2Gi")); // 1 GiB
+
+        V1ResourceRequirements resources = new V1ResourceRequirements();
+        resources.setRequests(requests);
+        resources.setLimits(limits);
+
+        labels.put("app", "cynturion");
+        envVars.add(new V1EnvFromSource().configMapRef(new V1ConfigMapEnvSource().name("cynturion-config")));
+        envVars.add(new V1EnvFromSource().configMapRef(new V1ConfigMapEnvSource().name("general-config")));
+
+        V1Container container = new V1Container().name("cynturion-container").image("ghcr.io/cytonicmc/cynturion:latest")
+                .envFrom(envVars).resources(resources).imagePullPolicy("Always");
+        containers.add(container);
+
+        V1Pod proxyPod = new V1Pod().apiVersion("v1").kind("Pod")
+                .metadata(new V1ObjectMeta().name(STR."cynturion-\{Math.abs(Instant.now().hashCode())}")
+                        .labels(labels)).spec(new V1PodSpec().containers(containers)
+                        .addImagePullSecretsItem(new V1LocalObjectReference().name("ghcr-login-secret")));
+        try {
+            api.createNamespacedPod("default", proxyPod).execute();
+        } catch (ApiException e) {
+            Logger.error("An error occurred whilst creating the Proxy instance!", e);
+        }
+    }
+
+    /**
      * Shuts down all cytosis instances in the cluster
      */
     public void shutdownAllCytosisInstances() {
