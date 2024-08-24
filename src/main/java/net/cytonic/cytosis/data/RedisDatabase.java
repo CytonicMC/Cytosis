@@ -16,7 +16,6 @@ import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -172,9 +171,13 @@ public class RedisDatabase {
         jedisPub.publish(BROADCAST_CHANNEL, message);
     }
 
-    public void sendPlayerMessage(Component message, UUID target) {
-        // formatting: <MESSAGE>|:|<TARGET_UUID>
-        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, STR."\{JSONComponentSerializer.json().serialize(message)}|:|\{target.toString()}");
+    /**
+     * Sends a message to a player
+     *
+     * @param message the serialized message
+     */
+    public void sendPlayerMessage(ChatMessage message) {
+        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, message.toString());
     }
 
     /**
