@@ -117,6 +117,7 @@ public class MysqlDatabase {
         createPlayerJoinsTable();
         createAuditLogTable();
         createMutesTable();
+        createPlayerMessagesTable();
     }
 
     /**
@@ -263,6 +264,51 @@ public class MysqlDatabase {
                 }
             }
         });
+    }
+
+    /**
+     * Creates the player messages table
+     */
+    private void createPlayerMessagesTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_messages (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, sender VARCHAR(36), target VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Adds a player message to the database
+     *
+     * @param sender  the sender of the message
+     * @param target  the target of the message
+     * @param message the message
+     * @return a future that completes when the message has been added
+     */
+    public CompletableFuture<Void> addPlayerMessage(UUID sender, UUID target, String message) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must be connected to add player messages.");
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO cytonic_player_messages (timestamp, sender, target, message) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)");
+                ps.setString(1, sender.toString());
+                ps.setString(2, target.toString());
+                ps.setString(3, message);
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst adding a player message from \{sender} to \{target}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 
     /**

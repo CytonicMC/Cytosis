@@ -64,6 +64,10 @@ public class RedisDatabase {
      * Broadcast channel
      */
     public static final String BROADCAST_CHANNEL = "broadcast";
+    /**
+     * Player message channel
+     */
+    public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
 
     // friend requests
     /**
@@ -114,6 +118,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
+        worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
     }
 
     /**
@@ -164,6 +169,15 @@ public class RedisDatabase {
     public void sendBroadcast(Component broadcast) {
         String message = JSONComponentSerializer.json().serialize(broadcast);
         jedisPub.publish(BROADCAST_CHANNEL, message);
+    }
+
+    /**
+     * Sends a message to a player
+     *
+     * @param message the serialized message
+     */
+    public void sendPlayerMessage(ChatMessage message) {
+        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, message.toString());
     }
 
     /**
