@@ -46,7 +46,7 @@ public class MsgCommand extends Command {
                 UUID uuid = Cytosis.getCytonicNetwork().getOnlineFlattened().getByValue(player.toLowerCase());
                 PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
                 Component component = MM."<dark_aqua>From <reset>".append(actor.getRank().getPrefix().append(MM."\{actor.getUsername()}")).append(MM."<dark_aqua> » ").append(Component.text(msg, NamedTextColor.WHITE));
-
+                Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerMessage(actor.getUuid(), uuid, msg);
                 Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(component)));
                 actor.sendMessage(MM."<dark_aqua>To <reset>".append(targetRank.getPrefix().append(MM."\{player}")).append(MM."<dark_aqua> » ").append(Component.text(msg, NamedTextColor.WHITE)));
             }
