@@ -92,7 +92,7 @@ public class ContainerizedInstanceManager {
 
         Map<String, Quantity> limits = new HashMap<>();
         limits.put("cpu", Quantity.fromString("1")); // 1 CPU
-        limits.put("memory", Quantity.fromString("2Gi")); // 1 GiB
+        limits.put("memory", Quantity.fromString("2Gi")); // 2 GiB
 
         V1ResourceRequirements resources = new V1ResourceRequirements();
         resources.setRequests(requests);
