@@ -31,5 +31,9 @@ public enum Category {
     /**
      * A player kick
      */
-    KICK
+    KICK,
+    /**
+     * A player warn
+     */
+    WARN
 }
