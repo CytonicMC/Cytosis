@@ -16,6 +16,7 @@ import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -94,6 +95,10 @@ public class RedisDatabase {
      * Player kicked
      */
     public static final String PLAYER_KICK = "player-kick";
+    /**
+     * Player warn
+     */
+    public static final String PLAYER_WARN = "player-warn";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -119,6 +124,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
     }
 
     /**
@@ -210,6 +216,25 @@ public class RedisDatabase {
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
         String message = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
         jedisPub.publish(PLAYER_KICK, message);
+    }
+
+    /**
+     * Sends a message to Redis to warn a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{warn_message}}
+     *
+     * @param target      the player to warn
+     * @param actor       the actor
+     * @param warnMessage the message to warn the player with
+     * @param reason      the reason
+     * @param entry       the audit log entry
+     */
+    public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason, Entry entry) {
+        // FORMAT: {uuid}|:|{warn_message}
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+        Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerWarn(actor, target, reason);
+        String message = STR."\{target}|:|\{JSONComponentSerializer.json().serialize(warnMessage)}";
+        jedisPub.publish(PLAYER_WARN, message);
     }
 
     /**

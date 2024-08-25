@@ -118,6 +118,7 @@ public class MysqlDatabase {
         createAuditLogTable();
         createMutesTable();
         createPlayerMessagesTable();
+        createPlayerWarnsTable();
     }
 
     /**
@@ -281,6 +282,40 @@ public class MysqlDatabase {
                 }
             }
         });
+    }
+
+    private void createPlayerWarnsTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_warns (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, target VARCHAR(36), actor VARCHAR(36), reason TEXT, PRIMARY KEY(id))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_player_warns` table.", e);
+                }
+            }
+        });
+    }
+
+    public CompletableFuture<Void> addPlayerWarn(UUID actor, UUID target, String reason) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must be connected to add player warns.");
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO cytonic_player_warns (timestamp, target, actor, reason) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)");
+                ps.setString(1, target.toString());
+                ps.setString(2, actor.toString());
+                ps.setString(3, reason);
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst adding a warn!", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 
     /**
