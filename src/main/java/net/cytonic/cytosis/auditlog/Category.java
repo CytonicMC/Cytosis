@@ -27,5 +27,13 @@ public enum Category {
     /**
      * A player IP unban
      */
-    IPUNBAN
+    IPUNBAN,
+    /**
+     * A player kick
+     */
+    KICK,
+    /**
+     * A player warn
+     */
+    WARN
 }

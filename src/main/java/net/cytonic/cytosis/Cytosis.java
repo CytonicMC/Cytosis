@@ -1,22 +1,28 @@
 package net.cytonic.cytosis;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.data.objects.CytonicServer;
+import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
+import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
-import net.cytonic.cytosis.playerlist.PlayerListCategory;
-import net.cytonic.cytosis.playerlist.PlayerListEntry;
-import net.cytonic.cytosis.playerlist.PlayerListFavicon;
+import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
+import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.Preference;
+import net.cytonic.objects.TypedNamespace;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -30,11 +36,11 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
-import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.*;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * The main class for Cytosis
@@ -47,6 +53,20 @@ public final class Cytosis {
      * the instance ID is used to identify the server
      */
     public static final String SERVER_ID = generateID();
+
+    /**
+     * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
+     */
+    public static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
+            .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
+            .registerTypeAdapterFactory(new TypedNamespaceAdapter())
+            .registerTypeAdapterFactory(new PreferenceAdapter<>())
+            .enableComplexMapKeySerialization()
+            .setStrictness(Strictness.LENIENT)
+            .serializeNulls()
+            .create();
+
     /**
      * The version of Cytosis
      */
@@ -80,7 +100,6 @@ public final class Cytosis {
     private static ChatManager chatManager;
     @Getter
     private static PlayerListManager playerListManager;
-    @Nullable
     @Getter
     private static CytonicNetwork cytonicNetwork;
     @Getter
@@ -91,7 +110,15 @@ public final class Cytosis {
     private static NPCManager npcManager;
     private static List<String> FLAGS;
     @Getter
-    public static ContainerizedInstanceManager containerizedInstanceManager;
+    private static ContainerizedInstanceManager containerizedInstanceManager;
+    @Getter
+    private static FriendManager friendManager;
+    @Getter
+    private static PreferenceManager preferenceManager;
+    @Getter
+    private static CynwaveWrapper cynwaveWrapper;
+    @Getter
+    private static VanishManager vanishManager;
 
     private Cytosis() {
     }
@@ -102,11 +129,15 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        // handle uncaught exceptions
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error(STR."Uncaught exception in thread \{t.getName()}", e));
+
         FLAGS = List.of(args);
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
         minecraftServer = MinecraftServer.init();
+        MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
 
         Logger.info("Starting instance manager.");
@@ -160,9 +191,8 @@ public final class Cytosis {
      * @return a set of players
      */
     public static Set<Player> getOnlinePlayers() {
-        Set<Player> players = new HashSet<>();
-        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
-        return players;
+        //        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
+        return new HashSet<>(MinecraftServer.getConnectionManager().getOnlinePlayers());
     }
 
     /**
@@ -172,10 +202,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<Player> getPlayer(String username) {
-        Player target = null;
-        for (Player onlinePlayer : getOnlinePlayers())
-            if (onlinePlayer.getUsername().equals(username)) target = onlinePlayer;
-        return Optional.ofNullable(target);
+        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
     /**
@@ -185,11 +212,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<Player> getPlayer(UUID uuid) {
-        Player target = null;
-        for (Player onlinePlayer : getOnlinePlayers()) {
-            if (onlinePlayer.getUuid() == uuid) target = onlinePlayer;
-        }
-        return Optional.ofNullable(target);
+        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
     /**
@@ -259,42 +282,25 @@ public final class Cytosis {
             eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
             eventHandler.init();
 
+            Logger.info("Loading player preferences");
+            preferenceManager = new PreferenceManager();
+
             Logger.info("Initializing server events");
             ServerEventListeners.initServerEvents();
+
+            Logger.info("Loading vanish manager!");
+            vanishManager = new VanishManager();
 
             MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
                 messagingManager.shutdown();
                 databaseManager.shutdown();
                 sideboardManager.shutdown();
+                pluginManager.unloadPlugins();
                 getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
             Logger.info("Starting Player list manager");
             playerListManager = new PlayerListManager();
-
-            Logger.info("Building player list");
-            playerListManager.setGlobalCategories(
-                    Utils.list(
-                            new PlayerListCategory(MM."<bold><yellow>Server Data</yellow></bold>", PlayerListFavicon.YELLOW,
-                                    1, Utils.list(new PlayerListEntry(MM."Server ID: <green>\{Cytosis.getRawID()}", PlayerListFavicon.GREY, 1),
-                                    new PlayerListEntry(MM."Something: <green>Yay!!", PlayerListFavicon.GREY, 2),
-                                    new PlayerListEntry(MM."Players: <red>No.", PlayerListFavicon.GREY, 3)
-                            )),
-                            new PlayerListCategory(MM."<bold><rainbow>Rainbow</rainbow></bold>", PlayerListFavicon.GREY,
-                                    1, Utils.list(
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.RED, 1),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.ORANGE, 2),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.YELLOW, 3),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.GREEN, 4),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.BLUE, 5),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.PURPLE, 6),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.WHITE, 7),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.GREY, 8),
-                                    new PlayerListEntry(MM." ", PlayerListFavicon.BLACK, 9)
-
-                            ))
-                    )
-            );
 
             messagingManager = new MessagingManager();
             messagingManager.initialize().whenComplete((_, th) -> {
@@ -306,10 +312,21 @@ public final class Cytosis {
                 }
             });
 
+            Logger.info("Starting Friend manager!");
+            friendManager = new FriendManager();
+            friendManager.init();
+
+
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
-            Thread.ofVirtual().name("CytosisPluginLoader").start(pluginManager::loadPlugins);
+            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
+                try {
+                    pluginManager.loadPlugins(Path.of("plugins"));
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading plugins!", e);
+                }
+            });
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
@@ -325,7 +342,7 @@ public final class Cytosis {
             if (CytosisSettings.SERVER_PROXY_MODE) {
                 Logger.info("Loading network setup!");
                 cytonicNetwork = new CytonicNetwork();
-                cytonicNetwork.importDataFromRedis(databaseManager.getRedisDatabase());
+                cytonicNetwork.importData(databaseManager.getRedisDatabase());
                 cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
             }
 
@@ -348,9 +365,12 @@ public final class Cytosis {
                 }
             }
 
+            cynwaveWrapper = new CynwaveWrapper();
+
             // Start the server
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
+            MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
 
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
@@ -361,7 +381,6 @@ public final class Cytosis {
                 MinecraftServer.stopCleanly();
             }
         });
-
     }
 
     /**

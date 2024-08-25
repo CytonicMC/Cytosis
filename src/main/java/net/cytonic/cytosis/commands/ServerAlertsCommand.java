@@ -1,26 +1,33 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.CytosisNamespaces;
+import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
+import static net.cytonic.utils.MiniMessageTemplate.MM;
+
+/**
+ * A command to toggle server alerts for when they start and stop
+ */
 public class ServerAlertsCommand extends Command {
 
+    /**
+     * A command to toggle server alerts
+     */
     public ServerAlertsCommand() {
         super("serveralerts");
         setCondition(((sender, _) -> sender.hasPermission("cytosis.commands.serveralerts")));
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof Player player) {
                 if (player.hasPermission("cytosis.commands.serveralerts")) {
-                    if (!Cytosis.getCytonicNetwork().getServerAlerts().get(player.getUuid())) {
+                    if (!Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS)) {
                         player.sendMessage(MM."<GREEN>Server alerts are now enabled!");
-                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(),true);
-                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(),true);
+                        Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.SERVER_ALERTS, true);
                     } else {
                         player.sendMessage(MM."<RED>Server alerts are now disabled!");
-                        Cytosis.getCytonicNetwork().getServerAlerts().replace(player.getUuid(), false);
-                        Cytosis.getDatabaseManager().getMysqlDatabase().setServerAlerts(player.getUuid(), false);
+                        Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.SERVER_ALERTS, false);
                     }
                 }
             }

@@ -1,6 +1,9 @@
 package net.cytonic.cytosis.utils;
 
+import net.cytonic.objects.BanData;
 import net.kyori.adventure.text.Component;
+
+import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that holds utils for formatting messages
@@ -22,9 +25,9 @@ public final class MessageUtils {
         if (!banData.isBanned()) return Component.empty();
 
         return Component.empty()
-                .append(MiniMessageTemplate.MM."<red>You are currently banned from the Cytonic Network!".appendNewline().appendNewline())
-                .append(MiniMessageTemplate.MM."<gray>Reason:<gray> <white>\{banData.reason()}</white>".appendNewline())
-                .append(MiniMessageTemplate.MM."<gray>Expires:</gray> <white>\{DurationParser.unparse(banData.expiry(), " ")}</white>".appendNewline().appendNewline())
-                .append(MiniMessageTemplate.MM."<gray>Appeal at: </gray><aqua><underlined>https://cytonic.net</underlined></aqua>".appendNewline());
+                .append(MM."<red>You are currently banned from the Cytonic Network!".appendNewline().appendNewline())
+                .append(MM."<gray>Reason:<gray> <white>\{banData.reason()}</white>".appendNewline())
+                .append(MM."<gray>Expires:</gray> <white>\{DurationParser.unparse(banData.expiry(), " ")}</white>".appendNewline().appendNewline())
+                .append(MM."<gray>Appeal at: </gray><aqua><underlined>https://cytonic.net</underlined></aqua>".appendNewline());
     }
 }

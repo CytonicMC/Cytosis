@@ -1,13 +1,13 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.ranks.PlayerRank;
-import net.cytonic.cytosis.utils.BanData;
 import net.cytonic.cytosis.utils.PosSerializer;
+import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.BanData;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -42,7 +42,8 @@ public class MysqlDatabase {
      * Creates and initializes a new MysqlDatabase
      */
     public MysqlDatabase() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
+                .uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
         this.port = CytosisSettings.DATABASE_PORT;
         this.database = CytosisSettings.DATABASE_NAME;
@@ -113,10 +114,11 @@ public class MysqlDatabase {
         createBansTable();
         createPlayersTable();
         createWorldTable();
-        createChatChannelsTable();
         createPlayerJoinsTable();
         createAuditLogTable();
-        createServerAlertsTable();
+        createMutesTable();
+        createPlayerMessagesTable();
+        createPlayerWarnsTable();
     }
 
     /**
@@ -136,10 +138,10 @@ public class MysqlDatabase {
             if (isConnected()) {
                 PreparedStatement ps;
                 try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonicchat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to Cy:", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
                 }
             }
         });
@@ -214,26 +216,6 @@ public class MysqlDatabase {
     }
 
     /**
-     * Creates the 'cytonic_chat_channels' table in the database if it doesn't exist.
-     * The table contains information about player's chat channels.
-     *
-     * @throws IllegalStateException if the database connection is not open.
-     */
-    private void createChatChannelsTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat_channels (uuid VARCHAR(36), chat_channel VARCHAR(16), PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_chat_channels` table.", e);
-                }
-            }
-        });
-    }
-
-    /**
      * Create the player join logging table
      */
     private void createPlayerJoinsTable() {
@@ -268,54 +250,182 @@ public class MysqlDatabase {
         });
     }
 
-    private void createServerAlertsTable() {
+    /**
+     * Creates the bans table
+     */
+    private void createMutesTable() {
         worker.submit(() -> {
             if (isConnected()) {
                 PreparedStatement ps;
                 try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_server_alerts (uuid VARCHAR(36), value BOOLEAN, PRIMARY KEY(uuid))");
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_mutes (uuid VARCHAR(36), to_expire VARCHAR(100), PRIMARY KEY(uuid))");
                     ps.executeUpdate();
                 } catch (SQLException e) {
-                    Logger.error("An error occurred whilst fetching data from the database. Please report the following stacktrace to CytonicMC:", e);
+                    Logger.error("An error occurred whilst creating the `cytonic_mutes` table.", e);
                 }
             }
         });
     }
 
-    public CompletableFuture<Boolean> getServerAlerts(@NotNull final UUID uuid) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to fetch a player's server alerts!");
+    /**
+     * Creates the player messages table
+     */
+    private void createPlayerMessagesTable() {
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("SELECT value FROM cytonic_server_alerts WHERE uuid = ?");
-                ps.setString(1, uuid.toString());
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    future.complete(rs.getBoolean("value"));
-                } else {
-                    future.complete(false);
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_messages (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, sender VARCHAR(36), target VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
                 }
+            }
+        });
+    }
+
+    private void createPlayerWarnsTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_warns (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, target VARCHAR(36), actor VARCHAR(36), reason TEXT, PRIMARY KEY(id))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_player_warns` table.", e);
+                }
+            }
+        });
+    }
+
+    public CompletableFuture<Void> addPlayerWarn(UUID actor, UUID target, String reason) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must be connected to add player warns.");
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO cytonic_player_warns (timestamp, target, actor, reason) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)");
+                ps.setString(1, target.toString());
+                ps.setString(2, actor.toString());
+                ps.setString(3, reason);
+                ps.executeUpdate();
+                future.complete(null);
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst fetching a player's server alerts.", e);
+                Logger.error(STR."An error occurred whilst adding a warn!", e);
+                future.completeExceptionally(e);
             }
         });
         return future;
     }
 
-    public CompletableFuture<Void> setServerAlerts(@NotNull final UUID uuid, boolean value) {
+    /**
+     * Adds a player message to the database
+     *
+     * @param sender  the sender of the message
+     * @param target  the target of the message
+     * @param message the message
+     * @return a future that completes when the message has been added
+     */
+    public CompletableFuture<Void> addPlayerMessage(UUID sender, UUID target, String message) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to set a player's server alerts!");
         worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must be connected to add player messages.");
             try {
-                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_server_alerts (uuid, value) VALUES (?,?) ON DUPLICATE KEY UPDATE value = VALUES(value)");
-                ps.setString(1, uuid.toString());
-                ps.setBoolean(2, value);
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO cytonic_player_messages (timestamp, sender, target, message) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)");
+                ps.setString(1, sender.toString());
+                ps.setString(2, target.toString());
+                ps.setString(3, message);
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst setting a player's server alerts.", e);
+                Logger.error(STR."An error occurred whilst adding a player message from \{sender} to \{target}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Mutes a player
+     *
+     * @param uuid     the player to mute
+     * @param toExpire When the mute expires
+     * @return a future that completes when the player is muted
+     */
+    public CompletableFuture<Void> mutePlayer(UUID uuid, Instant toExpire, Entry entry) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected()) throw new IllegalStateException("The database must be connected to mute players.");
+            try {
+                addAuditLogEntry(entry);
+                Cytosis.getCytonicNetwork().getMutedPlayers().put(uuid, true);
+                PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_mutes (uuid, to_expire) VALUES (?,?)");
+                ps.setString(1, uuid.toString());
+                ps.setString(2, toExpire.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst muting the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Unmutes a player
+     *
+     * @param uuid the player to unmute
+     * @return a future that completes when the player is unmuted
+     */
+    public CompletableFuture<Void> unmutePlayer(UUID uuid, Entry entry) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                addAuditLogEntry(entry);
+                Cytosis.getCytonicNetwork().getMutedPlayers().remove(uuid);
+                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst unmuting the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * The concurrent friendly way to fetch a player's mute status
+     *
+     * @param uuid THe player to check
+     * @return The CompletableFuture that holds the player's mute status
+     */
+    public CompletableFuture<Boolean> isMuted(UUID uuid) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    Instant expiry = Instant.parse(rs.getString("to_expire"));
+                    if (expiry.isBefore(Instant.now())) {
+                        future.complete(false);
+                        unmutePlayer(uuid, new Entry(uuid, null, Category.UNMUTE, "Natural Expiration"));
+                    } else {
+                        future.complete(true);
+                    }
+                } else {
+                    future.complete(false);
+                }
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst determining if the player \{uuid} is muted.", e);
+                future.completeExceptionally(e);
             }
         });
         return future;
@@ -471,7 +581,7 @@ public class MysqlDatabase {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
                         future.complete(new BanData(null, null, false));
-                        unbanPlayer(uuid);
+                        unbanPlayer(uuid, new Entry(uuid, null, Category.UNBAN, "Natural Expiration"));
                     } else {
                         try {
                             BanData banData = new BanData(rs.getString("reason"), expiry, true);
@@ -550,11 +660,12 @@ public class MysqlDatabase {
      * @param uuid the player to unban
      * @return a future that completes when the player is unbanned
      */
-    public CompletableFuture<Void> unbanPlayer(UUID uuid) {
+    public CompletableFuture<Void> unbanPlayer(UUID uuid, Entry entry) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
+                addAuditLogEntry(entry);
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
@@ -562,55 +673,6 @@ public class MysqlDatabase {
             } catch (SQLException e) {
                 Logger.error(STR."An error occurred whilst unbanning the player \{uuid}.", e);
                 future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Sets a player's chat channel
-     *
-     * @param uuid        the player
-     * @param chatChannel the chat channel to select
-     */
-    public void setChatChannel(UUID uuid, ChatChannel chatChannel) {
-        worker.submit(() -> {
-            if (!isConnected())
-                throw new IllegalStateException("The database must have an open connection to add a player's chat!");
-            PreparedStatement ps;
-            try {
-                ps = connection.prepareStatement("INSERT INTO cytonic_chat_channels (uuid, chat_channel) VALUES (?, ?) ON DUPLICATE KEY UPDATE chat_channel = VALUES(chat_channel)");
-                ps.setString(1, uuid.toString());
-                ps.setString(2, chatChannel.name());
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst setting a players chat channel.", e);
-            }
-        });
-    }
-
-    /**
-     * Gets a player's chat channel
-     *
-     * @param uuid the player
-     * @return a future that completes with the player's chat channel
-     */
-    public CompletableFuture<ChatChannel> getChatChannel(@NotNull final UUID uuid) {
-        CompletableFuture<ChatChannel> future = new CompletableFuture<>();
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to fetch a player's chat channel!");
-        worker.submit(() -> {
-            String channel = "ALL";
-            try {
-                PreparedStatement ps = connection.prepareStatement("SELECT chat_channel FROM cytonic_chat_channels WHERE uuid = ?");
-                ps.setString(1, uuid.toString());
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    channel = rs.getString("chat_channel");
-                }
-                future.complete(ChatChannel.valueOf(channel));
-            } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst fetching the chat channel of '\{uuid}'", e);
             }
         });
         return future;
@@ -630,14 +692,12 @@ public class MysqlDatabase {
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
-                Logger.debug("Writing SQL!");
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
                 ps.executeUpdate();
-                Logger.debug("World Loaded into database!!");
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }
@@ -721,6 +781,55 @@ public class MysqlDatabase {
     }
 
     /**
+     * Prepares a statement
+     *
+     * @param sql the sql to use
+     * @return the prepared statement object
+     * @throws SQLException if an exception occurred
+     */
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return connection.prepareStatement(sql);
+    }
+
+    /**
+     * Queries the database with the specified prepared statement
+     *
+     * @param preparedStatement the query
+     * @return the result set of the query, completed once the query is complete
+     */
+    public CompletableFuture<ResultSet> query(PreparedStatement preparedStatement) {
+        CompletableFuture<ResultSet> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                future.complete(preparedStatement.executeQuery());
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Updates the database with the specified SQL
+     *
+     * @param sql The SQL update
+     * @return A {@link CompletableFuture} for when the update is completed
+     */
+    CompletableFuture<Void> update(PreparedStatement sql) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                sql.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst updating the database!", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
      * Updates the database with the specified SQL
      *
      * @param sql The SQL update
@@ -733,6 +842,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
+                Logger.error("An error occurred whilst updating the database!", e);
                 future.completeExceptionally(e);
             }
         });

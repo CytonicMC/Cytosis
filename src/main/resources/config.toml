@@ -13,6 +13,11 @@ port = 6379
 host = ""
 password = "" #No username :)
 
+# Friend requests and parties
+[cynwave]
+url = ""
+token = ""
+
 # Networking stuff
 [server]
 proxy_mode = true

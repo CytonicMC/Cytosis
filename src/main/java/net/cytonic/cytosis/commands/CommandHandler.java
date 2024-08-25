@@ -1,9 +1,13 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.moderation.BanCommand;
+import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
+import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
+import net.cytonic.cytosis.commands.moderation.*;
+import net.cytonic.cytosis.commands.server.*;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
+
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,14 +45,27 @@ public class CommandHandler {
         cm.register(new PodDetailsCommand());
         cm.register(new TeleportCommand());
         cm.register(new FindCommand());
+        cm.register(new PreferenceCommand());
         cm.register(new ServerAlertsCommand());
-        cm.register(new HelloCommand());
         cm.register(new FlyCommand());
-        cm.register(new KaboomCommand());
         cm.register(new BroadcastCommand());
         cm.register(new HelpCommand());
         cm.register(new AllChatCommand());
         cm.register(new TimeCommand());
+        cm.register(new VersionCommand());
+        cm.register(new PingCommand());
+        cm.register(new TPSCommand());
+        //cm.register(new ReportCommand());
+        cm.register(new FriendCommand());
+        cm.register(new ClearchatCommand());
+        cm.register(new VanishCommand());
+        cm.register(new IgnoreChatChannelCommand());
+        cm.register(new UnbanCommand());
+        cm.register(new MuteCommand());
+        cm.register(new UnmuteCommand());
+        cm.register(new KickCommand());
+        cm.register(new MsgCommand());
+        cm.register(new WarnCommand());
     }
 
     /**
