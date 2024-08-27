@@ -1,17 +1,13 @@
 package net.cytonic.cytosis.events;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
-import net.cytonic.cytosis.utils.MessageUtils;
 import net.cytonic.enums.ChatChannel;
-import net.cytonic.enums.KickReason;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
@@ -52,24 +48,10 @@ public final class ServerEventListeners {
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
             final Player player = event.getPlayer();
-            Cytosis.getDatabaseManager().getMysqlDatabase().isBanned(event.getPlayer().getUuid()).whenComplete((data, throwable) -> {
-                if (throwable != null) {
-                    Logger.error("An error occurred whilst checking if the player is banned!", throwable);
-                    player.kick(MM."<red>An error occurred whilst initiating the login sequence!");
-                    return;
-                }
-                if (data.isBanned()) {
-                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(player, KickReason.BANNED, MessageUtils.formatBanMessage(data), new Entry(player.getUuid(), null, Category.KICK, "banned"));
-                    return;
-                }
-
-                Logger.info(STR."\{event.getPlayer().getUsername()} (\{event.getPlayer().getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
-                Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
-                Cytosis.getRankManager().addPlayer(player);
-            });
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
+            Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
