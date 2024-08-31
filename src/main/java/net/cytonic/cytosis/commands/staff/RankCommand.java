@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
@@ -25,7 +25,7 @@ public class RankCommand extends Command {
      */
     public RankCommand() {
         super("rank");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.rank"));
+        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.staff.rank"));
 
         var rankArg = ArgumentType.Enum("rank", PlayerRank.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         rankArg.setCallback((sender, exception) -> sender.sendMessage(STR."The rank \{exception.getInput()} is invalid!"));
