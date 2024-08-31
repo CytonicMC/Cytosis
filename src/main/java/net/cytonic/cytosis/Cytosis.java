@@ -7,6 +7,7 @@ import lombok.Getter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.adapters.InstantAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
 import net.cytonic.cytosis.events.EventHandler;
@@ -38,6 +39,7 @@ import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.*;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -60,6 +62,7 @@ public final class Cytosis {
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
             .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
+            .registerTypeAdapter(Instant.class, new InstantAdapter())
             .registerTypeAdapterFactory(new TypedNamespaceAdapter())
             .registerTypeAdapterFactory(new PreferenceAdapter<>())
             .enableComplexMapKeySerialization()
@@ -119,6 +122,8 @@ public final class Cytosis {
     private static CynwaveWrapper cynwaveWrapper;
     @Getter
     private static VanishManager vanishManager;
+    @Getter
+    private static NetworkCooldownManager networkCooldownManager;
 
     private Cytosis() {
     }
@@ -277,6 +282,9 @@ public final class Cytosis {
                 Logger.error("An error occurred whilst initializing the database!", throwable);
                 return;
             }
+
+            Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
+
             Logger.info("Database initialized!");
             Logger.info("Setting up event handlers");
             eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
@@ -346,12 +354,10 @@ public final class Cytosis {
                 cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
             }
 
-            Logger.info("Initializing server commands");
-            commandHandler = new CommandHandler();
-            commandHandler.setupConsole();
-            commandHandler.registerCytosisCommands();
-
-            Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
+            Logger.info("Starting cooldown managers");
+            networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
+            networkCooldownManager.importFromRedis();
+            Logger.info("Started network cooldown manager");
 
             if (FLAGS.contains("--skip-kubernetes") || FLAGS.contains("--skip-k8s")) {
                 Logger.warn("Skipping Kubernetes setup");
@@ -366,6 +372,11 @@ public final class Cytosis {
             }
 
             cynwaveWrapper = new CynwaveWrapper();
+
+            Logger.info("Initializing server commands");
+            commandHandler = new CommandHandler();
+            commandHandler.setupConsole();
+            commandHandler.registerCytosisCommands();
 
             // Start the server
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
