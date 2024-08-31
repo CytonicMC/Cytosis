@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.staff;
 
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
@@ -15,7 +15,7 @@ public class FlyCommand extends Command {
      */
     public FlyCommand() {
         super("fly");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.fly"));
+        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.staff.fly"));
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
                 if (player.hasPermission("cytosis.commands.fly")) {

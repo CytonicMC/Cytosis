@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
@@ -18,7 +18,7 @@ public class ServerAlertsCommand extends Command {
      */
     public ServerAlertsCommand() {
         super("serveralerts");
-        setCondition(((sender, _) -> sender.hasPermission("cytosis.commands.serveralerts")));
+        setCondition(((sender, _) -> sender.hasPermission("cytosis.commands.staff.serveralerts")));
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof Player player) {
                 if (player.hasPermission("cytosis.commands.serveralerts")) {

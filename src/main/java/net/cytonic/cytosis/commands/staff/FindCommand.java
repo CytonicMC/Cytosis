@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.PlayerServer;
@@ -24,7 +24,7 @@ public class FindCommand extends Command {
      */
     public FindCommand() {
         super("find");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.find"));
+        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.staff.find"));
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>You must specify a player!"));
         var playerArgument = ArgumentType.Word("player");
         playerArgument.setSuggestionCallback((_, _, suggestion) -> Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().values().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.playerName()))));
