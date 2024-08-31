@@ -17,6 +17,7 @@ import java.util.UUID;
  * A type adapter for {@link Preference}, allow Gson to serialize and deserialize it easily.
  * @param <T> The type of the preference
  */
+@SuppressWarnings("preview")
 public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements TypeAdapterFactory {
     /**
      * A default constructor
@@ -44,9 +45,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
             case UUID uuid -> out.value(uuid.toString());
             case Enum<?> constant -> out.value(constant.name());
             case null -> out.nullValue();
-            default -> {
-                throw new UnsupportedOperationException(STR."Unsupported type: \{val.getClass().getName()}");
-            }
+            default -> throw new UnsupportedOperationException(STR."Unsupported type: \{val.getClass().getName()}");
         }
 
         // Serialize Class<T>
@@ -60,6 +59,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Preference<T> read(JsonReader in) throws IOException {
         in.beginObject();
 
@@ -111,6 +111,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
         if (!Preference.class.isAssignableFrom(type.getRawType())) {
             return null; // This factory does not handle this type
