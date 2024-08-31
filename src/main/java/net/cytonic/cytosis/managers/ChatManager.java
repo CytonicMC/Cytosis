@@ -2,8 +2,8 @@ package net.cytonic.cytosis.managers;
 
 import com.google.gson.JsonObject;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisNamespaces;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;

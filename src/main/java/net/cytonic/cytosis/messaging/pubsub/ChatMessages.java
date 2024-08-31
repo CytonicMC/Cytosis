@@ -3,7 +3,7 @@ package net.cytonic.cytosis.messaging.pubsub;
 import com.google.gson.JsonObject;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.sound.Sound;

@@ -2,9 +2,9 @@ package net.cytonic.cytosis.messaging.pubsub;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.enums.CytosisNamespaces;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.utils.MiniMessageTemplate;
 import redis.clients.jedis.JedisPubSub;
