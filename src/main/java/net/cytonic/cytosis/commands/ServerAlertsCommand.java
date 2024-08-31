@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisNamespaces;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 

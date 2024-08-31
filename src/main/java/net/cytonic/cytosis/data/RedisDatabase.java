@@ -15,6 +15,7 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 import redis.clients.jedis.*;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -40,6 +41,16 @@ public class RedisDatabase {
      * Cached player servers
      */
     public static final String ONLINE_PLAYER_SERVER_KEY = "online_player_server";
+
+    /**
+     * Cached global cooldowns
+     */
+    public static final String GLOBAL_COOLDOWNS_KEY = "global_cooldowns";
+
+    /**
+     * Cooldown pubsub
+     */
+    public static final String COOLDOWN_UPDATE_CHANNEL = "update_cooldowns";
 
     /**
      * Player change servers channel
@@ -123,6 +134,7 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
+        worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
     }
@@ -303,5 +315,58 @@ public class RedisDatabase {
      */
     public void publish(String channel, String message) {
         jedisPub.publish(channel, message);
+    }
+
+    /**
+     * Adds a key and value to a hash
+     *
+     * @param hash  the name of the hash
+     * @param key   the key of the key value pair
+     * @param value the value of the key value pair
+     */
+    public void addToHash(String hash, String key, String value) {
+        jedis.hset(hash, key, value);
+    }
+
+    /**
+     * Remove a key value pair from a hash
+     *
+     * @param key   the name of the hash
+     * @param field the field in the hash
+     */
+    public void removeFromHash(String key, String field) {
+        jedis.hdel(key, field);
+    }
+
+    /**
+     * Gets the map of key value pairs stored in a hash
+     *
+     * @param key the key tied to the hash
+     * @return the map of values
+     */
+    public Map<String, String> getHash(String key) {
+        return jedis.hgetAll(key);
+    }
+
+    /**
+     * Gets the specified field from the specified hash
+     *
+     * @param key   The hash to query
+     * @param field the field to query from the hash
+     * @return the value stored in the hash
+     */
+    public String getFromHash(String key, String field) {
+        return jedis.hget(key, field);
+    }
+
+    /**
+     * Gets the keys associated with the specified pattern. For example, {@code foo*} would return {@code foooooo} and {@code fooHiThisIsAKey}.
+     * <br><strong>**This may be time consuming, use sparingly if at all **</strong>
+     *
+     * @param pattern the pattern used to select the keys
+     * @return the set of keys associated with the pattern
+     */
+    public Set<String> getKeys(String pattern) {
+        return jedis.keys(pattern);
     }
 }

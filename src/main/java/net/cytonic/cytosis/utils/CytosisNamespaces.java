@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.enums;
+package net.cytonic.cytosis.utils;
 
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.TypedNamespace;

@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.managers;
 
-import net.cytonic.cytosis.data.enums.CytosisNamespaces;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
 import net.cytonic.cytosis.data.objects.PreferenceData;
 import net.cytonic.cytosis.data.objects.PreferenceRegistry;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.objects.NamespacedPreference;
 import net.cytonic.objects.Preference;
 import net.cytonic.objects.TypedNamespace;

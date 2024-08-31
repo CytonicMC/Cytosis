@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.playerlist;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.enums.PlayerRank;

@@ -1,6 +1,8 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.debug.CooldownCommand;
+import net.cytonic.cytosis.commands.debug.PreferenceCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.moderation.*;
@@ -66,6 +68,7 @@ public class CommandHandler {
         cm.register(new KickCommand());
         cm.register(new MsgCommand());
         cm.register(new WarnCommand());
+        cm.register(new CooldownCommand(Cytosis.getNetworkCooldownManager()));
     }
 
     /**
