@@ -26,7 +26,17 @@ public interface Container {
      */
     String serialize();
 
+    /**
+     * The ID of this container
+     *
+     * @return the id of the container
+     */
     String id();
 
+    /**
+     * Parses a string into a container object
+     * @param json the json string
+     * @return the parsed container
+     */
     Container parse(String json);
 }

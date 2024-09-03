@@ -6,7 +6,14 @@ import net.cytonic.cytosis.messaging.containers.Container;
 import net.cytonic.cytosis.messaging.containers.CooldownUpdateContainer;
 import redis.clients.jedis.JedisPubSub;
 
+/**
+ * A class for managing the pubsub aspect of cooldowns
+ */
 public class Cooldowns extends JedisPubSub {
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.COOLDOWN_UPDATE_CHANNEL)) return;
