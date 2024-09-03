@@ -1,9 +1,8 @@
 package net.cytonic.cytosis.commands.staff;
 
-import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
-import net.minestom.server.command.builder.CommandDispatcher;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.timer.TaskSchedule;
@@ -35,7 +34,7 @@ public class LoopCommand extends Command {
         });
 
         addSyntax((commandSender, context) -> {
-            if (!(commandSender instanceof Player player)) {
+            if (!(commandSender instanceof CytosisPlayer player)) {
                 commandSender.sendMessage("Only players can use this command.");
                 return;
             }
@@ -49,17 +48,16 @@ public class LoopCommand extends Command {
             }
 
             String commandStr = String.join(" ", command);
-            CommandDispatcher dispatcher = Cytosis.getCommandManager().getDispatcher();
 
             // don't schedule
             if (period == 0) {
                 for (int i = 1; i <= iterations; i++) {
-                    dispatcher.execute(player, commandStr.replace("%i%", String.valueOf(i)));
+                    player.dispatchCommand(commandStr.replace("%i%", String.valueOf(i)));
                 }
             } else {
                 for (int i = 1; i <= iterations; i++) {
                     int finalI = i;
-                    MinecraftServer.getSchedulerManager().buildTask(() -> dispatcher.execute(player, commandStr.replace("%i%", String.valueOf(finalI)))).delay(TaskSchedule.tick(i * period)).schedule();
+                    MinecraftServer.getSchedulerManager().buildTask(() -> player.dispatchCommand(commandStr.replace("%i%", String.valueOf(finalI)))).delay(TaskSchedule.tick(i * period)).schedule();
                 }
             }
 

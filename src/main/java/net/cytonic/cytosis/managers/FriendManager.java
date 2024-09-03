@@ -115,7 +115,7 @@ public class FriendManager {
     }
 
     /**
-     * Adds a player as a friend
+     * Removes a player as a friend
      *
      * @param uuid   The player
      * @param friend The friend
