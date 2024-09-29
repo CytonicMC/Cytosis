@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import lombok.Getter;
+import lombok.Setter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
@@ -23,6 +24,7 @@ import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.Preference;
+import net.cytonic.objects.ServerGroup;
 import net.cytonic.objects.TypedNamespace;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
@@ -32,7 +34,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
@@ -55,7 +56,6 @@ public final class Cytosis {
      * the instance ID is used to identify the server
      */
     public static final String SERVER_ID = generateID();
-
     /**
      * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
      */
@@ -69,16 +69,18 @@ public final class Cytosis {
             .setStrictness(Strictness.LENIENT)
             .serializeNulls()
             .create();
-
     /**
      * The version of Cytosis
      */
     public static final String VERSION = "0.1";
+    @Setter
+    @Getter
+    private static ServerGroup serverGroup = new ServerGroup("default", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
     @Getter
-    private static InstanceManager instanceManager;
+    private static net.minestom.server.instance.InstanceManager minestomInstanceManager;
     @Getter
     private static InstanceContainer defaultInstance;
     @Getter
@@ -111,7 +113,8 @@ public final class Cytosis {
     private static SideboardManager sideboardManager;
     @Getter
     private static NPCManager npcManager;
-    private static List<String> FLAGS;
+    @Getter
+    private static List<String> flags;
     @Getter
     private static ContainerizedInstanceManager containerizedInstanceManager;
     @Getter
@@ -124,6 +127,8 @@ public final class Cytosis {
     private static VanishManager vanishManager;
     @Getter
     private static NetworkCooldownManager networkCooldownManager;
+    @Getter
+    private static InstanceManager instanceManager;
 
     private Cytosis() {
     }
@@ -135,9 +140,10 @@ public final class Cytosis {
      */
     public static void main(String[] args) {
         // handle uncaught exceptions
+        Logger.info("Starting server!");
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error(STR."Uncaught exception in thread \{t.getName()}", e));
 
-        FLAGS = List.of(args);
+        flags = List.of(args);
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
@@ -145,8 +151,9 @@ public final class Cytosis {
         MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
 
-        Logger.info("Starting instance manager.");
-        instanceManager = MinecraftServer.getInstanceManager();
+        Logger.info("Starting instance managers.");
+        minestomInstanceManager = MinecraftServer.getInstanceManager();
+        instanceManager = new InstanceManager();
 
         Logger.info("Starting connection manager.");
         connectionManager = MinecraftServer.getConnectionManager();
@@ -165,7 +172,7 @@ public final class Cytosis {
 
         // instances
         Logger.info("Creating instance container");
-        defaultInstance = instanceManager.createInstanceContainer();
+        defaultInstance = minestomInstanceManager.createInstanceContainer();
 
         Logger.info("Creating file manager");
         fileManager = new FileManager();
@@ -264,9 +271,12 @@ public final class Cytosis {
             } else {
                 defaultInstance.setChunkLoader(new PolarLoader(polarWorld));
                 defaultInstance.setChunkSupplier(LightingChunk::new);
+                defaultInstance.enableAutoChunkLoad(true);
                 Logger.info("World loaded!");
             }
         });
+
+
     }
 
     /**
@@ -316,7 +326,6 @@ public final class Cytosis {
                     Logger.error("An error occurred whilst initializing the messaging manager!", th);
                 } else {
                     Logger.info("Messaging manager initialized!");
-                    databaseManager.getRedisDatabase().sendStartupMessage();
                 }
             });
 
@@ -328,6 +337,7 @@ public final class Cytosis {
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
+
             Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
                 try {
                     pluginManager.loadPlugins(Path.of("plugins"));
@@ -359,7 +369,7 @@ public final class Cytosis {
             networkCooldownManager.importFromRedis();
             Logger.info("Started network cooldown manager");
 
-            if (FLAGS.contains("--skip-kubernetes") || FLAGS.contains("--skip-k8s")) {
+            if (flags.contains("--skip-kubernetes") || flags.contains("--skip-k8s")) {
                 Logger.warn("Skipping Kubernetes setup");
                 CytosisSettings.KUBERNETES_SUPPORTED = false;
             } else {
@@ -386,8 +396,9 @@ public final class Cytosis {
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
             Logger.info(STR."Server id = \{SERVER_ID}");
+            databaseManager.getRedisDatabase().sendStartupMessage();
 
-            if (FLAGS.contains("--ci-test")) {
+            if (flags.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
                 MinecraftServer.stopCleanly();
             }
