@@ -18,9 +18,9 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.5.2")
+    api("net.cytonic:Commons:1.6.1")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:a521c4e7cd")
+    api("net.minestom:minestom-snapshots:916424e995")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -29,7 +29,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.34") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     api("com.rabbitmq:amqp-client:5.21.0") // Message broker
-    api("dev.hollowcube:polar:1.11.1") // Polar
+    api("dev.hollowcube:polar:1.11.3") // Polar
     api("redis.clients:jedis:5.1.5") // redis client
     api("com.google.guava:guava:33.3.0-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
