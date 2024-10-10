@@ -90,7 +90,7 @@ public class FileManager {
      * @param path     The path where the extracted file will be written.
      * @return A CompletableFuture representing the completion of the file extraction process.
      */
-    private CompletableFuture<File> extractResource(String resource, Path path) {
+    public CompletableFuture<File> extractResource(String resource, Path path) {
         CompletableFuture<File> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
