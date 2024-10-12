@@ -686,17 +686,40 @@ public class MysqlDatabase {
      * @param world      The PolarWorld object representing the world.
      * @param spawnPoint The spawn point of the world.
      * @throws IllegalStateException If the database connection is not open.
+     * @deprecated Use {@link MysqlDatabase#addWorld(String, String, PolarWorld, Pos, UUID)}
      */
+    @Deprecated
     public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint) {
+        world.setCompression(PolarWorld.CompressionType.ZSTD);
         if (!isConnected())
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
-                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
+                ps.setString(5, UUID.randomUUID().toString());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst adding a world!", e);
+            }
+        });
+    }
+
+    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID) {
+        world.setCompression(PolarWorld.CompressionType.ZSTD);
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to add a world!");
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
+                ps.setString(1, worldName);
+                ps.setString(2, worldType);
+                ps.setBytes(3, PolarWriter.write(world));
+                ps.setString(4, PosSerializer.serialize(spawnPoint));
+                ps.setString(5, worldUUID.toString());
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
@@ -723,11 +746,30 @@ public class MysqlDatabase {
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
                     CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
+                    Logger.debug(STR."THIS IS A COMPRESSION:  \{world.compression().name()}");
                     future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");
                     throw new RuntimeException(STR."World not found: \{worldName}");
                 }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst fetching a world!", e);
+                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+            }
+        });
+        return future;
+    }
+
+    public CompletableFuture<Boolean> worldExists(String worldName) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a world!");
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement("SELECT world_name FROM cytonic_worlds WHERE world_name = ?")) {
+                ps.setString(1, worldName);
+                ResultSet rs = ps.executeQuery();
+                future.complete(rs.next());
             } catch (Exception e) {
                 Logger.error("An error occurred whilst fetching a world!", e);
                 future.completeExceptionally(e);
