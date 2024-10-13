@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.managers;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
@@ -22,15 +23,9 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * A class to manage friends
  */
+@NoArgsConstructor
 public class FriendManager {
     private final ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
-
-    /**
-     * The default constructor
-     */
-    public FriendManager() {
-        // do nothing
-    }
 
     /**
      * Gets a player's friends
