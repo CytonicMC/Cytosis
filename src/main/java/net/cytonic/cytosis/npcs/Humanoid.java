@@ -49,6 +49,7 @@ public class Humanoid extends EntityCreature implements NPC {
 
     /**
      * Creates a new NPC from a UUID
+     *
      * @param uuid The UUID to use
      */
     public Humanoid(UUID uuid) {

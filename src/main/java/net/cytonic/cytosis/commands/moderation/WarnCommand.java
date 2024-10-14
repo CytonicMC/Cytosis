@@ -4,12 +4,12 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.objects.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import java.util.UUID;
 
@@ -25,14 +25,14 @@ public class WarnCommand extends Command {
         reasonArg.setDefaultValue(new String[]{""});
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching players...");
                 Cytosis.getCytonicNetwork().getOnlinePlayers().forEach((_, name) -> suggestion.addEntry(new SuggestionEntry(name)));
             }
         });
 
         addSyntax((sender, context) -> {
-            if (sender instanceof Player actor) {
+            if (sender instanceof CytosisPlayer actor) {
                 if (!actor.hasPermission("cytosis.commands.moderation.kick")) {
                     actor.sendMessage(MM."<red>You don't have permission to use this command!");
                     return;

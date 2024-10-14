@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sideboard.DefaultCreator;
 import net.cytonic.cytosis.sideboard.Sideboard;
 import net.cytonic.cytosis.sideboard.SideboardCreator;
@@ -55,7 +56,7 @@ public class SideboardManager {
 
     private void updatePlayer() {
         sideboards.forEach((uuid, sideboard) -> {
-            Optional<Player> player = Cytosis.getPlayer(uuid);
+            Optional<CytosisPlayer> player = Cytosis.getPlayer(uuid);
             if (player.isEmpty()) {
                 sideboard.delete();
                 removePlayer(uuid);

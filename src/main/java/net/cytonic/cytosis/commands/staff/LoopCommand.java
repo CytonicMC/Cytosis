@@ -4,7 +4,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.entity.Player;
 import net.minestom.server.timer.TaskSchedule;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -26,7 +25,7 @@ public class LoopCommand extends Command {
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.staff.loop"));
 
         setDefaultExecutor((commandSender, _) -> {
-            if (!(commandSender instanceof Player player)) {
+            if (!(commandSender instanceof CytosisPlayer player)) {
                 commandSender.sendMessage("Only players can use this command.");
                 return;
             }

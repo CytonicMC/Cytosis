@@ -2,12 +2,12 @@ package net.cytonic.cytosis.commands.debug;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 import net.minestom.server.utils.NamespaceID;
 
 import java.time.Instant;
@@ -42,7 +42,7 @@ public class CooldownCommand extends Command {
         var durationArg = ArgumentType.StringArray("duration").setDefaultValue(new String[0]);
 
         addSyntax((sender, context) -> {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof CytosisPlayer player)) {
                 sender.sendMessage("You cannot do this!");
                 return;
             }
@@ -56,7 +56,7 @@ public class CooldownCommand extends Command {
         }, action);
 
         addSyntax((sender, context) -> {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof CytosisPlayer player)) {
                 sender.sendMessage("You cannot do this!");
                 return;
             }

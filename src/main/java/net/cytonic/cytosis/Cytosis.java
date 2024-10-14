@@ -16,6 +16,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
@@ -37,6 +38,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -124,6 +126,8 @@ public final class Cytosis {
     private static VanishManager vanishManager;
     @Getter
     private static NetworkCooldownManager networkCooldownManager;
+    @Getter
+    private static ActionbarManager actionbarManager;
 
     private Cytosis() {
     }
@@ -195,9 +199,21 @@ public final class Cytosis {
      *
      * @return a set of players
      */
-    public static Set<Player> getOnlinePlayers() {
-        //        instanceManager.getInstances().forEach(instance -> players.addAll(instance.getPlayers()));
-        return new HashSet<>(MinecraftServer.getConnectionManager().getOnlinePlayers());
+    @SuppressWarnings("unchecked") // every object the server makes is a CytosisPlayer
+    public static Set<CytosisPlayer> getOnlinePlayers() {
+        HashSet<CytosisPlayer> players = new HashSet<>();
+
+        for (@NotNull Player onlinePlayer : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
+            try {
+                CytosisPlayer cp = (CytosisPlayer) onlinePlayer;
+                players.add(cp);
+            } catch (ClassCastException e) {
+                // ignored
+            }
+        }
+
+
+        return players;
     }
 
     /**
@@ -206,8 +222,8 @@ public final class Cytosis {
      * @param username The name to fetch the player by
      * @return The optional holding the player if they exist
      */
-    public static Optional<Player> getPlayer(String username) {
-        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
+    public static Optional<CytosisPlayer> getPlayer(String username) {
+        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
     /**
@@ -216,8 +232,8 @@ public final class Cytosis {
      * @param uuid The uuid to fetch the player by
      * @return The optional holding the player if they exist
      */
-    public static Optional<Player> getPlayer(UUID uuid) {
-        return Optional.ofNullable(MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
+    public static Optional<CytosisPlayer> getPlayer(UUID uuid) {
+        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
     /**
@@ -378,6 +394,10 @@ public final class Cytosis {
             commandHandler.setupConsole();
             commandHandler.registerCytosisCommands();
 
+            Logger.info("starting actionbar manager");
+            actionbarManager = new ActionbarManager();
+            actionbarManager.init();
+
             // Start the server
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
@@ -403,7 +423,7 @@ public final class Cytosis {
      */
     private static String generateID() {
         //todo: make a check for existing server ids
-        StringBuilder id = new StringBuilder("Cytosis-");
+        StringBuilder id = new StringBuilder();
         Random random = new Random();
         id.append((char) (random.nextInt(26) + 'a'));
         for (int i = 0; i < 4; i++) {

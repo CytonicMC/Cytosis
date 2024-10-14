@@ -1,10 +1,9 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -21,7 +20,7 @@ public class ClearchatCommand extends Command {
         super("clearchat", "cc");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.clearchat"));
         setDefaultExecutor((sender, _) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 if (sender.hasPermission("cytosis.commands.clearchat")) {
                     for (Player online : Cytosis.getOnlinePlayers()) {
                         if (online.hasPermission("cytosis.commands.clearchat")) {
