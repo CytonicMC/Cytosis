@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.messaging.pubsub;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
@@ -16,14 +17,8 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * A pub sub that handles player friend requests
  */
+@NoArgsConstructor
 public class Friends extends JedisPubSub {
-
-    /**
-     * The default constructor
-     */
-    public Friends() {
-        // do nothing
-    }
 
     private static final Component line = MM."<st><dark_aqua>                                                                                 ";
 

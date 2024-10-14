@@ -11,7 +11,7 @@ import java.util.List;
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
- * The default implementation of {@link SideboardCreator}, creating a baseline sideboard for Cytosis.
+ * The default implementation of {@link SideboardCreator}; creating a baseline sideboard for Cytosis.
  */
 public class DefaultCreator implements SideboardCreator {
 

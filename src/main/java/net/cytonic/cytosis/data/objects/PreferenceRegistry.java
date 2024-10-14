@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data.objects;
 
 import com.google.common.collect.Iterables;
+import lombok.NoArgsConstructor;
 import net.cytonic.objects.NamespacedPreference;
 import net.cytonic.objects.Preference;
 import net.cytonic.objects.TypedNamespace;
@@ -18,15 +19,9 @@ import java.util.stream.Collectors;
  * A class that acts a registry holding the registered preferences
  */
 @SuppressWarnings({"preview", "unused"})
+@NoArgsConstructor
 public class PreferenceRegistry {
     private final Map<TypedNamespace<?>, Entry<?>> preferences = new ConcurrentHashMap<>();
-
-    /**
-     * A default constructor
-     */
-    public PreferenceRegistry() {
-        // do nothing
-    }
 
     /**
      * Writes a preference to the registry

@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.events;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -21,14 +22,8 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * A class that registers Cytosis required server events
  */
+@NoArgsConstructor
 public final class ServerEventListeners {
-
-    /**
-     * Default constructor
-     */
-    private ServerEventListeners() {
-        // do nothing
-    }
 
     /**
      * Adds Cytosis required server events

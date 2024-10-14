@@ -95,8 +95,9 @@ public class EventHandler {
 
     /**
      * Handles the specified event
+     *
      * @param event The event object
-     * @param <T> The type of the event
+     * @param <T>   The type of the event
      */
     public <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
@@ -109,13 +110,19 @@ public class EventHandler {
         matchingListeners.sort(Comparator.comparingInt(EventListener::getPriority));
 
         for (EventListener<? extends Event> listener : matchingListeners) {
-            if (!(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled()))
+            if (!(event instanceof CancellableEvent) || (((CancellableEvent) event).isCancelled() && !listener.isIgnoreCancelled())) {
+                if (listener.isAsync()) {
+                    Thread.ofVirtual().name("Cytosis-Event-Async").start(() -> listener.complete(event));
+                    return;
+                }
                 listener.complete(event);
+            }
         }
     }
 
     /**
      * Regisers a custom event class to implement a listener for it
+     *
      * @param clazz The event class
      */
     public void registerCustomEvent(Class<? extends Event> clazz) {
