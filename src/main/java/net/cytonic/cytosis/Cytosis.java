@@ -317,8 +317,22 @@ public final class Cytosis {
                 getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
-            Logger.info("Starting Player list manager");
-            playerListManager = new PlayerListManager();
+            Logger.info("Initializing Plugin Manager!");
+            pluginManager = new PluginManager();
+            Logger.info("Loading plugins!");
+
+            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
+                try {
+                    pluginManager.loadPlugins(Path.of("plugins"));
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading plugins!", e);
+                }
+            });
+
+            if (CytosisSettings.TAB_LIST_ENABLED) {
+                Logger.info("Starting Player list manager");
+                playerListManager = new PlayerListManager();
+            }
 
             messagingManager = new MessagingManager();
             messagingManager.initialize().whenComplete((_, th) -> {
@@ -333,26 +347,15 @@ public final class Cytosis {
             friendManager = new FriendManager();
             friendManager.init();
 
-
-            Logger.info("Initializing Plugin Manager!");
-            pluginManager = new PluginManager();
-            Logger.info("Loading plugins!");
-
-            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
-                try {
-                    pluginManager.loadPlugins(Path.of("plugins"));
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading plugins!", e);
-                }
-            });
-
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
             rankManager.init();
 
-            Logger.info("Creating sideboard manager!");
-            sideboardManager = new SideboardManager();
-            sideboardManager.updateBoards();
+            if (CytosisSettings.SIDEBOARD_ENABLED) {
+                Logger.info("Creating sideboard manager!");
+                sideboardManager = new SideboardManager();
+                sideboardManager.updateBoards();
+            }
 
             Logger.info("Starting NPC manager!");
             npcManager = new NPCManager();

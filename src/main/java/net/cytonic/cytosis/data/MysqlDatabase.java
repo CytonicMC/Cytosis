@@ -746,7 +746,41 @@ public class MysqlDatabase {
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
                     CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
-                    Logger.debug(STR."THIS IS A COMPRESSION:  \{world.compression().name()}");
+                    future.complete(world);
+                } else {
+                    Logger.error("The result set is empty!");
+                    throw new RuntimeException(STR."World not found: \{worldName}");
+                }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst fetching a world!", e);
+                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Retrieves a world from the database.
+     *
+     * @param worldName The name of the world to fetch.
+     * @param worldType The world type of the world to fetch.
+     * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}.
+     * If the world does not exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
+     * @throws IllegalStateException If the database connection is not open.
+     */
+    public CompletableFuture<PolarWorld> getWorld(String worldName, String worldType) {
+        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a world!");
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
+                ps.setString(1, worldName);
+                ps.setString(2, worldType);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
+                    CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
                     future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");

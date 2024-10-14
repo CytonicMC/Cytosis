@@ -142,6 +142,9 @@ public final class CytosisSettings {
      */
     public static String CYNWAVE_TOKEN = "";
 
+    public static boolean SIDEBOARD_ENABLED = true;
+    public static boolean TAB_LIST_ENABLED = true;
+
     /**
      * Loads the config from a config map
      *
@@ -185,7 +188,6 @@ public final class CytosisSettings {
 
                     case "cynwave.url" -> CYNWAVE_URL = (String) value;
                     case "cynwave.token" -> CYNWAVE_TOKEN = (String) value;
-
 
                     default -> { /*Do nothing*/ }
                 }
