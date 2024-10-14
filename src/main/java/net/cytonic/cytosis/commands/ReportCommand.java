@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.PlayerServer;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -22,7 +23,7 @@ public class ReportCommand extends Command {
 
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
             Cytosis.getCytonicNetwork().getOnlinePlayers().getValues().forEach(player ->

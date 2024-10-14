@@ -3,13 +3,13 @@ package net.cytonic.cytosis.commands.debug;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.objects.Preference;
 import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 import net.minestom.server.utils.NamespaceID;
 
 import java.util.UUID;
@@ -41,7 +41,7 @@ public class PreferenceCommand extends Command {
         var valueArg = ArgumentType.StringArray("preference").setDefaultValue(new String[]{""});
 
         addSyntax(((sender, context) -> {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof CytosisPlayer player)) {
                 sender.sendMessage(MM."<red>You must be a player to use this command!");
                 return;
             }

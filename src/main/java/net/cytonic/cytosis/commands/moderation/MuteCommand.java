@@ -4,12 +4,12 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.objects.OfflinePlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import java.time.Instant;
 
@@ -23,7 +23,7 @@ public class MuteCommand extends Command {
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /mute (player) (duration)"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching players...");
             }
             Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((_, name) ->
@@ -32,7 +32,7 @@ public class MuteCommand extends Command {
         var durationArg = ArgumentType.Word("duration");
 
         addSyntax((sender, context) -> {
-            if (sender instanceof Player actor) {
+            if (sender instanceof CytosisPlayer actor) {
                 if (!actor.hasPermission("cytosis.commands.moderation.mute")) {
                     actor.sendMessage(MM."<red>You don't have permission to use this command!");
                 }
