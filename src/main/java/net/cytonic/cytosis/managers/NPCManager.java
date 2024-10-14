@@ -31,6 +31,7 @@ public class NPCManager {
      * @param npc the NPC to remove
      */
     public void removeNPC(NPC npc) {
+        npc.remove();
         npcs.remove(npc);
     }
 
