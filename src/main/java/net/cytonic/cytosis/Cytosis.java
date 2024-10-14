@@ -38,6 +38,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.permission.Permission;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -200,7 +201,19 @@ public final class Cytosis {
      */
     @SuppressWarnings("unchecked") // every object the server makes is a CytosisPlayer
     public static Set<CytosisPlayer> getOnlinePlayers() {
-        return new HashSet<>((Collection<? extends CytosisPlayer>) MinecraftServer.getConnectionManager().getOnlinePlayers());
+        HashSet<CytosisPlayer> players = new HashSet<>();
+
+        for (@NotNull Player onlinePlayer : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
+            try {
+                CytosisPlayer cp = (CytosisPlayer) onlinePlayer;
+                players.add(cp);
+            } catch (ClassCastException e) {
+                // ignored
+            }
+        }
+
+
+        return players;
     }
 
     /**

@@ -52,7 +52,7 @@ public class RankCommand extends Command {
                 sender.sendMessage(MM."<red>The player \{context.get("player")} doesn't exist!");
                 return;
             }
-            Optional<Player> optionalPlayer = Cytosis.getPlayer(name);
+            Optional<CytosisPlayer> optionalPlayer = Cytosis.getPlayer(name);
             if (optionalPlayer.isEmpty()) {
                 sender.sendMessage(MM."<red>You must be on the same server to set someone's rank! Use the /find command to find and go to their server.");
                 return;
