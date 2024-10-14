@@ -2,13 +2,13 @@ package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.objects.CytonicServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -33,7 +33,7 @@ public class ServerCommand extends Command {
                 }
             });
             addSyntax(((sender, context) -> {
-                if (sender instanceof Player player)
+                if (sender instanceof CytosisPlayer player)
                     if (player.hasPermission("cytosis.commands.server")) {
                         if (!context.get(serverArgument).equalsIgnoreCase(Cytosis.SERVER_ID)) {
                             for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {

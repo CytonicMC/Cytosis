@@ -6,6 +6,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import lombok.NoArgsConstructor;
 import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -16,14 +17,8 @@ import java.io.IOException;
 /**
  * A type adapter for {@link TypedNamespace}, allow Gson to serialize and deserialize it easily.
  */
+@NoArgsConstructor
 public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implements TypeAdapterFactory {
-
-    /**
-     * A default constructor
-     */
-    public TypedNamespaceAdapter() {
-        // do nothing
-    }
 
     /**
      * {@inheritDoc}

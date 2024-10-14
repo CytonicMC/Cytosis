@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.events;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.Event;
@@ -12,6 +13,7 @@ import java.util.function.Consumer;
  * @param <T> The event class type
  */
 @Getter
+@AllArgsConstructor
 public class EventListener<T extends Event> {
     private final Class<T> eventClass;
     @Setter
@@ -19,6 +21,7 @@ public class EventListener<T extends Event> {
     private final boolean async;
     private final int priority;
     private final String namespace;
+    private final boolean ignoreCancelled;
 
     /**
      * Constructs a new instance of {@link EventListener} with the specified namespace, priority, and consumer.
@@ -36,6 +39,7 @@ public class EventListener<T extends Event> {
         this.async = async;
         this.priority = priority;
         this.namespace = namespace;
+        this.ignoreCancelled = false;
     }
 
     /**
@@ -53,6 +57,7 @@ public class EventListener<T extends Event> {
         this.eventClass = eventClass;
         this.priority = priority;
         this.namespace = namespace;
+        this.ignoreCancelled = false;
     }
 
     /**
@@ -69,6 +74,7 @@ public class EventListener<T extends Event> {
         this.async = async;
         this.priority = priority;
         this.namespace = namespace;
+        this.ignoreCancelled = false;
     }
 
     /**
@@ -84,7 +90,9 @@ public class EventListener<T extends Event> {
         this.eventClass = eventClass;
         this.priority = priority;
         this.namespace = namespace;
+        this.ignoreCancelled = false;
     }
+
 
     /**
      * Completes the EventListener's consumer with the provided event object.
