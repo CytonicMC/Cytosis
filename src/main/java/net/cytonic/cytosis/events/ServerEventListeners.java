@@ -53,8 +53,8 @@ public final class ServerEventListeners {
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
-            if (CytosisSettings.SIDEBOARD_ENABLED) Cytosis.getSideboardManager().addPlayer(player);
-            if (CytosisSettings.TAB_LIST_ENABLED) Cytosis.getPlayerListManager().setupPlayer(player);
+            Cytosis.getSideboardManager().addPlayer(player);
+            Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 Cytosis.getVanishManager().enableVanish(player);

@@ -329,10 +329,9 @@ public final class Cytosis {
                 }
             });
 
-            if (CytosisSettings.TAB_LIST_ENABLED) {
-                Logger.info("Starting Player list manager");
-                playerListManager = new PlayerListManager();
-            }
+            Logger.info("Starting Player list manager");
+            playerListManager = new PlayerListManager();
+
 
             messagingManager = new MessagingManager();
             messagingManager.initialize().whenComplete((_, th) -> {
@@ -351,11 +350,9 @@ public final class Cytosis {
             rankManager = new RankManager();
             rankManager.init();
 
-            if (CytosisSettings.SIDEBOARD_ENABLED) {
-                Logger.info("Creating sideboard manager!");
-                sideboardManager = new SideboardManager();
-                sideboardManager.updateBoards();
-            }
+            Logger.info("Creating sideboard manager!");
+            sideboardManager = new SideboardManager();
+            sideboardManager.updateBoards();
 
             Logger.info("Starting NPC manager!");
             npcManager = new NPCManager();

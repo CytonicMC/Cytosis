@@ -142,9 +142,6 @@ public final class CytosisSettings {
      */
     public static String CYNWAVE_TOKEN = "";
 
-    public static boolean SIDEBOARD_ENABLED = true;
-    public static boolean TAB_LIST_ENABLED = true;
-
     /**
      * Loads the config from a config map
      *
