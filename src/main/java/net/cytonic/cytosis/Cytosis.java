@@ -130,9 +130,10 @@ public final class Cytosis {
     @Getter
     private static NetworkCooldownManager networkCooldownManager;
     @Getter
-    private static ActionbarManager actionbarManager;
-    @Getter
     private static InstanceManager instanceManager;
+    @Getter
+    private static ActionbarManager actionbarManager;
+
 
     private Cytosis() {
     }
@@ -291,6 +292,8 @@ public final class Cytosis {
                 Logger.info("World loaded!");
             }
         });
+
+
     }
 
     /**
@@ -331,18 +334,6 @@ public final class Cytosis {
                 getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
-            Logger.info("Initializing Plugin Manager!");
-            pluginManager = new PluginManager();
-            Logger.info("Loading plugins!");
-
-            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
-                try {
-                    pluginManager.loadPlugins(Path.of("plugins"));
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading plugins!", e);
-                }
-            });
-
             Logger.info("Starting Player list manager");
             playerListManager = new PlayerListManager();
 
@@ -358,6 +349,19 @@ public final class Cytosis {
             Logger.info("Starting Friend manager!");
             friendManager = new FriendManager();
             friendManager.init();
+
+
+            Logger.info("Initializing Plugin Manager!");
+            pluginManager = new PluginManager();
+            Logger.info("Loading plugins!");
+
+            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
+                try {
+                    pluginManager.loadPlugins(Path.of("plugins"));
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading plugins!", e);
+                }
+            });
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();
