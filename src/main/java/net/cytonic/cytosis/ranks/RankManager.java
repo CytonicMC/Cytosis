@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.ranks;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.ranks.RankChangeEvent;
 import net.cytonic.cytosis.events.ranks.RankSetupEvent;
@@ -14,7 +15,6 @@ import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,16 +25,11 @@ import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 /**
  * A class that manages player ranks
  */
+@NoArgsConstructor
 public class RankManager {
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
-    /**
-     * Default constructor
-     */
-    public RankManager() {
-        // Do nothing
-    }
 
     /**
      * Creates the teams for cosmetic ranks

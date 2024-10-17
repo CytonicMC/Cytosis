@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.utils;
 
+import lombok.experimental.UtilityClass;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.NamespacedPreference;
 
@@ -8,6 +9,7 @@ import java.util.Set;
 /**
  * A list of Cytosis supplied preferences
  */
+@UtilityClass
 public class CytosisPreferences {
     /**
      * A preference to accept or decline friend requests, type of BOOLEAN
@@ -41,11 +43,4 @@ public class CytosisPreferences {
      * A set of all the preferences that are available here.
      */
     public static final Set<NamespacedPreference<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED, IGNORED_CHAT_CHANNELS);
-
-    /**
-     * A private constructor to prevent instantiation
-     */
-    private CytosisPreferences() {
-        // do nothing
-    }
 }

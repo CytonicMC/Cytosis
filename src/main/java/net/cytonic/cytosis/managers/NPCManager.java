@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.managers;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.npcs.NPC;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,14 +12,8 @@ import java.util.UUID;
 /**
  * A class that manages NPCs
  */
+@NoArgsConstructor
 public class NPCManager {
-
-    /**
-     * The defualt Constructor
-     */
-    public NPCManager() {
-        // Do nothing
-    }
 
     private final List<NPC> npcs = new ArrayList<>();
 
@@ -36,6 +31,7 @@ public class NPCManager {
      * @param npc the NPC to remove
      */
     public void removeNPC(NPC npc) {
+        npc.remove();
         npcs.remove(npc);
     }
 

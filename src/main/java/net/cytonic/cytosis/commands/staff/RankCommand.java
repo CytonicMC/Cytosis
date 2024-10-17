@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.enums.PlayerRank;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
@@ -37,7 +38,7 @@ public class RankCommand extends Command {
 
         var playerArg = ArgumentType.Word("player");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
             Cytosis.getCytonicNetwork().getOnlinePlayers().forEach(player ->
@@ -51,7 +52,7 @@ public class RankCommand extends Command {
                 sender.sendMessage(MM."<red>The player \{context.get("player")} doesn't exist!");
                 return;
             }
-            Optional<Player> optionalPlayer = Cytosis.getPlayer(name);
+            Optional<CytosisPlayer> optionalPlayer = Cytosis.getPlayer(name);
             if (optionalPlayer.isEmpty()) {
                 sender.sendMessage(MM."<red>You must be on the same server to set someone's rank! Use the /find command to find and go to their server.");
                 return;
@@ -71,7 +72,7 @@ public class RankCommand extends Command {
                 }
 
                 // if it's a console we don't care (There isn't a console impl)
-                if (sender instanceof Player s) {
+                if (sender instanceof CytosisPlayer s) {
                     PlayerRank senderRank = Cytosis.getRankManager().getPlayerRank(s.getUuid()).orElseThrow();
                     if (!PlayerRank.canChangeRank(senderRank, rank, newRank)) {
                         sender.sendMessage(MM."<red>You cannot do this!");

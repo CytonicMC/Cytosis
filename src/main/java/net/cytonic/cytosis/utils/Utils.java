@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.utils;
 
 import com.google.common.reflect.TypeToken;
+import lombok.experimental.UtilityClass;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.objects.Preference;
 import net.cytonic.objects.TypedNamespace;
@@ -17,6 +18,7 @@ import java.util.UUID;
 /**
  * A class holding utility methods
  */
+@UtilityClass
 public final class Utils {
 
     /**
@@ -31,13 +33,6 @@ public final class Utils {
      * A type token for a map of namespaced preferences keyed by NamespaceID
      */
     public final static TypeToken<Map<TypedNamespace<?>, Preference<?>>> PREFERENCE_MAP = new TypeToken<>() {};
-
-    /**
-     * Default constructor
-     */
-    private Utils() {
-        // do nothing
-    }
 
     /**
      * Creates a MUTABLE list from a vararg, for immutable lists, use {@link List#of(Object...)}

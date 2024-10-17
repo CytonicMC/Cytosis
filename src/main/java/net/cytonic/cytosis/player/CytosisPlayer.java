@@ -6,6 +6,8 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.enums.PlayerRank;
 import net.cytonic.objects.TypedNamespace;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.builder.CommandResult;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.player.PlayerConnection;
@@ -167,6 +169,16 @@ public class CytosisPlayer extends Player {
      * @param uuid the player to add as a friend
      */
     public void addFriend(UUID uuid) {
+        Cytosis.getFriendManager().addFriend(getUuid(), uuid);
+    }
 
+    @Override
+    public void sendActionBar(@NotNull Component message) {
+        Cytosis.getActionbarManager().addToQueue(getUuid(), message);
+    }
+
+    @Override
+    public void sendActionBar(@NotNull ComponentLike message) {
+        this.sendActionBar(message.asComponent());
     }
 }

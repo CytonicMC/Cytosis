@@ -1,11 +1,11 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.Player;
 import net.minestom.server.utils.entity.EntityFinder;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -24,7 +24,7 @@ public class TeleportCommand extends Command {
 
         var entityArgument = ArgumentType.Entity("entity").singleEntity(true).onlyPlayers(true);
 //        entityArgument.setSuggestionCallback((sender, _, suggestion) -> {
-//            if (!(sender instanceof Player player && player.hasPermission("cytosis.commands.teleport"))) return;
+//            if (!(sender instanceof CytosisPlayer player && player.hasPermission("cytosis.commands.teleport"))) return;
 //            Cytosis.getOnlinePlayers().forEach(entity -> suggestion.addEntry(new SuggestionEntry(entity.getUsername())));
 //        });
 
@@ -37,7 +37,7 @@ public class TeleportCommand extends Command {
         var pitchArg = ArgumentType.Float("pitch").setDefaultValue(-91.0f); // intentionally invalid
 
         addSyntax((sender, context) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 float yaw = context.get(yawArg) == -181.0F ? player.getPosition().yaw() : context.get(yawArg);
                 float pitch = context.get(pitchArg) == -91.0F ? player.getPosition().pitch() : context.get(pitchArg);
                 Pos p = new Pos(context.get(xArg), context.get(yArg), context.get(zArg), yaw, pitch);
@@ -52,7 +52,7 @@ public class TeleportCommand extends Command {
 
         // entity arg
         addSyntax((sender, context) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 EntityFinder finder = context.get(entityArgument);
                 Entity entity = finder.findFirstEntity(sender);
                 if (entity == null) {
@@ -68,7 +68,7 @@ public class TeleportCommand extends Command {
 
         // relative
         addSyntax((sender, context) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 Pos p = context.get(positionArgument).from(player).asPosition();
 
                 player.teleport(p.withPitch(player.getPosition().pitch()).withYaw(player.getPosition().yaw()));

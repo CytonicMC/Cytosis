@@ -4,6 +4,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.MessageUtils;
 import net.cytonic.enums.BanReason;
@@ -14,7 +15,6 @@ import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import java.time.Instant;
 
@@ -33,7 +33,7 @@ public class BanCommand extends Command {
 
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching players...");
             }
             Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((_, name) ->
@@ -43,7 +43,7 @@ public class BanCommand extends Command {
         var reasonArg = ArgumentType.Enum("reason", BanReason.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
 
         addSyntax((sender, context) -> {
-            if (sender instanceof Player actor) {
+            if (sender instanceof CytosisPlayer actor) {
                 if (!actor.hasPermission("cytosis.commands.moderation.ban")) {
                     actor.sendMessage(MM."<red>You don't have permission to use this command!");
                     return;

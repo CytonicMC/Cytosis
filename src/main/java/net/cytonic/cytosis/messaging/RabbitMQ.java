@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.messaging;
 
 import com.rabbitmq.client.*;
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 
@@ -14,14 +15,8 @@ import java.util.concurrent.TimeoutException;
  * facilitating the communication between other instances of Cytosis and Cynturion.
  */
 @SuppressWarnings("unused")
+@NoArgsConstructor
 public class RabbitMQ {
-
-    /**
-     * Creates a new RabbitMQ instance
-     */
-    public RabbitMQ() {
-        // do nothing
-    }
 
     private Connection connection;
     private Channel channel;

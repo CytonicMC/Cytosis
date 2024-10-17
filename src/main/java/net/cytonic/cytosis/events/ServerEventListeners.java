@@ -1,11 +1,13 @@
 package net.cytonic.cytosis.events;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.minestom.server.entity.GameMode;
@@ -21,14 +23,8 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * A class that registers Cytosis required server events
  */
+@NoArgsConstructor
 public final class ServerEventListeners {
-
-    /**
-     * Default constructor
-     */
-    private ServerEventListeners() {
-        // do nothing
-    }
 
     /**
      * Adds Cytosis required server events
@@ -99,7 +95,7 @@ public final class ServerEventListeners {
 
         Logger.info("Registering interact events.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-attack", false, 1, EntityAttackEvent.class, event -> {
-            if (event.getEntity() instanceof Player player) {
+            if (event.getEntity() instanceof CytosisPlayer player) {
                 Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
                 if (optional.isPresent() && optional.get() == event.getTarget()) {
                     NPC npc = optional.get();

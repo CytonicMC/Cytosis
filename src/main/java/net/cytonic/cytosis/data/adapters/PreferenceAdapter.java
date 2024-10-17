@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import lombok.NoArgsConstructor;
 import net.cytonic.objects.Preference;
 
 import java.io.IOException;
@@ -18,13 +19,8 @@ import java.util.UUID;
  * @param <T> The type of the preference
  */
 @SuppressWarnings("preview")
+@NoArgsConstructor
 public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements TypeAdapterFactory {
-    /**
-     * A default constructor
-     */
-    public PreferenceAdapter() {
-        // do nothing
-    }
 
     /**
      * {@inheritDoc}
