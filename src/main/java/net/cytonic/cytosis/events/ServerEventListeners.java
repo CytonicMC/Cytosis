@@ -33,7 +33,8 @@ public final class ServerEventListeners {
         Logger.info("Registering player configuration event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-configuration", true, 1, AsyncPlayerConfigurationEvent.class, (event -> {
             final Player player = event.getPlayer();
-            event.setSpawningInstance(Cytosis.getDefaultInstance());
+            if (!Cytosis.getFlags().contains("--no-instance"))
+                event.setSpawningInstance(Cytosis.getDefaultInstance());
             player.setRespawnPoint(CytosisSettings.SERVER_SPAWN_POS);
 
             // load things as easily as possible

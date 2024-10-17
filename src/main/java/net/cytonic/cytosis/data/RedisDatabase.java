@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.containers.SendPlayerToServerContainer;
+import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -13,6 +15,7 @@ import net.cytonic.objects.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.*;
 
 import java.util.Map;
@@ -143,8 +146,9 @@ public class RedisDatabase {
      * Sends a server shutdown message to the redis server
      */
     public void sendShutdownMessage() {
-        // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
-        jedisPub.publish(SERVER_STATUS_CHANNEL, STR."STOP|:|\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}");
+        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.STOP,
+                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
+        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
         jedis.srem(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         Logger.info("Server shutdown message sent!");
     }
@@ -153,8 +157,9 @@ public class RedisDatabase {
      * Sends a server startup message to the redis server
      */
     public void sendStartupMessage() {
-        // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
-        jedisPub.publish(SERVER_STATUS_CHANNEL, STR."START|:|\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}");
+        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.START,
+                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
+        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
         jedis.sadd(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         Logger.info("Server startup message sent!");
     }
@@ -165,9 +170,8 @@ public class RedisDatabase {
      * @param player The player to move
      * @param server the destination server
      */
-    public void sendPlayerToServer(Player player, CytonicServer server) {
-        // formatting: <PLAYER_UUID>|:|<SERVER_ID>
-        jedisPub.publish(SEND_PLAYER_CHANNEL, STR."\{player.getUuid()}|:|\{server.id()}");
+    public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
+        jedisPub.publish(SEND_PLAYER_CHANNEL, SendPlayerToServerContainer.create(player, server, instance).serialize());
     }
 
     /**

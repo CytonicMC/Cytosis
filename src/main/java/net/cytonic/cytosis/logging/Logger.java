@@ -5,7 +5,8 @@
  */
 package net.cytonic.cytosis.logging;
 
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.spi.ExtendedLogger;
 
 /**
  * The logger interface
@@ -14,7 +15,7 @@ public interface Logger {
     /**
      * The logger instance
      */
-    org.slf4j.Logger LOGGER = LoggerFactory.getLogger("Cytosis");
+    ExtendedLogger LOGGER = LogManager.getContext(false).getLogger("Cytosis");
 
     /**
      * Traces a message in the TRACE level
@@ -31,7 +32,7 @@ public interface Logger {
      * @param args The arguments to format the message
      */
     static void debug(String message, Object... args) {
-        LOGGER.debug(message, args);
+        LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log(STR."\u001B[0;95m\{message}", args);
     }
 
 

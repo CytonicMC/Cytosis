@@ -166,4 +166,18 @@ public class RabbitMQ {
             Logger.error(STR."An error occurred whilst attempting to send a message to the queue! '\{queue}' on exchange '\{exchange}'", e);
         }
     }
+
+    /**
+     * Rejects a message and optionally requeues it for delivery
+     *
+     * @param deliveryTag The delivery tag of the message envelope
+     * @param requeue     if the message should be requeued for another delivery attempt
+     */
+    public void reject(long deliveryTag, boolean requeue) {
+        try {
+            channel.basicReject(deliveryTag, requeue);
+        } catch (IOException e) {
+            Logger.error("An error occurred whilst rejecting a message!", e);
+        }
+    }
 }

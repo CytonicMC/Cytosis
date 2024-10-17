@@ -39,7 +39,8 @@ public class ServerCommand extends Command {
                             for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
                                 if (server.id().equals(context.get(serverArgument))) {
                                     player.sendMessage(Component.text(STR."Connecting to \{server.id()}", NamedTextColor.GREEN));
-                                    Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerToServer(player, server);
+                                    //todo: instance?
+                                    Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerToServer(player.getUuid(), server, null);
                                 }
                             }
                         } else player.sendMessage(MM."<RED>You are already connected to the server!");

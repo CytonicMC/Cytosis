@@ -1,9 +1,9 @@
 package net.cytonic.cytosis.managers;
 
 import jakarta.annotation.Nullable;
+import net.cytonic.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.containers.CooldownUpdateContainer;
 import net.minestom.server.utils.NamespaceID;
 
 import java.time.Instant;
