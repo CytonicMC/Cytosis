@@ -207,7 +207,7 @@ public final class Cytosis {
      *
      * @return a set of players
      */
-    @SuppressWarnings("unchecked") // every object the server makes is a CytosisPlayer
+    // every object the server makes is a CytosisPlayer
     public static Set<CytosisPlayer> getOnlinePlayers() {
         HashSet<CytosisPlayer> players = new HashSet<>();
 
@@ -334,6 +334,18 @@ public final class Cytosis {
                 getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
             });
 
+            Logger.info("Initializing Plugin Manager!");
+            pluginManager = new PluginManager();
+            Logger.info("Loading plugins!");
+
+            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
+                try {
+                    pluginManager.loadPlugins(Path.of("plugins"));
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading plugins!", e);
+                }
+            });
+
             Logger.info("Starting Player list manager");
             playerListManager = new PlayerListManager();
 
@@ -349,19 +361,6 @@ public final class Cytosis {
             Logger.info("Starting Friend manager!");
             friendManager = new FriendManager();
             friendManager.init();
-
-
-            Logger.info("Initializing Plugin Manager!");
-            pluginManager = new PluginManager();
-            Logger.info("Loading plugins!");
-
-            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
-                try {
-                    pluginManager.loadPlugins(Path.of("plugins"));
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading plugins!", e);
-                }
-            });
 
             Logger.info("Initializing Rank Manager");
             rankManager = new RankManager();

@@ -186,7 +186,6 @@ public final class CytosisSettings {
                     case "cynwave.url" -> CYNWAVE_URL = (String) value;
                     case "cynwave.token" -> CYNWAVE_TOKEN = (String) value;
 
-
                     default -> { /*Do nothing*/ }
                 }
             } catch (ClassCastException e) {

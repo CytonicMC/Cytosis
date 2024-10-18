@@ -110,13 +110,8 @@ public class EventHandler {
         matchingListeners.sort(Comparator.comparingInt(EventListener::getPriority));
 
         for (EventListener<? extends Event> listener : matchingListeners) {
-            if (!(event instanceof CancellableEvent) || (((CancellableEvent) event).isCancelled() && !listener.isIgnoreCancelled())) {
-                if (listener.isAsync()) {
-                    Thread.ofVirtual().name("Cytosis-Event-Async").start(() -> listener.complete(event));
-                    return;
-                }
+            if (!(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled()))
                 listener.complete(event);
-            }
         }
     }
 
