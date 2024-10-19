@@ -181,4 +181,16 @@ public class CytosisPlayer extends Player {
     public void sendActionBar(@NotNull ComponentLike message) {
         this.sendActionBar(message.asComponent());
     }
+
+    public boolean isVanished() {
+        return Cytosis.getVanishManager().isVanished(getUuid());
+    }
+
+    public void setVanished(boolean vanished) {
+        if (vanished) {
+            Cytosis.getVanishManager().enableVanish(this);
+        } else {
+            Cytosis.getVanishManager().disableVanish(this);
+        }
+    }
 }

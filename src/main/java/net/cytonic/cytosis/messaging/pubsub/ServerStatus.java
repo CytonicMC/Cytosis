@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.messaging.pubsub;
 
+import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.managers.PreferenceManager;
@@ -31,13 +32,15 @@ public class ServerStatus extends JedisPubSub {
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.SERVER_STATUS_CHANNEL)) return;
         if (Cytosis.getCytonicNetwork() == null) return;
-        // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
-        String[] parts = message.split("\\|:\\|");
-        if (parts[1].equalsIgnoreCase(Cytosis.SERVER_ID)) return;
-        CytonicServer server = new CytonicServer(parts[2], parts[1], Integer.parseInt(parts[3]));
+
+        ServerStatusContainer container = ServerStatusContainer.deserialize(message);
+        if (container.serverName().equalsIgnoreCase(Cytosis.SERVER_ID)) return;
+
+        //todo replace with container.server() after commons update
+        CytonicServer server = new CytonicServer(container.serverName(), container.serverName(), container.port());
         PreferenceManager manager = Cytosis.getPreferenceManager();
-        if (parts[0].equalsIgnoreCase("START")) {
-            Cytosis.getCytonicNetwork().getServers().put(parts[1], server);
+        if (container.mode() == ServerStatusContainer.Mode.START) {
+            Cytosis.getCytonicNetwork().getServers().put(container.serverName(), server);
             Cytosis.getOnlinePlayers().forEach((player) -> {
                 if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
                     Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.SERVER_ALERTS, false);
@@ -45,9 +48,9 @@ public class ServerStatus extends JedisPubSub {
                     return;
                 }
                 if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && player.hasPermission("cytosis.commands.serveralerts"))
-                    player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{parts[1]}");
+                    player.sendMessage(MiniMessageTemplate.MM."<GREEN>A server has started with the id of \{server.id()}");
             });
-        } else if (parts[0].equalsIgnoreCase("STOP")) {
+        } else if (container.mode() == ServerStatusContainer.Mode.STOP) {
             Cytosis.getCytonicNetwork().getServers().remove(server);
             Cytosis.getOnlinePlayers().forEach((player) -> {
                 if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && !player.hasPermission("cytosis.commands.serveralerts")) {
@@ -56,7 +59,7 @@ public class ServerStatus extends JedisPubSub {
                     return;
                 }
                 if (manager.getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS) && player.hasPermission("cytosis.commands.serveralerts"))
-                    player.sendMessage(MiniMessageTemplate.MM."<RED>A server has stopped with the id of \{parts[1]}");
+                    player.sendMessage(MiniMessageTemplate.MM."<RED>A server has stopped with the id of \{server.id()}");
             });
         }
     }

@@ -10,12 +10,21 @@ import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.item.ItemDropEvent;
+import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.time.TimeUnit;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -54,6 +63,9 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().addPlayer(player);
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 Cytosis.getVanishManager().enableVanish(player);
+            }
+            for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
+                if (p.isVanished()) p.setVanished(true);
             }
         })));
 
@@ -111,5 +123,25 @@ public final class ServerEventListeners {
             }
         }));
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> TPSCommand.getLastTick().set(event.getTickMonitor()))));
+        Logger.info("Registering item events");
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:item-drop", false, 1, ItemDropEvent.class, (event -> {
+            final Player player = event.getPlayer();
+            ItemStack droppedItem = event.getItemStack();
+
+            Pos playerPos = player.getPosition();
+            ItemEntity itemEntity = new ItemEntity(droppedItem);
+            itemEntity.setPickupDelay(Duration.of(2000, TimeUnit.MILLISECOND));
+            itemEntity.setInstance(player.getInstance(), playerPos.withY(y -> y + 1.5));
+            Vec velocity = playerPos.direction().mul(6);
+            itemEntity.setVelocity(velocity);
+        })));
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:item-pickup", false, 1, PickupItemEvent.class, (event -> {
+            final Entity entity = event.getLivingEntity();
+            if (entity instanceof Player) {
+                // Cancel event if player does not have enough inventory space
+                final ItemStack itemStack = event.getItemEntity().getItemStack();
+                event.setCancelled(!((Player) entity).getInventory().addItemStack(itemStack));
+            }
+        })));
     }
 }

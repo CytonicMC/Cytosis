@@ -45,7 +45,7 @@ public class RankManager {
         }
 
         QUERY."SELECT * FROM `cytonic_ranks`".whenComplete((resultSet, throwable) -> {
-            if(throwable != null) {
+            if (throwable != null) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
                 MinecraftServer.stopCleanly();
                 return;
@@ -58,7 +58,6 @@ public class RankManager {
             } catch (SQLException ex) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", ex);
                 MinecraftServer.stopCleanly();
-                return;
             }
         });
     }
@@ -80,6 +79,9 @@ public class RankManager {
             if (event.isCanceled()) return;
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
+            Cytosis.getPlayer(player.getUuid()).ifPresent(p -> {
+                p.setRank(playerRank);
+            });
         });
     }
 
@@ -99,8 +101,7 @@ public class RankManager {
         removePermissions(player, old.getPermissions());
         rankMap.put(player.getUuid(), rank);
         setupCosmetics(player, rank);
-        if (Cytosis.getCytonicNetwork() != null)
-            Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
+        Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
     }
 
     /**
@@ -108,7 +109,7 @@ public class RankManager {
      * @param player The player
      * @param rank   The rank
      */
-    private void setupCosmetics(Player player, PlayerRank rank) {
+    public void setupCosmetics(Player player, PlayerRank rank) {
         addPermissions(player, rank.getPermissions());
         teamMap.get(rank).addMember(player.getUsername());
         player.setCustomName(rank.getPrefix().append(player.getName()));
