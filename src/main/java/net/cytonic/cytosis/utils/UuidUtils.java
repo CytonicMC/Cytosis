@@ -2,6 +2,7 @@ package net.cytonic.cytosis.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.experimental.UtilityClass;
 import net.cytonic.cytosis.logging.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,14 +14,8 @@ import java.util.UUID;
 /**
  * A class that provides utilities for dealing with UUIDs
  */
+@UtilityClass
 public final class UuidUtils {
-
-    /**
-     * Default constructor
-     */
-    private UuidUtils() {
-        // do nothing
-    }
 
     private static final String UUID_URL_TEMPLATE = "https://api.mojang.com/users/profiles/minecraft/%s";
 

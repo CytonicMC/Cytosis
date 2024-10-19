@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisNamespaces;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
-import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -20,7 +20,7 @@ public class VanishCommand extends Command {
         super("vanish");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.vanish"));
         setDefaultExecutor((sender, _) -> {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof CytosisPlayer player)) {
                 return;
             }
             if (!player.hasPermission("cytosis.commands.vanish")) {

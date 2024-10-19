@@ -1,7 +1,8 @@
 package net.cytonic.cytosis.playerlist;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.enums.PlayerRank;
@@ -19,14 +20,8 @@ import static net.cytonic.utils.MiniMessageTemplate.MM;
 /**
  * A class providing the default player list for Cytosis
  */
+@NoArgsConstructor
 public class DefaultPlayerListCreator implements PlayerlistCreator {
-
-    /**
-     * The default player list creator
-     */
-    public DefaultPlayerListCreator() {
-        // do nothing
-    }
 
     private final int colCount = 4;
     private final Instant start = Instant.now();

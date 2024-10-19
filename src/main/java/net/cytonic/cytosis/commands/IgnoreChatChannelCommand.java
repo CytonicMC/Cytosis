@@ -2,13 +2,13 @@ package net.cytonic.cytosis.commands;
 
 import com.google.gson.JsonObject;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisNamespaces;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -36,7 +36,7 @@ public class IgnoreChatChannelCommand extends Command {
         });
 
         addSyntax(((sender, context) -> {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof CytosisPlayer player)) {
                 return;
             }
             ChatChannel channel = switch (context.get(chatChannelArgument).toLowerCase()) {

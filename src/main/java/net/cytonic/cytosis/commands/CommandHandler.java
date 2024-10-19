@@ -1,13 +1,13 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.debug.CooldownCommand;
+import net.cytonic.cytosis.commands.debug.PreferenceCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
-import net.cytonic.cytosis.commands.moderation.BanCommand;
-import net.cytonic.cytosis.commands.moderation.ClearchatCommand;
-import net.cytonic.cytosis.commands.moderation.UnbanCommand;
-import net.cytonic.cytosis.commands.moderation.VanishCommand;
+import net.cytonic.cytosis.commands.moderation.*;
 import net.cytonic.cytosis.commands.server.*;
+import net.cytonic.cytosis.commands.staff.*;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
@@ -64,6 +64,13 @@ public class CommandHandler {
         cm.register(new VanishCommand());
         cm.register(new IgnoreChatChannelCommand());
         cm.register(new UnbanCommand());
+        cm.register(new MuteCommand());
+        cm.register(new UnmuteCommand());
+        cm.register(new KickCommand());
+        cm.register(new MsgCommand());
+        cm.register(new WarnCommand());
+        cm.register(new CooldownCommand(Cytosis.getNetworkCooldownManager()));
+        cm.register(new LoopCommand());
     }
 
     /**

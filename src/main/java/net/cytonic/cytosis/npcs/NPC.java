@@ -88,4 +88,9 @@ public interface NPC {
      * Creates the holograms
      */
     void createHolograms();
+
+    /**
+     * Removes the NPC from the world.
+     */
+    void remove();
 }

@@ -83,7 +83,10 @@ public final class DurationParser {
         }
         if (seconds > 0) {
             builder.append(seconds).append("s").append(spacing);
+        } else {
+            builder.append("<1s").append(spacing);
         }
+
 
         return builder.toString();
     }
@@ -130,6 +133,8 @@ public final class DurationParser {
             builder.append(seconds).append(" Seconds");
         } else if (seconds == 1) {
             builder.append(seconds).append(" Second");
+        } else {
+            builder.append("Less than 1 Second");
         }
 
 

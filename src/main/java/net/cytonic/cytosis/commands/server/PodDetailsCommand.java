@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
-import net.minestom.server.entity.Player;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -24,7 +24,7 @@ public class PodDetailsCommand extends Command {
                 sender.sendMessage(MM."<RED>This command is not supported on this server!");
                 return;
             }
-            if (sender instanceof Player player)
+            if (sender instanceof CytosisPlayer player)
                 if (player.hasPermission("cytosis.command.poddetails")) {
                     player.sendMessage(MM."<green>Fetching pod details...");
                     player.sendActionBar(MM."<green>Fetching pod details...");

@@ -90,7 +90,7 @@ public class FileManager {
      * @param path     The path where the extracted file will be written.
      * @return A CompletableFuture representing the completion of the file extraction process.
      */
-    private CompletableFuture<File> extractResource(String resource, Path path) {
+    public CompletableFuture<File> extractResource(String resource, Path path) {
         CompletableFuture<File> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
@@ -107,6 +107,35 @@ public class FileManager {
                 future.complete(path.toFile());
             } catch (IOException e) {
                 Logger.error(STR."An error occured whilst extracting the resource \"\{resource}\"!", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Extracts a resource file from the classpath and writes it to the specified path.
+     *
+     * @param stream The {@link InputStream} of a resource file to extract.
+     * @param path     The path where the extracted file will be written.
+     * @return A CompletableFuture representing the completion of the file extraction process.
+     */
+    public CompletableFuture<File> extractResource(InputStream stream, Path path) {
+        CompletableFuture<File> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                if (stream == null) {
+                    throw new IllegalStateException("The InputStream is null!");
+                }
+                OutputStream outputStream = new FileOutputStream(path.toFile());
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = stream.read(buffer)) > 0) outputStream.write(buffer, 0, length);
+                outputStream.close();
+                stream.close();
+                future.complete(path.toFile());
+            } catch (IOException e) {
+                Logger.error("An error occured whilst extracting a resource", e);
                 future.completeExceptionally(e);
             }
         });

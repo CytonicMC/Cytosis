@@ -1,18 +1,26 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.containers.SendPlayerToServerContainer;
+import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.enums.KickReason;
 import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.*;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,6 +46,16 @@ public class RedisDatabase {
     public static final String ONLINE_PLAYER_SERVER_KEY = "online_player_server";
 
     /**
+     * Cached global cooldowns
+     */
+    public static final String GLOBAL_COOLDOWNS_KEY = "global_cooldowns";
+
+    /**
+     * Cooldown pubsub
+     */
+    public static final String COOLDOWN_UPDATE_CHANNEL = "update_cooldowns";
+
+    /**
      * Player change servers channel
      */
     public static final String PLAYER_SERVER_CHANGE_CHANNEL = "player_server_change";
@@ -61,6 +79,10 @@ public class RedisDatabase {
      * Broadcast channel
      */
     public static final String BROADCAST_CHANNEL = "broadcast";
+    /**
+     * Player message channel
+     */
+    public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
 
     // friend requests
     /**
@@ -83,6 +105,14 @@ public class RedisDatabase {
      * Friend removed
      */
     public static final String FRIEND_REMOVED = "friend-removed";
+    /**
+     * Player kicked
+     */
+    public static final String PLAYER_KICK = "player-kick";
+    /**
+     * Player warn
+     */
+    public static final String PLAYER_WARN = "player-warn";
 
     private final JedisPooled jedis;
     private final JedisPooled jedisPub;
@@ -107,14 +137,18 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
+        worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
+        worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
     }
 
     /**
      * Sends a server shutdown message to the redis server
      */
     public void sendShutdownMessage() {
-        // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
-        jedisPub.publish(SERVER_STATUS_CHANNEL, STR."STOP|:|\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}");
+        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.STOP,
+                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
+        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
         jedis.srem(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         Logger.info("Server shutdown message sent!");
     }
@@ -123,8 +157,9 @@ public class RedisDatabase {
      * Sends a server startup message to the redis server
      */
     public void sendStartupMessage() {
-        // formatting: <START/STOP>|:|<SERVER_ID>|:|<SERVER_IP>|:|<SERVER_PORT>
-        jedisPub.publish(SERVER_STATUS_CHANNEL, STR."START|:|\{Cytosis.SERVER_ID}|:|\{Utils.getServerIP()}|:|\{CytosisSettings.SERVER_PORT}");
+        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.START,
+                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
+        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
         jedis.sadd(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         Logger.info("Server startup message sent!");
     }
@@ -135,9 +170,8 @@ public class RedisDatabase {
      * @param player The player to move
      * @param server the destination server
      */
-    public void sendPlayerToServer(Player player, CytonicServer server) {
-        // formatting: <PLAYER_UUID>|:|<SERVER_ID>
-        jedisPub.publish(SEND_PLAYER_CHANNEL, STR."\{player.getUuid()}|:|\{server.id()}");
+    public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
+        jedisPub.publish(SEND_PLAYER_CHANNEL, SendPlayerToServerContainer.create(player, server, instance).serialize());
     }
 
     /**
@@ -157,6 +191,66 @@ public class RedisDatabase {
     public void sendBroadcast(Component broadcast) {
         String message = JSONComponentSerializer.json().serialize(broadcast);
         jedisPub.publish(BROADCAST_CHANNEL, message);
+    }
+
+    /**
+     * Sends a message to a player
+     *
+     * @param message the serialized message
+     */
+    public void sendPlayerMessage(ChatMessage message) {
+        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, message.toString());
+    }
+
+    /**
+     * Sends a message to Redis to kick a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
+     *
+     * @param player    The player to kick, on this server
+     * @param reason    The reason for kicking the player
+     * @param component The kick message displayed
+     */
+    public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
+        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+        String message = STR."\{player.getUuid()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
+        jedisPub.publish(PLAYER_KICK, message);
+    }
+
+    /**
+     * Sends a message to RabbitMQ to kick a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
+     *
+     * @param player    The player to kick, on another server
+     * @param reason    The reason for kicking the player
+     * @param component The kick message displayed
+     */
+    public void kickPlayer(OfflinePlayer player, KickReason reason, Component component, Entry entry) {
+        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+        String message = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
+        jedisPub.publish(PLAYER_KICK, message);
+    }
+
+    /**
+     * Sends a message to Redis to warn a player.
+     * <p>
+     * Formatting: {@code {uuid}|:|{warn_message}}
+     *
+     * @param target      the player to warn
+     * @param actor       the actor
+     * @param warnMessage the message to warn the player with
+     * @param reason      the reason
+     * @param entry       the audit log entry
+     */
+    public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason, Entry entry) {
+        // FORMAT: {uuid}|:|{warn_message}
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+        Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerWarn(actor, target, reason);
+        String message = STR."\{target}|:|\{JSONComponentSerializer.json().serialize(warnMessage)}";
+        jedisPub.publish(PLAYER_WARN, message);
     }
 
     /**
@@ -225,5 +319,58 @@ public class RedisDatabase {
      */
     public void publish(String channel, String message) {
         jedisPub.publish(channel, message);
+    }
+
+    /**
+     * Adds a key and value to a hash
+     *
+     * @param hash  the name of the hash
+     * @param key   the key of the key value pair
+     * @param value the value of the key value pair
+     */
+    public void addToHash(String hash, String key, String value) {
+        jedis.hset(hash, key, value);
+    }
+
+    /**
+     * Remove a key value pair from a hash
+     *
+     * @param key   the name of the hash
+     * @param field the field in the hash
+     */
+    public void removeFromHash(String key, String field) {
+        jedis.hdel(key, field);
+    }
+
+    /**
+     * Gets the map of key value pairs stored in a hash
+     *
+     * @param key the key tied to the hash
+     * @return the map of values
+     */
+    public Map<String, String> getHash(String key) {
+        return jedis.hgetAll(key);
+    }
+
+    /**
+     * Gets the specified field from the specified hash
+     *
+     * @param key   The hash to query
+     * @param field the field to query from the hash
+     * @return the value stored in the hash
+     */
+    public String getFromHash(String key, String field) {
+        return jedis.hget(key, field);
+    }
+
+    /**
+     * Gets the keys associated with the specified pattern. For example, {@code foo*} would return {@code foooooo} and {@code fooHiThisIsAKey}.
+     * <br><strong>**This may be time consuming, use sparingly if at all **</strong>
+     *
+     * @param pattern the pattern used to select the keys
+     * @return the set of keys associated with the pattern
+     */
+    public Set<String> getKeys(String pattern) {
+        return jedis.keys(pattern);
     }
 }

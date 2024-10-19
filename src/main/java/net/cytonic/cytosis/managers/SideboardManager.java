@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -20,19 +21,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * A manager class for sideboards
  */
+@NoArgsConstructor
 public class SideboardManager {
     private final Map<UUID, Sideboard> sideboards = new ConcurrentHashMap<>();
     private final ScheduledExecutorService updateExecutor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().name("Cytosis-Sideboard-Updater").factory());
     @Getter
     @Setter
     private SideboardCreator sideboardCreator = new DefaultCreator();
-
-    /**
-     * Creates a new SideboardManager
-     */
-    public SideboardManager() {
-        // Do nothing
-    }
 
     /**
      * Adds a player to the sideboard manager

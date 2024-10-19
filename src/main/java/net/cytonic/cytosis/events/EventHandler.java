@@ -95,13 +95,14 @@ public class EventHandler {
 
     /**
      * Handles the specified event
+     *
      * @param event The event object
-     * @param <T> The type of the event
+     * @param <T>   The type of the event
      */
     public <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
         for (EventListener<? extends Event> listener : NAMESPACED_HANDLERS.values()) {
-            if (listener.getEventClass() == event.getClass() && !(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled())) {
+            if (listener.getEventClass() == event.getClass()) {
                 matchingListeners.add(listener);
             }
         }
@@ -109,13 +110,29 @@ public class EventHandler {
         matchingListeners.sort(Comparator.comparingInt(EventListener::getPriority));
 
         for (EventListener<? extends Event> listener : matchingListeners) {
-            if (!(event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled()))
-                listener.complete(event);
+            if (listener.isIgnoreCancelled()) {
+                completeEvent(event, listener);
+                continue;
+            }
+            if (event instanceof CancellableEvent && ((CancellableEvent) event).isCancelled()) {
+                // the event has been cancelled, future listeners get skipped over
+                continue;
+            }
+            listener.complete(event);
         }
+    }
+
+    public void completeEvent(Event event, EventListener<? extends Event> listener) {
+        if (listener.isAsync()) {
+            Thread.ofVirtual().name("Cytosis-Event-thread-", 1).start(() -> listener.complete(event));
+            return;
+        }
+        listener.complete(event);
     }
 
     /**
      * Regisers a custom event class to implement a listener for it
+     *
      * @param clazz The event class
      */
     public void registerCustomEvent(Class<? extends Event> clazz) {

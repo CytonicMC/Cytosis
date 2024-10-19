@@ -1,13 +1,13 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.condition.Conditions;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import java.time.Instant;
 import java.util.List;
@@ -32,7 +32,7 @@ public class FriendCommand extends Command {
 
         var playerArg = ArgumentType.Word("player").setDefaultValue("");
         playerArg.setSuggestionCallback((sender, context, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 if (context.get(action).equalsIgnoreCase("add") ||
                         context.get(action).equalsIgnoreCase("decline") ||
                         context.get(action).equalsIgnoreCase("accept")) {
@@ -57,7 +57,7 @@ public class FriendCommand extends Command {
 
 
         addSyntax((sender, context) -> {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof CytosisPlayer player)) {
                 sender.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You must be a player to use this command!");
                 return;
             }

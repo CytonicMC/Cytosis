@@ -1,16 +1,10 @@
 package net.cytonic.cytosis.messaging;
 
 import com.rabbitmq.client.*;
-import net.cytonic.cytosis.Cytosis;
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.enums.KickReason;
-import net.cytonic.objects.OfflinePlayer;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import net.minestom.server.entity.Player;
+
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
@@ -21,16 +15,9 @@ import java.util.concurrent.TimeoutException;
  * facilitating the communication between other instances of Cytosis and Cynturion.
  */
 @SuppressWarnings("unused")
+@NoArgsConstructor
 public class RabbitMQ {
 
-    /**
-     * Creates a new RabbitMQ instance
-     */
-    public RabbitMQ() {
-        // do nothing
-    }
-
-    private static final String PLAYER_KICK_QUEUE = "player-kick";
     private Connection connection;
     private Channel channel;
 
@@ -62,11 +49,6 @@ public class RabbitMQ {
      */
     public void initializeQueues() {
         Logger.info("Initializing RabbitMQ queues...");
-        try {
-            channel.queueDeclare(PLAYER_KICK_QUEUE, false, false, false, null);
-        } catch (IOException e) {
-            Logger.error("An error occurred whilst initializing the 'PLAYER_KICK_QUEUE'.", e);
-        }
     }
 
     /**
@@ -77,44 +59,6 @@ public class RabbitMQ {
             connection.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Sends a message to RabbitMQ to kick a player.
-     * <p>
-     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
-     *
-     * @param player  The player to kick, on this server
-     * @param reason  The reason for kicking the player
-     * @param message The kick message displayed
-     */
-    public void kickPlayer(Player player, KickReason reason, Component message) {
-        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
-        String rawMessage = STR."\{player.getUuid()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(message)}|:|\{reason.isRescuable()}";
-        try {
-            channel.basicPublish("", PLAYER_KICK_QUEUE, null, rawMessage.getBytes());
-        } catch (IOException e) {
-            Logger.error(STR."An error occoured whilst attempting to kick the player \{player.getName()}.", e);
-        }
-    }
-
-    /**
-     * Sends a message to RabbitMQ to kick a player.
-     * <p>
-     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
-     *
-     * @param player  The player to kick, on another server
-     * @param reason  The reason for kicking the player
-     * @param message The kick message displayed
-     */
-    public void kickPlayer(OfflinePlayer player, KickReason reason, Component message) {
-        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
-        String rawMessage = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(message)}|:|\{reason.isRescuable()}";
-        try {
-            channel.basicPublish("", PLAYER_KICK_QUEUE, null, rawMessage.getBytes());
-        } catch (IOException e) {
-            Logger.error(STR."An error occoured whilst attempting to kick the player \{player.name()}.", e);
         }
     }
 
@@ -220,6 +164,20 @@ public class RabbitMQ {
             channel.basicPublish(exchange, queue, null, message.getBytes());
         } catch (IOException e) {
             Logger.error(STR."An error occurred whilst attempting to send a message to the queue! '\{queue}' on exchange '\{exchange}'", e);
+        }
+    }
+
+    /**
+     * Rejects a message and optionally requeues it for delivery
+     *
+     * @param deliveryTag The delivery tag of the message envelope
+     * @param requeue     if the message should be requeued for another delivery attempt
+     */
+    public void reject(long deliveryTag, boolean requeue) {
+        try {
+            channel.basicReject(deliveryTag, requeue);
+        } catch (IOException e) {
+            Logger.error("An error occurred whilst rejecting a message!", e);
         }
     }
 }

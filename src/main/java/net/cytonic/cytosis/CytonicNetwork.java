@@ -33,6 +33,7 @@ public class CytonicNetwork {
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
     private final Map<String, PlayerServer> networkPlayersOnServers = new ConcurrentHashMap<>();
     private final Map<UUID, BanData> bannedPlayers = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> mutedPlayers = new ConcurrentHashMap<>();
 
     /**
      * The default constructor
@@ -91,12 +92,30 @@ public class CytonicNetwork {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
                         Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNBAN, "Natural Expiration"));
+                    } else {
+                        BanData banData = new BanData(rs.getString("reason"), expiry, true);
+                        bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
                     }
-                    BanData banData = new BanData(rs.getString("reason"), expiry, true);
-                    bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
                 }
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading ranks!", e);
+                Logger.error("An error occurred whilst loading bans!", e);
+            }
+        });
+
+        QUERY."SELECT * FROM cytonic_mutes".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading mutes!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    Instant expiry = Instant.parse(rs.getString("to_expire"));
+                    if (expiry.isBefore(Instant.now())) {
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNMUTE, "Natural Expiration"));
+                    } else mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading mutes!", e);
             }
         });
         networkPlayersOnServers.clear();
@@ -151,6 +170,20 @@ public class CytonicNetwork {
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading bans!", e);
+            }
+        });
+
+        QUERY."SELECT * FROM cytonic_mutes WHERE uuid = '\{uuid.toString()}'".whenComplete((rs, throwable) -> {
+            if (throwable != null) {
+                Logger.error("An error occurred whilst loading mutes!", throwable);
+                return;
+            }
+            try {
+                while (rs.next()) {
+                    mutedPlayers.put(uuid, true);
+                }
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst loading mutes!", e);
             }
         });
         //todo: add the player to the networkPlayersOnServers?

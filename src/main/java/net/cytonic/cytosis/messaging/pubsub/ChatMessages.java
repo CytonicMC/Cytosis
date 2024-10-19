@@ -1,9 +1,10 @@
 package net.cytonic.cytosis.messaging.pubsub;
 
 import com.google.gson.JsonObject;
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.enums.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.sound.Sound;
@@ -14,14 +15,8 @@ import redis.clients.jedis.JedisPubSub;
 /**
  * A pub sub that handles chat channels
  */
+@NoArgsConstructor
 public class ChatMessages extends JedisPubSub {
-
-    /**
-     * The default constructor
-     */
-    public ChatMessages() {
-        // do nothing
-    }
 
     /**
      * Handles chat channel messages

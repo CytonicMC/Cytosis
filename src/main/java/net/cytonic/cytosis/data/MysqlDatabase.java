@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -115,6 +116,9 @@ public class MysqlDatabase {
         createWorldTable();
         createPlayerJoinsTable();
         createAuditLogTable();
+        createMutesTable();
+        createPlayerMessagesTable();
+        createPlayerWarnsTable();
     }
 
     /**
@@ -244,6 +248,187 @@ public class MysqlDatabase {
                 }
             }
         });
+    }
+
+    /**
+     * Creates the bans table
+     */
+    private void createMutesTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_mutes (uuid VARCHAR(36), to_expire VARCHAR(100), PRIMARY KEY(uuid))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_mutes` table.", e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Creates the player messages table
+     */
+    private void createPlayerMessagesTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_messages (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, sender VARCHAR(36), target VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
+                }
+            }
+        });
+    }
+
+    private void createPlayerWarnsTable() {
+        worker.submit(() -> {
+            if (isConnected()) {
+                PreparedStatement ps;
+                try {
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_warns (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, target VARCHAR(36), actor VARCHAR(36), reason TEXT, PRIMARY KEY(id))");
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Logger.error("An error occurred whilst creating the `cytonic_player_warns` table.", e);
+                }
+            }
+        });
+    }
+
+    public CompletableFuture<Void> addPlayerWarn(UUID actor, UUID target, String reason) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must be connected to add player warns.");
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO cytonic_player_warns (timestamp, target, actor, reason) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)");
+                ps.setString(1, target.toString());
+                ps.setString(2, actor.toString());
+                ps.setString(3, reason);
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst adding a warn!", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Adds a player message to the database
+     *
+     * @param sender  the sender of the message
+     * @param target  the target of the message
+     * @param message the message
+     * @return a future that completes when the message has been added
+     */
+    public CompletableFuture<Void> addPlayerMessage(UUID sender, UUID target, String message) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected())
+                throw new IllegalStateException("The database must be connected to add player messages.");
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("INSERT INTO cytonic_player_messages (timestamp, sender, target, message) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)");
+                ps.setString(1, sender.toString());
+                ps.setString(2, target.toString());
+                ps.setString(3, message);
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst adding a player message from \{sender} to \{target}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Mutes a player
+     *
+     * @param uuid     the player to mute
+     * @param toExpire When the mute expires
+     * @return a future that completes when the player is muted
+     */
+    public CompletableFuture<Void> mutePlayer(UUID uuid, Instant toExpire, Entry entry) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            if (!isConnected()) throw new IllegalStateException("The database must be connected to mute players.");
+            try {
+                addAuditLogEntry(entry);
+                Cytosis.getCytonicNetwork().getMutedPlayers().put(uuid, true);
+                PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_mutes (uuid, to_expire) VALUES (?,?)");
+                ps.setString(1, uuid.toString());
+                ps.setString(2, toExpire.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst muting the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Unmutes a player
+     *
+     * @param uuid the player to unmute
+     * @return a future that completes when the player is unmuted
+     */
+    public CompletableFuture<Void> unmutePlayer(UUID uuid, Entry entry) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                addAuditLogEntry(entry);
+                Cytosis.getCytonicNetwork().getMutedPlayers().remove(uuid);
+                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+                future.complete(null);
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst unmuting the player \{uuid}.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * The concurrent friendly way to fetch a player's mute status
+     *
+     * @param uuid THe player to check
+     * @return The CompletableFuture that holds the player's mute status
+     */
+    public CompletableFuture<Boolean> isMuted(UUID uuid) {
+        if (!isConnected()) throw new IllegalStateException("The database must be connected.");
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+                ps.setString(1, uuid.toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    Instant expiry = Instant.parse(rs.getString("to_expire"));
+                    if (expiry.isBefore(Instant.now())) {
+                        future.complete(false);
+                        unmutePlayer(uuid, new Entry(uuid, null, Category.UNMUTE, "Natural Expiration"));
+                    } else {
+                        future.complete(true);
+                    }
+                } else {
+                    future.complete(false);
+                }
+            } catch (SQLException e) {
+                Logger.error(STR."An error occurred whilst determining if the player \{uuid} is muted.", e);
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 
     /**
@@ -501,17 +686,40 @@ public class MysqlDatabase {
      * @param world      The PolarWorld object representing the world.
      * @param spawnPoint The spawn point of the world.
      * @throws IllegalStateException If the database connection is not open.
+     * @deprecated Use {@link MysqlDatabase#addWorld(String, String, PolarWorld, Pos, UUID)}
      */
+    @Deprecated
     public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint) {
+        world.setCompression(PolarWorld.CompressionType.ZSTD);
         if (!isConnected())
             throw new IllegalStateException("The database must have an open connection to add a world!");
         worker.submit(() -> {
             try {
-                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point) VALUES (?,?, CURRENT_TIMESTAMP,?,?)");
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
+                ps.setString(5, UUID.randomUUID().toString());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst adding a world!", e);
+            }
+        });
+    }
+
+    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID) {
+        world.setCompression(PolarWorld.CompressionType.ZSTD);
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to add a world!");
+        worker.submit(() -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
+                ps.setString(1, worldName);
+                ps.setString(2, worldType);
+                ps.setBytes(3, PolarWriter.write(world));
+                ps.setString(4, PosSerializer.serialize(spawnPoint));
+                ps.setString(5, worldUUID.toString());
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
@@ -543,6 +751,59 @@ public class MysqlDatabase {
                     Logger.error("The result set is empty!");
                     throw new RuntimeException(STR."World not found: \{worldName}");
                 }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst fetching a world!", e);
+                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Retrieves a world from the database.
+     *
+     * @param worldName The name of the world to fetch.
+     * @param worldType The world type of the world to fetch.
+     * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}.
+     * If the world does not exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
+     * @throws IllegalStateException If the database connection is not open.
+     */
+    public CompletableFuture<PolarWorld> getWorld(String worldName, String worldType) {
+        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a world!");
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
+                ps.setString(1, worldName);
+                ps.setString(2, worldType);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
+                    CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
+                    future.complete(world);
+                } else {
+                    Logger.error("The result set is empty!");
+                    throw new RuntimeException(STR."World not found: \{worldName}");
+                }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst fetching a world!", e);
+                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+            }
+        });
+        return future;
+    }
+
+    public CompletableFuture<Boolean> worldExists(String worldName) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch a world!");
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement("SELECT world_name FROM cytonic_worlds WHERE world_name = ?")) {
+                ps.setString(1, worldName);
+                ResultSet rs = ps.executeQuery();
+                future.complete(rs.next());
             } catch (Exception e) {
                 Logger.error("An error occurred whilst fetching a world!", e);
                 future.completeExceptionally(e);

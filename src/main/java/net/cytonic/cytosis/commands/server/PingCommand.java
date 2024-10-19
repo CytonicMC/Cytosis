@@ -20,10 +20,10 @@ public class PingCommand extends Command {
         setDefaultExecutor((sender, _) -> {
             if (sender instanceof final Player player) {
                 if (player.hasPermission("cytosis.commands.ping")) {
-                    player.sendMessage(MM."<YELLOW>Pong! You're ping is \{player.getLatency()}MS.");
+                    player.sendMessage(MM."<yellow><b>Pong!</b></yellow> <gray>Your ping is \{player.getLatency()}ms.");
                 }
             } else {
-                sender.sendMessage(MM."<RED>Only players may execute this command!");
+                sender.sendMessage(MM."<red>Only players may execute this command!");
             }
         });
     }

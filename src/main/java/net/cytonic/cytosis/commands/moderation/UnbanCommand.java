@@ -3,10 +3,10 @@ package net.cytonic.cytosis.commands.moderation;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import java.util.UUID;
 
@@ -20,13 +20,13 @@ public class UnbanCommand extends Command {
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unban (player)"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching banned players...");
                 Cytosis.getCytonicNetwork().getBannedPlayers().forEach((uuid, _) -> suggestion.addEntry(new SuggestionEntry(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid))));
             }
         });
         addSyntax((sender, context) -> {
-            if (!(sender instanceof Player actor)) {
+            if (!(sender instanceof CytosisPlayer actor)) {
                 return;
             }
             if (!actor.hasPermission("cytosis.commands.moderation.unban")) {
@@ -43,8 +43,8 @@ public class UnbanCommand extends Command {
                 sender.sendMessage(MM."<red>\{player} is not banned!");
                 return;
             }
-            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid,new Entry(uuid, actor.getUuid(), Category.UNBAN, "command"));
-            sender.sendMessage(MM."<GREEN><b>UNBANNED!</green></b><gray>\{player} was successfully unbanned!");
+            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid, new Entry(uuid, actor.getUuid(), Category.UNBAN, "command"));
+            sender.sendMessage(MM."<green><b>UNBANNED!</b></green><gray> \{player} was successfully unbanned!");
         }, playerArg);
     }
 }

@@ -18,25 +18,25 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.5.0")
+    api("net.cytonic:Commons:1.6.1")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:461c56e749")
+    api("net.minestom:minestom-snapshots:916424e995")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
-    implementation("com.mysql:mysql-connector-j:9.0.0") //mysql connector
+    implementation("com.mysql:mysql-connector-j:9.1.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.34") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.34") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("com.rabbitmq:amqp-client:5.21.0") // Message broker
-    api("dev.hollowcube:polar:1.11.1") // Polar
-    api("redis.clients:jedis:5.1.4") // redis client
-    api("com.google.guava:guava:33.2.1-jre")
+    api("com.rabbitmq:amqp-client:5.22.0") // Message broker
+    api("dev.hollowcube:polar:1.11.3") // Polar
+    api("redis.clients:jedis:5.2.0") // redis client
+    api("com.google.guava:guava:33.3.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
-    implementation("io.kubernetes:client-java:21.0.1")
+    implementation("io.kubernetes:client-java:21.0.2")
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
-    implementation("org.apache.logging.log4j:log4j-core:2.23.1")  // Log4j core
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.24.1")  // Log4j core
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.1")
 }
 
 tasks.withType<Jar> {

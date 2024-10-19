@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
@@ -26,7 +26,7 @@ public class RankCommand extends Command {
      */
     public RankCommand() {
         super("rank");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.rank"));
+        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.staff.rank"));
 
         var rankArg = ArgumentType.Enum("rank", PlayerRank.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         rankArg.setCallback((sender, exception) -> sender.sendMessage(STR."The rank \{exception.getInput()} is invalid!"));
@@ -38,7 +38,7 @@ public class RankCommand extends Command {
 
         var playerArg = ArgumentType.Word("player");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender instanceof Player player) {
+            if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(MM."<green>Fetching online players...");
             }
             Cytosis.getCytonicNetwork().getOnlinePlayers().forEach(player ->
@@ -72,7 +72,7 @@ public class RankCommand extends Command {
                 }
 
                 // if it's a console we don't care (There isn't a console impl)
-                if (sender instanceof Player s) {
+                if (sender instanceof CytosisPlayer s) {
                     PlayerRank senderRank = Cytosis.getRankManager().getPlayerRank(s.getUuid()).orElseThrow();
                     if (!PlayerRank.canChangeRank(senderRank, rank, newRank)) {
                         sender.sendMessage(MM."<red>You cannot do this!");

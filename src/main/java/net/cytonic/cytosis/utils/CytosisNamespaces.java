@@ -1,5 +1,6 @@
-package net.cytonic.cytosis.data.enums;
+package net.cytonic.cytosis.utils;
 
+import lombok.experimental.UtilityClass;
 import net.cytonic.enums.ChatChannel;
 import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
@@ -9,14 +10,8 @@ import java.util.Set;
 /**
  * A class holding all the Cytosis namespaces
  */
+@UtilityClass
 public class CytosisNamespaces {
-
-    /**
-     * A private constructor to prevent instantiation
-     */
-    private CytosisNamespaces() {
-        // do nothing
-    }
 
     /**
      * If the player accepts friend requests
