@@ -13,6 +13,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
 }
@@ -68,7 +69,7 @@ tasks {
         archiveClassifier.set("")
         destinationDirectory.set(
             file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
+                destinationDirectory.get().toString()
             )
         )
     }
