@@ -180,7 +180,6 @@ public class CytonicNetwork {
                 Logger.error("An error occurred whilst loading mutes!", e);
             }
         });
-        //todo: add the player to the networkPlayersOnServers?
     }
 
     /**
