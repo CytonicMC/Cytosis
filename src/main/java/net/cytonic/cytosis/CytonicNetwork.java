@@ -1,16 +1,13 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
+import net.cytonic.containers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.objects.PlayerServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.BanData;
-import net.cytonic.objects.BiMap;
-import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.PlayerPair;
+import net.cytonic.objects.*;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -31,7 +28,7 @@ public class CytonicNetwork {
     private final BiMap<UUID, String> onlinePlayers = new BiMap<>();
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
-    private final Map<String, PlayerServer> networkPlayersOnServers = new ConcurrentHashMap<>();
+    private final BiMap<UUID, PlayerServer> networkPlayersOnServers = new BiMap<>();
     private final Map<UUID, BanData> bannedPlayers = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> mutedPlayers = new ConcurrentHashMap<>();
 
@@ -118,16 +115,13 @@ public class CytonicNetwork {
                 Logger.error("An error occurred whilst loading mutes!", e);
             }
         });
-        networkPlayersOnServers.clear();
-
-
         redis.getSet(RedisDatabase.ONLINE_PLAYER_KEY).forEach(s -> {
             PlayerPair pp = PlayerPair.deserialize(s);
             onlinePlayers.put(pp.uuid(), pp.name());
             onlineFlattened.put(pp.uuid(), pp.name().toLowerCase());
         });
         redis.getSet(RedisDatabase.ONLINE_SERVER_KEY).forEach(s -> servers.put(CytonicServer.deserialize(s).id(), CytonicServer.deserialize(s)));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> networkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> networkPlayersOnServers.put(PlayerServer.deserialize(s).uuid(), PlayerServer.deserialize(s)));
     }
 
     /**
@@ -208,7 +202,10 @@ public class CytonicNetwork {
     public void removePlayer(String name, UUID uuid) {
         onlinePlayers.remove(uuid, name);
         onlineFlattened.remove(uuid, name.toLowerCase());
-        networkPlayersOnServers.remove(name);
+        PlayerServer playerServer = networkPlayersOnServers.getByKey(uuid);
+        PlayerChangeServerContainer container = new PlayerChangeServerContainer(uuid, playerServer.server().id());
+        Cytosis.getDatabaseManager().getRedisDatabase().removeValue(RedisDatabase.ONLINE_PLAYER_SERVER_KEY, container.toString());
+        networkPlayersOnServers.remove(uuid, playerServer);
     }
 
     /**

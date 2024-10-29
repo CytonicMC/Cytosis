@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.messaging.pubsub;
 
+import net.cytonic.containers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.objects.PlayerServer;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.PlayerServer;
 import redis.clients.jedis.JedisPubSub;
-
-import java.util.UUID;
 
 /**
  * A pub sub listener that handles player server changes
@@ -28,17 +28,8 @@ public class PlayerServerChange extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.PLAYER_SERVER_CHANGE_CHANNEL)) return;
-        //<PLAYER_NAME>|:|<PLAYER_UUID>|:|<OLD_SERVER_NAME>|:|<NEW_SERVER_NAME>
-        String[] parts = message.split("\\|:\\|");
-        String playerName = parts[0];
-        UUID playerUuid = UUID.fromString(parts[1]);
-        String oldServerName = parts[2];
-        String newServerName = parts[3];
-        CytonicServer newServer = Cytosis.getCytonicNetwork().getServers().get(newServerName);
-        if (!oldServerName.equals("null")) {
-            Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().remove(playerName);
-            return;
-        }
-        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(playerName, new PlayerServer(playerName, playerUuid, newServer));
+        PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(message);
+        CytonicServer newServer = Cytosis.getCytonicNetwork().getServers().get(container.serverName());
+        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(container.uuid(), new PlayerServer(container.uuid(), newServer));
     }
 }
