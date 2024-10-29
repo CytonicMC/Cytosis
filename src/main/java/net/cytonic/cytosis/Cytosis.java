@@ -428,12 +428,10 @@ public final class Cytosis {
     /**
      * Generates a random Server ID:
      * <p>
-     * TODO: make a check for existing server ids
      *
      * @return a random Server ID
      */
     private static String generateID() {
-        //todo: make a check for existing server ids
         StringBuilder id = new StringBuilder();
         Random random = new Random();
         id.append((char) (random.nextInt(26) + 'a'));
@@ -441,7 +439,9 @@ public final class Cytosis {
             id.append(random.nextInt(10));
         }
         id.append((char) (random.nextInt(26) + 'a'));
-        return id.toString();
+        if (Cytosis.getCytonicNetwork().getServers().containsKey(id.toString())) {
+            return generateID();
+        } else return id.toString();
     }
 
     /**
