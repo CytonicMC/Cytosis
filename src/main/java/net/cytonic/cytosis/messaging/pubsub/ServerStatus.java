@@ -36,8 +36,7 @@ public class ServerStatus extends JedisPubSub {
         ServerStatusContainer container = ServerStatusContainer.deserialize(message);
         if (container.serverName().equalsIgnoreCase(Cytosis.SERVER_ID)) return;
 
-        //todo replace with container.server() after commons update
-        CytonicServer server = new CytonicServer(container.serverName(), container.serverName(), container.port());
+        CytonicServer server = container.server();
         PreferenceManager manager = Cytosis.getPreferenceManager();
         if (container.mode() == ServerStatusContainer.Mode.START) {
             Cytosis.getCytonicNetwork().getServers().put(container.serverName(), server);
