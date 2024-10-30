@@ -13,12 +13,13 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.6.1")
+    api("net.cytonic:Commons:1.6.2")
     api("net.cytonic:CytosisPluginProcessor:1.0")
     api("net.minestom:minestom-snapshots:916424e995")
     api("com.google.code.gson:gson:2.11.0") // serializing
@@ -68,7 +69,7 @@ tasks {
         archiveClassifier.set("")
         destinationDirectory.set(
             file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
+                destinationDirectory.get().toString()
             )
         )
     }
