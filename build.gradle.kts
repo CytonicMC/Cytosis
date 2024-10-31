@@ -21,7 +21,7 @@ repositories {
 dependencies {
     api("net.cytonic:Commons:1.6.2")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:916424e995")
+    api("net.minestom:minestom-snapshots:dba90a461b")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
