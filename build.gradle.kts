@@ -29,7 +29,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.34") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.34") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("com.rabbitmq:amqp-client:5.22.0") // Message broker
+    api("com.rabbitmq:amqp-client:5.23.0") // Message broker
     api("dev.hollowcube:polar:1.11.3") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.3.1-jre")
