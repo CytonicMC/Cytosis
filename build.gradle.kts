@@ -34,7 +34,7 @@ dependencies {
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.3.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
-    implementation("io.kubernetes:client-java:21.0.2")
+    implementation("io.kubernetes:client-java:22.0.0")
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.2")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.2")
