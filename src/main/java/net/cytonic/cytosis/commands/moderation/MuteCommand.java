@@ -20,7 +20,7 @@ public class MuteCommand extends Command {
     public MuteCommand() {
         super("mute");
         setCondition((player, _) -> player.hasPermission("cytosis.commands.moderation.mute"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /mute (player) (duration)"));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /mute <player> (duration)"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {

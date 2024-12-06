@@ -17,7 +17,7 @@ public class UnbanCommand extends Command {
     public UnbanCommand() {
         super("unban");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.unban"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unban (player)"));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unban <player>"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
