@@ -17,7 +17,7 @@ public class UnmuteCommand extends Command {
     public UnmuteCommand() {
         super("unmute");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.unmute"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unmute (player)"));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unmute <player>"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
