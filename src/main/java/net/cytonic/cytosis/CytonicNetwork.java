@@ -1,10 +1,10 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
+import net.cytonic.containers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.objects.PlayerServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.enums.PlayerRank;
 import net.cytonic.objects.BanData;
@@ -31,7 +31,7 @@ public class CytonicNetwork {
     private final BiMap<UUID, String> onlinePlayers = new BiMap<>();
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
-    private final Map<String, PlayerServer> networkPlayersOnServers = new ConcurrentHashMap<>();
+    private final Map<UUID, String> networkPlayersOnServers = new ConcurrentHashMap<>(); // uuid, server id
     private final Map<UUID, BanData> bannedPlayers = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> mutedPlayers = new ConcurrentHashMap<>();
 
@@ -126,8 +126,11 @@ public class CytonicNetwork {
             onlinePlayers.put(pp.uuid(), pp.name());
             onlineFlattened.put(pp.uuid(), pp.name().toLowerCase());
         });
-        redis.getSet(RedisDatabase.ONLINE_SERVER_KEY).forEach(s -> servers.put(CytonicServer.deserialize(s).id(), CytonicServer.deserialize(s)));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> networkPlayersOnServers.put(s.split("\\|:\\|")[0], PlayerServer.deserialize(s)));
+        redis.getSet(RedisDatabase.SERVER_GROUPS).forEach(s -> redis.getSet(s).forEach(s1 -> servers.put(CytonicServer.deserialize(s1).id(), CytonicServer.deserialize(s1))));
+        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> {
+            PlayerChangeServerContainer cont = PlayerChangeServerContainer.deserialize(s);
+            networkPlayersOnServers.put(cont.uuid(), cont.serverName());
+        });
     }
 
     /**

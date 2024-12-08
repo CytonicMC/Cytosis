@@ -111,5 +111,13 @@ public final class ServerEventListeners {
             }
         }));
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> TPSCommand.getLastTick().set(event.getTickMonitor()))));
+
+        Logger.info("Starting the Block Placement Rules!");
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:block-placement", false, 100, PlayerBlockPlaceEvent.class, event -> {
+            if (event.getPlayer() instanceof CytosisPlayer player) {
+                //todo: add a preference to disable block updates
+                event.setDoBlockUpdates(true);
+            } else throw new IllegalStateException("Invalid player object");
+        }));
     }
 }

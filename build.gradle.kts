@@ -18,9 +18,9 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.6.1")
+    api("net.cytonic:Commons:1.6.2")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:916424e995")
+    api("net.minestom:minestom-snapshots:18d6e0c6d6")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -33,10 +33,10 @@ dependencies {
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.3.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
-    implementation("io.kubernetes:client-java:21.0.2")
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.1")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.1")
+    implementation("io.nats:jnats:2.20.4")
 }
 
 tasks.withType<Jar> {

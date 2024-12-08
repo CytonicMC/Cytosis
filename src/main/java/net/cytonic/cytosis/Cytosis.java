@@ -17,10 +17,12 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
+import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.CytonicServer;
@@ -77,7 +79,7 @@ public final class Cytosis {
     public static final String VERSION = "0.1";
     @Setter
     @Getter
-    private static ServerGroup serverGroup = new ServerGroup("default", true);
+    private static ServerGroup serverGroup = new ServerGroup("default", "default", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -118,8 +120,6 @@ public final class Cytosis {
     @Getter
     private static List<String> flags;
     @Getter
-    private static ContainerizedInstanceManager containerizedInstanceManager;
-    @Getter
     private static FriendManager friendManager;
     @Getter
     private static PreferenceManager preferenceManager;
@@ -133,6 +133,8 @@ public final class Cytosis {
     private static InstanceManager instanceManager;
     @Getter
     private static ActionbarManager actionbarManager;
+    @Getter
+    private static NatsManager natsManager;
 
 
     private Cytosis() {
@@ -197,7 +199,11 @@ public final class Cytosis {
                 } else mojangAuth();
                 Logger.info("Completing nonessential startup tasks.");
 
-                completeNonEssentialTasks(start);
+                try {
+                    completeNonEssentialTasks(start);
+                } catch (Exception e) {
+                    Logger.error("ERR: ", e);
+                }
             }
         });
     }
@@ -302,6 +308,11 @@ public final class Cytosis {
      * @param start The time the server started
      */
     public static void completeNonEssentialTasks(long start) {
+        BlockPlacementUtils.init();
+
+        natsManager = new NatsManager();
+        natsManager.setup();
+
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
         databaseManager.setupDatabases().whenComplete((_, throwable) -> {
@@ -373,29 +384,21 @@ public final class Cytosis {
             Logger.info("Starting NPC manager!");
             npcManager = new NPCManager();
 
-            if (CytosisSettings.SERVER_PROXY_MODE) {
-                Logger.info("Loading network setup!");
-                cytonicNetwork = new CytonicNetwork();
-                cytonicNetwork.importData(databaseManager.getRedisDatabase());
-                cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
+            try {
+                if (CytosisSettings.SERVER_PROXY_MODE) {
+                    Logger.info("Loading network setup!");
+                    cytonicNetwork = new CytonicNetwork();
+                    cytonicNetwork.importData(databaseManager.getRedisDatabase());
+                    cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
+                }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst loading network setup!", e);
             }
 
             Logger.info("Starting cooldown managers");
             networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
             networkCooldownManager.importFromRedis();
             Logger.info("Started network cooldown manager");
-
-            if (flags.contains("--skip-kubernetes") || flags.contains("--skip-k8s")) {
-                Logger.warn("Skipping Kubernetes setup");
-                CytosisSettings.KUBERNETES_SUPPORTED = false;
-            } else {
-                try {
-                    Logger.info("Starting Containerized Instance Manager");
-                    containerizedInstanceManager = new ContainerizedInstanceManager();
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading the kubernetes setup!", e);
-                }
-            }
 
             cynwaveWrapper = new CynwaveWrapper();
 

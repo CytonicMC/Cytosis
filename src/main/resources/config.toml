@@ -40,3 +40,9 @@ host = ""  # RabbitMQ host or IP address
 port = 5672  # Default RabbitMQ port
 username = "" # username login to RabbitMQ server
 password = "" # password to login to RabbitMQ server
+
+[nats]
+host = ""
+port = 4222
+username = ""
+password = ""

@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.managers;
 
-import jakarta.annotation.Nullable;
 import net.cytonic.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.utils.NamespaceID;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.*;

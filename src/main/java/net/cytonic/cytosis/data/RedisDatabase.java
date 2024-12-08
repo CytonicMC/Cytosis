@@ -37,10 +37,6 @@ public class RedisDatabase {
      */
     public static final String ONLINE_PLAYER_KEY = "online_players";
     /**
-     * Cached Servers
-     */
-    public static final String ONLINE_SERVER_KEY = "online_servers";
-    /**
      * Cached player servers
      */
     public static final String ONLINE_PLAYER_SERVER_KEY = "online_player_server";
@@ -83,6 +79,10 @@ public class RedisDatabase {
      * Player message channel
      */
     public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
+    /**
+     * The set holding the ids of the server groups
+     */
+    public static final String SERVER_GROUPS = "server_groups";
 
     // friend requests
     /**
@@ -105,6 +105,7 @@ public class RedisDatabase {
      * Friend removed
      */
     public static final String FRIEND_REMOVED = "friend-removed";
+    public static final String SERVER_GROUP_KV = "server_group_key_value";
     /**
      * Player kicked
      */
@@ -149,7 +150,7 @@ public class RedisDatabase {
         ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.STOP,
                 Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
         jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
-        jedis.srem(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
+        jedis.srem(Cytosis.getServerGroup().id(), new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         Logger.info("Server shutdown message sent!");
     }
 
@@ -159,8 +160,10 @@ public class RedisDatabase {
     public void sendStartupMessage() {
         ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.START,
                 Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
+        jedis.hset(SERVER_GROUP_KV, Cytosis.getServerGroup().id(), Cytosis.getServerGroup().serialize());
+        jedis.sadd(SERVER_GROUPS, Cytosis.getServerGroup().id());
+        jedis.sadd(Cytosis.getServerGroup().id(), new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
-        jedis.sadd(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
         Logger.info("Server startup message sent!");
     }
 

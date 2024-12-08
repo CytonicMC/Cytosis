@@ -1,7 +1,5 @@
 package net.cytonic.cytosis.commands.server;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.config.CytosisSettings;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -30,19 +28,16 @@ public class CreateInstanceCommand extends Command {
                 sender.sendMessage(MM."<RED>You do not have permission to use this command!");
                 return;
             }
-            if (!CytosisSettings.KUBERNETES_SUPPORTED) {
-                sender.sendMessage(MM."<RED>This command is not supported on this server!");
-                return;
-            }
             String type = context.get(typeArg);
+            sender.sendMessage(MM."<red><b>WHOOPS!</b><red><gray> This command is currently disabled.");
             switch (type.toLowerCase()) {
                 case "proxy" -> {
-                    Cytosis.getContainerizedInstanceManager().createProxyInstance();
-                    sender.sendMessage(MM."<GREEN>Created new Proxy instance! It may take a few seconds to fully start up.");
+//                    Cytosis.getContainerizedInstanceManager().createProxyInstance();
+//                    sender.sendMessage(MM."<GREEN>Created new Proxy instance! It may take a few seconds to fully start up.");
                 }
                 case "cytosis" -> {
-                    Cytosis.getContainerizedInstanceManager().createCytosisInstance();
-                    sender.sendMessage(MM."<GREEN>Created new Cytosis instance! It may take a few seconds to fully start up.");
+//                    Cytosis.getContainerizedInstanceManager().createCytosisInstance();
+//                    sender.sendMessage(MM."<GREEN>Created new Cytosis instance! It may take a few seconds to fully start up.");
                 }
             }
         });

@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.commands.server;
 
-import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -20,10 +19,12 @@ public class PodDetailsCommand extends Command {
         super("poddetails", "pod");
         setCondition((sender, _) -> sender.hasPermission("cytosis.commands.poddetails"));
         addSyntax(((sender, _) -> {
-            if (!CytosisSettings.KUBERNETES_SUPPORTED) {
-                sender.sendMessage(MM."<RED>This command is not supported on this server!");
+
+            if (true) {
+                sender.sendMessage(MM."<red><b>WHOOPS!</b><red><gray> This command is currently disabled.");
                 return;
             }
+
             if (sender instanceof CytosisPlayer player)
                 if (player.hasPermission("cytosis.command.poddetails")) {
                     player.sendMessage(MM."<green>Fetching pod details...");

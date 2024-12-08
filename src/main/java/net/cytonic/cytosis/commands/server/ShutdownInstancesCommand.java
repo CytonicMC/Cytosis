@@ -1,7 +1,5 @@
 package net.cytonic.cytosis.commands.server;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.config.CytosisSettings;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -30,17 +28,14 @@ public class ShutdownInstancesCommand extends Command {
                 sender.sendMessage(MM."<RED>You do not have permission to use this command!");
                 return;
             }
-            if (!CytosisSettings.KUBERNETES_SUPPORTED) {
-                sender.sendMessage(MM."<RED>This command is not supported on this server!");
-                return;
-            }
+            sender.sendMessage(MM."<red><b>WHOOPS!</b><red><gray> This command is currently disabled.");
             String type = context.get(typeArg);
             if (type.equalsIgnoreCase("proxy")) {
-                Cytosis.getContainerizedInstanceManager().shutdownAllProxyInstances();
-                sender.sendMessage(MM."<GREEN>Shutting down Proxy instances!");
+//                Cytosis.getContainerizedInstanceManager().shutdownAllProxyInstances();
+//                sender.sendMessage(MM."<GREEN>Shutting down Proxy instances!");
             } else if (type.equalsIgnoreCase("cytosis")) {
-                Cytosis.getContainerizedInstanceManager().shutdownAllCytosisInstances();
-                sender.sendMessage(MM."<GREEN>Shutting down Cytosis instances!");
+//                Cytosis.getContainerizedInstanceManager().shutdownAllCytosisInstances();
+//                sender.sendMessage(MM."<GREEN>Shutting down Cytosis instances!");
             }
         }, typeArg);
     }
