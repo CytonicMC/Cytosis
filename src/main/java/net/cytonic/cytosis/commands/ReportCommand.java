@@ -7,6 +7,8 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 
+import java.util.UUID;
+
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 /**
@@ -46,6 +48,7 @@ public class ReportCommand extends Command {
                         // execute stuff here
                     }
                 }*/
+
                 player.sendMessage(MM."<RED>Player not found!");
             }
         }, playerArg);

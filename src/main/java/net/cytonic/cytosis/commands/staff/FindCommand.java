@@ -9,7 +9,8 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
+
+import java.util.UUID;
 
 import java.util.UUID;
 
@@ -47,6 +48,7 @@ public class FindCommand extends Command {
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, STR."/server \{server}"));
                 player.sendMessage(message);
             }
+
         }, playerArgument);
     }
 }

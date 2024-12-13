@@ -6,10 +6,7 @@ import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.BanData;
-import net.cytonic.objects.BiMap;
-import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.PlayerPair;
+import net.cytonic.objects.*;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -117,9 +114,6 @@ public class CytonicNetwork {
                 Logger.error("An error occurred whilst loading mutes!", e);
             }
         });
-        networkPlayersOnServers.clear();
-
-
         redis.getSet(RedisDatabase.ONLINE_PLAYER_KEY).forEach(s -> {
             PlayerPair pp = PlayerPair.deserialize(s);
             onlinePlayers.put(pp.uuid(), pp.name());
@@ -188,7 +182,6 @@ public class CytonicNetwork {
                 Logger.error("An error occurred whilst loading mutes!", e);
             }
         });
-        //todo: add the player to the networkPlayersOnServers?
     }
 
     /**
@@ -210,7 +203,10 @@ public class CytonicNetwork {
     public void removePlayer(String name, UUID uuid) {
         onlinePlayers.remove(uuid, name);
         onlineFlattened.remove(uuid, name.toLowerCase());
-        networkPlayersOnServers.remove(name);
+        PlayerServer playerServer = networkPlayersOnServers.getByKey(uuid);
+        PlayerChangeServerContainer container = new PlayerChangeServerContainer(uuid, playerServer.server().id());
+        Cytosis.getDatabaseManager().getRedisDatabase().removeValue(RedisDatabase.ONLINE_PLAYER_SERVER_KEY, container.toString());
+        networkPlayersOnServers.remove(uuid, playerServer);
     }
 
     /**
