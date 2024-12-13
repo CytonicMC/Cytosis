@@ -1,20 +1,23 @@
 package net.cytonic.cytosis.messaging.nats;
 
-import io.nats.client.Connection;
-import io.nats.client.ConnectionListener;
-import io.nats.client.Nats;
-import io.nats.client.Options;
+import io.nats.client.*;
 import lombok.SneakyThrows;
+import net.cytonic.containers.ServerStatusContainer;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.Utils;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import static io.nats.client.ConnectionListener.Events.*;
 
 public class NatsManager {
 
-    Connection natsConnection;
+
+    Connection connection;
+    Subscription healthCheck;
 
     @SneakyThrows
     public void setup() {
@@ -23,11 +26,12 @@ public class NatsManager {
             Objects.requireNonNull(type);
 
             if (type == CONNECTED || type == RESUBSCRIBED || type == RECONNECTED) {
-                natsConnection = conn;
+                connection = conn;
                 Logger.info("Connected asynchronously to NATS server!");
+                startHealthCheck();
             } else {
                 Logger.info("Disconnected from NATS server!");
-                natsConnection = null;
+                connection = null;
             }
         };
 
@@ -41,13 +45,42 @@ public class NatsManager {
 
     @SneakyThrows // don't care about the error on shutdown
     public void shutdown() {
-        natsConnection.close();
+        sendShutdown();
+        connection.close();
     }
 
     public void sendStartup() {
-
-
+        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, null).serialize().getBytes();
+        Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
+                    try {
+                        connection.publish(Subjects.SERVER_REGISTER, data);
+                    } catch (Exception e) {
+                        Logger.error("Failed to send STARTUP", e);
+                    }
+                }
+        );
     }
 
+    public void sendShutdown() {
+        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now()).serialize().getBytes();
+        Thread.ofVirtual().name("NATS Shutdown Publisher").start(() ->
+                connection.publish(Subjects.SERVER_SHUTDOWN, data));
+    }
 
+    public void startHealthCheck() {
+        if (healthCheck != null) {
+            healthCheck.getDispatcher().unsubscribe(healthCheck);
+        }
+        Dispatcher dispatcher = connection.createDispatcher();
+        healthCheck = dispatcher.subscribe(Subjects.HEALTH_CHECK, msg -> {
+            // reply
+            connection.publish(msg.getReplyTo(), new byte[0]);
+        });
+    }
+
+    public void listenForFriends() {
+        Thread.ofVirtual().name("NATS Friend Expiry Worker").start(() -> {
+
+        });
+    }
 }

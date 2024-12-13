@@ -1,7 +1,6 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
-import net.cytonic.containers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
@@ -128,8 +127,8 @@ public class CytonicNetwork {
         });
         redis.getSet(RedisDatabase.SERVER_GROUPS).forEach(s -> redis.getSet(s).forEach(s1 -> servers.put(CytonicServer.deserialize(s1).id(), CytonicServer.deserialize(s1))));
         redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> {
-            PlayerChangeServerContainer cont = PlayerChangeServerContainer.deserialize(s);
-            networkPlayersOnServers.put(cont.uuid(), cont.serverName());
+//            PlayerChangeServerContainer cont = PlayerChangeServerContainer.deserialize(s);
+//            networkPlayersOnServers.put(cont.uuid(), cont.serverName());
         });
     }
 

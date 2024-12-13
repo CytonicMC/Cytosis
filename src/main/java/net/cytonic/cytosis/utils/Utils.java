@@ -47,7 +47,7 @@ public final class Utils {
     }
 
     /**
-     * Gets the server's IP address
+     * Gets the server's IP address. Does **NOT** include the port. An example is: {@code 127.0.0.1}
      *
      * @return the string of the IP address
      */

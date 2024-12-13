@@ -1,13 +1,11 @@
 package net.cytonic.cytosis.data;
 
 import net.cytonic.containers.SendPlayerToServerContainer;
-import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
-import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.enums.KickReason;
 import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
@@ -133,7 +131,6 @@ public class RedisDatabase {
         Logger.info("Connected to Redis!");
 
         worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
@@ -141,30 +138,6 @@ public class RedisDatabase {
         worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
-    }
-
-    /**
-     * Sends a server shutdown message to the redis server
-     */
-    public void sendShutdownMessage() {
-        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.STOP,
-                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
-        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
-        jedis.srem(Cytosis.getServerGroup().id(), new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
-        Logger.info("Server shutdown message sent!");
-    }
-
-    /**
-     * Sends a server startup message to the redis server
-     */
-    public void sendStartupMessage() {
-        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.START,
-                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
-        jedis.hset(SERVER_GROUP_KV, Cytosis.getServerGroup().id(), Cytosis.getServerGroup().serialize());
-        jedis.sadd(SERVER_GROUPS, Cytosis.getServerGroup().id());
-        jedis.sadd(Cytosis.getServerGroup().id(), new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
-        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
-        Logger.info("Server startup message sent!");
     }
 
     /**

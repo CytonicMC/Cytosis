@@ -79,7 +79,7 @@ public final class Cytosis {
     public static final String VERSION = "0.1";
     @Setter
     @Getter
-    private static ServerGroup serverGroup = new ServerGroup("default", "default", true);
+    private static ServerGroup serverGroup = new ServerGroup("default", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -419,7 +419,7 @@ public final class Cytosis {
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
             Logger.info(STR."Server id = \{SERVER_ID}");
-            databaseManager.getRedisDatabase().sendStartupMessage();
+            natsManager.sendStartup();
 
             if (flags.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
