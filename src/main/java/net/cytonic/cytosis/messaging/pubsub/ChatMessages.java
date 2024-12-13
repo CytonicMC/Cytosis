@@ -31,7 +31,7 @@ public class ChatMessages extends JedisPubSub {
         ChatChannel chatChannel = chatMessage.channel();
         if (chatChannel == ChatChannel.ADMIN || chatChannel == ChatChannel.MOD || chatChannel == ChatChannel.STAFF) {
             Cytosis.getOnlinePlayers().forEach(player -> {
-                if (player.hasPermission(chatChannel.name().toLowerCase()) && !Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(chatChannel.name()).getAsBoolean()) {
+                if (player.canUseChannel(chatChannel) && !Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(chatChannel.name()).getAsBoolean()) {
                     player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                     player.sendMessage(JSONComponentSerializer.json().deserialize(chatMessage.serializedMessage()));
                 }

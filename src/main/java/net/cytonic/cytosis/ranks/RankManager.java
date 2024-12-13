@@ -10,10 +10,8 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
-import net.minestom.server.permission.Permission;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -96,7 +94,6 @@ public class RankManager {
         var event = new RankChangeEvent(old, rank, player);
         EventDispatcher.call(event);
         if (event.isCanceled()) return;
-        removePermissions(player, old.getPermissions());
         rankMap.put(player.getUuid(), rank);
         setupCosmetics(player, rank);
         if (Cytosis.getCytonicNetwork() != null)
@@ -109,7 +106,6 @@ public class RankManager {
      * @param rank   The rank
      */
     private void setupCosmetics(Player player, PlayerRank rank) {
-        addPermissions(player, rank.getPermissions());
         teamMap.get(rank).addMember(player.getUsername());
         player.setCustomName(rank.getPrefix().append(player.getName()));
         Cytosis.getCommandHandler().recalculateCommands(player);
@@ -121,29 +117,9 @@ public class RankManager {
      * @param player The player
      */
     public void removePlayer(Player player) {
-        removePermissions(player, rankMap.getOrDefault(player.getUuid(), PlayerRank.DEFAULT).getPermissions());
         rankMap.remove(player.getUuid());
     }
 
-    /**
-     * Adds permissions to a player
-     *
-     * @param player the player
-     * @param nodes  the permission nodes
-     */
-    public final void addPermissions(@NotNull final Player player, @NotNull final String... nodes) {
-        for (String node : nodes) player.addPermission(new Permission(node));
-    }
-
-    /**
-     * Strips permissions from a player
-     *
-     * @param player the player
-     * @param nodes  the nodes to remove
-     */
-    public final void removePermissions(@NotNull final Player player, @NotNull final String... nodes) {
-        for (String node : nodes) player.removePermission(node);
-    }
 
     /**
      * Gets a player's rank

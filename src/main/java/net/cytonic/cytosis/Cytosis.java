@@ -40,7 +40,6 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
-import net.minestom.server.permission.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -79,7 +78,7 @@ public final class Cytosis {
     public static final String VERSION = "0.1";
     @Setter
     @Getter
-    private static ServerGroup serverGroup = new ServerGroup("default", true);
+    private static ServerGroup serverGroup = new ServerGroup("default", "default", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -171,7 +170,6 @@ public final class Cytosis {
 
         Logger.info("Setting console command sender.");
         consoleSender = commandManager.getConsoleSender();
-        consoleSender.addPermission(new Permission("*"));
 
         //chat manager
         Logger.info("Starting chat manager.");
@@ -248,24 +246,6 @@ public final class Cytosis {
      */
     public static Optional<CytosisPlayer> getPlayer(UUID uuid) {
         return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
-    }
-
-    /**
-     * Gives a player all permissions
-     *
-     * @param player to grant all permissions to
-     */
-    public static void opPlayer(Player player) {
-        player.addPermission(new Permission("*")); // give them every permission
-    }
-
-    /**
-     * Removes the '*' permission from a player
-     *
-     * @param player The player to remove the '*' permission from
-     */
-    public static void deopPlayer(Player player) {
-        player.removePermission("*"); // remove every permission
     }
 
     /**

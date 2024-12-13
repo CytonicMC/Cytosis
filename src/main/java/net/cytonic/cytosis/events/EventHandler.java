@@ -11,7 +11,10 @@ import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEv
 import net.minestom.server.event.entity.projectile.ProjectileUncollideEvent;
 import net.minestom.server.event.instance.*;
 import net.minestom.server.event.inventory.*;
-import net.minestom.server.event.item.*;
+import net.minestom.server.event.item.EntityEquipEvent;
+import net.minestom.server.event.item.ItemDropEvent;
+import net.minestom.server.event.item.PickupExperienceEvent;
+import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ClientPingServerEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
@@ -178,7 +181,6 @@ public class EventHandler {
         // Item Events
         GLOBAL_HANDLER.addListener(EntityEquipEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ItemDropEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(ItemUpdateStateEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PickupExperienceEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PickupItemEvent.class, (this::handleEvent));
         // player events
@@ -196,12 +198,11 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(PlayerCommandEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerDeathEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerDisconnectEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(PlayerEatEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerPreEatEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerEntityInteractEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerFinishDiggingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerGameModeChangeEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerHandAnimationEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(PlayerItemAnimationEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerMoveEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerPacketEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerPacketOutEvent.class, (this::handleEvent));
@@ -222,11 +223,10 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(PlayerStopFlyingWithElytraEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerStopSprintingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerStopSneakingEvent.class, (this::handleEvent));
-//        GLOBAL_HANDLER.addListener(PlayerSwapItemEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerSwapItemEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerTickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerUseItemEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PlayerUseItemOnBlockEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(UpdateTagListEvent.class, (this::handleEvent)); // deprecated
         // Server
         GLOBAL_HANDLER.addListener(ClientPingServerEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerListPingEvent.class, (this::handleEvent));

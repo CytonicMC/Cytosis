@@ -2,7 +2,6 @@ package net.cytonic.cytosis.events;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.server.TPSCommand;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
@@ -12,15 +11,11 @@ import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.enums.ChatChannel;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.ItemEntity;
-import net.minestom.server.entity.Player;
+import net.minestom.server.entity.*;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
-import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.time.TimeUnit;
 
@@ -68,7 +63,7 @@ public final class ServerEventListeners {
 
         Logger.info("Registering player chat event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-chat", false, 1, PlayerChatEvent.class, event -> {
-            final Player player = event.getPlayer();
+            final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
             event.setCancelled(true);
             Cytosis.getDatabaseManager().getMysqlDatabase().isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
                 if (throwable != null) {
@@ -76,10 +71,10 @@ public final class ServerEventListeners {
                     return;
                 }
                 if (!isMuted) {
-                    Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getMessage());
-                    String originalMessage = event.getMessage();
+                    Cytosis.getDatabaseManager().getMysqlDatabase().addChat(player.getUuid(), event.getRawMessage());
+                    String originalMessage = event.getRawMessage();
                     ChatChannel channel = Cytosis.getChatManager().getChannel(player.getUuid());
-                    if (player.hasPermission(STR."cytonic.chat.\{channel.name().toLowerCase()}") || channel == ChatChannel.ALL) {
+                    if (player.canUseChannel(channel) || channel == ChatChannel.ALL) {
                         Cytosis.getChatManager().sendMessage(originalMessage, channel, player);
                     } else {
                         player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
@@ -114,13 +109,11 @@ public final class ServerEventListeners {
         }));
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-interact", false, 1, PlayerEntityInteractEvent.class, event -> {
             Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
-            if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == Player.Hand.MAIN) {
+            if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
                 NPC npc = optional.get();
                 npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
             }
         }));
-        Cytosis.getEventHandler().registerListener(new EventListener<>("core:tps-check", false, 1, ServerTickMonitorEvent.class, (event -> TPSCommand.getLastTick().set(event.getTickMonitor()))));
-
         Logger.info("Starting the Block Placement Rules!");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:block-placement", false, 100, PlayerBlockPlaceEvent.class, event -> {
             if (event.getPlayer() instanceof CytosisPlayer player) {

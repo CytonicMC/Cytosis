@@ -26,7 +26,6 @@ public class PlayerServerChange extends JedisPubSub {
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.PLAYER_SERVER_CHANGE_CHANNEL)) return;
         PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(message);
-        CytonicServer newServer = Cytosis.getCytonicNetwork().getServers().get(container.serverName());
-        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(container.uuid(), new PlayerServer(container.uuid(), newServer));
+        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(container.uuid(), container.serverName());
     }
 }

@@ -1,12 +1,16 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
+import net.cytonic.containers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.*;
+import net.cytonic.objects.BanData;
+import net.cytonic.objects.BiMap;
+import net.cytonic.objects.CytonicServer;
+import net.cytonic.objects.PlayerPair;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -203,8 +207,8 @@ public class CytonicNetwork {
     public void removePlayer(String name, UUID uuid) {
         onlinePlayers.remove(uuid, name);
         onlineFlattened.remove(uuid, name.toLowerCase());
-        PlayerServer playerServer = networkPlayersOnServers.getByKey(uuid);
-        PlayerChangeServerContainer container = new PlayerChangeServerContainer(uuid, playerServer.server().id());
+        String playerServer = networkPlayersOnServers.get(uuid);
+        PlayerChangeServerContainer container = new PlayerChangeServerContainer(uuid, playerServer);
         Cytosis.getDatabaseManager().getRedisDatabase().removeValue(RedisDatabase.ONLINE_PLAYER_SERVER_KEY, container.toString());
         networkPlayersOnServers.remove(uuid, playerServer);
     }

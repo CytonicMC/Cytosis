@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.debug;
 
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.objects.Preference;
@@ -26,7 +27,7 @@ public class PreferenceCommand extends Command {
      */
     public PreferenceCommand() {
         super("preference", "pref");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.debug.preference"));
+        setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>Please specify an operation!"));
         var opperationArg = ArgumentType.Enum("operation", Operation.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
         opperationArg.setCallback((sender, _) -> sender.sendMessage(MM."<red>Invalid syntax!"));

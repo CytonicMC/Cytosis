@@ -12,7 +12,7 @@ import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.timer.TaskSchedule;
-import net.minestom.server.utils.PacketUtils;
+import net.minestom.server.utils.PacketSendingUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,11 +56,11 @@ public class PlayerListManager {
         player.sendPlayerListHeaderAndFooter(creator.header(player), creator.footer(player));
 
         // remove them from the player list for everyone, but keep skin data
-        PacketUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(
+        PacketSendingUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(
                 PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                 new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
                         new PlayerInfoUpdatePacket.Property("textures", player.getSkin().textures(), player.getSkin().signature())
-                ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null)
+                ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null, -1)
         ));
 
         // remove everyone from the player
@@ -94,6 +94,7 @@ public class PlayerListManager {
         }
 
 
+        int order = 0;
         for (int i = 0; i < listUUIDs.length; i++) {
             char col = (char) ('A' + i);
             for (int j = 0; j < listUUIDs[i].length; j++) {
@@ -102,8 +103,9 @@ public class PlayerListManager {
                 packets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(uuid, STR."!\{col}-\{row}", List.of(playerFavicons.get(player.getUuid())[i][j]),
-                                true, 1, GameMode.CREATIVE, playerComponents.get(player.getUuid())[i][j], null)
+                                true, 1, GameMode.CREATIVE, playerComponents.get(player.getUuid())[i][j], null, order)
                         )));
+                order++;
             }
         }
 
@@ -113,7 +115,7 @@ public class PlayerListManager {
                     PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                     new PlayerInfoUpdatePacket.Entry(p.getUuid(), p.getUsername(), List.of(
                             new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())
-                    ), false, p.getLatency(), p.getGameMode(), p.getDisplayName(), null)
+                    ), false, p.getLatency(), p.getGameMode(), p.getDisplayName(), null, -1)
             ));
         }
         return packets;
@@ -140,20 +142,23 @@ public class PlayerListManager {
 
         List<SendablePacket> updatePackets = new ArrayList<>();
 
+        //todo: fix this :)
+
+        int order = 0;
         for (int i = 0; i < updatedComponents.length; i++) {
             if (faviconNotEquals(favicons[i][0], updatedFavicons[i][0])) {
                 updatePackets.add(new PlayerInfoRemovePacket(listUUIDs[i][0]));
                 updatePackets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], STR."!\{(char) ('A' + i)}-\{(char) ('a')}",
-                                List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null)
+                                List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order)
                         )));
             }
 
             if (!components[i][0].equals(columns.get(i).getName())) {
                 updatePackets.add(new PlayerInfoUpdatePacket(
                         PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], STR."!\{(char) ('A' + i)}-\{(char) ('a')}",
-                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null)
+                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order)
                 ));
             }
             for (int j = 1; j < updatedComponents[i].length; j++) {
@@ -162,14 +167,14 @@ public class PlayerListManager {
                     updatePackets.add(new PlayerInfoUpdatePacket(
                             EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                             List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], STR."!\{(char) ('A' + i)}-\{(char) ('a' + j)}",
-                                    List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null)
+                                    List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order)
                             )));
                 }
                 if (!components[i][j].equals(updatedComponents[i][j])) {
                     components[i][j] = updatedComponents[i][j];
                     updatePackets.add(new PlayerInfoUpdatePacket(
                             PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], STR."!\{(char) ('A' + i)}-\{(char) ('a' + j)}",
-                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null)
+                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order)
                     ));
                 }
             }

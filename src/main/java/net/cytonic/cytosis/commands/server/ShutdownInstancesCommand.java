@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.server;
 
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -16,7 +17,7 @@ public class ShutdownInstancesCommand extends Command {
      */
     public ShutdownInstancesCommand() {
         super("shutdowninstances");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.shutdowninstances"));
+        setCondition(CommandUtils.IS_ADMIN);
         var typeArg = ArgumentType.Word("type").from("cytosis", "proxy");
         typeArg.setCallback((sender, _) -> sender.sendMessage(MM."<red>ERROR"));
         typeArg.setSuggestionCallback((_, _, suggestion) -> {
@@ -24,10 +25,6 @@ public class ShutdownInstancesCommand extends Command {
             suggestion.addEntry(new SuggestionEntry("proxy"));
         });
         addSyntax((sender, context) -> {
-            if (!sender.hasPermission("cytosis.commands.shutdowninstances")) {
-                sender.sendMessage(MM."<RED>You do not have permission to use this command!");
-                return;
-            }
             sender.sendMessage(MM."<red><b>WHOOPS!</b><red><gray> This command is currently disabled.");
             String type = context.get(typeArg);
             if (type.equalsIgnoreCase("proxy")) {

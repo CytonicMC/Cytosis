@@ -11,7 +11,6 @@ import net.cytonic.cytosis.messaging.pubsub.*;
 import net.cytonic.enums.KickReason;
 import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
@@ -202,9 +201,9 @@ public class RedisDatabase {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(OfflinePlayer player, KickReason reason, Component component, Entry entry) {
+    public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
-        PlayerKickContainer container = new PlayerKickContainer(player.uuid(), reason, JSONComponentSerializer.json().serialize(component));
+        PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
         jedisPub.publish(PLAYER_KICK, container.toString());
     }
 
