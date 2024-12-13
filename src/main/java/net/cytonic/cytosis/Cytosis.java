@@ -79,7 +79,7 @@ public final class Cytosis {
     public static final String VERSION = "0.1";
     @Setter
     @Getter
-    private static ServerGroup serverGroup = new ServerGroup("default", "default", true);
+    private static ServerGroup serverGroup = new ServerGroup("default", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;

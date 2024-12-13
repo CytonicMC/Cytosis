@@ -12,8 +12,6 @@ import net.minestom.server.entity.Player;
 
 import java.util.UUID;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
-
 /**
  * This class handles chat messages and channels
  */
@@ -54,26 +52,24 @@ public class ChatManager {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, Player player) {
-        if (!originalMessage.contains("|:|")) {
-            Component channelComponent = Component.empty();
-            if (channel != ChatChannel.ALL) {
-                channelComponent = channel.getPrefix();
-            }
-            Component message = Component.text("")
-                    .append(channelComponent)
-                    .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                    .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
-                    .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
-                    .appendSpace()
-                    .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
-            if (channel == ChatChannel.ALL) {
-                Cytosis.getOnlinePlayers().forEach((p) -> {
-                    if (!Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(channel.name()).getAsBoolean())
-                        p.sendMessage(message);
-                });
-                return;
-            }
-            Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message)));
-        } else player.sendMessage(MM."<red>Hey you cannot do that!");
+        Component channelComponent = Component.empty();
+        if (channel != ChatChannel.ALL) {
+            channelComponent = channel.getPrefix();
+        }
+        Component message = Component.text("")
+                .append(channelComponent)
+                .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
+                .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
+                .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
+                .appendSpace()
+                .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
+        if (channel == ChatChannel.ALL) {
+            Cytosis.getOnlinePlayers().forEach((p) -> {
+                if (!Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(channel.name()).getAsBoolean())
+                    p.sendMessage(message);
+            });
+            return;
+        }
+        Cytosis.getDatabaseManager().getRedisDatabase().sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message)));
     }
 }

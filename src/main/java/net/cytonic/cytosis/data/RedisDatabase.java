@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.data;
 
+import net.cytonic.containers.PlayerKickContainer;
+import net.cytonic.containers.PlayerWarnContainer;
 import net.cytonic.containers.SendPlayerToServerContainer;
 import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.Cytosis;
@@ -208,39 +210,34 @@ public class RedisDatabase {
     /**
      * Sends a message to Redis to kick a player.
      * <p>
-     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
      *
      * @param player    The player to kick, on this server
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
     public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
-        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
-        String message = STR."\{player.getUuid()}|:|\{reason}|:|\{player.getUsername()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
-        jedisPub.publish(PLAYER_KICK, message);
+        PlayerKickContainer container = new PlayerKickContainer(player.getUuid(), reason, JSONComponentSerializer.json().serialize(component));
+        jedisPub.publish(PLAYER_KICK, container.toString());
     }
 
     /**
-     * Sends a message to RabbitMQ to kick a player.
+     * Sends a message to Redis to kick a player.
      * <p>
-     * Formatting: {@code {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}}
      *
      * @param player    The player to kick, on another server
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
     public void kickPlayer(OfflinePlayer player, KickReason reason, Component component, Entry entry) {
-        // FORMAT: {uuid}|:|{reason}|:|{name}|:|{message}|:|{rescuable}
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
-        String message = STR."\{player.uuid()}|:|\{reason}|:|\{player.name()}|:|\{JSONComponentSerializer.json().serialize(component)}|:|\{reason.isRescuable()}";
-        jedisPub.publish(PLAYER_KICK, message);
+        PlayerKickContainer container = new PlayerKickContainer(player.uuid(), reason, JSONComponentSerializer.json().serialize(component));
+        jedisPub.publish(PLAYER_KICK, container.toString());
     }
 
     /**
      * Sends a message to Redis to warn a player.
      * <p>
-     * Formatting: {@code {uuid}|:|{warn_message}}
      *
      * @param target      the player to warn
      * @param actor       the actor
@@ -249,11 +246,10 @@ public class RedisDatabase {
      * @param entry       the audit log entry
      */
     public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason, Entry entry) {
-        // FORMAT: {uuid}|:|{warn_message}
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
         Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerWarn(actor, target, reason);
-        String message = STR."\{target}|:|\{JSONComponentSerializer.json().serialize(warnMessage)}";
-        jedisPub.publish(PLAYER_WARN, message);
+        PlayerWarnContainer container = new PlayerWarnContainer(target, JSONComponentSerializer.json().serialize(warnMessage));
+        jedisPub.publish(PLAYER_WARN, container.toString());
     }
 
     /**

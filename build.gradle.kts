@@ -13,6 +13,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
 }
@@ -20,23 +21,23 @@ repositories {
 dependencies {
     api("net.cytonic:Commons:1.6.2")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:18d6e0c6d6")
+    api("net.minestom:minestom-snapshots:11d7530dfc")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
     implementation("com.mysql:mysql-connector-j:9.1.0") //mysql connector
-    compileOnly("org.projectlombok:lombok:1.18.34") // lombok
-    annotationProcessor("org.projectlombok:lombok:1.18.34") // lombok
+    compileOnly("org.projectlombok:lombok:1.18.36") // lombok
+    annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("com.rabbitmq:amqp-client:5.22.0") // Message broker
-    api("dev.hollowcube:polar:1.11.3") // Polar
+    api("com.rabbitmq:amqp-client:5.23.0") // Message broker
+    api("dev.hollowcube:polar:1.11.4") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.3.1-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
+    implementation("io.kubernetes:client-java:22.0.0")
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
-    implementation("org.apache.logging.log4j:log4j-core:2.24.1")  // Log4j core
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.1")
-    implementation("io.nats:jnats:2.20.4")
+    implementation("org.apache.logging.log4j:log4j-core:2.24.2")  // Log4j core
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.2")
 }
 
 tasks.withType<Jar> {
@@ -68,7 +69,7 @@ tasks {
         archiveClassifier.set("")
         destinationDirectory.set(
             file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
+                destinationDirectory.get().toString()
             )
         )
     }
