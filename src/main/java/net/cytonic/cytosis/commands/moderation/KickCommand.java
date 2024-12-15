@@ -3,23 +3,25 @@ package net.cytonic.cytosis.commands.moderation;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.enums.KickReason;
-import net.cytonic.objects.OfflinePlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
+import java.util.EnumSet;
 import java.util.UUID;
 
+import static net.cytonic.enums.PlayerRank.*;
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 public class KickCommand extends Command {
 
     public KickCommand() {
         super("kick");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.kick"));
+        setCondition(CommandUtils.IS_MODERATOR);
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /kick <player> [reason]"));
         var reasonArg = ArgumentType.StringArray("reason");
         reasonArg.setDefaultValue(new String[]{"No", "reason", "specified."});
@@ -33,7 +35,7 @@ public class KickCommand extends Command {
 
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer actor) {
-                if (!actor.hasPermission("cytosis.commands.moderation.kick")) {
+                if (!actor.isModerator()) {
                     actor.sendMessage(MM."<red>You don't have permission to use this command!");
                     return;
                 }
@@ -52,12 +54,11 @@ public class KickCommand extends Command {
                         Logger.error("error", throwable2);
                         return;
                     }
-                    OfflinePlayer op = new OfflinePlayer(player, uuid, playerRank);
-                    if (op.hasPermission("cytosis.moderation.kick_immune")) {
+                    if (EnumSet.of(OWNER, ADMIN, MODERATOR).contains(playerRank)) {
                         sender.sendMessage(MM."<red>\{player} cannot be kicked!");
                         return;
                     }
-                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(op, KickReason.COMMAND, MM."\n<red>You have been kicked. \n<aqua>Reason: \{reason}", new Entry(uuid, actor.getUuid(), Category.KICK, "kick_command"));
+                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(uuid, KickReason.COMMAND, MM."\n<red>You have been kicked. \n<aqua>Reason: \{reason}", new Entry(uuid, actor.getUuid(), Category.KICK, "kick_command"));
                 });
             }
         }, playerArg, reasonArg);

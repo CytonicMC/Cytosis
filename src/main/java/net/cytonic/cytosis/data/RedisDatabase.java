@@ -3,17 +3,14 @@ package net.cytonic.cytosis.data;
 import net.cytonic.containers.PlayerKickContainer;
 import net.cytonic.containers.PlayerWarnContainer;
 import net.cytonic.containers.SendPlayerToServerContainer;
-import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
-import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.enums.KickReason;
 import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.OfflinePlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
@@ -29,7 +26,6 @@ import java.util.concurrent.Executors;
 /**
  * A class that holds the connection to the redis cache
  */
-@SuppressWarnings("unused")
 public class RedisDatabase {
 
     /**
@@ -38,10 +34,6 @@ public class RedisDatabase {
      * Stored in a format consistent with {@link net.cytonic.objects.PlayerPair}
      */
     public static final String ONLINE_PLAYER_KEY = "online_players";
-    /**
-     * Cached Servers
-     */
-    public static final String ONLINE_SERVER_KEY = "online_servers";
     /**
      * Cached player servers
      */
@@ -61,14 +53,7 @@ public class RedisDatabase {
      * Player change servers channel
      */
     public static final String PLAYER_SERVER_CHANGE_CHANNEL = "player_server_change";
-    /**
-     * Player login/out channel
-     */
-    public static final String PLAYER_STATUS_CHANNEL = "player_status";
-    /**
-     * Server startup / shutdown
-     */
-    public static final String SERVER_STATUS_CHANNEL = "server_status";
+
     /**
      * Send player channel
      */
@@ -85,28 +70,13 @@ public class RedisDatabase {
      * Player message channel
      */
     public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
+    /**
+     * The set holding the ids of the server groups
+     */
+    public static final String SERVER_GROUPS = "server_groups";
 
-    // friend requests
-    /**
-     * Send friend request
-     */
-    public static final String FRIEND_REQUEST_SENT = "friend-request-sent";
-    /**
-     * Published when a friend request expires
-     */
-    public static final String FRIEND_REQUEST_EXPIRED = "friend-request-expired";
-    /**
-     * Published when a friend request is declined
-     */
-    public static final String FRIEND_REQUEST_DECLINED = "friend-request-declined";
-    /**
-     * Published when a friend request is accepted
-     */
-    public static final String FRIEND_REQUEST_ACCEPTED = "friend-request-accepted";
-    /**
-     * Friend removed
-     */
     public static final String FRIEND_REMOVED = "friend-removed";
+    public static final String SERVER_GROUP_KV = "server_group_key_value";
     /**
      * Player kicked
      */
@@ -133,37 +103,12 @@ public class RedisDatabase {
         this.jedisSub = new JedisPooled(hostAndPort, config);
         Logger.info("Connected to Redis!");
 
-        worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new ServerStatus(), SERVER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
         worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
-    }
-
-    /**
-     * Sends a server shutdown message to the redis server
-     */
-    public void sendShutdownMessage() {
-        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.STOP,
-                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
-        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
-        jedis.srem(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
-        Logger.info("Server shutdown message sent!");
-    }
-
-    /**
-     * Sends a server startup message to the redis server
-     */
-    public void sendStartupMessage() {
-        ServerStatusContainer container = new ServerStatusContainer(Cytosis.SERVER_ID, ServerStatusContainer.Mode.START,
-                Utils.getServerIP(), CytosisSettings.SERVER_PORT, Cytosis.getServerGroup());
-        jedisPub.publish(SERVER_STATUS_CHANNEL, container.serialize());
-        jedis.sadd(ONLINE_SERVER_KEY, new CytonicServer(Utils.getServerIP(), Cytosis.SERVER_ID, CytosisSettings.SERVER_PORT).serialize());
-        Logger.info("Server startup message sent!");
     }
 
     /**
@@ -226,9 +171,9 @@ public class RedisDatabase {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(OfflinePlayer player, KickReason reason, Component component, Entry entry) {
+    public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
-        PlayerKickContainer container = new PlayerKickContainer(player.uuid(), reason, JSONComponentSerializer.json().serialize(component));
+        PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
         jedisPub.publish(PLAYER_KICK, container.toString());
     }
 

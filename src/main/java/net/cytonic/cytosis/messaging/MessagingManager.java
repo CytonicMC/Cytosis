@@ -53,7 +53,7 @@ public class MessagingManager {
         if (rabbitMQ != null) {
             rabbitMQ.shutdown();
         }
-        redis.sendShutdownMessage();
+        Cytosis.getNatsManager().shutdown();
         worker.shutdown();
     }
 }

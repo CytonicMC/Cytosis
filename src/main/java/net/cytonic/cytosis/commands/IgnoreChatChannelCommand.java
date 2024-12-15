@@ -19,15 +19,18 @@ public class IgnoreChatChannelCommand extends Command {
         var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "m", "ad", "s", "a");
         chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
         chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
-            if (sender.hasPermission("cytonic.chat.mod")) {
+            if (!(sender instanceof CytosisPlayer player)) {
+                return;
+            }
+            if (player.isModerator()) {
                 suggestion.addEntry(new SuggestionEntry("mod"));
                 suggestion.addEntry(new SuggestionEntry("m"));
             }
-            if (sender.hasPermission("cytonic.chat.admin")) {
+            if (player.isAdmin()) {
                 suggestion.addEntry(new SuggestionEntry("admin"));
                 suggestion.addEntry(new SuggestionEntry("ad"));
             }
-            if (sender.hasPermission("cytonic.chat.staff")) {
+            if (player.isStaff()) {
                 suggestion.addEntry(new SuggestionEntry("staff"));
                 suggestion.addEntry(new SuggestionEntry("s"));
             }
@@ -46,6 +49,12 @@ public class IgnoreChatChannelCommand extends Command {
                 case "staff", "s" -> ChatChannel.STAFF;
                 default -> throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
             };
+
+            if (!player.canUseChannel(channel)) {
+                player.sendMessage(MM."<red><b>WHOOPS!</b></red> <gray>You cannot ignore the \{channel.name().toLowerCase()} because you don't have access to it!");
+                return;
+            }
+
             JsonObject obj = Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class);
             if (obj.get(channel.name()).getAsBoolean()) {
                 obj.addProperty(channel.name(), false);

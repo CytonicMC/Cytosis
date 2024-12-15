@@ -2,6 +2,7 @@ package net.cytonic.cytosis.player;
 
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.PlayerProvider;
+import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,8 +19,12 @@ public class CytosisPlayerProvider implements PlayerProvider {
      * @param connection the player connection
      * @return the created Player
      */
-    @Override
     public @NotNull Player createPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection connection) {
         return new CytosisPlayer(uuid, username, connection);
+    }
+
+    @Override
+    public @NotNull Player createPlayer(@NotNull PlayerConnection playerConnection, @NotNull GameProfile gameProfile) {
+        return new CytosisPlayer(playerConnection, gameProfile);
     }
 }

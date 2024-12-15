@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.staff;
 
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
@@ -22,7 +23,7 @@ public class LoopCommand extends Command {
         var periodArg = ArgumentType.Integer("period");
         var commandArg = ArgumentType.StringArray("command").setDefaultValue(new String[0]);
 
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.staff.loop"));
+        setCondition(CommandUtils.IS_STAFF);
 
         setDefaultExecutor((commandSender, _) -> {
             if (!(commandSender instanceof CytosisPlayer player)) {

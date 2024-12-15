@@ -3,9 +3,6 @@ package net.cytonic.cytosis.messaging.pubsub;
 import net.cytonic.containers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.PlayerServer;
 import redis.clients.jedis.JedisPubSub;
 
 /**
@@ -29,7 +26,6 @@ public class PlayerServerChange extends JedisPubSub {
     public void onMessage(String channel, String message) {
         if (!channel.equals(RedisDatabase.PLAYER_SERVER_CHANGE_CHANNEL)) return;
         PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(message);
-        CytonicServer newServer = Cytosis.getCytonicNetwork().getServers().get(container.serverName());
-        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(container.uuid(), new PlayerServer(container.uuid(), newServer));
+        Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().put(container.uuid(), container.serverName());
     }
 }

@@ -57,7 +57,6 @@ public class CommandHandler {
         cm.register(new TimeCommand());
         cm.register(new VersionCommand());
         cm.register(new PingCommand());
-        cm.register(new TPSCommand());
         //cm.register(new ReportCommand());
         cm.register(new FriendCommand());
         cm.register(new ClearchatCommand());
@@ -78,7 +77,6 @@ public class CommandHandler {
      *
      * @param player The player to send the packet to
      */
-    @SuppressWarnings("UnstableApiUsage")
     public void recalculateCommands(Player player) {
         player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }

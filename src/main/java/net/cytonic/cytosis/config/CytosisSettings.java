@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.ContainerizedInstanceManager;
 import net.cytonic.cytosis.utils.PosSerializer;
 import net.minestom.server.coordinate.Pos;
 
@@ -123,24 +122,14 @@ public final class CytosisSettings {
      */
     public static String REDIS_PASSWORD = "";
 
-    // Kubernetes
-    /**
-     * If the instance is connected to a k8s cluster
-     * <p>
-     * Used by {@link ContainerizedInstanceManager}
-     */
-    public static boolean KUBERNETES_SUPPORTED = false;
 
-    // cynwave
-    /**
-     * The URL of the cynwave instance
+    /*
+     * The configuration for the NATS message tool
      */
-    public static String CYNWAVE_URL = "";
-
-    /**
-     * The token for authentication of the cynwave instance
-     */
-    public static String CYNWAVE_TOKEN = "";
+    public static String NATS_HOSTNAME = "";
+    public static int NATS_PORT = 4222;
+    public static String NATS_PASSWORD = "";
+    public static String NATS_USERNAME = "";
 
     /**
      * Loads the config from a config map
@@ -183,8 +172,10 @@ public final class CytosisSettings {
                     case "redis.host" -> REDIS_HOST = (String) value;
                     case "redis.password" -> REDIS_PASSWORD = (String) value;
 
-                    case "cynwave.url" -> CYNWAVE_URL = (String) value;
-                    case "cynwave.token" -> CYNWAVE_TOKEN = (String) value;
+                    case "nats.host" -> NATS_HOSTNAME = (String) value;
+                    case "nats.password" -> NATS_PASSWORD = (String) value;
+                    case "nats.username" -> NATS_USERNAME = (String) value;
+                    case "nats.port" -> NATS_PORT = toInt(value);
 
                     default -> { /*Do nothing*/ }
                 }
@@ -241,9 +232,13 @@ public final class CytosisSettings {
         if (!(System.getenv("REDIS_PORT") == null)) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
         if (!(System.getenv("REDIS_PASSWORD") == null)) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
 
-        // cynwave
-        if (System.getenv("CYNWAVE_URL") != null) CYNWAVE_URL = System.getenv("CYNWAVE_URL");
-        if (System.getenv("CYNWAVE_TOKEN") != null) CYNWAVE_TOKEN = System.getenv("CYNWAVE_TOKEN");
+        // Nats
+        if (System.getenv("NATS_HOSTNAME") != null) NATS_HOSTNAME = System.getenv("NATS_HOSTNAME");
+        if (System.getenv("NATS_USERNAME") != null) NATS_USERNAME = System.getenv("NATS_USERNAME");
+        if (System.getenv("NATS_PASSWORD") != null) NATS_PASSWORD = System.getenv("NATS_PASSWORD");
+        if (System.getenv("NATS_PORT") != null) NATS_PORT = Integer.parseInt(System.getenv("NATS_PORT"));
+
+
     }
 
     /**
@@ -282,13 +277,15 @@ public final class CytosisSettings {
         if (System.getProperty("RABBITMQ_PASSWORD") != null) RABBITMQ_PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
         if (System.getProperty("RABBITMQ_USERNAME") != null) RABBITMQ_USERNAME = System.getProperty("RABBITMQ_USERNAME");
         if (System.getProperty("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getProperty("RABBITMQ_PORT"));
-          // cynwave
-        if (System.getProperty("CYNWAVE_URL") != null) CYNWAVE_URL = System.getProperty("CYNWAVE_URL");
-        if (System.getProperty("CYNWAVE_TOKEN") != null) CYNWAVE_TOKEN = System.getProperty("CYNWAVE_TOKEN");
-
         // redis
         if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
         if (System.getProperty("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getProperty("REDIS_PORT"));
         if (System.getProperty("REDIS_PASSWORD") != null) REDIS_PASSWORD = System.getProperty("REDIS_PASSWORD");
+
+        // Nats
+        if (System.getProperty("NATS_HOSTNAME") != null) NATS_HOSTNAME = System.getProperty("NATS_HOSTNAME");
+        if (System.getProperty("NATS_USERNAME") != null) NATS_USERNAME = System.getProperty("NATS_USERNAME");
+        if (System.getProperty("NATS_PASSWORD") != null) NATS_PASSWORD = System.getProperty("NATS_PASSWORD");
+        if (System.getProperty("NATS_PORT") != null) NATS_PORT = Integer.parseInt(System.getProperty("NATS_PORT"));
     }
 }
