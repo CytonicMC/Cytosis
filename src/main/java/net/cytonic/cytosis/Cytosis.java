@@ -23,7 +23,6 @@ import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
-import net.cytonic.cytosis.utils.CynwaveWrapper;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.Preference;
@@ -40,6 +39,8 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
+import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
+import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -122,8 +123,6 @@ public final class Cytosis {
     private static FriendManager friendManager;
     @Getter
     private static PreferenceManager preferenceManager;
-    @Getter
-    private static CynwaveWrapper cynwaveWrapper;
     @Getter
     private static VanishManager vanishManager;
     @Getter
@@ -235,6 +234,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<CytosisPlayer> getPlayer(String username) {
+        if (username == null) return Optional.empty();
         return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
@@ -245,6 +245,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<CytosisPlayer> getPlayer(UUID uuid) {
+        if (uuid == null) return Optional.empty();
         return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
@@ -291,7 +292,10 @@ public final class Cytosis {
         BlockPlacementUtils.init();
 
         natsManager = new NatsManager();
-        natsManager.setup();
+        if (!flags.contains("--ci-test")) natsManager.setup(); // don't connect to NATS in compile and run checks
+
+        // commands
+        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) -> MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
 
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
@@ -368,7 +372,7 @@ public final class Cytosis {
                 if (CytosisSettings.SERVER_PROXY_MODE) {
                     Logger.info("Loading network setup!");
                     cytonicNetwork = new CytonicNetwork();
-                    cytonicNetwork.importData(databaseManager.getRedisDatabase());
+                    cytonicNetwork.importData();
                     cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
                 }
             } catch (Exception e) {
@@ -379,8 +383,6 @@ public final class Cytosis {
             networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
             networkCooldownManager.importFromRedis();
             Logger.info("Started network cooldown manager");
-
-            cynwaveWrapper = new CynwaveWrapper();
 
             Logger.info("Initializing server commands");
             commandHandler = new CommandHandler();
@@ -395,11 +397,15 @@ public final class Cytosis {
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
             MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
-
+            try {
+                natsManager.sendStartup();
+            } catch (Exception e) {
+                Logger.error("ERROR: ", e);
+            }
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
             Logger.info(STR."Server id = \{SERVER_ID}");
-            natsManager.sendStartup();
+
 
             if (flags.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
