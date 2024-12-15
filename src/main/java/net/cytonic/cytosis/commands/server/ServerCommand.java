@@ -34,18 +34,18 @@ public class ServerCommand extends Command {
                 }
             });
             addSyntax(((sender, context) -> {
-                if (sender instanceof CytosisPlayer player)
-                    if (player.isStaff()) {
-                        if (!context.get(serverArgument).equalsIgnoreCase(Cytosis.SERVER_ID)) {
-                            for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
-                                if (server.id().equals(context.get(serverArgument))) {
-                                    player.sendMessage(Component.text(STR."Connecting to \{server.id()}", NamedTextColor.GREEN));
-                                    //todo: instance?
-                                    Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerToServer(player.getUuid(), server, null);
-                                }
+                if (sender instanceof CytosisPlayer player) {
+                    if (!player.isStaff()) return;
+                    if (!context.get(serverArgument).equalsIgnoreCase(Cytosis.SERVER_ID)) {
+                        for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
+                            if (server.id().equals(context.get(serverArgument))) {
+                                player.sendMessage(Component.text(STR."Connecting to \{server.id()}", NamedTextColor.GREEN));
+                                //todo: instance?
+                                Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerToServer(player.getUuid(), server, null);
                             }
-                        } else player.sendMessage(MM."<RED>You are already connected to the server!");
-                    }
+                        }
+                    } else player.sendMessage(MM."<RED>You are already connected to the server!");
+                }
             }), serverArgument);
         } catch (Exception e) {
             Logger.error("error", e);
