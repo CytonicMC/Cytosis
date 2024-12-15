@@ -122,16 +122,6 @@ public final class CytosisSettings {
      */
     public static String REDIS_PASSWORD = "";
 
-    // cynwave
-    /**
-     * The URL of the cynwave instance
-     */
-    public static String CYNWAVE_URL = "";
-
-    /**
-     * The token for authentication of the cynwave instance
-     */
-    public static String CYNWAVE_TOKEN = "";
 
     /*
      * The configuration for the NATS message tool
@@ -181,9 +171,6 @@ public final class CytosisSettings {
                     case "redis.port" -> REDIS_PORT = toInt(value);
                     case "redis.host" -> REDIS_HOST = (String) value;
                     case "redis.password" -> REDIS_PASSWORD = (String) value;
-
-                    case "cynwave.url" -> CYNWAVE_URL = (String) value;
-                    case "cynwave.token" -> CYNWAVE_TOKEN = (String) value;
 
                     case "nats.host" -> NATS_HOSTNAME = (String) value;
                     case "nats.password" -> NATS_PASSWORD = (String) value;
@@ -245,10 +232,6 @@ public final class CytosisSettings {
         if (!(System.getenv("REDIS_PORT") == null)) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
         if (!(System.getenv("REDIS_PASSWORD") == null)) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
 
-        // cynwave
-        if (System.getenv("CYNWAVE_URL") != null) CYNWAVE_URL = System.getenv("CYNWAVE_URL");
-        if (System.getenv("CYNWAVE_TOKEN") != null) CYNWAVE_TOKEN = System.getenv("CYNWAVE_TOKEN");
-
         // Nats
         if (System.getenv("NATS_HOSTNAME") != null) NATS_HOSTNAME = System.getenv("NATS_HOSTNAME");
         if (System.getenv("NATS_USERNAME") != null) NATS_USERNAME = System.getenv("NATS_USERNAME");
@@ -294,10 +277,6 @@ public final class CytosisSettings {
         if (System.getProperty("RABBITMQ_PASSWORD") != null) RABBITMQ_PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
         if (System.getProperty("RABBITMQ_USERNAME") != null) RABBITMQ_USERNAME = System.getProperty("RABBITMQ_USERNAME");
         if (System.getProperty("RABBITMQ_PORT") != null) RABBITMQ_PORT = Integer.parseInt(System.getProperty("RABBITMQ_PORT"));
-          // cynwave
-        if (System.getProperty("CYNWAVE_URL") != null) CYNWAVE_URL = System.getProperty("CYNWAVE_URL");
-        if (System.getProperty("CYNWAVE_TOKEN") != null) CYNWAVE_TOKEN = System.getProperty("CYNWAVE_TOKEN");
-
         // redis
         if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
         if (System.getProperty("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getProperty("REDIS_PORT"));
