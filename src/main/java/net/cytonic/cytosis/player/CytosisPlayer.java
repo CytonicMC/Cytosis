@@ -55,6 +55,15 @@ public class CytosisPlayer extends Player {
         Cytosis.getRankManager().changeRank(this, rank);
     }
 
+    /**
+     * Sets the player's rank. This is unsafe as it doesn't actually affect the database.
+     *
+     * @param rank the new rank
+     */
+    public void setRank_UNSAFE(PlayerRank rank) {
+        this.rank = rank;
+    }
+
 
     /**
      * Updates the preference
@@ -231,5 +240,25 @@ public class CytosisPlayer extends Player {
             case ADMIN -> isAdmin();
             default -> true; //todo: implement parties and dms
         };
+    }
+
+    public void sendFriendRequest(UUID recipient) {
+        Cytosis.getFriendManager().sendRequest(getUuid(), recipient);
+    }
+
+    public void acceptFriendRequest(UUID sender) {
+        Cytosis.getNatsManager().acceptFriendRequest(sender, getUuid());
+    }
+
+    public void acceptFriendRequestById(UUID requestId) {
+        Cytosis.getNatsManager().acceptFriendRequest(requestId);
+    }
+
+    public void declineFriendRequest(UUID sender) {
+        Cytosis.getNatsManager().declineFriendRequest(sender, getUuid());
+    }
+
+    public void declineFriendRequestById(UUID requestId) {
+        Cytosis.getNatsManager().declineFriendRequest(requestId);
     }
 }
