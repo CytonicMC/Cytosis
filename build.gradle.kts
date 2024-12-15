@@ -19,9 +19,9 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.7.2")
+    api("net.cytonic:Commons:1.7.11")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:11d7530dfc")
+    api("net.minestom:minestom-snapshots:989ed1b517")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
@@ -70,7 +70,7 @@ tasks {
         archiveClassifier.set("")
         destinationDirectory.set(
             file(
-                destinationDirectory.get().toString()
+                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
             )
         )
     }
