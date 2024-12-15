@@ -77,7 +77,6 @@ public class CommandHandler {
      *
      * @param player The player to send the packet to
      */
-    @SuppressWarnings("UnstableApiUsage")
     public void recalculateCommands(Player player) {
         player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }
