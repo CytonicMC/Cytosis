@@ -26,7 +26,6 @@ import java.util.concurrent.Executors;
 /**
  * A class that holds the connection to the redis cache
  */
-@SuppressWarnings("unused")
 public class RedisDatabase {
 
     /**
@@ -54,14 +53,7 @@ public class RedisDatabase {
      * Player change servers channel
      */
     public static final String PLAYER_SERVER_CHANGE_CHANNEL = "player_server_change";
-    /**
-     * Player login/out channel
-     */
-    public static final String PLAYER_STATUS_CHANNEL = "player_status";
-    /**
-     * Server startup / shutdown
-     */
-    public static final String SERVER_STATUS_CHANNEL = "server_status";
+
     /**
      * Send player channel
      */
@@ -83,26 +75,6 @@ public class RedisDatabase {
      */
     public static final String SERVER_GROUPS = "server_groups";
 
-    // friend requests
-    /**
-     * Send friend request
-     */
-    public static final String FRIEND_REQUEST_SENT = "friend-request-sent";
-    /**
-     * Published when a friend request expires
-     */
-    public static final String FRIEND_REQUEST_EXPIRED = "friend-request-expired";
-    /**
-     * Published when a friend request is declined
-     */
-    public static final String FRIEND_REQUEST_DECLINED = "friend-request-declined";
-    /**
-     * Published when a friend request is accepted
-     */
-    public static final String FRIEND_REQUEST_ACCEPTED = "friend-request-accepted";
-    /**
-     * Friend removed
-     */
     public static final String FRIEND_REMOVED = "friend-removed";
     public static final String SERVER_GROUP_KV = "server_group_key_value";
     /**
@@ -131,11 +103,9 @@ public class RedisDatabase {
         this.jedisSub = new JedisPooled(hostAndPort, config);
         Logger.info("Connected to Redis!");
 
-        worker.submit(() -> jedisSub.subscribe(new PlayerLoginLogout(), PLAYER_STATUS_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new Friends(), FRIEND_REQUEST_ACCEPTED, FRIEND_REQUEST_DECLINED, FRIEND_REQUEST_EXPIRED, FRIEND_REQUEST_SENT, FRIEND_REMOVED));
         worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
