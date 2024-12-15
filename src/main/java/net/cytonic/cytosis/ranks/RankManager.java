@@ -5,6 +5,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.ranks.RankChangeEvent;
 import net.cytonic.cytosis.events.ranks.RankSetupEvent;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.enums.PlayerRank;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
@@ -78,6 +79,7 @@ public class RankManager {
             if (event.isCanceled()) return;
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
+            player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
         });
     }
 
@@ -87,7 +89,7 @@ public class RankManager {
      * @param player the player
      * @param rank   the rank
      */
-    public void changeRank(Player player, PlayerRank rank) {
+    public void changeRank(CytosisPlayer player, PlayerRank rank) {
         if (!rankMap.containsKey(player.getUuid()))
             throw new IllegalStateException(STR."The player \{player.getUsername()} is not yet initialized! Call addPlayer(Player) first!");
         PlayerRank old = rankMap.get(player.getUuid());
@@ -95,9 +97,11 @@ public class RankManager {
         EventDispatcher.call(event);
         if (event.isCanceled()) return;
         rankMap.put(player.getUuid(), rank);
+        player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
         if (Cytosis.getCytonicNetwork() != null)
             Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
+        player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }
 
     /**
