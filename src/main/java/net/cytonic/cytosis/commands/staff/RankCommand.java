@@ -10,7 +10,6 @@ import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.entity.Player;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -59,7 +58,7 @@ public class RankCommand extends Command {
                 return;
             }
 
-            final Player player = optionalPlayer.get();
+            final CytosisPlayer player = optionalPlayer.get();
             final PlayerRank newRank = context.get(rankArg);
 
             if (player == sender) {
@@ -86,7 +85,7 @@ public class RankCommand extends Command {
         }, playerArg, rankArg);
     }
 
-    private void setRank(Player player, PlayerRank rank, CommandSender sender) {
+    private void setRank(CytosisPlayer player, PlayerRank rank, CommandSender sender) {
         Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((_, t) -> {
             if (t != null) {
                 sender.sendMessage(MM."<red>An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.");
