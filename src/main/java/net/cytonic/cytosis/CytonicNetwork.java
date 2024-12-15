@@ -42,11 +42,11 @@ public class CytonicNetwork {
     }
 
     /**
-     * Imports online player data from redis
-     *
-     * @param redis The redis instance
+     * Imports data from Redis and Cydian
      */
-    public void importData(RedisDatabase redis) {
+    public void importData() {
+        Cytosis.getNatsManager().fetchServers();
+        RedisDatabase redis = Cytosis.getDatabaseManager().getRedisDatabase();
         onlinePlayers.clear();
         onlineFlattened.clear();
         servers.clear();
