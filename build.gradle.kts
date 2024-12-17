@@ -32,7 +32,7 @@ dependencies {
     api("com.rabbitmq:amqp-client:5.24.0") // Message broker
     api("dev.hollowcube:polar:1.12.1") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
-    api("com.google.guava:guava:33.3.1-jre")
+    api("com.google.guava:guava:33.4.0-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("io.kubernetes:client-java:22.0.0")
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
