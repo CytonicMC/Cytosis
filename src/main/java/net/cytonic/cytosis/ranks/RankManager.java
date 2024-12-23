@@ -44,7 +44,7 @@ public class RankManager {
         }
 
         QUERY."SELECT * FROM `cytonic_ranks`".whenComplete((resultSet, throwable) -> {
-            if(throwable != null) {
+            if (throwable != null) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
                 MinecraftServer.stopCleanly();
                 return;

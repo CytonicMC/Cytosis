@@ -261,4 +261,16 @@ public class CytosisPlayer extends Player {
     public void declineFriendRequestById(UUID requestId) {
         Cytosis.getNatsManager().declineFriendRequest(requestId);
     }
+
+    public boolean isVanished() {
+        return Cytosis.getVanishManager().isVanished(getUuid());
+    }
+
+    public void setVanished(boolean vanished) {
+        if (vanished) {
+            Cytosis.getVanishManager().enableVanish(this);
+        } else {
+            Cytosis.getVanishManager().disableVanish(this);
+        }
+    }
 }

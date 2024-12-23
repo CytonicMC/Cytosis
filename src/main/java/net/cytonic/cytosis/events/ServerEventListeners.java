@@ -60,6 +60,9 @@ public final class ServerEventListeners {
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 Cytosis.getVanishManager().enableVanish(player);
             }
+            for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
+                if (p.isVanished()) p.setVanished(true);
+            }
         })));
 
         Logger.info("Registering player chat event.");

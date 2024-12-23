@@ -46,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -279,8 +280,6 @@ public final class Cytosis {
                 Logger.info("World loaded!");
             }
         });
-
-
     }
 
     /**
