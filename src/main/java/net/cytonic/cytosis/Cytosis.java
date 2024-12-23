@@ -320,14 +320,8 @@ public final class Cytosis {
 
             Logger.info("Loading vanish manager!");
             vanishManager = new VanishManager();
-
-            MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
-                messagingManager.shutdown();
-                databaseManager.shutdown();
-                sideboardManager.shutdown();
-                pluginManager.unloadPlugins();
-                getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
+            MinecraftServer.getSchedulerManager().buildShutdownTask(Cytosis::shutdownHandler);
 
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
@@ -442,5 +436,13 @@ public final class Cytosis {
      */
     public static String getRawID() {
         return Cytosis.SERVER_ID.replace("Cytosis-", "");
+    }
+
+    private static void shutdownHandler() {
+        messagingManager.shutdown();
+        databaseManager.shutdown();
+        sideboardManager.shutdown();
+        pluginManager.unloadPlugins();
+        getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
     }
 }
