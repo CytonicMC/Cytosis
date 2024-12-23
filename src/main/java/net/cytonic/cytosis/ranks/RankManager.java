@@ -77,9 +77,11 @@ public class RankManager {
             var event = new RankSetupEvent(player, playerRank);
             EventDispatcher.call(event);
             if (event.isCanceled()) return;
+            if (player instanceof CytosisPlayer cytosisPlayer) {
+                cytosisPlayer.setRank_UNSAFE(playerRank);
+            }
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
-            player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
         });
     }
 
@@ -116,12 +118,12 @@ public class RankManager {
     }
 
     /**
-     * Removes a player from the manager. It also strips permissions
+     * Removes a player from the manager.
      *
      * @param player The player
      */
-    public void removePlayer(Player player) {
-        rankMap.remove(player.getUuid());
+    public void removePlayer(UUID player) {
+        rankMap.remove(player);
     }
 
 
