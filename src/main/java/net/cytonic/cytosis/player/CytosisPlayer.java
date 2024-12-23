@@ -42,7 +42,7 @@ public class CytosisPlayer extends Player {
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
-        rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElse(PlayerRank.DEFAULT); // todo: watch out for cache invalidations
+        rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElse(PlayerRank.DEFAULT);
     }
 
     /**
