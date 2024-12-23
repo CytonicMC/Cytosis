@@ -8,7 +8,6 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.enums.PlayerRank;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
@@ -67,7 +66,7 @@ public class RankManager {
      *
      * @param player the player
      */
-    public void addPlayer(Player player) {
+    public void addPlayer(CytosisPlayer player) {
         // cache the rank
         Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
@@ -77,9 +76,7 @@ public class RankManager {
             var event = new RankSetupEvent(player, playerRank);
             EventDispatcher.call(event);
             if (event.isCanceled()) return;
-            if (player instanceof CytosisPlayer cytosisPlayer) {
-                cytosisPlayer.setRank_UNSAFE(playerRank);
-            }
+            player.setRank_UNSAFE(playerRank);
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
         });
@@ -111,10 +108,13 @@ public class RankManager {
      * @param player The player
      * @param rank   The rank
      */
-    private void setupCosmetics(Player player, PlayerRank rank) {
+    public void setupCosmetics(CytosisPlayer player, PlayerRank rank) {
         teamMap.get(rank).addMember(player.getUsername());
         player.setCustomName(rank.getPrefix().append(player.getName()));
         Cytosis.getCommandHandler().recalculateCommands(player);
+        if (player.isVanished()) {
+            player.setVanished(true); // ranks can mess up the visuals sometimes
+        }
     }
 
     /**

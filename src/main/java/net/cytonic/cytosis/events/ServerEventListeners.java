@@ -17,9 +17,12 @@ import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.utils.time.TimeUnit;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -33,6 +36,7 @@ public final class ServerEventListeners {
     /**
      * Adds Cytosis required server events
      */
+    @SuppressWarnings("unchecked")
     public static void initServerEvents() {
         Logger.info("Registering player configuration event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-configuration", true, 1, AsyncPlayerConfigurationEvent.class, (event -> {
@@ -58,7 +62,7 @@ public final class ServerEventListeners {
             Cytosis.getRankManager().addPlayer(player);
             Cytosis.getCommandHandler().recalculateCommands(player);
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-                Cytosis.getVanishManager().enableVanish(player);
+                player.setVanished(true);
             }
             for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
                 if (p.isVanished()) p.setVanished(true);
@@ -92,7 +96,7 @@ public final class ServerEventListeners {
 
         Logger.info("Registering player disconnect event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-disconnect", false, 1, PlayerDisconnectEvent.class, event -> {
-            final Player player = event.getPlayer();
+            final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getFriendManager().unloadPlayer(player.getUuid());
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
@@ -146,5 +150,27 @@ public final class ServerEventListeners {
             }
         })));
 
+        Cytosis.getEventHandler().registerListener(new EventListener<>("core:vanish-packet-sniper", true, 0, PlayerPacketOutEvent.class, (e -> {
+            if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
+            if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
+            if (!Cytosis.getVanishManager().getVanishedEntityIds().contains(packet.entityId())) return;
+
+            Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(packet.entries());
+
+            byte bitmask = 0;
+            if (entries.containsKey(0)) {
+                bitmask = ((Metadata.Entry<Byte>) entries.get(0)).value();
+            }
+            if ((bitmask & 0x40) == 0x40 && (bitmask & 0x20) == 0x20) {
+                return; // don't need to modify (also prevents a stackoverflow)
+            }
+            e.setCancelled(true);
+            bitmask |= 0x20 | 0x40;
+            entries.put(0, Metadata.Byte(bitmask));
+            Cytosis.getOnlinePlayers().forEach(p -> {
+                if (!p.isStaff()) return;
+                p.sendPacket(new EntityMetaDataPacket(packet.entityId(), entries));
+            });
+        })));
     }
 }
