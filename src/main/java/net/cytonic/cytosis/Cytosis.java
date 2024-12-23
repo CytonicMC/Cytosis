@@ -46,7 +46,6 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
@@ -443,5 +442,9 @@ public final class Cytosis {
         sideboardManager.shutdown();
         pluginManager.unloadPlugins();
         getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
+    }
+
+    public static CytonicServer currentServer() {
+        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT);
     }
 }
