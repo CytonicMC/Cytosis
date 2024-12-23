@@ -2,21 +2,27 @@ package net.cytonic.cytosis.messaging.nats;
 
 import io.nats.client.*;
 import lombok.SneakyThrows;
+import net.cytonic.containers.PlayerKickContainer;
 import net.cytonic.containers.PlayerLoginLogoutContainer;
 import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.containers.friends.FriendApiResponse;
 import net.cytonic.containers.friends.FriendRequest;
 import net.cytonic.containers.friends.FriendResponse;
 import net.cytonic.containers.friends.OrganicFriendResponse;
+import net.cytonic.containers.servers.PlayerChangeServerContainer;
+import net.cytonic.containers.servers.SendPlayerToServerContainer;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.enums.KickReason;
 import net.cytonic.enums.PlayerRank;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.Tuple;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +59,7 @@ public class NatsManager {
                     listenForFriendRequestNotification();
                     listenForFriendRemoval();
                     listenForServerStatus();
+                    listenForPlayerServerChange();
                 }
             } else {
                 Logger.info("Disconnected from NATS server!");
@@ -64,6 +71,12 @@ public class NatsManager {
 //                .server("nats://"+ CytosisSettings.NATS_USERNAME +":" + CytosisSettings.NATS_PASSWORD + "@" + CytosisSettings.NATS_HOSTNAME + ":" + CytosisSettings.NATS_PORT) // todo: probably get away from string templates
                 .server(STR."nats://\{CytosisSettings.NATS_USERNAME}:\{CytosisSettings.NATS_PASSWORD}@\{CytosisSettings.NATS_HOSTNAME}:\{CytosisSettings.NATS_PORT}")
                 .connectionListener(connectionListener)
+                .errorListener(new ErrorListener() {
+                    @Override
+                    public void errorOccurred(Connection conn, String error) {
+                        Logger.error(STR."An error occured in a NATS action: \{error} in connection \{conn.getServerInfo().getClientId()}");
+                    }
+                })
                 .build();
         Nats.connectAsynchronously(options, true);
     }
@@ -75,7 +88,7 @@ public class NatsManager {
     }
 
     public void sendStartup() {
-        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now()).serialize().getBytes();
+        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), "GROUP_HERE").serialize().getBytes();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
                     try {
                         Logger.info("Registering server with Cydian!");
@@ -88,9 +101,9 @@ public class NatsManager {
     }
 
     public void sendShutdown() {
-        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now()).serialize().getBytes();
-        Thread.ofVirtual().name("NATS Shutdown Publisher").start(() ->
-                connection.publish(Subjects.SERVER_SHUTDOWN, data));
+        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), "GROUP_HERE").serialize().getBytes();
+        // send it sync, so the connection doesn't get closed
+        connection.publish(Subjects.SERVER_SHUTDOWN, data);
     }
 
     public void startHealthCheck() {
@@ -297,7 +310,6 @@ public class NatsManager {
     }
 
     public void listenForPlayerLoginLogout() {
-        //todo: probably tuck the friend notifcations in here
         Thread.ofVirtual().name("NATS Player Join").start(() -> connection.createDispatcher(msg -> {
             var container = PlayerLoginLogoutContainer.deserialize(new String(msg.getData()));
             Cytosis.getCytonicNetwork().addPlayer(container.username(), container.uuid());
@@ -310,6 +322,7 @@ public class NatsManager {
             Cytosis.getCytonicNetwork().removePlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().unloadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLogoutMessage(container.uuid());
+            Cytosis.getRankManager().removePlayer(container.uuid());
         }).subscribe(Subjects.PLAYER_LEAVE));
     }
 
@@ -407,5 +420,49 @@ public class NatsManager {
                         Logger.error("ERORR: ", e);
                     }
                 }));
+    }
+
+
+    /**
+     * Sends a message to Redis to kick a player.
+     * <p>
+     *
+     * @param player    The player to kick, on this server
+     * @param reason    The reason for kicking the player
+     * @param component The kick message displayed
+     */
+    public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
+        kickPlayer(player.getUuid(), reason, component, entry);
+    }
+
+    /**
+     * Sends a message to Redis to kick a player.
+     * <p>
+     *
+     * @param player    The player to kick, on another server
+     * @param reason    The reason for kicking the player
+     * @param component The kick message displayed
+     */
+    public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
+        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+        PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
+        Thread.ofVirtual().name("NATS player kicker").start(() -> connection.publish(Subjects.PLAYER_KICK, container.toString().getBytes()));
+    }
+
+    /**
+     * Sends a message to the redis server telling the proxies to move a player to a different server
+     *
+     * @param player The player to move
+     * @param server the destination server
+     */
+    public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
+        Thread.ofVirtual().name("NATS Player Sender").start(() -> connection.publish(Subjects.PLAYER_SEND, new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes()));
+    }
+
+    public void listenForPlayerServerChange() {
+        Thread.ofVirtual().name("NATS Player Server Change").start(() -> connection.createDispatcher(msg -> {
+            PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(new String(msg.getData()));
+            Cytosis.getCytonicNetwork().processPlayerServerChange(container);
+        }).subscribe(Subjects.PLAYER_SERVER_CHANGE));
     }
 }
