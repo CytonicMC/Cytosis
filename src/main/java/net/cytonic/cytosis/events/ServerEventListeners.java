@@ -48,7 +48,7 @@ public final class ServerEventListeners {
 
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
-            final Player player = event.getPlayer();
+            final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
             Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
@@ -56,6 +56,7 @@ public final class ServerEventListeners {
             Cytosis.getSideboardManager().addPlayer(player);
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
+            Cytosis.getCommandHandler().recalculateCommands(player);
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 Cytosis.getVanishManager().enableVanish(player);
             }
@@ -89,7 +90,6 @@ public final class ServerEventListeners {
         Logger.info("Registering player disconnect event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-disconnect", false, 1, PlayerDisconnectEvent.class, event -> {
             final Player player = event.getPlayer();
-            Cytosis.getRankManager().removePlayer(player);
             Cytosis.getSideboardManager().removePlayer(player);
             Cytosis.getFriendManager().unloadPlayer(player.getUuid());
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
