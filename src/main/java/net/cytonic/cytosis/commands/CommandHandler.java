@@ -70,6 +70,7 @@ public class CommandHandler {
         cm.register(new WarnCommand());
         cm.register(new CooldownCommand(Cytosis.getNetworkCooldownManager()));
         cm.register(new LoopCommand());
+        cm.register(new RecalculatePermissions());
     }
 
     /**
