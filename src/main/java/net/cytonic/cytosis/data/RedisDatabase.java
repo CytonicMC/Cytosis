@@ -1,20 +1,14 @@
 package net.cytonic.cytosis.data;
 
-import net.cytonic.containers.PlayerKickContainer;
 import net.cytonic.containers.PlayerWarnContainer;
-import net.cytonic.containers.SendPlayerToServerContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.*;
-import net.cytonic.enums.KickReason;
 import net.cytonic.objects.ChatMessage;
-import net.cytonic.objects.CytonicServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import net.minestom.server.entity.Player;
-import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.*;
 
 import java.util.Map;
@@ -50,15 +44,6 @@ public class RedisDatabase {
     public static final String COOLDOWN_UPDATE_CHANNEL = "update_cooldowns";
 
     /**
-     * Player change servers channel
-     */
-    public static final String PLAYER_SERVER_CHANGE_CHANNEL = "player_server_change";
-
-    /**
-     * Send player channel
-     */
-    public static final String SEND_PLAYER_CHANNEL = "player_send";
-    /**
      * Chat channels channel
      */
     public static final String CHAT_MESSAGES_CHANNEL = "chat-messages";
@@ -77,10 +62,6 @@ public class RedisDatabase {
 
     public static final String FRIEND_REMOVED = "friend-removed";
     public static final String SERVER_GROUP_KV = "server_group_key_value";
-    /**
-     * Player kicked
-     */
-    public static final String PLAYER_KICK = "player-kick";
     /**
      * Player warn
      */
@@ -103,22 +84,11 @@ public class RedisDatabase {
         this.jedisSub = new JedisPooled(hostAndPort, config);
         Logger.info("Connected to Redis!");
 
-        worker.submit(() -> jedisSub.subscribe(new PlayerServerChange(), PLAYER_SERVER_CHANGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
-    }
-
-    /**
-     * Sends a message to the redis server telling the proxies to move a player to a different server
-     *
-     * @param player The player to move
-     * @param server the destination server
-     */
-    public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
-        jedisPub.publish(SEND_PLAYER_CHANNEL, SendPlayerToServerContainer.create(player, server, instance).serialize());
     }
 
     /**
@@ -147,34 +117,6 @@ public class RedisDatabase {
      */
     public void sendPlayerMessage(ChatMessage message) {
         jedisPub.publish(PLAYER_MESSAGE_CHANNEL, message.toString());
-    }
-
-    /**
-     * Sends a message to Redis to kick a player.
-     * <p>
-     *
-     * @param player    The player to kick, on this server
-     * @param reason    The reason for kicking the player
-     * @param component The kick message displayed
-     */
-    public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
-        PlayerKickContainer container = new PlayerKickContainer(player.getUuid(), reason, JSONComponentSerializer.json().serialize(component));
-        jedisPub.publish(PLAYER_KICK, container.toString());
-    }
-
-    /**
-     * Sends a message to Redis to kick a player.
-     * <p>
-     *
-     * @param player    The player to kick, on another server
-     * @param reason    The reason for kicking the player
-     * @param component The kick message displayed
-     */
-    public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
-        PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
-        jedisPub.publish(PLAYER_KICK, container.toString());
     }
 
     /**
