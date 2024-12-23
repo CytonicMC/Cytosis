@@ -13,6 +13,9 @@ public class Subjects {
 
     public static final String PLAYER_LEAVE = "players.disconnect";
     public static final String PLAYER_JOIN = "players.connect";
+    public static final String PLAYER_KICK = "players.kick";
+    public static final String PLAYER_SEND = "players.send";
+    public static final String PLAYER_SERVER_CHANGE = "players.server_change.notify";
 
 
     public static final String HEALTH_CHECK = "health.check." + Cytosis.getRawID();
