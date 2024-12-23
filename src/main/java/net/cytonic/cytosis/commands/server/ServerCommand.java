@@ -41,7 +41,7 @@ public class ServerCommand extends Command {
                             if (server.id().equals(context.get(serverArgument))) {
                                 player.sendMessage(Component.text(STR."Connecting to \{server.id()}", NamedTextColor.GREEN));
                                 //todo: instance?
-                                Cytosis.getDatabaseManager().getRedisDatabase().sendPlayerToServer(player.getUuid(), server, null);
+                                Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), server, null);
                             }
                         }
                     } else player.sendMessage(MM."<RED>You are already connected to the server!");
