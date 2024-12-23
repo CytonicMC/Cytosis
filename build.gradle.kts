@@ -24,7 +24,7 @@ dependencies {
     api("net.minestom:minestom-snapshots:dba90a461b")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")// better components
+    implementation("net.kyori:adventure-text-minimessage:4.18.0")// better components
     implementation("com.mysql:mysql-connector-j:9.1.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.36") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
