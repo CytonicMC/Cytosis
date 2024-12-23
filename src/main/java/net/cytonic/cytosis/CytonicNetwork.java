@@ -1,7 +1,7 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
-import net.cytonic.containers.PlayerChangeServerContainer;
+import net.cytonic.containers.servers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.RedisDatabase;
@@ -208,8 +208,6 @@ public class CytonicNetwork {
         onlinePlayers.remove(uuid, name);
         onlineFlattened.remove(uuid, name.toLowerCase());
         String playerServer = networkPlayersOnServers.get(uuid);
-        PlayerChangeServerContainer container = new PlayerChangeServerContainer(uuid, playerServer);
-        Cytosis.getDatabaseManager().getRedisDatabase().removeValue(RedisDatabase.ONLINE_PLAYER_SERVER_KEY, container.toString());
         networkPlayersOnServers.remove(uuid, playerServer);
     }
 
@@ -221,5 +219,15 @@ public class CytonicNetwork {
      */
     public boolean hasPlayedBefore(UUID uuid) {
         return lifetimePlayers.containsKey(uuid);
+    }
+
+    /**
+     * Processes a player server change.
+     *
+     * @param container The container recived over NATS or some message broker
+     */
+    public void processPlayerServerChange(PlayerChangeServerContainer container) {
+        networkPlayersOnServers.remove(container.player());
+        networkPlayersOnServers.put(container.player(), container.newServer());
     }
 }
