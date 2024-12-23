@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.messaging.nats;
 
+import com.google.gson.JsonObject;
 import io.nats.client.*;
 import lombok.SneakyThrows;
 import net.cytonic.containers.PlayerKickContainer;
@@ -16,14 +17,19 @@ import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.enums.ChatChannel;
 import net.cytonic.enums.KickReason;
 import net.cytonic.enums.PlayerRank;
+import net.cytonic.objects.ChatMessage;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.Tuple;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.sound.SoundEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -60,6 +66,7 @@ public class NatsManager {
                     listenForFriendRemoval();
                     listenForServerStatus();
                     listenForPlayerServerChange();
+                    listenForChatMessage();
                 }
             } else {
                 Logger.info("Disconnected from NATS server!");
@@ -464,5 +471,53 @@ public class NatsManager {
             PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(new String(msg.getData()));
             Cytosis.getCytonicNetwork().processPlayerServerChange(container);
         }).subscribe(Subjects.PLAYER_SERVER_CHANGE));
+    }
+
+    public void sendChatMessage(ChatMessage chatMessage) {
+        Thread.ofVirtual().name("NATS Chat Message Sender").start(() -> {
+            try {
+                connection.publish(Subjects.CHAT_MESSAGE, chatMessage.toJson().getBytes(StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                Logger.error("Failed to send chat message", e);
+            }
+        });
+    }
+
+    public void listenForChatMessage() {
+        Thread.ofVirtual().name("NATS Chat Message Reciever").start(() -> {
+            try {
+                connection.createDispatcher(msg -> {
+                    String data = new String(msg.getData());
+                    ChatMessage message = ChatMessage.fromJson(data);
+                    ChatChannel channel = message.channel();
+                    ChatChannel chatChannel = message.channel();
+                    Component component = JSONComponentSerializer.json().deserialize(message.serializedMessage());
+
+
+                    if (channel == ChatChannel.PRIVATE_MESSAGE) {
+                        if (message.recipients() == null || message.recipients().isEmpty()) return;
+                        Cytosis.getOnlinePlayers().forEach(player -> {
+                            if (message.recipients().contains(player.getUuid())) {
+                                //todo: add permission to message people
+                                player.sendMessage(component);
+                            }
+                        });
+                        return;
+                    }
+
+                    // these channels don't support selective recipients
+                    if (chatChannel == ChatChannel.ADMIN || chatChannel == ChatChannel.MOD || chatChannel == ChatChannel.STAFF) {
+                        Cytosis.getOnlinePlayers().forEach(player -> {
+                            if (player.canUseChannel(chatChannel) && !Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(chatChannel.name()).getAsBoolean()) {
+                                player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                player.sendMessage(component);
+                            }
+                        });
+                    }
+                }).subscribe(Subjects.CHAT_MESSAGE);
+            } catch (Exception e) {
+                Logger.error("Failed to receive chat message", e);
+            }
+        });
     }
 }

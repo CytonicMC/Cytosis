@@ -31,4 +31,6 @@ public class Subjects {
     public static final String FRIEND_EXPIRE_NOTIFY = "friends.expire.notify";
     public static final String FRIEND_REQUEST_NOTIFY = "friends.request.notify";
     public static final String FRIEND_REMOVED = "friends.removed";
+
+    public static final String CHAT_MESSAGE = "chat.message";
 }

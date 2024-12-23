@@ -5,7 +5,10 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.pubsub.*;
+import net.cytonic.cytosis.messaging.pubsub.Broadcasts;
+import net.cytonic.cytosis.messaging.pubsub.Cooldowns;
+import net.cytonic.cytosis.messaging.pubsub.PlayerMessage;
+import net.cytonic.cytosis.messaging.pubsub.PlayerWarn;
 import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -84,20 +87,10 @@ public class RedisDatabase {
         this.jedisSub = new JedisPooled(hostAndPort, config);
         Logger.info("Connected to Redis!");
 
-        worker.submit(() -> jedisSub.subscribe(new ChatMessages(), CHAT_MESSAGES_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
-    }
-
-    /**
-     * Sends a chat message to all servers
-     *
-     * @param message the serialized message
-     */
-    public void sendChatMessage(ChatMessage message) {
-        jedisPub.publish(CHAT_MESSAGES_CHANNEL, message.toJson());
     }
 
     /**
