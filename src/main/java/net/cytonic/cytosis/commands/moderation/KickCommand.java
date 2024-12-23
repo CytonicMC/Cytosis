@@ -58,7 +58,7 @@ public class KickCommand extends Command {
                         sender.sendMessage(MM."<red>\{player} cannot be kicked!");
                         return;
                     }
-                    Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(uuid, KickReason.COMMAND, MM."\n<red>You have been kicked. \n<aqua>Reason: \{reason}", new Entry(uuid, actor.getUuid(), Category.KICK, "kick_command"));
+                    Cytosis.getNatsManager().kickPlayer(uuid, KickReason.COMMAND, MM."\n<red>You have been kicked. \n<aqua>Reason: \{reason}", new Entry(uuid, actor.getUuid(), Category.KICK, "kick_command"));
                 });
             }
         }, playerArg, reasonArg);

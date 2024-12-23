@@ -91,7 +91,7 @@ public class BanCommand extends Command {
                                     actor.sendMessage(MM."<red>An error occured whilst banning \{player}!");
                                     return;
                                 }
-                                Cytosis.getDatabaseManager().getRedisDatabase().kickPlayer(uuid, KickReason.BANNED, MessageUtils.formatBanMessage(new BanData(reason, dur, true)), new Entry(uuid, actor.getUuid(), Category.KICK, "ban_command"));
+                                Cytosis.getNatsManager().kickPlayer(uuid, KickReason.BANNED, MessageUtils.formatBanMessage(new BanData(reason, dur, true)), new Entry(uuid, actor.getUuid(), Category.KICK, "ban_command"));
                                 actor.sendMessage(MM."<green>\{player} was successfully banned for \{DurationParser.unparseFull(dur)}.");
                                 Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(new Entry(uuid, actor.getUuid(), Category.BAN, reason));
                             });
