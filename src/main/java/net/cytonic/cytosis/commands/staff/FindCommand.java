@@ -29,7 +29,7 @@ public class FindCommand extends Command {
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>You must specify a player!"));
         var playerArgument = ArgumentType.Word("player");
-        playerArgument.setSuggestionCallback((_, _, suggestion) -> Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().keySet().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.toString()))));
+        playerArgument.setSuggestionCallback((_, _, suggestion) -> Cytosis.getCytonicNetwork().getOnlinePlayers().getValues().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.toString()))));
         playerArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The player \{exception.getInput()} is invalid!", NamedTextColor.RED)));
         addSyntax((sender, context) -> {
             if (sender instanceof final CytosisPlayer player) {
