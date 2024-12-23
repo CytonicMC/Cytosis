@@ -404,6 +404,11 @@ public class NatsManager {
             var container = ServerStatusContainer.deserialize(new String(msg.getData()));
             Cytosis.getCytonicNetwork().getServers().remove(container.id(), new CytonicServer(container.ip(), container.id(), container.port()));
         }).subscribe(Subjects.SERVER_SHUTDOWN));
+
+        Thread.ofVirtual().name("NATS Server Proxy Shutdown").start(() -> connection.createDispatcher(msg -> {
+            var container = ServerStatusContainer.deserialize(new String(msg.getData()));
+            Cytosis.getCytonicNetwork().getServers().remove(container.id(), new CytonicServer(container.ip(), container.id(), container.port()));
+        }).subscribe(Subjects.SERVER_SHUTDOWN_NOTIFY));
     }
 
     public void fetchServers() {
@@ -503,6 +508,13 @@ public class NatsManager {
                             }
                         });
                         return;
+                    }
+
+                    if (channel == ChatChannel.INTERNAL_MESSAGE) {
+                        if (message.recipients() == null || message.recipients().isEmpty()) return;
+                        for (UUID uuid : message.recipients()) {
+                            Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(component));
+                        }
                     }
 
                     // these channels don't support selective recipients

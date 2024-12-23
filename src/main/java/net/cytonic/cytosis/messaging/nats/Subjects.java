@@ -9,6 +9,7 @@ public class Subjects {
     public static final String SERVER_REGISTER = "servers.register";
     public static final String SERVER_SHUTDOWN = "servers.shutdown";
     public static final String SERVER_LIST = "servers.list";
+    public static final String SERVER_SHUTDOWN_NOTIFY = "servers.proxy.shutdown.notify";
     public static final String PROXY_START = "servers.proxy.startup";
 
     public static final String PLAYER_LEAVE = "players.disconnect";
