@@ -10,7 +10,6 @@ import net.cytonic.enums.PlayerRank;
 import net.cytonic.objects.BanData;
 import net.cytonic.objects.BiMap;
 import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.PlayerPair;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -117,16 +116,6 @@ public class CytonicNetwork {
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading mutes!", e);
             }
-        });
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_KEY).forEach(s -> {
-            PlayerPair pp = PlayerPair.deserialize(s);
-            onlinePlayers.put(pp.uuid(), pp.name());
-            onlineFlattened.put(pp.uuid(), pp.name().toLowerCase());
-        });
-        redis.getSet(RedisDatabase.SERVER_GROUPS).forEach(s -> redis.getSet(s).forEach(s1 -> servers.put(CytonicServer.deserialize(s1).id(), CytonicServer.deserialize(s1))));
-        redis.getSet(RedisDatabase.ONLINE_PLAYER_SERVER_KEY).forEach(s -> {
-//            PlayerChangeServerContainer cont = PlayerChangeServerContainer.deserialize(s);
-//            networkPlayersOnServers.put(cont.uuid(), cont.serverName());
         });
     }
 
