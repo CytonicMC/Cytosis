@@ -25,16 +25,6 @@ import java.util.concurrent.Executors;
  */
 public class RedisDatabase {
 
-    /**
-     * Cached players.
-     * <p>
-     * Stored in a format consistent with {@link net.cytonic.objects.PlayerPair}
-     */
-    public static final String ONLINE_PLAYER_KEY = "online_players";
-    /**
-     * Cached player servers
-     */
-    public static final String ONLINE_PLAYER_SERVER_KEY = "online_player_server";
 
     /**
      * Cached global cooldowns
@@ -46,10 +36,7 @@ public class RedisDatabase {
      */
     public static final String COOLDOWN_UPDATE_CHANNEL = "update_cooldowns";
 
-    /**
-     * Chat channels channel
-     */
-    public static final String CHAT_MESSAGES_CHANNEL = "chat-messages";
+
     /**
      * Broadcast channel
      */
@@ -58,13 +45,7 @@ public class RedisDatabase {
      * Player message channel
      */
     public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
-    /**
-     * The set holding the ids of the server groups
-     */
-    public static final String SERVER_GROUPS = "server_groups";
 
-    public static final String FRIEND_REMOVED = "friend-removed";
-    public static final String SERVER_GROUP_KV = "server_group_key_value";
     /**
      * Player warn
      */
