@@ -80,9 +80,10 @@ tasks {
 tasks.register<Copy>("copyShadowJarToSecondary") {
     dependsOn(tasks.shadowJar)
 
-    if (providers.gradleProperty("server_dir2").isPresent)
+    if (providers.gradleProperty("server_dir2").isPresent) {
         from(tasks.shadowJar.get().archiveFile)
-    into(providers.gradleProperty("server_dir2"))
+        into(providers.gradleProperty("server_dir2"))
+    }
 }
 
 val javadocJar = tasks.register<Jar>("javadocJar") {
