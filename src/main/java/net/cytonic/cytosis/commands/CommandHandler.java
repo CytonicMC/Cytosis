@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.chatting.*;
 import net.cytonic.cytosis.commands.debug.CooldownCommand;
 import net.cytonic.cytosis.commands.debug.PreferenceCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
@@ -72,6 +73,7 @@ public class CommandHandler {
         cm.register(new LoopCommand());
         cm.register(new RecalculatePermissions());
         cm.register(new YoinkCommand());
+        cm.register(new ReplyCommand());
     }
 
     /**
