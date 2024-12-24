@@ -13,7 +13,6 @@ import net.cytonic.enums.PlayerRank;
 import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 
 import java.util.List;
@@ -85,7 +84,7 @@ public class ChatManager {
             });
             return;
         }
-        Cytosis.getNatsManager().sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message)));
+        Cytosis.getNatsManager().sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message), null));
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {
@@ -95,20 +94,25 @@ public class ChatManager {
             return;
         }
 
-        UUID target = openPrivateChannels.getIfPresent(player.getUuid());
-        PlayerRank recipientRank = Cytosis.getRankManager().getPlayerRank(target).orElseThrow();
-        Component recipient = recipientRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(target), recipientRank.getTeamColor()));
+        UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
+        PlayerRank recipientRank = Cytosis.getRankManager().getPlayerRank(uuid).orElseThrow();
+        Component recipient = recipientRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid), recipientRank.getTeamColor()));
+//
+        Component component = MM."<dark_aqua>From <reset>".append(player.getRank().getPrefix().append(MM."\{player.getUsername()}")).append(MM."<dark_aqua> » ").append(Component.text(message, NamedTextColor.WHITE));
+        Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerMessage(player.getUuid(), uuid, message);
+        Cytosis.getNatsManager().sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(component), player.getUuid()));
+        player.sendMessage(MM."<dark_aqua>To <reset>".append(recipient).append(MM."<dark_aqua> » ").append(Component.text(message, NamedTextColor.WHITE)));
+    }
 
+    public void openPrivateMessage(CytosisPlayer player, UUID uuid) {
+        openPrivateChannels.put(player.getUuid(), uuid);
+    }
 
-        Component toSender = Component.text("")
-                .append(MM."<aqua>To ".append(recipient).append(MM."<gray>: "))
-                .append(Component.text(message, NamedTextColor.GRAY, TextDecoration.ITALIC));
-        player.sendMessage(toSender);
+    public boolean hasOpenPrivateChannel(CytosisPlayer player, UUID uuid) {
+        return openPrivateChannels.getIfPresent(player.getUuid()) == uuid;
+    }
 
-        Component toRecipient = Component.text("")
-                .append(MM."<aqua>From ".append(player.formattedName()).append(MM."<gray>: "))
-                .append(Component.text(message, NamedTextColor.GRAY, TextDecoration.ITALIC));
-        Cytosis.getNatsManager().sendChatMessage(new ChatMessage(List.of(target), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(toRecipient)));
-
+    public boolean hasOpenPrivateChannel(CytosisPlayer player) {
+        return openPrivateChannels.getIfPresent(player.getUuid()) != null;
     }
 }
