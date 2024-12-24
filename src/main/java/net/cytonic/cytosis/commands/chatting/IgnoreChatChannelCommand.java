@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.chatting;
 
 import com.google.gson.JsonObject;
 import net.cytonic.cytosis.Cytosis;
