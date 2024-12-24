@@ -5,15 +5,13 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.ranks.RankChangeEvent;
 import net.cytonic.cytosis.events.ranks.RankSetupEvent;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.enums.PlayerRank;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
-import net.minestom.server.permission.Permission;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -45,7 +43,7 @@ public class RankManager {
         }
 
         QUERY."SELECT * FROM `cytonic_ranks`".whenComplete((resultSet, throwable) -> {
-            if(throwable != null) {
+            if (throwable != null) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
                 MinecraftServer.stopCleanly();
                 return;
@@ -68,7 +66,7 @@ public class RankManager {
      *
      * @param player the player
      */
-    public void addPlayer(Player player) {
+    public void addPlayer(CytosisPlayer player) {
         // cache the rank
         Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
@@ -78,6 +76,7 @@ public class RankManager {
             var event = new RankSetupEvent(player, playerRank);
             EventDispatcher.call(event);
             if (event.isCanceled()) return;
+            player.setRank_UNSAFE(playerRank);
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
         });
@@ -89,18 +88,19 @@ public class RankManager {
      * @param player the player
      * @param rank   the rank
      */
-    public void changeRank(Player player, PlayerRank rank) {
+    public void changeRank(CytosisPlayer player, PlayerRank rank) {
         if (!rankMap.containsKey(player.getUuid()))
             throw new IllegalStateException(STR."The player \{player.getUsername()} is not yet initialized! Call addPlayer(Player) first!");
         PlayerRank old = rankMap.get(player.getUuid());
         var event = new RankChangeEvent(old, rank, player);
         EventDispatcher.call(event);
         if (event.isCanceled()) return;
-        removePermissions(player, old.getPermissions());
         rankMap.put(player.getUuid(), rank);
+        player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
         if (Cytosis.getCytonicNetwork() != null)
             Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
+        player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }
 
     /**
@@ -108,42 +108,24 @@ public class RankManager {
      * @param player The player
      * @param rank   The rank
      */
-    private void setupCosmetics(Player player, PlayerRank rank) {
-        addPermissions(player, rank.getPermissions());
+    public void setupCosmetics(CytosisPlayer player, PlayerRank rank) {
         teamMap.get(rank).addMember(player.getUsername());
         player.setCustomName(rank.getPrefix().append(player.getName()));
         Cytosis.getCommandHandler().recalculateCommands(player);
+        if (player.isVanished()) {
+            player.setVanished(true); // ranks can mess up the visuals sometimes
+        }
     }
 
     /**
-     * Removes a player from the manager. It also strips permissions
+     * Removes a player from the manager.
      *
      * @param player The player
      */
-    public void removePlayer(Player player) {
-        removePermissions(player, rankMap.getOrDefault(player.getUuid(), PlayerRank.DEFAULT).getPermissions());
-        rankMap.remove(player.getUuid());
+    public void removePlayer(UUID player) {
+        rankMap.remove(player);
     }
 
-    /**
-     * Adds permissions to a player
-     *
-     * @param player the player
-     * @param nodes  the permission nodes
-     */
-    public final void addPermissions(@NotNull final Player player, @NotNull final String... nodes) {
-        for (String node : nodes) player.addPermission(new Permission(node));
-    }
-
-    /**
-     * Strips permissions from a player
-     *
-     * @param player the player
-     * @param nodes  the nodes to remove
-     */
-    public final void removePermissions(@NotNull final Player player, @NotNull final String... nodes) {
-        for (String node : nodes) player.removePermission(node);
-    }
 
     /**
      * Gets a player's rank

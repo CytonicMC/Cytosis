@@ -2,8 +2,8 @@ package net.cytonic.cytosis.sideboard;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -22,14 +22,14 @@ public class DefaultCreator implements SideboardCreator {
     }
 
     @Override
-    public Sideboard sideboard(Player player) {
+    public Sideboard sideboard(CytosisPlayer player) {
         Sideboard sideboard = new Sideboard(player);
         sideboard.updateLines(lines(player));
         return sideboard;
     }
 
     @Override
-    public List<Component> lines(Player player) {
+    public List<Component> lines(CytosisPlayer player) {
         try {
             return List.of(
                     MM."<gray>\{Cytosis.SERVER_ID}",
@@ -37,8 +37,8 @@ public class DefaultCreator implements SideboardCreator {
                     MM."",
                     MM."Cytosis v\{Cytosis.VERSION}",
                     MM."",
-                    MM."<green>Rank: ".append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).isPresent() ? Component.text(Cytosis.getRankManager().getPlayerRank(player.getUuid()).get().name(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).get().getTeamColor())) : Component.text("Dunno.")),
-                    MM."<green>Chat Channel<white>: \{Cytosis.getChatManager().getChannel(player.getUuid()).name()}",
+                    MM."<green>Rank: ".append(Component.text(player.getRank().name(), (player.getRank().getTeamColor()))),
+                    MM."<green>Chat Channel<white>: \{player.getChatChannel().name()}",
                     MM."",
                     MM."<yellow>\{InetAddress.getLocalHost().getHostAddress()}"
             );
@@ -49,7 +49,7 @@ public class DefaultCreator implements SideboardCreator {
     }
 
     @Override
-    public Component title(Player player) {
+    public Component title(CytosisPlayer player) {
         return MM."<yellow><bold>Cytosis</bold></yellow>";
     }
 }

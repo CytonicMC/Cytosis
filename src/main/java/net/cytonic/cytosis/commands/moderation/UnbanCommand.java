@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.moderation;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -16,8 +17,8 @@ public class UnbanCommand extends Command {
 
     public UnbanCommand() {
         super("unban");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.moderation.unban"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unban <player>"));
+        setCondition(CommandUtils.IS_MODERATOR);
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /unban (player)"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
@@ -28,9 +29,6 @@ public class UnbanCommand extends Command {
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer actor)) {
                 return;
-            }
-            if (!actor.hasPermission("cytosis.commands.moderation.unban")) {
-                actor.sendMessage(MM."<red>You don't have permission to use this command!");
             }
 
             final String player = context.get(playerArg);

@@ -3,24 +3,26 @@ package net.cytonic.cytosis.commands.moderation;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
-import net.cytonic.objects.OfflinePlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.time.Instant;
+import java.util.EnumSet;
 
+import static net.cytonic.enums.PlayerRank.*;
 import static net.cytonic.utils.MiniMessageTemplate.MM;
 
 public class MuteCommand extends Command {
 
     public MuteCommand() {
         super("mute");
-        setCondition((player, _) -> player.hasPermission("cytosis.commands.moderation.mute"));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /mute <player> (duration)"));
+        setCondition(CommandUtils.IS_MODERATOR);
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /mute (player) (duration)"));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
@@ -33,7 +35,7 @@ public class MuteCommand extends Command {
 
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer actor) {
-                if (!actor.hasPermission("cytosis.commands.moderation.mute")) {
+                if (!actor.isModerator()) {
                     actor.sendMessage(MM."<red>You don't have permission to use this command!");
                 }
 
@@ -67,8 +69,7 @@ public class MuteCommand extends Command {
                                 Logger.error("error", throwable2);
                                 return;
                             }
-                            OfflinePlayer op = new OfflinePlayer(target, uuid, playerRank);
-                            if (op.hasPermission("cytosis.moderation.mute_immune")) {
+                            if (EnumSet.of(OWNER, ADMIN, MODERATOR, HELPER).contains(playerRank)) {
                                 sender.sendMessage(MM."<red>\{target} cannot be muted!");
                                 return;
                             }

@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
@@ -19,7 +20,7 @@ public class GamemodeCommand extends Command {
      */
     public GamemodeCommand() {
         super("gamemode", "gm");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.gamemode"));
+        setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(Component.text("You must specify a gamemode!", NamedTextColor.RED)));
 
         // using a gamemode as an argument

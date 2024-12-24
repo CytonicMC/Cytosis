@@ -19,9 +19,9 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.6.2")
+    api("net.cytonic:Commons:1.7.16")
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:dba90a461b")
+    api("net.minestom:minestom-snapshots:989ed1b517")
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.18.0")// better components
@@ -38,6 +38,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
+    implementation("io.nats:jnats:2.20.4")
 }
 
 tasks.withType<Jar> {
@@ -59,6 +60,7 @@ tasks.withType<Javadoc> {
 tasks {
     assemble {
         dependsOn("shadowJar")
+        dependsOn("copyShadowJarToSecondary")
     }
     named<ShadowJar>("shadowJar") {
         manifest {
@@ -69,9 +71,18 @@ tasks {
         archiveClassifier.set("")
         destinationDirectory.set(
             file(
-                destinationDirectory.get().toString()
+                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
             )
         )
+    }
+}
+
+tasks.register<Copy>("copyShadowJarToSecondary") {
+    dependsOn(tasks.shadowJar)
+
+    if (providers.gradleProperty("server_dir2").isPresent) {
+        from(tasks.shadowJar.get().archiveFile)
+        into(providers.gradleProperty("server_dir2"))
     }
 }
 

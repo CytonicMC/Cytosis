@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands.debug;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
@@ -27,7 +28,7 @@ public class CooldownCommand extends Command {
     public CooldownCommand(NetworkCooldownManager network) {
         super("cooldown");
 
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.debug.cooldown"));
+        setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<red>Invalid syntax! Use '/cooldown help' for more information."));
 
         var action = ArgumentType.Enum("action", CooldownAction.class).setFormat(ArgumentEnum.Format.LOWER_CASED);

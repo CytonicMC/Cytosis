@@ -85,6 +85,9 @@ public class PreferenceManager {
      * @param uuid the player
      */
     public void unloadPlayerPreferences(UUID uuid) {
+        if (!preferenceData.containsKey(uuid)) {
+            return;
+        }
         UPDATE."UPDATE cytonic_preferences SET preferences = '\{preferenceData.get(uuid).serialize()}' WHERE uuid = '\{uuid.toString()}';".whenComplete((_, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
         });

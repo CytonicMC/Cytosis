@@ -2,6 +2,7 @@ package net.cytonic.cytosis.utils;
 
 import com.google.common.reflect.TypeToken;
 import lombok.experimental.UtilityClass;
+import net.cytonic.containers.ServerStatusContainer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.objects.Preference;
 import net.cytonic.objects.TypedNamespace;
@@ -29,6 +30,9 @@ public final class Utils {
      * A type token for a list of UUIDs
      */
     public final static Type UUID_LIST = new TypeToken<List<UUID>>() {}.getType();
+
+    public static final Type SERVER_LIST = new TypeToken<List<ServerStatusContainer>>() {
+    }.getType();
     /**
      * A type token for a map of namespaced preferences keyed by NamespaceID
      */
@@ -47,7 +51,7 @@ public final class Utils {
     }
 
     /**
-     * Gets the server's IP address
+     * Gets the server's IP address. Does **NOT** include the port. An example is: {@code 127.0.0.1}
      *
      * @return the string of the IP address
      */
