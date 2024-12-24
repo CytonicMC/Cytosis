@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:Commons:1.6.2")
+    api("net.cytonic:Commons:1.7.16")
     api("net.cytonic:CytosisPluginProcessor:1.0")
     api("net.minestom:minestom-snapshots:dba90a461b")
     api("com.google.code.gson:gson:2.11.0") // serializing
