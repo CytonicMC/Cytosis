@@ -504,7 +504,9 @@ public class NatsManager {
                         Cytosis.getOnlinePlayers().forEach(player -> {
                             if (message.recipients().contains(player.getUuid())) {
                                 //todo: add permission to message people
+                                player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                                 player.sendMessage(component);
+                                Cytosis.getChatManager().openPrivateMessage(player, message.sender());
                             }
                         });
                         return;
