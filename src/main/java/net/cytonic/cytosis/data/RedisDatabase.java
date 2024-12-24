@@ -7,9 +7,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.pubsub.Broadcasts;
 import net.cytonic.cytosis.messaging.pubsub.Cooldowns;
-import net.cytonic.cytosis.messaging.pubsub.PlayerMessage;
 import net.cytonic.cytosis.messaging.pubsub.PlayerWarn;
-import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import redis.clients.jedis.*;
@@ -70,7 +68,6 @@ public class RedisDatabase {
 
         worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new PlayerMessage(), PLAYER_MESSAGE_CHANNEL));
         worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
     }
 
@@ -82,15 +79,6 @@ public class RedisDatabase {
     public void sendBroadcast(Component broadcast) {
         String message = JSONComponentSerializer.json().serialize(broadcast);
         jedisPub.publish(BROADCAST_CHANNEL, message);
-    }
-
-    /**
-     * Sends a message to a player
-     *
-     * @param message the serialized message
-     */
-    public void sendPlayerMessage(ChatMessage message) {
-        jedisPub.publish(PLAYER_MESSAGE_CHANNEL, message.toString());
     }
 
     /**
@@ -116,6 +104,9 @@ public class RedisDatabase {
     public void disconnect() {
         worker.shutdown();
         jedis.close();
+        jedisPub.close();
+        jedisSub.close();
+        Logger.info("Disconnected from Redis!");
     }
 
     /**
