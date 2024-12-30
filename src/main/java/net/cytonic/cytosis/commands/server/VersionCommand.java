@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.minestom.server.command.builder.Command;
 
 import static net.cytonic.utils.MiniMessageTemplate.MM;
@@ -15,11 +16,7 @@ public class VersionCommand extends Command {
      */
     public VersionCommand() {
         super("version", "ver");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.version"));
-        setDefaultExecutor((sender, _) -> {
-            if (sender.hasPermission("cytosis.commands.version")) {
-                sender.sendMessage(MM."<YELLOW>Running Cytosis v\{Cytosis.VERSION}!");
-            }
-        });
+        setCondition(CommandUtils.IS_STAFF);
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<yellow>Running Cytosis v\{Cytosis.VERSION}!"));
     }
 }

@@ -66,7 +66,7 @@ public class Humanoid extends EntityCreature implements NPC {
             properties.add(new PlayerInfoUpdatePacket.Property("textures", skin.textures(), skin.signature()));
         }
         var entry = new PlayerInfoUpdatePacket.Entry(getUuid(), username, properties, false,
-                0, GameMode.SURVIVAL, null, null);
+                0, GameMode.SURVIVAL, null, null, 0);
         player.sendPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
         super.updateNewViewer(player);
         player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));

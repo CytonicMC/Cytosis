@@ -9,7 +9,6 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.condition.Conditions;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -95,7 +94,6 @@ public class FriendCommand extends Command {
 
             Component targetComp = Cytosis.getCytonicNetwork().getPlayerRanks().get(target).getPrefix().append(Component.text(name));
 
-            UUID finalTarget = target;
             switch (context.get(action).toLowerCase(Locale.ROOT)) {
                 case "add" -> {
                     // check to see if they are online
@@ -103,27 +101,16 @@ public class FriendCommand extends Command {
                         player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>The player ".append(targetComp).append(MM."<gray> is not online!"));
                         return;
                     }
-
                     if (!Cytosis.getPreferenceManager().getPlayerPreference(target, CytosisPreferences.ACCEPT_FRIEND_REQUESTS)) {
                         player.sendMessage(MM."<red><b>ERROR!</b></red> ".append(targetComp).append(MM."<gray> is not accepting friend requests!"));
                         return;
                     }
-
                     if (Cytosis.getFriendManager().getFriends(player.getUuid()).contains(target)) {
                         player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You are already friends with ".append(targetComp).append(MM."<gray>!"));
                         return;
                     }
 
-                    Cytosis.getCynwaveWrapper().sendFriendRequest(target, player.getUuid()).whenComplete((s, throwable) -> {
-                        if (throwable != null) {
-                            player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{throwable.getMessage()}");
-                        }
-                        if (s.equalsIgnoreCase("ALREADY_SENT")) {
-                            player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You have already sent a friend request to ".append(targetComp).append(MM."<gray>!"));
-                        } else if (s.equalsIgnoreCase("INVALID_TOKEN")) {
-                            player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{s}");
-                        }
-                    });
+                    player.sendFriendRequest(target);
                 }
                 case "remove" -> {
                     if (Cytosis.getFriendManager().getFriends(player.getUuid()).contains(target)) {
@@ -132,32 +119,8 @@ public class FriendCommand extends Command {
                         player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You are not friends with ".append(targetComp).append(MM."<gray>!"));
                     }
                 }
-                case "accept" ->
-                        Cytosis.getCynwaveWrapper().acceptFriendRequest(player.getUuid(), target).whenComplete((s, throwable) -> {
-                            if (throwable != null) {
-                                player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>Please contact an administrator. SERVER: \{Cytosis.SERVER_ID} TIME: \{Instant.now().toString()} \{throwable.getMessage()}");
-                            }
-                            switch (s) {
-                                case "NOT_FOUND" ->
-                                        player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You don't have an active friend request from ".append(targetComp).append(MM."<gray>!"));
-                                case "UNAUTHORIZED" ->
-                                        player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>For some reason, you don't have permission to accept a friend request from ".append(targetComp).append(MM."<gray>!"));
-                                case "OK" -> Cytosis.getFriendManager().addFriend(player.getUuid(), finalTarget);
-                                case "INVALID_TOKEN" ->
-                                        player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{s}");
-                            }
-                        });
-                case "decline" ->
-                        Cytosis.getCynwaveWrapper().declineFriendRequest(player.getUuid(), target).whenComplete((s, throwable) -> {
-                            if (throwable != null) {
-                                player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{throwable.getMessage()}");
-                            }
-                            if (s.equalsIgnoreCase("NOT_FOUND")) {
-                                player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You don't have an active friend request from ".append(targetComp).append(MM."<gray>!"));
-                            } else if (s.equalsIgnoreCase("INVALID_TOKEN")) {
-                                player.sendMessage(MM."<red><b>SERVER ERROR!</b></red> <gray>\{s}");
-                            }
-                        });
+                case "accept" -> player.acceptFriendRequest(target);
+                case "decline" -> player.declineFriendRequest(target);
             }
 
         }, action, playerArg);

@@ -17,11 +17,12 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.MessagingManager;
+import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
-import net.cytonic.cytosis.utils.CynwaveWrapper;
+import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.objects.CytonicServer;
 import net.cytonic.objects.Preference;
@@ -38,7 +39,8 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
-import net.minestom.server.permission.Permission;
+import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
+import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -77,7 +79,7 @@ public final class Cytosis {
     public static final String VERSION = "0.1";
     @Setter
     @Getter
-    private static ServerGroup serverGroup = new ServerGroup("default", null, true);
+    private static ServerGroup serverGroup = new ServerGroup("default", "default", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -118,13 +120,9 @@ public final class Cytosis {
     @Getter
     private static List<String> flags;
     @Getter
-    private static ContainerizedInstanceManager containerizedInstanceManager;
-    @Getter
     private static FriendManager friendManager;
     @Getter
     private static PreferenceManager preferenceManager;
-    @Getter
-    private static CynwaveWrapper cynwaveWrapper;
     @Getter
     private static VanishManager vanishManager;
     @Getter
@@ -133,6 +131,8 @@ public final class Cytosis {
     private static InstanceManager instanceManager;
     @Getter
     private static ActionbarManager actionbarManager;
+    @Getter
+    private static NatsManager natsManager;
 
 
     private Cytosis() {
@@ -169,7 +169,6 @@ public final class Cytosis {
 
         Logger.info("Setting console command sender.");
         consoleSender = commandManager.getConsoleSender();
-        consoleSender.addPermission(new Permission("*"));
 
         //chat manager
         Logger.info("Starting chat manager.");
@@ -197,7 +196,11 @@ public final class Cytosis {
                 } else mojangAuth();
                 Logger.info("Completing nonessential startup tasks.");
 
-                completeNonEssentialTasks(start);
+                try {
+                    completeNonEssentialTasks(start);
+                } catch (Exception e) {
+                    Logger.error("ERR: ", e);
+                }
             }
         });
     }
@@ -231,6 +234,7 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<CytosisPlayer> getPlayer(String username) {
+        if (username == null) return Optional.empty();
         return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
@@ -241,25 +245,8 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<CytosisPlayer> getPlayer(UUID uuid) {
+        if (uuid == null) return Optional.empty();
         return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
-    }
-
-    /**
-     * Gives a player all permissions
-     *
-     * @param player to grant all permissions to
-     */
-    public static void opPlayer(Player player) {
-        player.addPermission(new Permission("*")); // give them every permission
-    }
-
-    /**
-     * Removes the '*' permission from a player
-     *
-     * @param player The player to remove the '*' permission from
-     */
-    public static void deopPlayer(Player player) {
-        player.removePermission("*"); // remove every permission
     }
 
     /**
@@ -292,8 +279,6 @@ public final class Cytosis {
                 Logger.info("World loaded!");
             }
         });
-
-
     }
 
     /**
@@ -302,6 +287,14 @@ public final class Cytosis {
      * @param start The time the server started
      */
     public static void completeNonEssentialTasks(long start) {
+        BlockPlacementUtils.init();
+
+        natsManager = new NatsManager();
+        if (!flags.contains("--ci-test")) natsManager.setup(); // don't connect to NATS in compile and run checks
+
+        // commands
+        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) -> MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
+
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
         databaseManager.setupDatabases().whenComplete((_, throwable) -> {
@@ -325,14 +318,8 @@ public final class Cytosis {
 
             Logger.info("Loading vanish manager!");
             vanishManager = new VanishManager();
-
-            MinecraftServer.getSchedulerManager().buildShutdownTask(() -> {
-                messagingManager.shutdown();
-                databaseManager.shutdown();
-                sideboardManager.shutdown();
-                pluginManager.unloadPlugins();
-                getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
+            MinecraftServer.getSchedulerManager().buildShutdownTask(Cytosis::shutdownHandler);
 
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
@@ -373,31 +360,21 @@ public final class Cytosis {
             Logger.info("Starting NPC manager!");
             npcManager = new NPCManager();
 
-            if (CytosisSettings.SERVER_PROXY_MODE) {
-                Logger.info("Loading network setup!");
-                cytonicNetwork = new CytonicNetwork();
-                cytonicNetwork.importData(databaseManager.getRedisDatabase());
-                cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
+            try {
+                if (CytosisSettings.SERVER_PROXY_MODE) {
+                    Logger.info("Loading network setup!");
+                    cytonicNetwork = new CytonicNetwork();
+                    cytonicNetwork.importData();
+                    cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
+                }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst loading network setup!", e);
             }
 
             Logger.info("Starting cooldown managers");
             networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
             networkCooldownManager.importFromRedis();
             Logger.info("Started network cooldown manager");
-
-            if (flags.contains("--skip-kubernetes") || flags.contains("--skip-k8s")) {
-                Logger.warn("Skipping Kubernetes setup");
-                CytosisSettings.KUBERNETES_SUPPORTED = false;
-            } else {
-                try {
-                    Logger.info("Starting Containerized Instance Manager");
-                    containerizedInstanceManager = new ContainerizedInstanceManager();
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading the kubernetes setup!", e);
-                }
-            }
-
-            cynwaveWrapper = new CynwaveWrapper();
 
             Logger.info("Initializing server commands");
             commandHandler = new CommandHandler();
@@ -412,11 +389,15 @@ public final class Cytosis {
             Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
             MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
-
+            try {
+                natsManager.sendStartup();
+            } catch (Exception e) {
+                Logger.error("ERROR: ", e);
+            }
             long end = System.currentTimeMillis();
             Logger.info(STR."Server started in \{end - start}ms!");
             Logger.info(STR."Server id = \{SERVER_ID}");
-            databaseManager.getRedisDatabase().sendStartupMessage();
+
 
             if (flags.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
@@ -453,5 +434,17 @@ public final class Cytosis {
      */
     public static String getRawID() {
         return Cytosis.SERVER_ID.replace("Cytosis-", "");
+    }
+
+    private static void shutdownHandler() {
+        messagingManager.shutdown();
+        databaseManager.shutdown();
+        sideboardManager.shutdown();
+        pluginManager.unloadPlugins();
+        getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
+    }
+
+    public static CytonicServer currentServer() {
+        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT);
     }
 }

@@ -6,6 +6,8 @@ import net.cytonic.cytosis.utils.events.PlayerJoinEventResponse;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
+import net.minestom.server.event.player.PlayerPacketEvent;
+import net.minestom.server.event.player.PlayerPacketOutEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,12 @@ import java.util.function.Consumer;
 public final class Events {
     private static final List<Consumer<AsyncPlayerConfigurationEvent>> spawnConsumers = new ArrayList<>();
     private static final List<Consumer<PlayerDisconnectEvent>> disconnectConsumers = new ArrayList<>();
-
+    private static final List<Consumer<PlayerPacketOutEvent>> packetOut = new ArrayList<>();
+    private static final List<Consumer<PlayerPacketEvent>> packetIn = new ArrayList<>();
+    private static final List<Consumer<PlayerPacketOutEvent>> packetOutHigh = new ArrayList<>();
+    private static final List<Consumer<PlayerPacketEvent>> packetInHigh = new ArrayList<>();
+    private static final List<Consumer<PlayerPacketOutEvent>> packetOutLow = new ArrayList<>();
+    private static final List<Consumer<PlayerPacketEvent>> packetInLow = new ArrayList<>();
 
     static {
         Cytosis.getEventHandler().registerListeners(
@@ -33,7 +40,28 @@ public final class Events {
                         false, 50, "cytosis:events_util_join", true),
                 new EventListener<>(PlayerDisconnectEvent.class,
                         event -> disconnectConsumers.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
-                        false, 50, "cytosis:events_util_leave", true)
+                        false, 50, "cytosis:events_util_leave", true),
+                // medium prio
+                new EventListener<>(PlayerPacketEvent.class,
+                        event -> packetIn.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
+                        false, 50, "cytosis:events_util_packet_in", true),
+                new EventListener<>(PlayerPacketOutEvent.class,
+                        event -> packetOut.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
+                        false, 50, "cytosis:events_util_packet_out", true),
+                // low prio
+                new EventListener<>(PlayerPacketEvent.class,
+                        event -> packetInLow.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
+                        false, 100, "cytosis:events_util_packet_in_low", true),
+                new EventListener<>(PlayerPacketOutEvent.class,
+                        event -> packetOutLow.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
+                        false, 100, "cytosis:events_util_packet_out_low", true),
+                // high prio
+                new EventListener<>(PlayerPacketEvent.class,
+                        event -> packetInHigh.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
+                        false, 0, "cytosis:events_util_packet_in_high", true),
+                new EventListener<>(PlayerPacketOutEvent.class,
+                        event -> packetOutHigh.forEach(eventListenerConsumer -> eventListenerConsumer.accept(event)),
+                        false, 0, "cytosis:events_util_packet_out_high", true)
         );
     }
 
@@ -87,4 +115,67 @@ public final class Events {
     public static void onLeaveRaw(Consumer<PlayerDisconnectEvent> event) {
         disconnectConsumers.add(event);
     }
+
+    /**
+     * Registers a consumer that will be executed whenever a player packet is received.
+     * This method adds the given consumer to the internal packet input handler.
+     *
+     * @param event The consumer that processes the incoming player packet event.
+     */
+    public static void onPacketIn(Consumer<PlayerPacketEvent> event) {
+        packetIn.add(event);
+    }
+
+    /**
+     * Registers a consumer that will be executed whenever a packet is sent to a player.
+     * This method adds the given consumer to the internal packet output handler.
+     *
+     * @param event The consumer that processes the outgoing player packet event.
+     */
+    public static void onPacketOut(Consumer<PlayerPacketOutEvent> event) {
+        packetOut.add(event);
+    }
+
+    /**
+     * Registers a consumer that will be executed with high priority whenever a player packet is received.
+     * This method adds the given consumer to the internal handler for incoming packets with high priority.
+     *
+     * @param event The consumer that processes the incoming player packet event with high priority.
+     */
+    public static void onPacketInHighPriority(Consumer<PlayerPacketEvent> event) {
+        packetInHigh.add(event);
+    }
+
+    /**
+     * Registers a consumer that will be executed with high priority whenever a packet
+     * is sent to a player. This method adds the given consumer to the internal handler
+     * for outgoing packets with high priority.
+     *
+     * @param event The consumer that processes the outgoing player packet event with high priority.
+     */
+    public static void onPacketOutHighPriority(Consumer<PlayerPacketOutEvent> event) {
+        packetOutHigh.add(event);
+    }
+
+    /**
+     * Registers a consumer that will be executed with low priority whenever a player packet is received.
+     * This method adds the given consumer to the internal handler for incoming packets with low priority.
+     *
+     * @param event The consumer that processes the incoming player packet event with low priority.
+     */
+    public static void onPacketInLowPriority(Consumer<PlayerPacketEvent> event) {
+        packetInLow.add(event);
+    }
+
+    /**
+     * Registers a consumer that will be executed with low priority whenever a packet
+     * is sent to a player. This method adds the given consumer to the internal handler
+     * for outgoing packets with low priority.
+     *
+     * @param event The consumer that processes the outgoing player packet event with low priority.
+     */
+    public static void onPacketOutLowPriority(Consumer<PlayerPacketOutEvent> event) {
+        packetOutLow.add(event);
+    }
+
 }

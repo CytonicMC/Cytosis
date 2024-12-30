@@ -34,7 +34,7 @@ public class SideboardManager {
      *
      * @param player the player
      */
-    public void addPlayer(Player player) {
+    public void addPlayer(CytosisPlayer player) {
         sideboards.put(player.getUuid(), sideboardCreator.sideboard(player));
     }
 

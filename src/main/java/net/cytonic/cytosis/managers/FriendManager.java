@@ -1,16 +1,17 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.containers.friends.FriendRequest;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.Tuple;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -136,7 +137,7 @@ public class FriendManager {
             }
         });
 
-        Cytosis.getDatabaseManager().getRedisDatabase().publish(RedisDatabase.FRIEND_REMOVED, Tuple.of(uuid, friend).toString());
+        Cytosis.getNatsManager().broadcastFriendRemoval(uuid, friend);
     }
 
     /**
@@ -187,5 +188,15 @@ public class FriendManager {
                 player.sendMessage(message);
             }
         });
+    }
+
+    /**
+     * Sends a friend request.
+     *
+     * @param sender    The sender of the request
+     * @param recipient The recipient
+     */
+    public void sendRequest(UUID sender, UUID recipient) {
+        Cytosis.getNatsManager().sendFriendRequest(new FriendRequest(sender, recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 }

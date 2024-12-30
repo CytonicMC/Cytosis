@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.chatting.*;
 import net.cytonic.cytosis.commands.debug.CooldownCommand;
 import net.cytonic.cytosis.commands.debug.PreferenceCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
@@ -57,7 +58,6 @@ public class CommandHandler {
         cm.register(new TimeCommand());
         cm.register(new VersionCommand());
         cm.register(new PingCommand());
-        cm.register(new TPSCommand());
         //cm.register(new ReportCommand());
         cm.register(new FriendCommand());
         cm.register(new ClearchatCommand());
@@ -71,6 +71,9 @@ public class CommandHandler {
         cm.register(new WarnCommand());
         cm.register(new CooldownCommand(Cytosis.getNetworkCooldownManager()));
         cm.register(new LoopCommand());
+        cm.register(new RecalculatePermissions());
+        cm.register(new YoinkCommand());
+        cm.register(new ReplyCommand());
     }
 
     /**
@@ -78,7 +81,6 @@ public class CommandHandler {
      *
      * @param player The player to send the packet to
      */
-    @SuppressWarnings("UnstableApiUsage")
     public void recalculateCommands(Player player) {
         player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
     }

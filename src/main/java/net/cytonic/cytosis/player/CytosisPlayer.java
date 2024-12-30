@@ -10,12 +10,14 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.builder.CommandResult;
 import net.minestom.server.entity.Player;
+import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,17 +37,31 @@ public class CytosisPlayer extends Player {
      * @param playerConnection the player's connection
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
-        super(uuid, username, playerConnection);
-        rank = Cytosis.getRankManager().getPlayerRank(uuid).orElse(PlayerRank.DEFAULT); // todo: watch out for cache invalidations
+        this(playerConnection, new GameProfile(uuid, username));
+    }
+
+    public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
+        super(playerConnection, gameProfile);
+        rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElse(PlayerRank.DEFAULT);
     }
 
     /**
      * Sets the player's rank.
+     *
      * @param rank the new rank
      */
     public void setRank(PlayerRank rank) {
         this.rank = rank;
         Cytosis.getRankManager().changeRank(this, rank);
+    }
+
+    /**
+     * Sets the player's rank. This is unsafe as it doesn't actually affect the database.
+     *
+     * @param rank the new rank
+     */
+    public void setRank_UNSAFE(PlayerRank rank) {
+        this.rank = rank;
     }
 
 
@@ -180,5 +196,81 @@ public class CytosisPlayer extends Player {
     @Override
     public void sendActionBar(@NotNull ComponentLike message) {
         this.sendActionBar(message.asComponent());
+    }
+
+    public boolean isStaff() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getRank());
+    }
+
+    /**
+     * Returns if this player has admin (or higher) permissions
+     *
+     * @return If this player has administrative permissions
+     */
+    public boolean isAdmin() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN).contains(getRank());
+    }
+
+    /**
+     * Returns if this player has moderator (or higher) permissions
+     *
+     * @return If this player has moderation permissions
+     */
+    public boolean isModerator() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR).contains(getRank());
+    }
+
+    /**
+     * Returns if this player has helper (or higher) permissions
+     *
+     * @return If this player has helping permissions
+     */
+    public boolean isHelper() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getRank());
+    }
+
+    public Component formattedName() {
+        return rank.getPrefix().append(Component.text(getUsername()));
+    }
+
+    public boolean canUseChannel(ChatChannel channel) {
+        return switch (channel) {
+            case STAFF -> isStaff();
+            case MOD -> isModerator();
+            case ADMIN -> isAdmin();
+            default -> true; //todo: implement parties and dms
+        };
+    }
+
+    public void sendFriendRequest(UUID recipient) {
+        Cytosis.getFriendManager().sendRequest(getUuid(), recipient);
+    }
+
+    public void acceptFriendRequest(UUID sender) {
+        Cytosis.getNatsManager().acceptFriendRequest(sender, getUuid());
+    }
+
+    public void acceptFriendRequestById(UUID requestId) {
+        Cytosis.getNatsManager().acceptFriendRequest(requestId);
+    }
+
+    public void declineFriendRequest(UUID sender) {
+        Cytosis.getNatsManager().declineFriendRequest(sender, getUuid());
+    }
+
+    public void declineFriendRequestById(UUID requestId) {
+        Cytosis.getNatsManager().declineFriendRequest(requestId);
+    }
+
+    public boolean isVanished() {
+        return Cytosis.getVanishManager().isVanished(getUuid());
+    }
+
+    public void setVanished(boolean vanished) {
+        if (vanished) {
+            Cytosis.getVanishManager().enableVanish(this);
+        } else {
+            Cytosis.getVanishManager().disableVanish(this);
+        }
     }
 }

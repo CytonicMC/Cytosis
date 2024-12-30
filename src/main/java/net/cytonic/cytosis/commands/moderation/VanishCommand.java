@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
@@ -18,21 +19,18 @@ public class VanishCommand extends Command {
      */
     public VanishCommand() {
         super("vanish");
-        setCondition((sender, _) -> sender.hasPermission("cytosis.commands.vanish"));
+        setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) {
                 return;
             }
-            if (!player.hasPermission("cytosis.commands.vanish")) {
-                return;
-            }
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-                player.sendMessage(MM."<RED>Vanish is now disabled!");
+                player.sendMessage(MM."<white><b>UNVANISHED!</white> <gray>Vanish is now disabled!");
                 Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.VANISHED, false);
                 Cytosis.getVanishManager().disableVanish(player);
                 return;
             }
-            player.sendMessage(MM."<GREEN>Vanish is now enabled!");
+            player.sendMessage(MM."<dark_gray><b>VANISHED!</dark_gray> <gray>Vanish is now enabled!");
             Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.VANISHED, true);
             Cytosis.getVanishManager().enableVanish(player);
         });

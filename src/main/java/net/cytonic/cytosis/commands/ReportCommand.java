@@ -40,12 +40,15 @@ public class ReportCommand extends Command {
         addSyntax((sender, context) -> {
             if (sender instanceof final Player player) {
                 String playerName = context.get(playerArg);
-                if (Cytosis.getCytonicNetwork().getLifetimeFlattened().containsValue(playerName)) {
-                    UUID playerUUID = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(playerName.toLowerCase());
-                    player.sendMessage(MM."<RED>Coming soon!");
-                    return;
-                    // execute stuff here
-                }
+                /*for (PlayerServer server : Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().values()) {
+                    if (server.playerName().equalsIgnoreCase(playerName)) {
+
+                        player.sendMessage(MM."<RED>Coming soon!");
+                        return;
+                        // execute stuff here
+                    }
+                }*/
+
                 player.sendMessage(MM."<RED>Player not found!");
             }
         }, playerArg);

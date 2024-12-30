@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
+import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.command.builder.Command;
@@ -20,7 +21,7 @@ public class TeleportCommand extends Command {
      */
     public TeleportCommand() {
         super("teleport", "tp");
-        setCondition((source, _) -> source.hasPermission("cytosis.commands.teleport"));
+        setCondition(CommandUtils.IS_ADMIN);
 
         var entityArgument = ArgumentType.Entity("entity").singleEntity(true).onlyPlayers(true);
 //        entityArgument.setSuggestionCallback((sender, _, suggestion) -> {
