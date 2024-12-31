@@ -38,7 +38,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("io.nats:jnats:2.20.4")
+    implementation("io.nats:jnats:2.20.5")
 }
 
 tasks.withType<Jar> {
