@@ -1,10 +1,8 @@
-package net.cytonic.cytosis.data.objects;
+package net.cytonic.cytosis.data.objects.preferences;
 
 import com.google.common.collect.Iterables;
 import lombok.NoArgsConstructor;
-import net.cytonic.objects.NamespacedPreference;
-import net.cytonic.objects.Preference;
-import net.cytonic.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -47,14 +45,14 @@ public class PreferenceRegistry {
      */
     public <T> void write(TypedNamespace<T> namespace, @NotNull NamespacedPreference<T> value) {
         if (value.value() == null) {
-            write(namespace, new Preference<>(namespace.type(), null));
+            write(namespace, (Preference<T>) value);
             return;
         }
-        if (!namespace.namespaceID().equals(value.namespaceID().namespaceID()))
+        if (!namespace.namespaceID().equals(value.namespace()))
             throw new IllegalArgumentException(STR."The preference namespace must be \{namespace.namespaceID()}");
         if (!namespace.type().equals(value.value().getClass()))
             throw new IllegalArgumentException(STR."The preference value must be of type \{namespace.type().getSimpleName()}");
-        write(namespace, new Preference<>(namespace.type(), value.value()));
+        write(namespace, (Preference<T>) value);
     }
 
     /**
@@ -86,6 +84,7 @@ public class PreferenceRegistry {
      * @return if the registry contains the preference
      */
     public boolean contains(TypedNamespace<?> namespace) {
+        if (namespace == null) return false;
         return preferences.containsKey(namespace);
     }
 
@@ -96,7 +95,8 @@ public class PreferenceRegistry {
      * @return if the registry contains the preference
      */
     public boolean contains(NamespacedPreference<?> preference) {
-        return contains(preference.namespaceID());
+        if (preference == null) return false;
+        return contains(preference.typedNamespace());
     }
 
     /**
@@ -108,6 +108,7 @@ public class PreferenceRegistry {
      */
     @ApiStatus.Internal
     public boolean contains_UNSAFE(NamespaceID namespaceID) {
+        if (namespaceID == null) return false;
         return preferences.keySet().stream().map(TypedNamespace::namespaceID).collect(Collectors.toSet()).contains(namespaceID);
     }
 
@@ -122,6 +123,7 @@ public class PreferenceRegistry {
 
     /**
      * Gets the typed namespaces contained in this registry
+     *
      * @return the set of typed namespaces
      */
     public Set<TypedNamespace<?>> typedNamespaces() {
@@ -129,7 +131,8 @@ public class PreferenceRegistry {
     }
 
     /**
-     * An unsafe version of {@link #get(TypedNamespace)}, but it doesn't require a typed namespace.
+     * An unsafe version of {@link #get(TypedNamespace)}, but it doesn't require a typed namespace. Its unsafe because it cannot
+     * guarantee type safety.
      *
      * @param namespaceID the namespace
      * @return the preference
@@ -137,15 +140,22 @@ public class PreferenceRegistry {
     @ApiStatus.Internal
     @Nullable
     public Preference<?> get_UNSAFE(NamespaceID namespaceID) {
-        Set<Entry<?>> ids = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().asString().equals(namespaceID.asString())).collect(Collectors.toSet());
+        Set<Entry<?>> ids = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().equals(namespaceID)).collect(Collectors.toSet());
         return Iterables.getFirst(ids, null).preference();
+    }
+
+    public Class<?> getTypeFromNamespace(NamespaceID namespaceID) {
+        Set<Entry<?>> entries = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().equals(namespaceID)).collect(Collectors.toSet());
+        if (entries.isEmpty()) return null;
+        if (entries.size() > 1) throw new IllegalStateException("Multiple preferences registered under the name id!");
+        return Iterables.getFirst(entries, null).preference().type();
     }
 
     /**
      * A record representing a registry entry
      *
      * @param namespaceID the namespace
-     * @param preference       the preference
+     * @param preference  the preference
      * @param <T>         the type of the preference
      */
     public record Entry<T>(TypedNamespace<T> namespaceID, Preference<T> preference) {
