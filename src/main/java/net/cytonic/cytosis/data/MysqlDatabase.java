@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.data;
 
+import lombok.SneakyThrows;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.PosSerializer;
-import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.BanData;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -863,7 +864,8 @@ public class MysqlDatabase {
      * @return the prepared statement object
      * @throws SQLException if an exception occurred
      */
-    public PreparedStatement prepareStatement(String sql) throws SQLException {
+    @SneakyThrows
+    public PreparedStatement prepareStatement(String sql) {
         return connection.prepareStatement(sql);
     }
 
@@ -891,7 +893,7 @@ public class MysqlDatabase {
      * @param sql The SQL update
      * @return A {@link CompletableFuture} for when the update is completed
      */
-    CompletableFuture<Void> update(PreparedStatement sql) {
+    public CompletableFuture<Void> update(PreparedStatement sql) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
