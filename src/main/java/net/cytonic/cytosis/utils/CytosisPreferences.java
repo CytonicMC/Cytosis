@@ -1,8 +1,10 @@
 package net.cytonic.cytosis.utils;
 
 import lombok.experimental.UtilityClass;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.objects.NamespacedPreference;
+import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
+import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 
 import java.util.Set;
 
@@ -26,14 +28,7 @@ public class CytosisPreferences {
     /**
      * A preference to store the players ignored chat channels, type of JsonObject
      */
-    public static final NamespacedPreference<String> IGNORED_CHAT_CHANNELS = new NamespacedPreference<>(CytosisNamespaces.IGNORED_CHAT_CHANNELS, """
-            {
-              "ALL": false,
-              "MOD": false,
-              "ADMIN": false,
-              "STAFF": false
-            }
-            """);
+    public static final JsonPreference<IgnoredChatChannelContainer> IGNORED_CHAT_CHANNELS = new JsonPreference<>(CytosisNamespaces.IGNORED_CHAT_CHANNELS, IgnoredChatChannelContainer.NONE);
     /**
      * A preference if the player is vanished, type of BOOLEAN
      */

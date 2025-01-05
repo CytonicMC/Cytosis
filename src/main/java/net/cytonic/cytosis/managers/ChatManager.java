@@ -2,15 +2,14 @@ package net.cytonic.cytosis.managers;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.gson.JsonObject;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * This class handles chat messages and channels
@@ -79,7 +78,7 @@ public class ChatManager {
         if (channel == ChatChannel.ALL) {
             //todo: this may want to become instance based
             Cytosis.getOnlinePlayers().forEach((p) -> {
-                if (!Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(channel.name()).getAsBoolean())
+                if (!p.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel))
                     p.sendMessage(message);
             });
             return;

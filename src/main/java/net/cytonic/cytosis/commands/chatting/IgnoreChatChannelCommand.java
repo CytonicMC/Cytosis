@@ -1,16 +1,14 @@
 package net.cytonic.cytosis.commands.chatting;
 
-import com.google.gson.JsonObject;
-import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
+import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
-import net.cytonic.enums.ChatChannel;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class IgnoreChatChannelCommand extends Command {
 
@@ -47,7 +45,8 @@ public class IgnoreChatChannelCommand extends Command {
                 case "admin", "ad" -> ChatChannel.ADMIN;
                 case "mod", "m" -> ChatChannel.MOD;
                 case "staff", "s" -> ChatChannel.STAFF;
-                default -> throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
+                default ->
+                        throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
             };
 
             if (!player.canUseChannel(channel)) {
@@ -55,14 +54,13 @@ public class IgnoreChatChannelCommand extends Command {
                 return;
             }
 
-            JsonObject obj = Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class);
-            if (obj.get(channel.name()).getAsBoolean()) {
-                obj.addProperty(channel.name(), false);
-                Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.IGNORED_CHAT_CHANNELS, obj.toString());
+            IgnoredChatChannelContainer container = player.getPreference(CytosisPreferences.IGNORED_CHAT_CHANNELS);
+            container = container.withForChannel(channel, !container.getForChannel(channel));
+            player.updatePreference(CytosisPreferences.IGNORED_CHAT_CHANNELS, container);
+
+            if (!container.getForChannel(channel)) {
                 player.sendMessage(MM."<gray><b>UNIGNORED!</b> You are no longer ignoring the <gold>\{channel.name()}</gold> chat.");
             } else {
-                obj.addProperty(channel.name(), true);
-                Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.IGNORED_CHAT_CHANNELS, obj.toString());
                 player.sendMessage(MM."<gray><b>IGNORED!</b> You successfully muted <gold>\{channel.name()}</gold> chat.");
             }
         }), chatChannelArgument);

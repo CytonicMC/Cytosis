@@ -1,8 +1,9 @@
 package net.cytonic.cytosis.utils;
 
 import lombok.experimental.UtilityClass;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.objects.TypedNamespace;
+import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
 
 import java.util.Set;
@@ -31,7 +32,7 @@ public class CytosisNamespaces {
     /**
      * A preference to store the players ignored chat channels
      */
-    public static final TypedNamespace<String> IGNORED_CHAT_CHANNELS = new TypedNamespace<>(NamespaceID.from("cytosis", "ignored_chat_channels"), String.class); // <String>
+    public static final TypedNamespace<IgnoredChatChannelContainer> IGNORED_CHAT_CHANNELS = new TypedNamespace<>(NamespaceID.from("cytosis", "ignored_chat_channels"), IgnoredChatChannelContainer.class); // <String>
 
     /**
      * If the user should be vanished
