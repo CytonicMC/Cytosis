@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.events.ranks;
 
 import lombok.Getter;
-import net.cytonic.enums.PlayerRank;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.event.trait.PlayerEvent;

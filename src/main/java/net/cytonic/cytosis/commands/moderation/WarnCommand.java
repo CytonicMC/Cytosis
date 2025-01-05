@@ -11,11 +11,9 @@ import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-import java.util.EnumSet;
 import java.util.UUID;
 
-import static net.cytonic.enums.PlayerRank.*;
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class WarnCommand extends Command {
 
@@ -55,7 +53,7 @@ public class WarnCommand extends Command {
                     }
 
 
-                    if (EnumSet.of(OWNER, ADMIN, MODERATOR, HELPER).contains(playerRank)) {
+                    if (playerRank.isStaff()) {
                         sender.sendMessage(MM."<red>\{player} cannot be warned!");
                         return;
                     }

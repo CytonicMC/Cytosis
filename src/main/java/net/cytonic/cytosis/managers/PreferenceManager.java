@@ -1,16 +1,20 @@
 package net.cytonic.cytosis.managers;
 
-import net.cytonic.cytosis.data.objects.PreferenceData;
-import net.cytonic.cytosis.data.objects.PreferenceRegistry;
+import lombok.SneakyThrows;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.objects.preferences.PreferenceData;
+import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
-import net.cytonic.objects.NamespacedPreference;
-import net.cytonic.objects.Preference;
-import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
@@ -108,23 +112,36 @@ public class PreferenceManager {
     public <T> void updatePlayerPreference(UUID uuid, TypedNamespace<T> namespaceID, T value) {
         PreferenceRegistry.Entry<T> entry = PREFERENCE_REGISTRY.get(namespaceID);
         Preference<T> preference = entry.preference();
+
+        if (preference.value() != null && preference.value().getClass() != value.getClass())
+            throw new IllegalArgumentException(STR."Cannot set a preference of type \{value.getClass().getSimpleName()} with a preference of type \{preference.value().getClass().getSimpleName()}");
+
+
         if (!preferenceData.containsKey(uuid)) {
             PreferenceData data = new PreferenceData(new ConcurrentHashMap<>());
             data.set(namespaceID, value);
             preferenceData.put(uuid, data);
-
-            UPDATE."INSERT INTO cytonic_preferences VALUES('\{uuid.toString()}', '\{data.serialize()}');".whenComplete((_, throwable) -> {
-                if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
-            });
+            addNewPlayerPreference(uuid, data);
             return;
         }
 
-        if (preference.value() != null && preference.value().getClass() != value.getClass())
-            throw new IllegalArgumentException(STR."Cannot set a preference of type \{value.getClass().getSimpleName()} with a preference of type \{preference.value().getClass().getSimpleName()}");
         preferenceData.get(uuid).set(namespaceID, value);
-        UPDATE."UPDATE cytonic_preferences SET preferences = '\{preferenceData.get(uuid).serialize()}' WHERE uuid = '\{uuid.toString()}';".whenComplete((_, throwable) -> {
-            if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
-        });
+        persistPreferences(uuid, preferenceData.get(uuid));
+    }
+
+    @SneakyThrows
+    public <T> void updatePlayerPreference(UUID uuid, NamespacedPreference<T> pref, T val) {
+        NamespacedPreference<T> preference = pref.clone(); // as to not mutate it....
+        preference.value(val);
+        if (!preferenceData.containsKey(uuid)) {
+            PreferenceData data = new PreferenceData(new ConcurrentHashMap<>());
+            data.set(preference);
+            preferenceData.put(uuid, data);
+            addNewPlayerPreference(uuid, data);
+            return;
+        }
+        preferenceData.get(uuid).set(preference);
+        persistPreferences(uuid, preferenceData.get(uuid));
     }
 
     /**
@@ -186,10 +203,10 @@ public class PreferenceManager {
      * @return the player's preference
      */
     public <T> T getPlayerPreference(UUID uuid, NamespacedPreference<T> preference) {
-        if (!PREFERENCE_REGISTRY.contains(preference.namespaceID()))
-            throw new IllegalArgumentException(STR."The preference \{preference.namespaceID()} does not exist!");
+        if (!PREFERENCE_REGISTRY.contains(preference.typedNamespace()))
+            throw new IllegalArgumentException(STR."The preference \{preference.namespace().asString()} does not exist!");
         if (!preferenceData.containsKey(uuid))
-            return PREFERENCE_REGISTRY.get(preference.namespaceID()).preference().value();
+            return PREFERENCE_REGISTRY.get(preference.typedNamespace()).preference().value();
         return preferenceData.get(uuid).get(preference);
     }
 
@@ -200,5 +217,30 @@ public class PreferenceManager {
      */
     public PreferenceRegistry getPreferenceRegistry() {
         return PREFERENCE_REGISTRY;
+    }
+
+    @SneakyThrows
+    public void persistPreferences(UUID uuid, PreferenceData preferenceData) {
+        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
+        PreparedStatement ps = db.prepareStatement("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?;");
+        ps.setString(2, uuid.toString());
+        ps.setString(1, preferenceData.serialize());
+
+        db.update(ps).whenComplete((_, throwable) -> {
+            if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
+        });
+    }
+
+    @SneakyThrows
+    public void addNewPlayerPreference(UUID uuid, PreferenceData data) {
+
+        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
+        PreparedStatement ps = db.prepareStatement("INSERT INTO cytonic_preferences VALUES(?,?);");
+        ps.setString(1, uuid.toString());
+        ps.setString(2, data.serialize());
+
+        db.update(ps).whenComplete((_, throwable) -> {
+            if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
+        });
     }
 }

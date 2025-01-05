@@ -5,7 +5,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command to show the user the details of the pod the instance is running in

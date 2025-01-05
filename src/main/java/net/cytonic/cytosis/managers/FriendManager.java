@@ -1,11 +1,11 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
-import net.cytonic.containers.friends.FriendRequest;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.containers.friends.FriendRequest;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.enums.PlayerRank;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 import static net.cytonic.cytosis.data.DatabaseTemplate.UPDATE;
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A class to manage friends

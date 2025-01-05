@@ -1,9 +1,10 @@
 package net.cytonic.cytosis.utils;
 
-import net.cytonic.objects.BanData;
+import net.cytonic.cytosis.data.objects.BanData;
 import net.kyori.adventure.text.Component;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
 
 /**
  * A class that holds utils for formatting messages

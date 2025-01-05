@@ -3,12 +3,12 @@ package net.cytonic.cytosis.events;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
-import net.cytonic.enums.ChatChannel;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
@@ -25,7 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
 
 /**
  * A class that registers Cytosis required server events

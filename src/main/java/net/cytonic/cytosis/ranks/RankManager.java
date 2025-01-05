@@ -2,11 +2,11 @@ package net.cytonic.cytosis.ranks;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.events.ranks.RankChangeEvent;
 import net.cytonic.cytosis.events.ranks.RankSetupEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.enums.PlayerRank;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.TeamsPacket;

@@ -7,7 +7,7 @@ import net.minestom.server.command.builder.Command;
 import net.minestom.server.network.ConnectionState;
 import net.minestom.server.network.packet.server.configuration.ResetChatPacket;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the clearchat command

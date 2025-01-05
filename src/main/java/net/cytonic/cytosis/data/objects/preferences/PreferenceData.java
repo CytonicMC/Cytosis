@@ -1,11 +1,9 @@
-package net.cytonic.cytosis.data.objects;
+package net.cytonic.cytosis.data.objects.preferences;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.objects.NamespacedPreference;
-import net.cytonic.objects.Preference;
-import net.cytonic.objects.TypedNamespace;
 
 import java.util.Map;
 
@@ -59,8 +57,8 @@ public class PreferenceData {
      */
     @SuppressWarnings("unchecked")
     public <T> T get(NamespacedPreference<T> namespace) {
-        if (preferences.containsKey(namespace.namespaceID())) {
-            return (T) preferences.get(namespace.namespaceID()).value();
+        if (preferences.containsKey(namespace.typedNamespace())) {
+            return (T) preferences.get(namespace.typedNamespace()).value();
         } else {
             return namespace.value();
         }
@@ -74,7 +72,11 @@ public class PreferenceData {
      * @param <T>       The type of the preference
      */
     public <T> void set(TypedNamespace<T> namespace, T value) {
-        preferences.put(namespace, new Preference<>(namespace.type(), value));
+        preferences.put(namespace, new NamespacedPreference<>(namespace, value));
+    }
+
+    public <T> void set(NamespacedPreference<T> preference) {
+        preferences.put(preference.typedNamespace(), preference);
     }
 
     /**

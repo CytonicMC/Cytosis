@@ -4,23 +4,21 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.data.enums.BanReason;
+import net.cytonic.cytosis.data.enums.KickReason;
+import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.MessageUtils;
-import net.cytonic.enums.BanReason;
-import net.cytonic.enums.KickReason;
-import net.cytonic.objects.BanData;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.time.Instant;
-import java.util.EnumSet;
 
-import static net.cytonic.enums.PlayerRank.*;
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command that allows authorized players to ban players.
@@ -81,7 +79,7 @@ public class BanCommand extends Command {
                                 Logger.error("error", throwable2);
                                 return;
                             }
-                            if (EnumSet.of(OWNER, ADMIN, MODERATOR, HELPER).contains(playerRank)) {
+                            if (playerRank.isStaff()) {
                                 sender.sendMessage(MM."<red>\{player} cannot be banned!");
                                 return;
                             }

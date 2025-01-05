@@ -2,10 +2,10 @@ package net.cytonic.cytosis.utils;
 
 import com.google.common.reflect.TypeToken;
 import lombok.experimental.UtilityClass;
-import net.cytonic.containers.ServerStatusContainer;
+import net.cytonic.cytosis.data.containers.ServerStatusContainer;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.objects.Preference;
-import net.cytonic.objects.TypedNamespace;
 
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -64,5 +64,33 @@ public final class Utils {
             return "ERROR";
         }
         return serverIP;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T clone(T value) {
+        if (value == null) {
+            return null; // Null safety
+        }
+
+        // Handle immutable or simple types
+        if (value instanceof UUID || value instanceof Number || value instanceof Boolean || value.getClass().isEnum()) {
+            return value; // Immutable types can be returned as-is
+        }
+
+        if (value instanceof String) {
+            return (T) value.toString();
+        }
+
+        // Handle Cloneable types
+        if (value instanceof Cloneable) {
+            try {
+                return (T) value.getClass().getMethod("clone").invoke(value);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to clone " + value.getClass().getName() + " using clone()", e);
+            }
+        }
+
+        throw new IllegalArgumentException("Unsupported type for cloning: " + value.getClass());
+
     }
 }

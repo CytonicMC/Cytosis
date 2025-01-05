@@ -8,7 +8,8 @@ import net.kyori.adventure.text.Component;
 import java.net.InetAddress;
 import java.util.List;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
+
 
 /**
  * The default implementation of {@link SideboardCreator}; creating a baseline sideboard for Cytosis.

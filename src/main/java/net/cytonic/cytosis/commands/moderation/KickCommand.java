@@ -4,18 +4,16 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.enums.KickReason;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-import java.util.EnumSet;
 import java.util.UUID;
 
-import static net.cytonic.enums.PlayerRank.*;
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class KickCommand extends Command {
 
@@ -54,7 +52,7 @@ public class KickCommand extends Command {
                         Logger.error("error", throwable2);
                         return;
                     }
-                    if (EnumSet.of(OWNER, ADMIN, MODERATOR).contains(playerRank)) {
+                    if (playerRank.isStaffNotHelper()) {
                         sender.sendMessage(MM."<red>\{player} cannot be kicked!");
                         return;
                     }

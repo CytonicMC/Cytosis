@@ -3,10 +3,10 @@ package net.cytonic.cytosis.commands.debug;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.objects.Preference;
-import net.cytonic.objects.TypedNamespace;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -15,7 +15,7 @@ import net.minestom.server.utils.NamespaceID;
 
 import java.util.UUID;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command for updating the preferences of a player

@@ -2,10 +2,11 @@ package net.cytonic.cytosis.player;
 
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.managers.PreferenceManager;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.TypedNamespace;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.builder.CommandResult;
@@ -79,6 +80,19 @@ public class CytosisPlayer extends Player {
     }
 
     /**
+     * Updates the preference
+     *
+     * @param namespace the namespace of the preference
+     * @param value     the value to set the preference
+     * @param <T>       the type of the preference value
+     * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
+     * @throws IllegalArgumentException if the preference and value are not of the same type
+     */
+    public <T> void updatePreference(NamespacedPreference<T> namespace, T value) {
+        Cytosis.getPreferenceManager().updatePlayerPreference(getUuid(), namespace, value);
+    }
+
+    /**
      * Gets a preference value
      *
      * @param namespace the namespace of the preference
@@ -87,6 +101,18 @@ public class CytosisPlayer extends Player {
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      */
     public <T> T getPreference(TypedNamespace<T> namespace) {
+        return Cytosis.getPreferenceManager().getPlayerPreference(getUuid(), namespace);
+    }
+
+    /**
+     * Gets a preference value
+     *
+     * @param namespace the namespace of the preference
+     * @param <T>       the Type of the preference
+     * @return the value stored in the preference
+     * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
+     */
+    public <T> T getPreference(NamespacedPreference<T> namespace) {
         return Cytosis.getPreferenceManager().getPlayerPreference(getUuid(), namespace);
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command to handle friends
