@@ -3,7 +3,7 @@ package net.cytonic.cytosis.commands.server;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.command.builder.Command;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 
 /**

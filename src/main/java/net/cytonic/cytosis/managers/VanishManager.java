@@ -11,7 +11,7 @@ import net.minestom.server.network.packet.server.play.TeamsPacket;
 
 import java.util.*;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * This class handles vanishing

@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.commands;
 
 import lombok.experimental.UtilityClass;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.enums.PlayerRank;
 import net.minestom.server.command.builder.condition.CommandCondition;
 
 @UtilityClass

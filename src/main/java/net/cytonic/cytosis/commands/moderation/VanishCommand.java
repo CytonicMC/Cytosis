@@ -7,7 +7,7 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.minestom.server.command.builder.Command;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the vanish command

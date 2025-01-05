@@ -11,7 +11,7 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.util.UUID;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class UnmuteCommand extends Command {
 

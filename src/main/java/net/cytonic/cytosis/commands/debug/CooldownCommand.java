@@ -13,7 +13,7 @@ import net.minestom.server.utils.NamespaceID;
 
 import java.time.Instant;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command to debug cooldowns

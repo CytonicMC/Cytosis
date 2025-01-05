@@ -1,30 +1,30 @@
 package net.cytonic.cytosis.messaging.nats;
 
-import com.google.gson.JsonObject;
+
 import io.nats.client.*;
 import lombok.SneakyThrows;
-import net.cytonic.containers.PlayerKickContainer;
-import net.cytonic.containers.PlayerLoginLogoutContainer;
-import net.cytonic.containers.ServerStatusContainer;
-import net.cytonic.containers.friends.FriendApiResponse;
-import net.cytonic.containers.friends.FriendRequest;
-import net.cytonic.containers.friends.FriendResponse;
-import net.cytonic.containers.friends.OrganicFriendResponse;
-import net.cytonic.containers.servers.PlayerChangeServerContainer;
-import net.cytonic.containers.servers.SendPlayerToServerContainer;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.containers.PlayerKickContainer;
+import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
+import net.cytonic.cytosis.data.containers.ServerStatusContainer;
+import net.cytonic.cytosis.data.containers.friends.FriendApiResponse;
+import net.cytonic.cytosis.data.containers.friends.FriendRequest;
+import net.cytonic.cytosis.data.containers.friends.FriendResponse;
+import net.cytonic.cytosis.data.containers.friends.OrganicFriendResponse;
+import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
+import net.cytonic.cytosis.data.containers.servers.SendPlayerToServerContainer;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.KickReason;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.ChatMessage;
+import net.cytonic.cytosis.data.objects.CytonicServer;
+import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.enums.KickReason;
-import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.ChatMessage;
-import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.Tuple;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.nats.client.ConnectionListener.Events.*;
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class NatsManager {
 
@@ -421,7 +421,6 @@ public class NatsManager {
                     }
 
                     try {
-                        Logger.debug(new String(m.getData()));
                         List<ServerStatusContainer> containers = Cytosis.GSON.fromJson(new String(m.getData()), Utils.SERVER_LIST);
                         for (ServerStatusContainer container : containers) {
                             Cytosis.getCytonicNetwork().getServers().put(container.id(), container.server());
@@ -522,7 +521,7 @@ public class NatsManager {
                     // these channels don't support selective recipients
                     if (chatChannel == ChatChannel.ADMIN || chatChannel == ChatChannel.MOD || chatChannel == ChatChannel.STAFF) {
                         Cytosis.getOnlinePlayers().forEach(player -> {
-                            if (player.canUseChannel(chatChannel) && !Cytosis.GSON.fromJson(Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.IGNORED_CHAT_CHANNELS), JsonObject.class).get(chatChannel.name()).getAsBoolean()) {
+                            if (player.canUseChannel(chatChannel) && !player.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(chatChannel)) {
                                 player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                                 player.sendMessage(component);
                             }

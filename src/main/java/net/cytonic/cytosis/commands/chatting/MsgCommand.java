@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.chatting;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.enums.ChatChannel;
-import net.cytonic.enums.PlayerRank;
-import net.cytonic.objects.ChatMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -15,7 +15,7 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import java.util.List;
 import java.util.UUID;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class MsgCommand extends Command {
 

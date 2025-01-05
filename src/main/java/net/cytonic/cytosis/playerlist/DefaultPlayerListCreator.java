@@ -2,10 +2,10 @@ package net.cytonic.cytosis.playerlist;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.enums.PlayerRank;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 
 /**

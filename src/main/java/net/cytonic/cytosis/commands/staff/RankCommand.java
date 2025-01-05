@@ -2,9 +2,9 @@ package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.enums.PlayerRank;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -14,7 +14,7 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import java.util.Locale;
 import java.util.Optional;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command that allows players to change another player's rank

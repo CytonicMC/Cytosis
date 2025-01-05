@@ -5,7 +5,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class ReplyCommand extends Command {
     public ReplyCommand() {

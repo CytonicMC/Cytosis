@@ -12,10 +12,8 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.time.Instant;
-import java.util.EnumSet;
 
-import static net.cytonic.enums.PlayerRank.*;
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class MuteCommand extends Command {
 
@@ -69,7 +67,7 @@ public class MuteCommand extends Command {
                                 Logger.error("error", throwable2);
                                 return;
                             }
-                            if (EnumSet.of(OWNER, ADMIN, MODERATOR, HELPER).contains(playerRank)) {
+                            if (playerRank.isStaff()) {
                                 sender.sendMessage(MM."<red>\{target} cannot be muted!");
                                 return;
                             }

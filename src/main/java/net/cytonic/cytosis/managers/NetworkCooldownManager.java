@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.managers;
 
-import net.cytonic.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Nullable;
