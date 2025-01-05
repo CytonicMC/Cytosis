@@ -11,6 +11,10 @@ import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
+import net.cytonic.cytosis.data.objects.CytonicServer;
+import net.cytonic.cytosis.data.objects.ServerGroup;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
@@ -24,10 +28,6 @@ import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.objects.CytonicServer;
-import net.cytonic.objects.Preference;
-import net.cytonic.objects.ServerGroup;
-import net.cytonic.objects.TypedNamespace;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -47,7 +47,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
-import static net.cytonic.utils.MiniMessageTemplate.MM;
+import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The main class for Cytosis
