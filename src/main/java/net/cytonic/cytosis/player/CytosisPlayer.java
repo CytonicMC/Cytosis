@@ -299,4 +299,11 @@ public class CytosisPlayer extends Player {
             Cytosis.getVanishManager().disableVanish(this);
         }
     }
+
+    public boolean canRecieveSnoop(byte flags) {
+        if ((flags & 0x01) != 0 && rank == PlayerRank.OWNER) return true;
+        if ((flags & 0x02) != 0 && rank == PlayerRank.ADMIN) return true;
+        if ((flags & 0x04) != 0 && rank == PlayerRank.MODERATOR) return true;
+        return (flags & 0x08) != 0 && rank == PlayerRank.HELPER;
+    }
 }
