@@ -36,15 +36,20 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 import static io.nats.client.ConnectionListener.Events.*;
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class NatsManager {
 
+    Queue<Consumer<Connection>> waitingOperations = new ConcurrentLinkedQueue<>();
 
-    Connection connection;
+
+    Connection connection = null;
     Subscription healthCheck;
     private boolean started = false;
 
@@ -68,6 +73,14 @@ public class NatsManager {
                     listenForPlayerServerChange();
                     listenForChatMessage();
                 }
+
+                // complete the operations waiting for a connection
+                Consumer<Connection> consumer;
+                while ((consumer = waitingOperations.poll()) != null) {
+                    // don't need to run it on an async thread, this is async
+                    consumer.accept(conn);
+                }
+
             } else {
                 Logger.info("Disconnected from NATS server!");
                 connection = null;
@@ -533,4 +546,29 @@ public class NatsManager {
             }
         });
     }
+
+
+    /**
+     * Queues a call requiring the connection to be open. If the current connection is valid, the operation is executed immediatley on an async thread.
+     *
+     * @param operation The operation requiring an open connection
+     */
+    public void queue(Consumer<Connection> operation) {
+        if (connection != null) {
+            // do this on an async thread
+            Thread.ofVirtual().name("NATS Connection Queue").start(() -> operation.accept(connection));
+            return;
+        }
+        waitingOperations.offer(operation);
+    }
+
+    // api for this
+    public void subscribe(String channel, Consumer<Message> consumer) {
+        queue(conn -> conn.createDispatcher(consumer::accept).subscribe(channel));
+    }
+
+    public void publish(String channel, byte[] data) {
+        queue(conn -> conn.publish(channel, data));
+    }
+    // todo: figure out requesting :)
 }
