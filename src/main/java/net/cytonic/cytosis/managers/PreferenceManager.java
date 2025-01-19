@@ -98,18 +98,19 @@ public class PreferenceManager {
             return;
         }
 
-        PreparedStatement ps = db.prepareStatement("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?");
+//        PreparedStatement ps = db.prepareStatement("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?");
+//
+//        try {
+//            ps.setString(1, preferenceData.get(uuid).serialize());
+//            ps.setString(2, uuid.toString());
+//        } catch (SQLException exception) {
+//            throw new RuntimeException("Failed to unload player preference!", exception);
+//        }
+//        db.query(ps).whenComplete((unused, throwable) -> {
+//            if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
+//        });
 
-        try {
-            ps.setString(1, preferenceData.get(uuid).serialize());
-            ps.setString(2, uuid.toString());
-        } catch (SQLException exception) {
-            throw new RuntimeException("Failed to unload player preference!", exception);
-        }
-        db.query(ps).whenComplete((unused, throwable) -> {
-            if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
-        });
-        
+        persistPreferences(uuid, preferenceData.get(uuid));
         preferenceData.remove(uuid);
     }
 
