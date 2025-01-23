@@ -5,7 +5,7 @@ plugins {
     `java-library`
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
+    id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
 }
 
 group = "net.cytonic"
