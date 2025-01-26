@@ -93,5 +93,24 @@ public final class Utils {
         throw new IllegalArgumentException("Unsupported type for cloning: " + value.getClass());
     }
 
+
+    // the IP of this machine on the tailscale network
+    @Nullable
+    @SneakyThrows
+    public static String getInternalIP() {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface iface = interfaces.nextElement();
+            if (iface.getName().equals("tailscale0")) { // Tailscale's default interface name
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (addr instanceof Inet4Address) { // Change to Inet6Address for IPv6
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        }
+        return null; // No Tailscale IP found
     }
 }
