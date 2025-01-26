@@ -16,7 +16,7 @@ public class SnoopUtils {
      * @param component The snoop message
      * @return The snoopified component
      */
-    public Component toSnoop(Component component) {
-        return MM."<b><#F873F9>SNOOP!</#F873F9></b>".appendSpace().append(component);
+    public static Component toSnoop(Component component) {
+        return MM."<#F873F9><b>SNOOP!</b></#F873F9> ".append(component);
     }
 }
