@@ -61,7 +61,8 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
                 try {
                     type = Class.forName(className);
                 } catch (ClassNotFoundException e) {
-                    throw new IOException("Class not found: " + className, e);
+                    return null;
+//                    throw new IOException(STR."Class not found: \{className}", e);
                 }
             }
         }

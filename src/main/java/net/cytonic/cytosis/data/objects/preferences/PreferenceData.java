@@ -30,6 +30,7 @@ public class PreferenceData {
      */
     public static PreferenceData deserialize(String data) {
         Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP.getType()); // <NamespaceID, Preference>
+
         return new PreferenceData(preferences);
     }
 
