@@ -6,6 +6,9 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.menus.ClickableItem;
+import net.cytonic.cytosis.menus.ClickableItemRegistry;
+import net.cytonic.cytosis.menus.Menu;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
@@ -14,11 +17,13 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
 import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
+import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.time.TimeUnit;
 
 import java.time.Duration;
@@ -171,5 +176,27 @@ public final class ServerEventListeners {
                 p.sendPacket(new EntityMetaDataPacket(packet.entityId(), entries));
             });
         })));
+
+        Logger.info("Registering Menu click events.");
+        Cytosis.getEventHandler().registerListeners(new EventListener<>("core:inv-pre-click", false, 0, InventoryPreClickEvent.class, event -> {
+            CytosisPlayer player = (CytosisPlayer) event.getPlayer();
+            ItemStack item = event.getClickedItem();
+            Menu inventory = ((Menu) event.getInventory());
+
+            //no need to worry about air or tag less
+            if (item.isAir() || !item.hasTag(Menu.BUTTON_TAG)) return;
+
+            //logic
+            try {
+                NamespaceID id = NamespaceID.from(item.getTag(Menu.BUTTON_TAG));
+                ClickableItem button = ClickableItemRegistry.getInstance().get(id);
+                if (button == null) return;
+
+                button.onClick().accept(player, event);
+            } catch (Exception e) {
+                event.setCancelled(true); // if it has the tag, we can assume it's going to get cancelled
+            }
+        }));
+
     }
 }
