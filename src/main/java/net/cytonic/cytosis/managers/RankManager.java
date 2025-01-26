@@ -41,7 +41,7 @@ public class RankManager {
             teamMap.put(value, team);
         }
 
-        PreparedStatement ps = db.prepareStatement("SELECT * FROM cytonic_ranks");
+        PreparedStatement ps = db.prepare("SELECT * FROM cytonic_ranks");
         db.query(ps).whenComplete((resultSet, throwable) -> {
             if (throwable != null) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);

@@ -29,7 +29,7 @@ public class LoopCommand extends Command {
                 commandSender.sendMessage("Only players can use this command.");
                 return;
             }
-            player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red> <gray>Invalid syntax! Usage: /loop <iterations> <period> [command....]"));
+            player.sendMessage(Msg.whoops("Invalid syntax! Usage: /loop <iterations> <period> [command....]"));
         });
 
         addSyntax((commandSender, context) -> {
@@ -43,7 +43,7 @@ public class LoopCommand extends Command {
             String[] command = context.get(commandArg);
 
             if (command.length == 0) {
-                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red> <gray>You need to specify a command to loop!"));
+                player.sendMessage(Msg.whoops("You need to specify a command to loop!"));
             }
 
             String commandStr = String.join(" ", command);

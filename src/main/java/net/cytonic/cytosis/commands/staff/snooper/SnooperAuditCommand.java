@@ -5,11 +5,10 @@ import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.menus.Menu;
 import net.cytonic.cytosis.menus.snooper.SnooperMenu;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 import net.minestom.server.command.builder.arguments.ArgumentType;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class SnooperAuditCommand extends Command {
     public SnooperAuditCommand() {
@@ -22,14 +21,14 @@ public class SnooperAuditCommand extends Command {
 
         setDefaultExecutor((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            player.sendMessage(MM."<red><b>WHOOPS!</b></red><gray> Invalid Syntax: /snooper audit <channel>");
+            player.sendMessage(Msg.whoops("Invalid Syntax: /snooper audit <channel>"));
         });
 
         addSyntax((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = c.get(SnooperCommand.CHANNELS);
             if (!Cytosis.getSnooperManager().getAllChannels(player).contains(rawChannel)) {
-                player.sendMessage(MM."<red><b>WHOOPS!</b></red><gray> The channel '\{rawChannel}' either doesn't exist, or you don't have access to it.");
+                player.sendMessage(Msg.whoops("The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;
             }
 
@@ -37,7 +36,7 @@ public class SnooperAuditCommand extends Command {
             if (searchFor.contains("--force")) {
                 searchFor = searchFor.replace("--force", "");
                 Cytosis.getSnooperManager().getPersistenceManager().invalidateCache();
-                player.sendMessage(MM."<yellow><b>CLEARED!</b></yellow><gray> Invalidated the cached snoops!");
+                player.sendMessage(Msg.mm("<yellow><b>CLEARED!</b></yellow><gray> Invalidated the cached snoops!"));
             }
             boolean ascending = true;
             if (searchFor.contains("--descending")) {

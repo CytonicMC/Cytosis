@@ -2,8 +2,6 @@ package net.cytonic.cytosis.utils;
 
 import net.kyori.adventure.text.Component;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
-
 public class SnoopUtils {
 
     //todo: add different colors
@@ -17,6 +15,6 @@ public class SnoopUtils {
      * @return The snoopified component
      */
     public static Component toSnoop(Component component) {
-        return MM."<#F873F9><b>SNOOP!</b></#F873F9> ".append(component);
+        return Msg.mm("<#F873F9><b>SNOOP!</b></#F873F9> ").append(component);
     }
 }

@@ -3,9 +3,8 @@ package net.cytonic.cytosis.commands.staff.snooper;
 import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.Command;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class SnooperMuteCommand extends Command {
 
@@ -16,11 +15,11 @@ public class SnooperMuteCommand extends Command {
         setDefaultExecutor((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) {
-                player.sendMessage(MM."<b><red>WHOOPS!</red></b><gray> You have already muted snooper!");
+                player.sendMessage(Msg.whoops("You have already muted snooper!"));
                 return;
             }
             player.updatePreference(CytosisNamespaces.MUTE_SNOOPER, true);
-            player.sendMessage(MM."<b><red>MUTED!</red></b><gray> Snooper has been muted.");
+            player.sendMessage(Msg.mm("<b><red>MUTED!</red></b><gray> Snooper has been muted."));
         });
     }
 }

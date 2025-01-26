@@ -6,6 +6,7 @@ import net.cytonic.cytosis.data.containers.snooper.*;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +18,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class SnooperManager {
     private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();
@@ -86,7 +85,7 @@ public class SnooperManager {
      * @param event The reception event, used to monitor.
      */
     public void onSnoop(SnooperRecieveEvent event) {
-        onSnoop(event, _ -> true);
+        onSnoop(event, ignored -> true);
     }
 
     /**
@@ -120,21 +119,21 @@ public class SnooperManager {
     public void snoop(CytosisPlayer player, @NotNull String channel) {
         SnoopsContainer container = player.getPreference(CytosisNamespaces.LISTENING_SNOOPS);
         if (container.snoops().contains(channel)) {
-            player.sendMessage(MM."<red><b>WHOOPS!</b></red><gray> You are already snooping on the channel '\{channel}'");
+            player.sendMessage(Msg.whoops(" You are already snooping on the channel '" + channel + "'"));
             return;
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.with(channel));
-        player.sendMessage(MM."<b><#e829aa>SNOOPED!</#e829aa></b><gray> Successfully started snooping on the '\{channel}' channel!");
+        player.sendMessage(Msg.mm("<b><#e829aa>SNOOPED!</#e829aa></b><gray> Successfully started snooping on the '" + channel + "' channel!"));
     }
 
     public void blind(CytosisPlayer player, @NotNull String channel) {
         SnoopsContainer container = player.getPreference(CytosisNamespaces.LISTENING_SNOOPS);
         if (!container.snoops().contains(channel)) {
-            player.sendMessage(MM."<red><b>WHOOPS!</b></red><gray> You are not snooping on the channel '\{channel}'");
+            player.sendMessage(Msg.whoops("You are not snooping on the channel '" + channel + "'"));
             return;
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.without(channel));
-        player.sendMessage(MM."<b><#ff0034>DESNOOPED!</#ff0034></b><gray> Successfully stopped snooping on the '\{channel}' channel!");
+        player.sendMessage(Msg.mm("<b><#ff0034>DESNOOPED!</#ff0034></b><gray> Successfully stopped snooping on the '" + channel + "' channel!"));
     }
 
     /**

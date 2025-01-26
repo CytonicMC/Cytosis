@@ -53,9 +53,7 @@ public class CytonicNetwork {
         networkPlayersOnServers.clear();
 
 
-
-
-        PreparedStatement players = db.prepareStatement("SELECT * FROM cytonic_players");
+        PreparedStatement players = db.prepare("SELECT * FROM cytonic_players");
         db.query(players).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading players!", throwable);
@@ -71,7 +69,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement ranks = db.prepareStatement("SELECT * FROM cytonic_ranks");
+        PreparedStatement ranks = db.prepare("SELECT * FROM cytonic_ranks");
         db.query(ranks).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
@@ -86,7 +84,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement bans = db.prepareStatement("SELECT * FROM cytonic_bans");
+        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans");
         db.query(bans).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading bans!", throwable);
@@ -107,7 +105,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement mutes = db.prepareStatement("SELECT * FROM cytonic_mutes");
+        PreparedStatement mutes = db.prepare("SELECT * FROM cytonic_mutes");
         db.query(mutes).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading mutes!", throwable);
@@ -142,7 +140,7 @@ public class CytonicNetwork {
 
         MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
-        PreparedStatement rank = db.prepareStatement("SELECT * FROM cytonic_ranks WHERE uuid = ?");
+        PreparedStatement rank = db.prepare("SELECT * FROM cytonic_ranks WHERE uuid = ?");
         try {
             rank.setString(1, uuid.toString());
         } catch (SQLException e) {
@@ -166,7 +164,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement bans = db.prepareStatement("SELECT * FROM cytonic_bans WHERE uuid = ?");
+        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans WHERE uuid = ?");
         try {
             bans.setString(1, uuid.toString());
         } catch (SQLException e) {
@@ -187,7 +185,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement muted = db.prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+        PreparedStatement muted = db.prepare("SELECT * FROM cytonic_mutes WHERE uuid = ?");
         try {
             muted.setString(1, uuid.toString());
         } catch (SQLException e) {

@@ -6,6 +6,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.menus.*;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
+import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.inventory.InventoryType;
@@ -20,53 +21,50 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM_WRAP;
-
 public class SnooperMenu extends Menu {
     // todo: look out for memory leaks
     private static final Map<UUID, SnooperMenu> instances = new ConcurrentHashMap<>();
 
     private static final ClickableItem LOADING = new DummyItem(
             NamespaceID.from("cytosis", "snooper_loading"),
-            unused -> ItemStack.builder(Material.GRAY_STAINED_GLASS_PANE).customName(MM."<gray>Loading Data...").hideExtraTooltip().build()
+            unused -> ItemStack.builder(Material.GRAY_STAINED_GLASS_PANE).customName(Msg.mm("<gray>Loading Data...")).hideExtraTooltip().build()
     );
 
     private static final ClickableItem NONE = new DummyItem(
             NamespaceID.from("cytosis", "snooper_none"),
-            unused -> ItemStack.builder(Material.RED_STAINED_GLASS_PANE).customName(MM."<red>No data!")
-                    .lore(MM."<gray><i>Try widening your search!").hideExtraTooltip().build()
+            unused -> ItemStack.builder(Material.RED_STAINED_GLASS_PANE).customName(Msg.mm("<red>No data!"))
+                    .lore(Msg.mm("<gray><i>Try widening your search!")).hideExtraTooltip().build()
     );
 
     private static final ClickableItem ERROR = new DummyItem(
             NamespaceID.from("cytosis:snooper_error_query"),
-            player -> ItemStack.builder(Material.BARRIER).customName(MM."<red>ERROR!")
-                    .lore(MM."<gray>Check the server console for details!", MM."<gray>Server ID: \{Cytosis.SERVER_ID}").build()
+            player -> ItemStack.builder(Material.BARRIER).customName(Msg.mm("<red>ERROR!"))
+                    .lore(Msg.mm("<gray>Check the server console for details!"), Msg.mm("<gray>Server ID: " + Cytosis.SERVER_ID)).build()
     );
 
     private static final ClickableItem TOGGLE_DATE_RANGE = new Button(
             NamespaceID.from("cytosis:snooper_toggle_date"),
             p -> {
                 if (!instances.containsKey(p.getUuid()))
-                    return ItemStack.builder(Material.BEDROCK).customName(MM."<red><b>ERROR!").build();
+                    return ItemStack.builder(Material.BEDROCK).customName(Msg.mm("<red><b>ERROR!")).build();
                 SnooperMenu menu = instances.get(p.getUuid());
                 DateRange range = menu.range;
                 List<Component> lore = new ArrayList<>();
                 for (DateRange value : DateRange.values()) {
                     String formatted = Utils.captializeFirstLetters(value.name().toLowerCase().replace("_", " "));
                     if (value == range) {
-                        lore.add(MM."<aqua>» \{formatted}");
+                        lore.add(Msg.mm("<aqua>» " + formatted));
                         continue;
                     }
 
-                    lore.add(MM."<dark_aqua>\{formatted}");
+                    lore.add(Msg.mm("<dark_aqua>" + formatted));
                 }
-                lore.add(MM."");
-                lore.add(MM."<yellow>Click to cycle!");
+                lore.add(Msg.mm(""));
+                lore.add(Msg.mm("<yellow>Click to cycle!"));
                 return ItemStack.builder(Material.CLOCK)
                         .hideExtraTooltip()
                         .lore(lore)
-                        .customName(MM."<yellow>Change Date Range").build();
+                        .customName(Msg.mm("<yellow>Change Date Range")).build();
             },
             (p, e) -> {
                 if (!instances.containsKey(p.getUuid())) return;
@@ -92,13 +90,13 @@ public class SnooperMenu extends Menu {
             NamespaceID.from("cytosis:snooper_toggle_order"),
             p -> {
                 if (!instances.containsKey(p.getUuid()))
-                    return ItemStack.builder(Material.BEDROCK).customName(MM."<red><b>ERROR!").build();
+                    return ItemStack.builder(Material.BEDROCK).customName(Msg.mm("<red><b>ERROR!")).build();
                 SnooperMenu menu = instances.get(p.getUuid());
 
                 return ItemStack.builder(Material.EYE_ARMOR_TRIM_SMITHING_TEMPLATE)
                         .hideExtraTooltip()
-                        .lore(MM."<b>\{menu.ascending ? "<green>Ascending" : "<red>Descending"}", MM."", MM."<yellow>Click to toggle")
-                        .customName(MM."<yellow>Change Order").build();
+                        .lore(Msg.mm("<b>" + (menu.ascending ? "<green>Ascending" : "<red>Descending")), Msg.mm(""), Msg.mm("<yellow>Click to toggle"))
+                        .customName(Msg.mm("<yellow>Change Order")).build();
             },
             (p, e) -> {
                 if (!instances.containsKey(p.getUuid())) return;
@@ -157,21 +155,21 @@ public class SnooperMenu extends Menu {
     private static ClickableItem generateItem(QueriedSnoop snoop) {
 
         List<Component> lore = new ArrayList<>();
-        lore.add(MM."<yellow>Channel: '<light_purple>\{snoop.channel()}</light_purple>'");
-        lore.add(MM."<yellow>Content:</yellow>");
-        lore.addAll(MM_WRAP."\{snoop.rawContent()}");
-        lore.add(MM."");
-        lore.add(MM."<yellow>Sent: <light_purple>\{DurationParser.unparseFull(snoop.timestamp().toInstant())}</light_purple> ago.");
+        lore.add(Msg.mm("<yellow>Channel: '<light_purple>" + snoop.channel() + "</light_purple>'"));
+        lore.add(Msg.mm("<yellow>Content:</yellow>"));
+        lore.addAll(Msg.wrap(snoop.rawContent()));
+        lore.add(Msg.mm(""));
+        lore.add(Msg.mm("<yellow>Sent: <light_purple>" + DurationParser.unparseFull(snoop.timestamp().toInstant()) + "</light_purple> ago."));
 
         ItemStack item = ItemStack.builder(Material.PAPER)
                 .hideExtraTooltip()
-                .customName(MM."Snoop #\{snoop.id()}")
+                .customName(Msg.mm("Snoop #" + snoop.id()))
                 .lore(lore)
                 .build();
 
         return new DummyItem(NamespaceID.from("cytosis:", "snooper_generated_" + snoop.id()), (p) -> {
             if (p.canRecieveSnoop(snoop.permission())) return item;
-            else return ItemStack.builder(Material.BARRIER).customName(MM."<red><b>NO PERMISSION!").build();
+            else return ItemStack.builder(Material.BARRIER).customName(Msg.mm("<red><b>NO PERMISSION!")).build();
         });
     }
 

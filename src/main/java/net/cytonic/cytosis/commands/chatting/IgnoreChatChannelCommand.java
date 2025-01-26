@@ -49,7 +49,7 @@ public class IgnoreChatChannelCommand extends Command {
             };
 
             if (!player.canUseChannel(channel)) {
-                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red> <gray>You cannot ignore the " + channel.name().toLowerCase() + " because you don't have access to it!"));
+                player.sendMessage(Msg.whoops("You cannot ignore the " + channel.name().toLowerCase() + " because you don't have access to it!"));
                 return;
             }
 

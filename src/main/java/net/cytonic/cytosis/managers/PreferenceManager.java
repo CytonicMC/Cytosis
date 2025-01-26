@@ -11,6 +11,7 @@ import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +50,7 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.LISTENING_SNOOPS, CytosisPreferences.LISTENING_SNOOPS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
 
-        PreparedStatement ps = db.prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
+        PreparedStatement ps = db.prepare("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
         db.update(ps).whenComplete((unused, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst creating the preferences table!", throwable);
         });
@@ -61,7 +62,7 @@ public class PreferenceManager {
      * @param uuid the player
      */
     public void loadPlayerPreferences(UUID uuid) {
-        PreparedStatement load = db.prepareStatement("SELECT * FROM cytonic_preferences WHERE uuid = ?");
+        PreparedStatement load = db.prepare("SELECT * FROM cytonic_preferences WHERE uuid = ?");
         try {
             load.setString(1, uuid.toString());
         } catch (SQLException exception) {
@@ -87,7 +88,7 @@ public class PreferenceManager {
                         if (Cytosis.getSnooperManager().getChannel(NamespaceID.from(s)) == null) {
                             // big problem if null
                             Logger.warn("Player " + uuid + " is listening to the channel '" + s + "', but it isnt registered!");
-                            Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(MM."<red><b>ERROR!</b></red><gray> Failed to start listening on snooper channel '" + s + "'"));
+                            Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>ERROR!</b></red><gray> Failed to start listening on snooper channel '" + s + "'")));
                         }
                     });
                 }

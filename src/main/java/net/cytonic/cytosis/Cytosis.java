@@ -393,7 +393,7 @@ public final class Cytosis {
             snooperManager.loadChannelsFromRedis();
             Logger.info("Loading Cytosis snoops");
             // load snoops
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_BANS);
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_BAN);
 
             // Gui Framework...
             ClickableItemRegistry.getInstance().registerAll();

@@ -20,7 +20,7 @@ public class PodDetailsCommand extends Command {
         addSyntax(((sender, cmdc) -> {
 
             if (true) {
-                sender.sendMessage(Msg.mm("<red><b>WHOOPS!</b><red><gray> This command is currently disabled."));
+                sender.sendMessage(Msg.whoops("This command is currently disabled."));
                 return;
             }
 

@@ -42,7 +42,7 @@ public class FriendManager {
      * Initializes the friends table and loads the online players friends
      */
     public void init() {
-        PreparedStatement ps = db.prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))");
+        PreparedStatement ps = db.prepare("CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))");
         db.update(ps).whenComplete((r, t) -> {
             if (t != null) Logger.error("An error occurred whilst creating the friends table!", t);
             Cytosis.getOnlinePlayers().forEach(player -> loadFriends(player.getUuid()));
@@ -56,7 +56,7 @@ public class FriendManager {
      */
     public void loadFriends(UUID uuid) {
 
-        PreparedStatement ps = db.prepareStatement("SELECT * FROM cytonic_friends WHERE uuid = ?");
+        PreparedStatement ps = db.prepare("SELECT * FROM cytonic_friends WHERE uuid = ?");
         try {
             ps.setString(1, uuid.toString());
         } catch (SQLException e) {
@@ -100,7 +100,7 @@ public class FriendManager {
         list.add(friend);
         friends.put(uuid, list);
 
-        PreparedStatement f1 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
+        PreparedStatement f1 = db.prepare("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
         try {
             f1.setString(1, uuid.toString());
             f1.setString(2, Cytosis.GSON.toJson(list));
@@ -116,7 +116,7 @@ public class FriendManager {
         list2.add(uuid);
         friends.put(friend, list2);
 
-        PreparedStatement f2 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
+        PreparedStatement f2 = db.prepare("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
         try {
             f2.setString(1, friend.toString());
             f2.setString(2, Cytosis.GSON.toJson(list));
@@ -139,7 +139,7 @@ public class FriendManager {
         list1.remove(friend);
         friends.put(uuid, list1);
 
-        PreparedStatement f1 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
+        PreparedStatement f1 = db.prepare("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
         try {
             f1.setString(1, uuid.toString());
             f1.setString(2, Cytosis.GSON.toJson(list1));
@@ -154,7 +154,7 @@ public class FriendManager {
         list2.remove(uuid);
         friends.put(friend, list2);
 
-        PreparedStatement f2 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
+        PreparedStatement f2 = db.prepare("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
         try {
             f2.setString(1, friend.toString());
             f2.setString(2, Cytosis.GSON.toJson(list2));

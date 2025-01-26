@@ -24,7 +24,7 @@ public class ShutdownInstancesCommand extends Command {
             suggestion.addEntry(new SuggestionEntry("proxy"));
         });
         addSyntax((sender, context) -> {
-            sender.sendMessage(Msg.mm("<red><b>WHOOPS!</b><red><gray> This command is currently disabled."));
+            sender.sendMessage(Msg.whoops("This command is currently disabled."));
             String type = context.get(typeArg);
             if (type.equalsIgnoreCase("proxy")) {
 //                Cytosis.getContainerizedInstanceManager().shutdownAllProxyInstances();
