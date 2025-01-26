@@ -58,7 +58,10 @@ public final class Utils {
     public static String getServerIP() {
         String serverIP;
         try {
-            serverIP = InetAddress.getLocalHost().getHostAddress();
+            serverIP = getInternalIP();
+            if (serverIP == null) {
+                serverIP = InetAddress.getLocalHost().getHostAddress();
+            }
         } catch (UnknownHostException e) {
             Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
             return "ERROR";
