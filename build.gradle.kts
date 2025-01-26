@@ -5,7 +5,7 @@ plugins {
     `java-library`
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.github.harbby.gradle.serviceloader") version ("1.1.8")
+    id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
 }
 
 group = "net.cytonic"
@@ -24,19 +24,19 @@ dependencies {
     api("com.google.code.gson:gson:2.11.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.18.0")// better components
-    implementation("com.mysql:mysql-connector-j:9.1.0") //mysql connector
+    implementation("com.mysql:mysql-connector-j:9.2.0") //mysql connector
     compileOnly("org.projectlombok:lombok:1.18.36") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     api("com.rabbitmq:amqp-client:5.24.0") // Message broker
-    api("dev.hollowcube:polar:1.12.1") // Polar
+    api("dev.hollowcube:polar:1.12.2") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
-    api("com.google.guava:guava:33.3.1-jre")
+    api("com.google.guava:guava:33.4.0-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("org.slf4j:slf4j-api:2.0.16")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("io.nats:jnats:2.20.4")
+    implementation("io.nats:jnats:2.20.5")
 }
 
 tasks.withType<Jar> {
