@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static io.nats.client.ConnectionListener.Events.*;
 import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
@@ -48,6 +49,8 @@ public class NatsManager {
     Subscription healthCheck;
     private boolean started = false;
 
+    private final ConcurrentLinkedDeque<PublishContainer> queue = new ConcurrentLinkedDeque<>();
+
     @SneakyThrows
     public void setup() {
         ConnectionListener connectionListener = (conn, type) -> {
@@ -58,6 +61,12 @@ public class NatsManager {
                 connection = conn;
                 Logger.info("Connected asynchronously to NATS server!");
                 startHealthCheck();
+                PublishContainer container;
+
+                while ((container = queue.poll()) != null) {
+                    connection.publish(container.channel, container.data);
+                }
+
                 if (!started) {
                     started = true;
                     listenForFriends();
@@ -99,7 +108,7 @@ public class NatsManager {
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
                     try {
                         Logger.info("Registering server with Cydian!");
-                        connection.publish(Subjects.SERVER_REGISTER, data);
+                        queue(Subjects.SERVER_REGISTER, data);
                     } catch (Exception e) {
                         Logger.error("Failed to send STARTUP", e);
                     }
@@ -110,7 +119,7 @@ public class NatsManager {
     public void sendShutdown() {
         byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), "GROUP_HERE").serialize().getBytes();
         // send it sync, so the connection doesn't get closed
-        connection.publish(Subjects.SERVER_SHUTDOWN, data);
+        queue(Subjects.SERVER_SHUTDOWN, data);
     }
 
     public void startHealthCheck() {
@@ -120,7 +129,7 @@ public class NatsManager {
         Dispatcher dispatcher = connection.createDispatcher();
         healthCheck = dispatcher.subscribe(Subjects.HEALTH_CHECK, msg -> {
             // reply
-            connection.publish(msg.getReplyTo(), new byte[0]);
+            queue(msg.getReplyTo(), new byte[0]);
         });
     }
 
@@ -361,7 +370,7 @@ public class NatsManager {
     }
 
     public void broadcastFriendRemoval(UUID sender, UUID recipient) {
-        connection.publish(Subjects.FRIEND_REMOVED, Tuple.of(sender, recipient).toString().getBytes());
+        queue(Subjects.FRIEND_REMOVED, Tuple.of(sender, recipient).toString().getBytes());
     }
 
     public void listenForFriendRemoval() {
@@ -457,7 +466,7 @@ public class NatsManager {
     public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
         Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
         PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
-        Thread.ofVirtual().name("NATS player kicker").start(() -> connection.publish(Subjects.PLAYER_KICK, container.toString().getBytes()));
+        Thread.ofVirtual().name("NATS player kicker").start(() -> queue(Subjects.PLAYER_KICK, container.toString().getBytes()));
     }
 
     /**
@@ -467,7 +476,7 @@ public class NatsManager {
      * @param server the destination server
      */
     public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
-        Thread.ofVirtual().name("NATS Player Sender").start(() -> connection.publish(Subjects.PLAYER_SEND, new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes()));
+        Thread.ofVirtual().name("NATS Player Sender").start(() -> queue(Subjects.PLAYER_SEND, new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes()));
     }
 
     public void listenForPlayerServerChange() {
@@ -480,7 +489,7 @@ public class NatsManager {
     public void sendChatMessage(ChatMessage chatMessage) {
         Thread.ofVirtual().name("NATS Chat Message Sender").start(() -> {
             try {
-                connection.publish(Subjects.CHAT_MESSAGE, chatMessage.toJson().getBytes(StandardCharsets.UTF_8));
+                queue(Subjects.CHAT_MESSAGE, chatMessage.toJson().getBytes(StandardCharsets.UTF_8));
             } catch (Exception e) {
                 Logger.error("Failed to send chat message", e);
             }
@@ -532,5 +541,24 @@ public class NatsManager {
                 Logger.error("Failed to receive chat message", e);
             }
         });
+    }
+
+    /**
+     * Queues a publishing until the nats connection is completed.
+     *
+     * @param channel The channel to publish on
+     * @param data    The data to publish
+     */
+    public void queue(String channel, byte[] data) {
+        if (connection != null) {
+            connection.publish(channel, data);
+            return;
+        }
+
+        queue.add(new PublishContainer(channel, data));
+    }
+
+    private record PublishContainer(String channel, byte[] data) {
+
     }
 }
