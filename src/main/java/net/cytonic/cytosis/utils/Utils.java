@@ -91,6 +91,7 @@ public final class Utils {
         }
 
         throw new IllegalArgumentException("Unsupported type for cloning: " + value.getClass());
+    }
 
     }
 }
