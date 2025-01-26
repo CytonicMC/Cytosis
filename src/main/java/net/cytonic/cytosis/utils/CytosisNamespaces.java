@@ -2,6 +2,7 @@ package net.cytonic.cytosis.utils;
 
 import lombok.experimental.UtilityClass;
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
+import net.cytonic.cytosis.data.containers.snooper.SnoopsContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.minestom.server.utils.NamespaceID;
@@ -35,6 +36,16 @@ public class CytosisNamespaces {
     public static final TypedNamespace<IgnoredChatChannelContainer> IGNORED_CHAT_CHANNELS = new TypedNamespace<>(NamespaceID.from("cytosis", "ignored_chat_channels"), IgnoredChatChannelContainer.class); // <String>
 
     /**
+     * A preference to store the channels a player is snooping through
+     */
+    public static final TypedNamespace<SnoopsContainer> LISTENING_SNOOPS = new TypedNamespace<>(NamespaceID.from("cytosis", "listened_snoops"), SnoopsContainer.class); // <String>
+
+    /**
+     * A preference to store a players snooper mute status
+     */
+    public static final TypedNamespace<Boolean> MUTE_SNOOPER = new TypedNamespace<>(NamespaceID.from("cytosis", "mute_snoops"), Boolean.class);
+
+    /**
      * If the user should be vanished
      */
     public static final TypedNamespace<Boolean> VANISHED = new TypedNamespace<>(NamespaceID.from("cytosis", "vanished"), Boolean.class); // <Boolean>
@@ -42,5 +53,5 @@ public class CytosisNamespaces {
     /**
      * A convenient set of all the namespaces
      */
-    public static final Set<TypedNamespace<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED, IGNORED_CHAT_CHANNELS);
+    public static final Set<TypedNamespace<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL, VANISHED, IGNORED_CHAT_CHANNELS, LISTENING_SNOOPS);
 }
