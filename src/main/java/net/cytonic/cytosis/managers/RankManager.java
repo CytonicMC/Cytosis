@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.ranks;
+package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
