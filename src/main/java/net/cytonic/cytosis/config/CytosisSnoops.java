@@ -1,8 +1,5 @@
 package net.cytonic.cytosis.config;
 
-import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
-import net.minestom.server.utils.NamespaceID;
-
 public class CytosisSnoops {
     private static final byte ALL_STAFF = (byte) (0x01 | 0x02 | 0x04 | 0x08); // owner, admin, mod, helper
     /**

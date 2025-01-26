@@ -1,7 +1,10 @@
 package net.cytonic.cytosis.managers;
 
+import io.nats.client.Dispatcher;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
+import net.cytonic.cytosis.data.containers.snooper.SnooperContainer;
 import net.cytonic.cytosis.data.containers.snooper.*;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;

@@ -47,8 +47,7 @@ import static io.nats.client.ConnectionListener.Events.*;
 public class NatsManager {
 
 
-
-    Connection connection = null;
+    Connection connection;
     Subscription healthCheck;
     private boolean started = false;
 
