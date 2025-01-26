@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.auditlog.Category;
@@ -37,6 +38,13 @@ public class MysqlDatabase {
     private final String username;
     private final String password;
     private final boolean ssl;
+    /**
+     * -- GETTER --
+     * Gets the connection
+     *
+     * @return the connection to the database
+     */
+    @Getter
     private Connection connection;
 
     /**
@@ -120,15 +128,6 @@ public class MysqlDatabase {
         createMutesTable();
         createPlayerMessagesTable();
         createPlayerWarnsTable();
-    }
-
-    /**
-     * Gets the connection
-     *
-     * @return the connection to the database
-     */
-    private Connection getConnection() {
-        return connection;
     }
 
     /**
@@ -865,7 +864,7 @@ public class MysqlDatabase {
      * @throws SQLException if an exception occurred
      */
     @SneakyThrows
-    public PreparedStatement prepareStatement(String sql) {
+    public PreparedStatement prepare(String sql) {
         return connection.prepareStatement(sql);
     }
 
