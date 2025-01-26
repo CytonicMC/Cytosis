@@ -1,7 +1,5 @@
 package net.cytonic.cytosis.events;
 
-import net.cytonic.cytosis.events.ranks.RankChangeEvent;
-import net.cytonic.cytosis.events.ranks.RankSetupEvent;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.book.EditBookEvent;
@@ -232,7 +230,5 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(ServerListPingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerTickMonitorEvent.class, (this::handleEvent));
         // Cytosis Events
-        GLOBAL_HANDLER.addListener(RankSetupEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(RankChangeEvent.class, (this::handleEvent));
     }
 }

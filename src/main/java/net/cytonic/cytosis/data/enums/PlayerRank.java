@@ -1,10 +1,9 @@
 package net.cytonic.cytosis.data.enums;
 
 import lombok.Getter;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * This class holds constants that represent player ranks
@@ -15,45 +14,45 @@ public enum PlayerRank {
     /**
      * The [OWNER] rank
      */
-    OWNER(MM."<red>[OWNER] ", NamedTextColor.RED, NamedTextColor.WHITE),
+    OWNER(Msg.mm("<red>[OWNER] "), NamedTextColor.RED, NamedTextColor.WHITE),
     /**
      * The [ADMIN] rank
      */
-    ADMIN(MM."<red>[ADMIN] ", NamedTextColor.RED, NamedTextColor.WHITE),
+    ADMIN(Msg.mm("<red>[ADMIN] "), NamedTextColor.RED, NamedTextColor.WHITE),
     /**
      * The [MOD] rank
      */
-    MODERATOR(MM."<green>[MOD] ", NamedTextColor.GREEN, NamedTextColor.WHITE),
+    MODERATOR(Msg.mm("<green>[MOD] "), NamedTextColor.GREEN, NamedTextColor.WHITE),
     /**
      * The [HELPER] rank
      */
-    HELPER(MM."<aqua>[HELPER] ", NamedTextColor.AQUA, NamedTextColor.WHITE),
+    HELPER(Msg.mm("<aqua>[HELPER] "), NamedTextColor.AQUA, NamedTextColor.WHITE),
 
     // player ranks
     /**
      * The [ELYSIAN] rank
      */
-    ELYSIAN(MM."<gold>[ELYSIAN] ", NamedTextColor.GOLD, NamedTextColor.WHITE),
+    ELYSIAN(Msg.mm("<gold>[ELYSIAN] "), NamedTextColor.GOLD, NamedTextColor.WHITE),
     /**
      * The [CELESTIAL] rank
      */
-    CELESTIAL(MM."<dark_aqua>[CELESTIAL] ", NamedTextColor.DARK_AQUA, NamedTextColor.WHITE),
+    CELESTIAL(Msg.mm("<dark_aqua>[CELESTIAL] "), NamedTextColor.DARK_AQUA, NamedTextColor.WHITE),
     /**
      * The [MASTER] rank
      */
-    MASTER(MM."<dark_red>[MASTER] ", NamedTextColor.DARK_RED, NamedTextColor.WHITE),
+    MASTER(Msg.mm("<dark_red>[MASTER] "), NamedTextColor.DARK_RED, NamedTextColor.WHITE),
     /**
      * The [VALIENT] rank
      */
-    VALIENT(MM."<dark_green>[VALIENT] ", NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
+    VALIENT(Msg.mm("<dark_green>[VALIENT] "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
     /**
      * The [NOBLE] rank
      */
-    NOBLE(MM."<dark_purple>[NOBLE] ", NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
+    NOBLE(Msg.mm("<dark_purple>[NOBLE] "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
     /**
      * The [DEFAULT] rank
      */
-    DEFAULT(MM."<gray>", NamedTextColor.GRAY, NamedTextColor.GRAY);
+    DEFAULT(Msg.mm("<gray>"), NamedTextColor.GRAY, NamedTextColor.GRAY);
 
     private final Component prefix;
     private final NamedTextColor teamColor;

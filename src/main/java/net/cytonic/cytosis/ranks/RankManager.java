@@ -2,29 +2,28 @@ package net.cytonic.cytosis.ranks;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.events.ranks.RankChangeEvent;
-import net.cytonic.cytosis.events.ranks.RankSetupEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 
 /**
  * A class that manages player ranks
  */
 @NoArgsConstructor
 public class RankManager {
+
+    private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
@@ -42,7 +41,8 @@ public class RankManager {
             teamMap.put(value, team);
         }
 
-        QUERY."SELECT * FROM `cytonic_ranks`".whenComplete((resultSet, throwable) -> {
+        PreparedStatement ps = db.prepareStatement("SELECT * FROM cytonic_ranks");
+        db.query(ps).whenComplete((resultSet, throwable) -> {
             if (throwable != null) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
                 MinecraftServer.stopCleanly();
@@ -70,12 +70,9 @@ public class RankManager {
         // cache the rank
         Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
-                Logger.error(STR."An error occured whilst fetching \{player.getUsername()}'s rank!", throwable);
+                Logger.error("An error occured whilst fetching " + player.getUsername() + "'s rank!", throwable);
                 return;
             }
-            var event = new RankSetupEvent(player, playerRank);
-            EventDispatcher.call(event);
-            if (event.isCanceled()) return;
             player.setRank_UNSAFE(playerRank);
             rankMap.put(player.getUuid(), playerRank);
             setupCosmetics(player, playerRank);
@@ -90,11 +87,9 @@ public class RankManager {
      */
     public void changeRank(CytosisPlayer player, PlayerRank rank) {
         if (!rankMap.containsKey(player.getUuid()))
-            throw new IllegalStateException(STR."The player \{player.getUsername()} is not yet initialized! Call addPlayer(Player) first!");
+            throw new IllegalStateException("The player " + player.getUsername() + " is not yet initialized! Call addPlayer(Player) first!");
         PlayerRank old = rankMap.get(player.getUuid());
-        var event = new RankChangeEvent(old, rank, player);
-        EventDispatcher.call(event);
-        if (event.isCanceled()) return;
+
         rankMap.put(player.getUuid(), rank);
         player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
@@ -105,6 +100,7 @@ public class RankManager {
 
     /**
      * Sets up the cosmetics. (Team, tab list, etc.)
+     *
      * @param player The player
      * @param rank   The rank
      */

@@ -5,6 +5,7 @@ import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -13,8 +14,6 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.util.Locale;
 import java.util.Optional;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command that allows players to change another player's rank
@@ -29,17 +28,17 @@ public class RankCommand extends Command {
         setCondition(CommandUtils.withRank(PlayerRank.OWNER));
 
         var rankArg = ArgumentType.Enum("rank", PlayerRank.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
-        rankArg.setCallback((sender, exception) -> sender.sendMessage(STR."The rank \{exception.getInput()} is invalid!"));
-        rankArg.setSuggestionCallback((_, _, suggestion) -> {
+        rankArg.setCallback((sender, exception) -> sender.sendMessage("The rank " + exception.getInput() + " is invalid!"));
+        rankArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
             for (PlayerRank rank : PlayerRank.values()) {
                 suggestion.addEntry(new SuggestionEntry(rank.name().toLowerCase(Locale.ROOT), rank.getPrefix()));
             }
         });
 
         var playerArg = ArgumentType.Word("player");
-        playerArg.setSuggestionCallback((sender, _, suggestion) -> {
+        playerArg.setSuggestionCallback((sender, cmdc, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
-                player.sendActionBar(MM."<green>Fetching online players...");
+                player.sendActionBar(Msg.mm("<green>Fetching online players..."));
             }
             Cytosis.getCytonicNetwork().getOnlinePlayers().forEach(player ->
                     suggestion.addEntry(new SuggestionEntry(player.getValue())));
@@ -49,12 +48,12 @@ public class RankCommand extends Command {
         addSyntax((sender, context) -> {
             String name = context.get(playerArg);
             if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(name)) {
-                sender.sendMessage(MM."<red>The player \{context.get("player")} doesn't exist!");
+                sender.sendMessage(Msg.mm("<red>The player " + context.get("player") + " doesn't exist!"));
                 return;
             }
             Optional<CytosisPlayer> optionalPlayer = Cytosis.getPlayer(name);
             if (optionalPlayer.isEmpty()) {
-                sender.sendMessage(MM."<red>You must be on the same server to set someone's rank! Use the /find command to find and go to their server.");
+                sender.sendMessage(Msg.mm("<red>You must be on the same server to set someone's rank! Use the /find command to find and go to their server."));
                 return;
             }
 
@@ -62,7 +61,7 @@ public class RankCommand extends Command {
             final PlayerRank newRank = context.get(rankArg);
 
             if (player == sender) {
-                sender.sendMessage(MM."<red>You cannot change your own rank!");
+                sender.sendMessage(Msg.mm("<red>You cannot change your own rank!"));
                 return;
             }
             Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
@@ -75,7 +74,7 @@ public class RankCommand extends Command {
                 if (sender instanceof CytosisPlayer s) {
                     PlayerRank senderRank = Cytosis.getRankManager().getPlayerRank(s.getUuid()).orElseThrow();
                     if (!PlayerRank.canChangeRank(senderRank, rank, newRank)) {
-                        sender.sendMessage(MM."<red>You cannot do this!");
+                        sender.sendMessage(Msg.mm("<red>You cannot do this!"));
                         return;
                     }
                 }
@@ -86,14 +85,14 @@ public class RankCommand extends Command {
     }
 
     private void setRank(CytosisPlayer player, PlayerRank rank, CommandSender sender) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((_, t) -> {
+        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((v, t) -> {
             if (t != null) {
-                sender.sendMessage(MM."<red>An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.");
-                Logger.error(STR."An error occurred whilst setting \{player.getUsername()}'s rank! Check the console for more details.", t);
+                sender.sendMessage(Msg.mm("<red>An error occurred whilst setting " + player.getUsername() + "'s rank! Check the console for more details."));
+                Logger.error("An error occurred whilst setting " + player.getUsername() + "'s rank! Check the console for more details.", t);
                 return;
             }
             Cytosis.getRankManager().changeRank(player, rank);
-            sender.sendMessage(MM."<green>Successfully updated \{player.getUsername()}'s rank!");
+            sender.sendMessage(Msg.mm("<green>Successfully updated " + player.getUsername() + "'s rank!"));
         });
     }
 }

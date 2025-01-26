@@ -33,7 +33,7 @@ public class NetworkCooldownManager {
      */
     @SuppressWarnings("preview")
     public static String toPersonalKey(UUID uuid) {
-        return STR."COOLDOWN_PERSONAL_KEY:\{uuid}";
+        return "COOLDOWN_PERSONAL_KEY:" + uuid;
     }
 
     /**
@@ -171,7 +171,7 @@ public class NetworkCooldownManager {
             personal.put(uuid, personalMap);
         }
         long end = System.currentTimeMillis();
-        Logger.info(STR."Loaded \{personalKeys.size()} players' cooldowns in \{end - start} ms!");
+        Logger.info("Loaded " + personalKeys.size() + " players' cooldowns in " + (end - start) + " ms!");
 
         start = System.currentTimeMillis();
         Map<String, String> results = redis.getHash(RedisDatabase.GLOBAL_COOLDOWNS_KEY);
@@ -181,7 +181,7 @@ public class NetworkCooldownManager {
         global.putAll(globalMap);
         end = System.currentTimeMillis();
 
-        Logger.info(STR."Loaded \{globalMap.size()} global cooldowns in \{end - start} ms!");
+        Logger.info("Loaded " + globalMap.size() + " global cooldowns in " + (end - start) + " ms!");
     }
 
     /**
@@ -213,7 +213,7 @@ public class NetworkCooldownManager {
      */
     public Set<NamespaceID> getPersonalKeys() {
         Set<NamespaceID> personalKeys = new HashSet<>();
-        personal.forEach((_, namespaceIDInstantMap) -> namespaceIDInstantMap.forEach((namespaceID, _) -> personalKeys.add(NamespaceID.from(namespaceID))));
+        personal.forEach((uuid, namespaceIDInstantMap) -> namespaceIDInstantMap.forEach((namespaceID, instant) -> personalKeys.add(NamespaceID.from(namespaceID))));
         return personalKeys;
     }
 

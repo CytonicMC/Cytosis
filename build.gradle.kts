@@ -44,15 +44,9 @@ tasks.withType<Jar> {
         attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
     }
 }
-tasks.withType<JavaCompile> {
-    // use String templates
-    options.compilerArgs.add("--enable-preview")
-}
 tasks.withType<Javadoc> {
     val javadocOptions = options as CoreJavadocOptions
-
     javadocOptions.addStringOption("source", "21")
-    javadocOptions.addBooleanOption("-enable-preview", true)
 }
 
 tasks {

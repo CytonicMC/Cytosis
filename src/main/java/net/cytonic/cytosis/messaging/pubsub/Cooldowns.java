@@ -22,6 +22,6 @@ public class Cooldowns extends JedisPubSub {
             Cytosis.getNetworkCooldownManager().setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
         } else if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.GLOBAL) {
             Cytosis.getNetworkCooldownManager().setGlobal(container.getNamespace(), container.getExpiry());
-        } else throw new IllegalArgumentException(STR."Unsupported target: \{container.getTarget()}");
+        } else throw new IllegalArgumentException("Unsupported target: " + container.getTarget());
     }
 }

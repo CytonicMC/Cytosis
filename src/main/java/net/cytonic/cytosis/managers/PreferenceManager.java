@@ -20,9 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
-import static net.cytonic.cytosis.data.DatabaseTemplate.UPDATE;
-
 /**
  * A manager class holding perference data for users. An example is if they are accepting friend requests.
  * Since preferences are pretty small, every online player has their preference data stored here, no matter
@@ -37,6 +34,7 @@ public class PreferenceManager {
      */
     public static final PreferenceRegistry PREFERENCE_REGISTRY = new PreferenceRegistry();
     private final Map<UUID, PreferenceData> preferenceData = new ConcurrentHashMap<>();
+    private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
     /**
      * Default constructor
@@ -49,7 +47,8 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.VANISHED, CytosisPreferences.VANISHED);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.IGNORED_CHAT_CHANNELS, CytosisPreferences.IGNORED_CHAT_CHANNELS);
 
-        UPDATE."CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)".whenComplete((_, throwable) -> {
+        PreparedStatement ps = db.prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
+        db.update(ps).whenComplete((unused, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst creating the preferences table!", throwable);
         });
     }
@@ -60,7 +59,13 @@ public class PreferenceManager {
      * @param uuid the player
      */
     public void loadPlayerPreferences(UUID uuid) {
-        QUERY."SELECT preferences FROM cytonic_preferences WHERE uuid = '\{uuid.toString()}';".whenComplete((rs, throwable) -> {
+        PreparedStatement load = db.prepareStatement("SELECT * FROM cytonic_preferences WHERE uuid = ?");
+        try {
+            load.setString(1, uuid.toString());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Failed to load player preference!", exception);
+        }
+        db.query(load).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading preferences!", throwable);
                 return;
@@ -92,9 +97,19 @@ public class PreferenceManager {
         if (!preferenceData.containsKey(uuid)) {
             return;
         }
-        UPDATE."UPDATE cytonic_preferences SET preferences = '\{preferenceData.get(uuid).serialize()}' WHERE uuid = '\{uuid.toString()}';".whenComplete((_, throwable) -> {
+
+        PreparedStatement ps = db.prepareStatement("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?");
+
+        try {
+            ps.setString(1, preferenceData.get(uuid).serialize());
+            ps.setString(2, uuid.toString());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Failed to unload player preference!", exception);
+        }
+        db.query(ps).whenComplete((unused, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
         });
+        
         preferenceData.remove(uuid);
     }
 
@@ -114,7 +129,7 @@ public class PreferenceManager {
         Preference<T> preference = entry.preference();
 
         if (preference.value() != null && preference.value().getClass() != value.getClass())
-            throw new IllegalArgumentException(STR."Cannot set a preference of type \{value.getClass().getSimpleName()} with a preference of type \{preference.value().getClass().getSimpleName()}");
+            throw new IllegalArgumentException("Cannot set a preference of type " + value.getClass().getSimpleName() + " with a preference of type " + preference.value().getClass().getSimpleName());
 
 
         if (!preferenceData.containsKey(uuid)) {
@@ -158,9 +173,9 @@ public class PreferenceManager {
     @SuppressWarnings("unchecked") // it is a checked cast
     public <T> void updatePlayerPreference_UNSAFE(UUID uuid, NamespaceID preference, @Nullable T value) {
         TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(preference)).findFirst().orElse(null);
-        if (typed == null) throw new IllegalArgumentException(STR."The preference \{preference} does not exist!");
+        if (typed == null) throw new IllegalArgumentException("The preference " + preference + " does not exist!");
         if (value != null && typed.type() != value.getClass())
-            throw new IllegalArgumentException(STR."Cannot set a preference \{preference.asString()} of type \{value.getClass().getSimpleName()} with a preference of type \{typed.type().getSimpleName()}");
+            throw new IllegalArgumentException("Cannot set a preference " + preference.asString() + " of type " + value.getClass().getSimpleName() + " with a preference of type " + typed.type().getSimpleName() + "");
         updatePlayerPreference(uuid, (TypedNamespace<T>) typed, value);
     }
 
@@ -175,7 +190,7 @@ public class PreferenceManager {
     @SuppressWarnings("unchecked")
     public <T> T getPlayerPreference_UNSAFE(UUID uuid, NamespaceID namespaceID) {
         TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(namespaceID)).findFirst().orElse(null);
-        if (typed == null) throw new IllegalArgumentException(STR."The preference \{namespaceID} does not exist!");
+        if (typed == null) throw new IllegalArgumentException("The preference " + namespaceID + " does not exist!");
         return getPlayerPreference(uuid, (TypedNamespace<T>) typed);
     }
 
@@ -189,7 +204,7 @@ public class PreferenceManager {
      */
     public <T> T getPlayerPreference(UUID uuid, TypedNamespace<T> namespaceID) {
         if (!PREFERENCE_REGISTRY.contains(namespaceID))
-            throw new IllegalArgumentException(STR."The preference \{namespaceID} is not in the registry!");
+            throw new IllegalArgumentException("The preference " + namespaceID + " is not in the registry!");
         if (!preferenceData.containsKey(uuid)) return PREFERENCE_REGISTRY.get(namespaceID).preference().value();
         return preferenceData.get(uuid).get(namespaceID);
     }
@@ -204,7 +219,7 @@ public class PreferenceManager {
      */
     public <T> T getPlayerPreference(UUID uuid, NamespacedPreference<T> preference) {
         if (!PREFERENCE_REGISTRY.contains(preference.typedNamespace()))
-            throw new IllegalArgumentException(STR."The preference \{preference.namespace().asString()} does not exist!");
+            throw new IllegalArgumentException("The preference " + preference.namespace().asString() + " does not exist!");
         if (!preferenceData.containsKey(uuid))
             return PREFERENCE_REGISTRY.get(preference.typedNamespace()).preference().value();
         return preferenceData.get(uuid).get(preference);
@@ -226,7 +241,7 @@ public class PreferenceManager {
         ps.setString(2, uuid.toString());
         ps.setString(1, preferenceData.serialize());
 
-        db.update(ps).whenComplete((_, throwable) -> {
+        db.update(ps).whenComplete((unused, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
         });
     }
@@ -239,7 +254,7 @@ public class PreferenceManager {
         ps.setString(1, uuid.toString());
         ps.setString(2, data.serialize());
 
-        db.update(ps).whenComplete((_, throwable) -> {
+        db.update(ps).whenComplete((unused, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
         });
     }

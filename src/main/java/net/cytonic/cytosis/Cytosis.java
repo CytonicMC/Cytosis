@@ -27,6 +27,7 @@ import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
+import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
@@ -46,8 +47,6 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The main class for Cytosis
@@ -146,7 +145,7 @@ public final class Cytosis {
     public static void main(String[] args) {
         // handle uncaught exceptions
         Logger.info("Starting server!");
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error(STR."Uncaught exception in thread \{t.getName()}", e));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error("Uncaught exception in thread " + t.getName() + "", e));
 
         flags = List.of(args);
         long start = System.currentTimeMillis();
@@ -183,7 +182,7 @@ public final class Cytosis {
 
         // Everything after this point depends on config contents
         Logger.info("Initializing file manager");
-        fileManager.init().whenComplete((_, throwable) -> {
+        fileManager.init().whenComplete((ignored, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the file manager!", throwable);
             } else {
@@ -268,7 +267,7 @@ public final class Cytosis {
             Logger.info("Basic world loaded!");
             return;
         }
-        Logger.info(STR."Loading world '\{CytosisSettings.SERVER_WORLD_NAME}'");
+        Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
         databaseManager.getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the world!", throwable);
@@ -297,7 +296,7 @@ public final class Cytosis {
 
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
-        databaseManager.setupDatabases().whenComplete((_, throwable) -> {
+        databaseManager.setupDatabases().whenComplete((ignored, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst initializing the database!", throwable);
                 return;
@@ -337,7 +336,7 @@ public final class Cytosis {
             playerListManager = new PlayerListManager();
 
             messagingManager = new MessagingManager();
-            messagingManager.initialize().whenComplete((_, th) -> {
+            messagingManager.initialize().whenComplete((unused, th) -> {
                 if (th != null) {
                     Logger.error("An error occurred whilst initializing the messaging manager!", th);
                 } else {
@@ -386,7 +385,7 @@ public final class Cytosis {
             actionbarManager.init();
 
             // Start the server
-            Logger.info(STR."Server started on port \{CytosisSettings.SERVER_PORT}");
+            Logger.info("Server started on port " + CytosisSettings.SERVER_PORT + "");
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
             MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
             try {
@@ -395,8 +394,8 @@ public final class Cytosis {
                 Logger.error("ERROR: ", e);
             }
             long end = System.currentTimeMillis();
-            Logger.info(STR."Server started in \{end - start}ms!");
-            Logger.info(STR."Server id = \{SERVER_ID}");
+            Logger.info("Server started in " + (end - start) + "ms!");
+            Logger.info("Server id = " + SERVER_ID + "");
 
 
             if (flags.contains("--ci-test")) {
@@ -441,7 +440,7 @@ public final class Cytosis {
         databaseManager.shutdown();
         sideboardManager.shutdown();
         pluginManager.unloadPlugins();
-        getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(MM."<red>The server is shutting down."));
+        getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
     }
 
     public static CytonicServer currentServer() {

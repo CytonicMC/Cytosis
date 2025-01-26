@@ -2,13 +2,16 @@ package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.friends.FriendRequest;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -17,16 +20,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
-import static net.cytonic.cytosis.data.DatabaseTemplate.UPDATE;
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
-
 /**
  * A class to manage friends
  */
 @NoArgsConstructor
 public class FriendManager {
     private final ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
+    private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
     /**
      * Gets a player's friends
@@ -42,10 +42,11 @@ public class FriendManager {
      * Initializes the friends table and loads the online players friends
      */
     public void init() {
-        UPDATE."CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))".whenComplete((_, throwable) -> {
-            if (throwable != null) Logger.error("An error occurred whilst creating the friends table!", throwable);
+        PreparedStatement ps = db.prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))");
+        db.update(ps).whenComplete((r, t) -> {
+            if (t != null) Logger.error("An error occurred whilst creating the friends table!", t);
+            Cytosis.getOnlinePlayers().forEach(player -> loadFriends(player.getUuid()));
         });
-        Cytosis.getOnlinePlayers().forEach(player -> loadFriends(player.getUuid()));
     }
 
     /**
@@ -54,7 +55,15 @@ public class FriendManager {
      * @param uuid The player
      */
     public void loadFriends(UUID uuid) {
-        QUERY."SELECT friends FROM cytonic_friends WHERE uuid = '\{uuid.toString()}'".whenComplete((resultSet, throwable) -> {
+
+        PreparedStatement ps = db.prepareStatement("SELECT * FROM cytonic_friends WHERE uuid = ?");
+        try {
+            ps.setString(1, uuid.toString());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        db.query(ps).whenComplete((resultSet, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading friends!", throwable);
                 return;
@@ -91,23 +100,32 @@ public class FriendManager {
         list.add(friend);
         friends.put(uuid, list);
 
-
-        UPDATE."INSERT INTO cytonic_friends (uuid, friends) VALUES ('\{uuid}', '\{Cytosis.GSON.toJson(list)}') ON DUPLICATE KEY UPDATE friends = '\{Cytosis.GSON.toJson(list)}'".whenComplete((_, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst adding a friend!", throwable);
-            }
-        });
+        PreparedStatement f1 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
+        try {
+            f1.setString(1, uuid.toString());
+            f1.setString(2, Cytosis.GSON.toJson(list));
+            f1.setString(3, Cytosis.GSON.toJson(list));
+        } catch (SQLException e) {
+            // big problem
+            throw new RuntimeException(e);
+        }
+        db.update(f1).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst adding a friend!", throwable));
 
         // add the friend to the other player too
         List<UUID> list2 = friends.getOrDefault(friend, new ArrayList<>());
         list2.add(uuid);
         friends.put(friend, list2);
 
-        UPDATE."INSERT INTO cytonic_friends (uuid, friends) VALUES ('\{friend}', '\{Cytosis.GSON.toJson(list2)}') ON DUPLICATE KEY UPDATE friends = '\{Cytosis.GSON.toJson(list2)}'".whenComplete((_, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst adding a friend!", throwable);
-            }
-        });
+        PreparedStatement f2 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
+        try {
+            f2.setString(1, friend.toString());
+            f2.setString(2, Cytosis.GSON.toJson(list));
+            f2.setString(3, Cytosis.GSON.toJson(list));
+        } catch (SQLException e) {
+            // big problem
+            throw new RuntimeException(e);
+        }
+        db.update(f2).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst adding a friend!", throwable));
     }
 
     /**
@@ -121,21 +139,31 @@ public class FriendManager {
         list1.remove(friend);
         friends.put(uuid, list1);
 
-        UPDATE."INSERT INTO cytonic_friends (uuid, friends) VALUES ('\{uuid}', '\{Cytosis.GSON.toJson(list1)}') ON DUPLICATE KEY UPDATE friends = '\{Cytosis.GSON.toJson(list1)}'".whenComplete((_, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst removing a friend!", throwable);
-            }
-        });
+        PreparedStatement f1 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
+        try {
+            f1.setString(1, uuid.toString());
+            f1.setString(2, Cytosis.GSON.toJson(list1));
+            f1.setString(3, Cytosis.GSON.toJson(list1));
+        } catch (SQLException e) {
+            // big problem
+            throw new RuntimeException(e);
+        }
+        db.update(f1).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst removing a friend!", throwable));
 
         List<UUID> list2 = friends.getOrDefault(friend, new ArrayList<>());
         list2.remove(uuid);
         friends.put(friend, list2);
 
-        UPDATE."INSERT INTO cytonic_friends (uuid, friends) VALUES ('\{friend}', '\{Cytosis.GSON.toJson(list2)}') ON DUPLICATE KEY UPDATE friends = '\{Cytosis.GSON.toJson(list2)}'".whenComplete((_, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst removing a friend!", throwable);
-            }
-        });
+        PreparedStatement f2 = db.prepareStatement("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
+        try {
+            f2.setString(1, friend.toString());
+            f2.setString(2, Cytosis.GSON.toJson(list2));
+            f2.setString(3, Cytosis.GSON.toJson(list2));
+        } catch (SQLException e) {
+            // big problem
+            throw new RuntimeException(e);
+        }
+        db.update(f2).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst removing a friend!", throwable));
 
         Cytosis.getNatsManager().broadcastFriendRemoval(uuid, friend);
     }
@@ -147,28 +175,29 @@ public class FriendManager {
      */
     public void listFriends(Player player) {
         if (getFriends(player.getUuid()).isEmpty()) {
-            player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You have no friends :(");
-            player.sendMessage(MM."<green><b>TIP!<b/></green> <gray>Perhaps you should invite some with /friend add <player>");
+            player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You have no friends :("));
+            player.sendMessage(Msg.mm("<green><b>TIP!<b/></green> <gray>Perhaps you should invite some with /friend add <player>"));
             return;
         }
 
-        player.sendMessage(MM."<aqua><b>Friends List</b> <gray>(\{getFriends(player.getUuid()).size()}) <dark_gray>»</dark_gray>");
+        player.sendMessage(Msg.mm("<aqua><b>Friends List</b> <gray>(" + getFriends(player.getUuid()).size() + ") <dark_gray>»</dark_gray>"));
 
         for (UUID friend : getFriends(player.getUuid())) {
             PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(friend);
             boolean online = Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(friend);
             String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(friend);
-            player.sendMessage(MM."<dark_gray>  > </dark_gray>".append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - ")).append(online ? MM."<green><b>ONLINE!" : MM." <red><b>OFFLINE :(")));
+            player.sendMessage(Msg.mm("<dark_gray>  > </dark_gray>").append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - ")).append(online ? Msg.mm("<green><b>ONLINE!") : Msg.mm(" <red><b>OFFLINE :("))));
         }
     }
 
     /**
      * Sends the logout message for the player
+     *
      * @param uuid the player who logged out
      */
     public void sendLogoutMessage(UUID uuid) {
         PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
-        Component message = MM."<dark_aqua>Friend » </dark_aqua>".append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(MM."<gray> left.");
+        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> left."));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
                 player.sendMessage(message);
@@ -178,11 +207,12 @@ public class FriendManager {
 
     /**
      * Sends the login message for the player
+     *
      * @param uuid the player who logged in
      */
     public void sendLoginMessage(UUID uuid) {
         PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
-        Component message = MM."<dark_aqua>Friend » </dark_aqua>".append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(MM."<gray> joined.");
+        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> joined."));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
                 player.sendMessage(message);

@@ -5,13 +5,12 @@ import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A class representing the server command
@@ -25,10 +24,10 @@ public class ServerCommand extends Command {
         super("cytosis:server", "server");
         try {
             setCondition(CommandUtils.IS_STAFF);
-            setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>You must specify a server!"));
+            setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>You must specify a server!")));
             var serverArgument = ArgumentType.Word("server");
-            serverArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text(STR."The server \{exception.getInput()} is invalid!", NamedTextColor.RED)));
-            serverArgument.setSuggestionCallback((_, _, suggestion) -> {
+            serverArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text("The server " + exception.getInput() + " is invalid!", NamedTextColor.RED)));
+            serverArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> {
                 for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
                     suggestion.addEntry(new SuggestionEntry(server.id()));
                 }
@@ -39,12 +38,12 @@ public class ServerCommand extends Command {
                     if (!context.get(serverArgument).equalsIgnoreCase(Cytosis.SERVER_ID)) {
                         for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
                             if (server.id().equals(context.get(serverArgument))) {
-                                player.sendMessage(Component.text(STR."Connecting to \{server.id()}", NamedTextColor.GREEN));
+                                player.sendMessage(Component.text("Connecting to " + server.id(), NamedTextColor.GREEN));
                                 //todo: instance?
                                 Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), server, null);
                             }
                         }
-                    } else player.sendMessage(MM."<RED>You are already connected to the server!");
+                    } else player.sendMessage(Msg.mm("<RED>You are already connected to the server!"));
                 }
             }), serverArgument);
         } catch (Exception e) {

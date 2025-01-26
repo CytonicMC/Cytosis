@@ -32,7 +32,8 @@ public interface Logger {
      * @param args The arguments to format the message
      */
     static void debug(String message, Object... args) {
-        LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log(STR."\u001B[0;95m\{message}", args);
+        // shut, that causes it to call a differnt method
+        LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log("\u001B[0;95m" + message, args);
     }
 
 

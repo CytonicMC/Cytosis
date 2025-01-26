@@ -38,7 +38,7 @@ public class DatabaseManager {
         CompletableFuture<Void> future = new CompletableFuture<>();
         Logger.info("Connecting to MySQL Database.");
         mysqlDatabase = new MysqlDatabase();
-        mysqlDatabase.connect().whenComplete((_, _) -> future.complete(null));
+        mysqlDatabase.connect().whenComplete((ignored, throwable) -> future.complete(null));
         mysqlDatabase.createTables();
 
         Logger.info("Connecting to the Redis Database.");

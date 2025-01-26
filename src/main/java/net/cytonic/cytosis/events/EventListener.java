@@ -102,7 +102,7 @@ public class EventListener<T extends Event> {
      */
     public void complete(Object event) {
         if (!eventClass.isInstance(event))
-            throw new IllegalArgumentException(STR."The specified event object isn't an instance of \{eventClass.getName()}");
+            throw new IllegalArgumentException("The specified event object isn't an instance of " + eventClass.getName());
         consumer.accept(eventClass.cast(event));
     }
 }

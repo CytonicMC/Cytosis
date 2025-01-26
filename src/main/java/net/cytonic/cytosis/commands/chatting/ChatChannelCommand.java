@@ -3,13 +3,12 @@ package net.cytonic.cytosis.commands.chatting;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A class that handles the chat channel command
@@ -21,11 +20,11 @@ public class ChatChannelCommand extends Command {
      */
     public ChatChannelCommand() {
         super("chat");
-        setDefaultExecutor((sender, _) -> sender.sendMessage(Component.text("You must specify a channel!", NamedTextColor.RED)));
+        setDefaultExecutor((sender, commandContext) -> sender.sendMessage(Component.text("You must specify a channel!", NamedTextColor.RED)));
 
         var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "m", "ad", "s", "a");
-        chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
-        chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
+        chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage("The channel " + exception.getInput() + " is invalid!"));
+        chatChannelArgument.setSuggestionCallback((sender, commandContext, suggestion) -> {
             if (!(sender instanceof CytosisPlayer player)) {
                 return;
             }
@@ -49,11 +48,11 @@ public class ChatChannelCommand extends Command {
                     case "mod", "m" -> ChatChannel.MOD;
                     case "staff", "s" -> ChatChannel.STAFF;
                     default ->
-                            throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
+                            throw new IllegalStateException("Unexpected value: " + context.get(chatChannelArgument).toLowerCase());
                 };
                 if (!chatChannel.equals(Cytosis.getChatManager().getChannel(player.getUuid()))) {
                     message(player, chatChannel);
-                } else player.sendMessage(MM."<RED>You are already in this channel!");
+                } else player.sendMessage(Msg.mm("<RED>You are already in this channel!"));
             } else {
                 sender.sendMessage(Component.text("Hey! You can't do this.", NamedTextColor.RED));
             }

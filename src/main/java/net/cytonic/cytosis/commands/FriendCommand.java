@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -12,8 +13,6 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command to handle friends
@@ -57,7 +56,7 @@ public class FriendCommand extends Command {
 
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) {
-                sender.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You must be a player to use this command!");
+                sender.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You must be a player to use this command!"));
                 return;
             }
             // actions that don't require a UUID:
@@ -68,7 +67,7 @@ public class FriendCommand extends Command {
             }
 
             if (context.get(playerArg).isEmpty()) {
-                player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>Please specify a player to use the subcommand '\{context.get(action)}'!");
+                player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>Please specify a player to use the subcommand '" + context.get(action) + "'!"));
                 return;
             }
 
@@ -83,12 +82,12 @@ public class FriendCommand extends Command {
             }
 
             if (target == null) {
-                player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>The player '\{context.get(playerArg)}' does not exist!");
+                player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>The player '" + context.get(playerArg) + "' does not exist!"));
                 return;
             }
 
             if (target.equals(player.getUuid())) {
-                player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You cannot \{context.get(action)} yourself!");
+                player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You cannot " + context.get(action) + " yourself!"));
                 return;
             }
 
@@ -98,15 +97,15 @@ public class FriendCommand extends Command {
                 case "add" -> {
                     // check to see if they are online
                     if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(target)) {
-                        player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>The player ".append(targetComp).append(MM."<gray> is not online!"));
+                        player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>The player ").append(targetComp).append(Msg.mm("<gray> is not online!")));
                         return;
                     }
                     if (!Cytosis.getPreferenceManager().getPlayerPreference(target, CytosisPreferences.ACCEPT_FRIEND_REQUESTS)) {
-                        player.sendMessage(MM."<red><b>ERROR!</b></red> ".append(targetComp).append(MM."<gray> is not accepting friend requests!"));
+                        player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> ").append(targetComp).append(Msg.mm("<gray> is not accepting friend requests!")));
                         return;
                     }
                     if (Cytosis.getFriendManager().getFriends(player.getUuid()).contains(target)) {
-                        player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You are already friends with ".append(targetComp).append(MM."<gray>!"));
+                        player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You are already friends with ").append(targetComp).append(Msg.mm("<gray>!")));
                         return;
                     }
 
@@ -116,7 +115,7 @@ public class FriendCommand extends Command {
                     if (Cytosis.getFriendManager().getFriends(player.getUuid()).contains(target)) {
                         Cytosis.getFriendManager().removeFriend(player.getUuid(), target);
                     } else {
-                        player.sendMessage(MM."<red><b>ERROR!</b></red> <gray>You are not friends with ".append(targetComp).append(MM."<gray>!"));
+                        player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You are not friends with ").append(targetComp).append(Msg.mm("<gray>!")));
                     }
                 }
                 case "accept" -> player.acceptFriendRequest(target);

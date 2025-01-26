@@ -1,12 +1,11 @@
 package net.cytonic.cytosis.commands.chatting;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.Player;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the achat command
@@ -19,11 +18,11 @@ public class AllChatCommand extends Command {
     public AllChatCommand() {
         super("achat", "ac");
         var chatMessage = ArgumentType.StringArray("chatMessage");
-        setDefaultExecutor((sender, _) -> {
+        setDefaultExecutor((sender, commandContext) -> {
             if (sender instanceof final Player player) {
-                player.sendMessage(MM."<RED>Usage: /achat (message)");
+                player.sendMessage(Msg.mm("<RED>Usage: /achat (message)"));
             } else {
-                sender.sendMessage(MM."<RED>Only players may execute this command!");
+                sender.sendMessage(Msg.mm("<RED>Only players may execute this command!"));
             }
         });
         addSyntax((sender, context) -> {
@@ -36,7 +35,7 @@ public class AllChatCommand extends Command {
                         .append(Component.text(String.join(" ", context.get(chatMessage)), Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
                 Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
             } else {
-                sender.sendMessage(MM."<RED>Only players may execute this command!");
+                sender.sendMessage(Msg.mm("<RED>Only players may execute this command!"));
             }
         }, chatMessage);
     }

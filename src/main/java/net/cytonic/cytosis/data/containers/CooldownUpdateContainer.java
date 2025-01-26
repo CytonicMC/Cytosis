@@ -40,7 +40,7 @@ public class CooldownUpdateContainer implements Container {
      */
     @Override
     public String serialize() {
-        return STR."\{id}-\{new Gson().toJson(this)}";
+        return id + "-" + new Gson().toJson(this);
     }
 
     /**
