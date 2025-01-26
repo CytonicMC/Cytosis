@@ -15,7 +15,6 @@ import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
-import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.utils.NamespaceID;
 
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
                 if (pref instanceof JsonPreference<?> json) {
                     out.value(json.serialize());
                 } else
-                    throw new UnsupportedOperationException("Unsupported type: " + value.value().getClass().getName());
+                    throw new UnsupportedOperationException("Unsupported type: " + value.value().getClass().getName() + " for preference type " + pref.getClass().getSimpleName());
             }
         }
 
@@ -100,7 +99,6 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         Class<T> type = (Class<T>) Cytosis.getPreferenceManager().getPreferenceRegistry().getTypeFromNamespace(id);
         PreferenceRegistry.Entry<T> preference = Cytosis.getPreferenceManager().getPreferenceRegistry().get(new TypedNamespace<>(id, type));
 
-        Logger.debug(preference.preference().getClass().getSimpleName() + " " + id.asString());
         if (preference.preference() instanceof JsonPreference<T> json) {
             return new JsonPreference<>(id, type, json.deserialize(value.toString())); // should already be a string....
         }

@@ -46,6 +46,8 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_CHANNEL, CytosisPreferences.CHAT_CHANNEL);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.VANISHED, CytosisPreferences.VANISHED);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.IGNORED_CHAT_CHANNELS, CytosisPreferences.IGNORED_CHAT_CHANNELS);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.LISTENING_SNOOPS, CytosisPreferences.LISTENING_SNOOPS);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
 
         PreparedStatement ps = db.prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
         db.update(ps).whenComplete((unused, throwable) -> {
@@ -81,6 +83,13 @@ public class PreferenceManager {
                         return;
                     }
                     preferenceData.put(uuid, data);
+                    data.get(CytosisPreferences.LISTENING_SNOOPS).snoops().forEach(s -> {
+                        if (Cytosis.getSnooperManager().getChannel(NamespaceID.from(s)) == null) {
+                            // big problem if null
+                            Logger.warn("Player " + uuid + " is listening to the channel '" + s + "', but it isnt registered!");
+                            Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(MM."<red><b>ERROR!</b></red><gray> Failed to start listening on snooper channel '" + s + "'"));
+                        }
+                    });
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading preferences!", e);
@@ -97,19 +106,6 @@ public class PreferenceManager {
         if (!preferenceData.containsKey(uuid)) {
             return;
         }
-
-//        PreparedStatement ps = db.prepareStatement("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?");
-//
-//        try {
-//            ps.setString(1, preferenceData.get(uuid).serialize());
-//            ps.setString(2, uuid.toString());
-//        } catch (SQLException exception) {
-//            throw new RuntimeException("Failed to unload player preference!", exception);
-//        }
-//        db.query(ps).whenComplete((unused, throwable) -> {
-//            if (throwable != null) Logger.error("An error occurred whilst updating preferences!", throwable);
-//        });
-
         persistPreferences(uuid, preferenceData.get(uuid));
         preferenceData.remove(uuid);
     }
@@ -238,7 +234,7 @@ public class PreferenceManager {
     @SneakyThrows
     public void persistPreferences(UUID uuid, PreferenceData preferenceData) {
         MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
-        PreparedStatement ps = db.prepareStatement("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?;");
+        PreparedStatement ps = db.prepare("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?;");
         ps.setString(2, uuid.toString());
         ps.setString(1, preferenceData.serialize());
 
@@ -251,7 +247,7 @@ public class PreferenceManager {
     public void addNewPlayerPreference(UUID uuid, PreferenceData data) {
 
         MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
-        PreparedStatement ps = db.prepareStatement("INSERT INTO cytonic_preferences VALUES(?,?);");
+        PreparedStatement ps = db.prepare("INSERT INTO cytonic_preferences VALUES(?,?);");
         ps.setString(1, uuid.toString());
         ps.setString(2, data.serialize());
 
