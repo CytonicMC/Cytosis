@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.commands.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
@@ -20,12 +21,12 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
+import net.cytonic.cytosis.menus.ClickableItemRegistry;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
-import net.cytonic.cytosis.ranks.RankManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
@@ -132,6 +133,8 @@ public final class Cytosis {
     private static ActionbarManager actionbarManager;
     @Getter
     private static NatsManager natsManager;
+    @Getter
+    private static SnooperManager snooperManager;
 
 
     private Cytosis() {
@@ -383,6 +386,18 @@ public final class Cytosis {
             Logger.info("starting actionbar manager");
             actionbarManager = new ActionbarManager();
             actionbarManager.init();
+
+            Logger.info("Starting Snooper Manager");
+            snooperManager = new SnooperManager();
+            Logger.info("Loading snooper channels from redis");
+            snooperManager.loadChannelsFromRedis();
+            Logger.info("Loading Cytosis snoops");
+            // load snoops
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_BANS);
+
+            // Gui Framework...
+            ClickableItemRegistry.getInstance().registerAll();
+
 
             // Start the server
             Logger.info("Server started on port " + CytosisSettings.SERVER_PORT + "");
