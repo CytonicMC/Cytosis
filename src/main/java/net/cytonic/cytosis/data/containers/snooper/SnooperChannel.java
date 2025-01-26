@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data.containers.snooper;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.minestom.server.utils.NamespaceID;
 
@@ -17,4 +18,11 @@ import net.minestom.server.utils.NamespaceID;
  *                   {@link PlayerRank#HELPER} is {@code 0x08}
  */
 public record SnooperChannel(String channel, NamespaceID id, byte recipients) {
+    public static SnooperChannel deserialize(String json) {
+        return Cytosis.GSON.fromJson(json, SnooperChannel.class);
+    }
+
+    public String serialize() {
+        return Cytosis.GSON.toJson(this);
+    }
 }
