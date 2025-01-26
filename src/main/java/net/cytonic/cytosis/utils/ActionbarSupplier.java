@@ -5,7 +5,7 @@ import net.minestom.server.entity.Player;
 
 @FunctionalInterface
 public interface ActionbarSupplier {
-    ActionbarSupplier EMPTY = _ -> Component.text("");
+    ActionbarSupplier EMPTY = player -> Component.text("");
 
     Component getActionbar(Player player);
 }

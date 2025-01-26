@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
@@ -10,8 +11,6 @@ import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 
 import java.util.*;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * This class handles vanishing
@@ -38,16 +37,16 @@ public class VanishManager {
         vanishedPlayers.add(player.getUuid());
         vanishedEntityIds.add(player.getEntityId());
         EntityMetaDataPacket invis = new EntityMetaDataPacket(player.getEntityId(), Map.of(0, Metadata.Byte((byte) (0x20 | 0x40))));
-        TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(MM."",
+        TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""),
                 (byte) 0x02, TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER,
-                NamedTextColor.GRAY, MM."<gray><b>VANISHED! ", MM."", List.of(player.getUsername())));
+                NamedTextColor.GRAY, Msg.mm("<gray><b>VANISHED! "), Msg.mm(""), List.of(player.getUsername())));
         player.sendPackets(invis, selfTeam);
         player.updateViewableRule(p -> {
             CytosisPlayer cp = (CytosisPlayer) p;
             if (cp.isStaff()) {
-                TeamsPacket packet = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(MM."",
+                TeamsPacket packet = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""),
                         (byte) 0x02, TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER,
-                        NamedTextColor.GRAY, MM."<gray><b>VANISHED! ", MM."", List.of(p.getUsername(), player.getUsername())));
+                        NamedTextColor.GRAY, Msg.mm("<gray><b>VANISHED! "), Msg.mm(""), List.of(p.getUsername(), player.getUsername())));
                 p.sendPackets(packet, invis);
                 return true;
             }
@@ -77,7 +76,7 @@ public class VanishManager {
         Cytosis.getRankManager().setupCosmetics(player, Cytosis.getCytonicNetwork().getPlayerRanks().get(player.getUuid()));
         player.sendPacket(packet);
         Cytosis.getOnlinePlayers().forEach(p -> p.sendPacket(packet));
-        player.updateViewableRule(_ -> true);
+        player.updateViewableRule(p -> true);
     }
 
     public boolean isVanished(UUID uuid) {

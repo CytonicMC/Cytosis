@@ -106,7 +106,7 @@ public class BlockPlacementUtils {
                 boolean west = state.instance().getBlock(pos.add(-1, 0, 0)).isSolid();
                 boolean east = state.instance().getBlock(pos.add(1, 0, 0)).isSolid();
 
-                Logger.info(STR."North: \{north} \n East: \{east} \n South: \{south} \n West: \{west}");
+                Logger.info("North: " + north + " \n East: " + east + " \n South: " + south + " \n West: " + west);
 
                 // Set block states for connection
                 return currentBlock

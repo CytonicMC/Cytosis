@@ -26,7 +26,7 @@ public class FileManager {
      * The default constructor that initializes the worker thread
      */
     public FileManager() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisIOWorker").uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisIOWorker").uncaughtExceptionHandler((t, e) -> Logger.error("An uncaught exception occoured on the thread: " + t.getName() + "", e)).factory());
     }
 
     /**
@@ -96,7 +96,7 @@ public class FileManager {
             try {
                 InputStream stream = FileManager.class.getClassLoader().getResourceAsStream(resource);
                 if (stream == null) {
-                    throw new IllegalStateException(STR."The resource \"\{resource}\" does not exist!");
+                    throw new IllegalStateException("The resource \"" + resource + "\" does not exist!");
                 }
                 OutputStream outputStream = new FileOutputStream(path.toFile());
                 byte[] buffer = new byte[1024];
@@ -106,7 +106,7 @@ public class FileManager {
                 stream.close();
                 future.complete(path.toFile());
             } catch (IOException e) {
-                Logger.error(STR."An error occured whilst extracting the resource \"\{resource}\"!", e);
+                Logger.error("An error occured whilst extracting the resource \"" + resource + "\"!", e);
                 future.completeExceptionally(e);
             }
         });
@@ -153,11 +153,11 @@ public class FileManager {
 
     private Map<String, Object> recursiveParse(Map<String, Object> map, String parentKey) {
         if (!parentKey.equalsIgnoreCase("")) {
-            parentKey = STR."\{parentKey}.";
+            parentKey = parentKey + ".";
         }
         Map<String, Object> resultMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = STR."\{parentKey}\{entry.getKey()}";
+            String key = parentKey + entry.getKey();
             Object value = entry.getValue();
             // If the value is a nested table (another map), recurse
             if (value instanceof TomlTable toml) {

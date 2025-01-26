@@ -102,7 +102,7 @@ public class PlayerListManager {
                 UUID uuid = listUUIDs[i][j];
                 packets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-                        List.of(new PlayerInfoUpdatePacket.Entry(uuid, STR."!\{col}-\{row}", List.of(playerFavicons.get(player.getUuid())[i][j]),
+                        List.of(new PlayerInfoUpdatePacket.Entry(uuid, "!" + col + "-" + row, List.of(playerFavicons.get(player.getUuid())[i][j]),
                                 true, 1, GameMode.CREATIVE, playerComponents.get(player.getUuid())[i][j], null, order)
                         )));
                 order++;
@@ -150,14 +150,14 @@ public class PlayerListManager {
                 updatePackets.add(new PlayerInfoRemovePacket(listUUIDs[i][0]));
                 updatePackets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-                        List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], STR."!\{(char) ('A' + i)}-\{(char) ('a')}",
+                        List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], "!" + (char) ('A' + i) + "-" + 'a',
                                 List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order)
                         )));
             }
 
             if (!components[i][0].equals(columns.get(i).getName())) {
                 updatePackets.add(new PlayerInfoUpdatePacket(
-                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], STR."!\{(char) ('A' + i)}-\{(char) ('a')}",
+                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], "!" + (char) ('A' + i) + "-" + 'a',
                         List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order)
                 ));
             }
@@ -166,14 +166,14 @@ public class PlayerListManager {
                     updatePackets.add(new PlayerInfoRemovePacket(listUUIDs[i][j]));
                     updatePackets.add(new PlayerInfoUpdatePacket(
                             EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-                            List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], STR."!\{(char) ('A' + i)}-\{(char) ('a' + j)}",
+                            List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
                                     List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order)
                             )));
                 }
                 if (!components[i][j].equals(updatedComponents[i][j])) {
                     components[i][j] = updatedComponents[i][j];
                     updatePackets.add(new PlayerInfoUpdatePacket(
-                            PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], STR."!\{(char) ('A' + i)}-\{(char) ('a' + j)}",
+                            PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
                             List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order)
                     ));
                 }
@@ -203,6 +203,7 @@ public class PlayerListManager {
 
     /**
      * Converts a list of columns to the components arrays
+     *
      * @param columns the columns to convert
      * @return an array with the components
      */
@@ -225,6 +226,7 @@ public class PlayerListManager {
 
     /**
      * Converts a list of columns to the favicons
+     *
      * @param columns the columns to convert
      * @return an array with the favicons
      */

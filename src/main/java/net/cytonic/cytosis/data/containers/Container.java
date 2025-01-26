@@ -15,7 +15,7 @@ public interface Container {
         String[] parts = serializedContainer.split("-", 2);
         return switch (parts[0]) {
             case "UPDATE_COOLDOWN" -> CooldownUpdateContainer.create().parse(parts[1]);
-            default -> throw new IllegalStateException(STR."Unexpected value: \{parts[0]}");
+            default -> throw new IllegalStateException("Unexpected value: " + parts[0]);
         };
     }
 

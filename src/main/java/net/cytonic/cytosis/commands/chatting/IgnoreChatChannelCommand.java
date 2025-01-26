@@ -4,19 +4,18 @@ import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 public class IgnoreChatChannelCommand extends Command {
 
     public IgnoreChatChannelCommand() {
         super("ignorechatchannel");
         var chatChannelArgument = ArgumentType.Word("channel").from("mod", "admin", "staff", "all", "m", "ad", "s", "a");
-        chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage(STR."The channel \{exception.getInput()} is invalid!"));
-        chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
+        chatChannelArgument.setCallback((sender, exception) -> sender.sendMessage("The channel " + exception.getInput() + " is invalid!"));
+        chatChannelArgument.setSuggestionCallback((sender, commandContext, suggestion) -> {
             if (!(sender instanceof CytosisPlayer player)) {
                 return;
             }
@@ -46,11 +45,11 @@ public class IgnoreChatChannelCommand extends Command {
                 case "mod", "m" -> ChatChannel.MOD;
                 case "staff", "s" -> ChatChannel.STAFF;
                 default ->
-                        throw new IllegalStateException(STR."Unexpected value: \{context.get(chatChannelArgument).toLowerCase()}");
+                        throw new IllegalStateException("Unexpected value: " + context.get(chatChannelArgument).toLowerCase());
             };
 
             if (!player.canUseChannel(channel)) {
-                player.sendMessage(MM."<red><b>WHOOPS!</b></red> <gray>You cannot ignore the \{channel.name().toLowerCase()} because you don't have access to it!");
+                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red> <gray>You cannot ignore the " + channel.name().toLowerCase() + " because you don't have access to it!"));
                 return;
             }
 
@@ -59,9 +58,9 @@ public class IgnoreChatChannelCommand extends Command {
             player.updatePreference(CytosisPreferences.IGNORED_CHAT_CHANNELS, container);
 
             if (!container.getForChannel(channel)) {
-                player.sendMessage(MM."<gray><b>UNIGNORED!</b> You are no longer ignoring the <gold>\{channel.name()}</gold> chat.");
+                player.sendMessage(Msg.mm("<gray><b>UNIGNORED!</b> You are no longer ignoring the <gold>" + channel.name() + "</gold> chat."));
             } else {
-                player.sendMessage(MM."<gray><b>IGNORED!</b> You successfully muted <gold>\{channel.name()}</gold> chat.");
+                player.sendMessage(Msg.mm("<gray><b>IGNORED!</b> You successfully muted <gold>" + channel.name() + "</gold> chat."));
             }
         }), chatChannelArgument);
     }

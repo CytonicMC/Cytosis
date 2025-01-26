@@ -2,14 +2,13 @@ package net.cytonic.cytosis.commands.defaultMinecraft;
 
 import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.utils.entity.EntityFinder;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * A command for teleporting :)
@@ -43,13 +42,13 @@ public class TeleportCommand extends Command {
                 float pitch = context.get(pitchArg) == -91.0F ? player.getPosition().pitch() : context.get(pitchArg);
                 Pos p = new Pos(context.get(xArg), context.get(yArg), context.get(zArg), yaw, pitch);
                 player.teleport(p);
-                player.sendMessage(MM."<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(\{Utils.TWO_PLACES.format(p.x())}, \{Utils.TWO_PLACES.format(p.y())}, \{Utils.TWO_PLACES.format(p.z())})");
+                player.sendMessage(Msg.mm("<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", " + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z()) + ")"));
             } else {
-                sender.sendMessage(MM."Only players can use this command");
+                sender.sendMessage(Msg.mm("Only players can use this command"));
             }
         }, xArg, yArg, zArg, yawArg, pitchArg);
 
-        setDefaultExecutor((source, _) -> source.sendMessage(MM."<red>Usage: /tp <x> <y> <z> [yaw] [pitch] | /tp <player> | /tp <relative>"));
+        setDefaultExecutor((source, cmdc) -> source.sendMessage(Msg.mm("<red>Usage: /tp <x> <y> <z> [yaw] [pitch] | /tp <player> | /tp <relative>")));
 
         // entity arg
         addSyntax((sender, context) -> {
@@ -57,13 +56,13 @@ public class TeleportCommand extends Command {
                 EntityFinder finder = context.get(entityArgument);
                 Entity entity = finder.findFirstEntity(sender);
                 if (entity == null) {
-                    player.sendMessage(MM."<red>Failed to find player.");
+                    player.sendMessage(Msg.mm("<red>Failed to find player."));
                     return;
                 }
                 player.teleport(entity.getPosition());
-                player.sendMessage(MM."<green>Teleported!");
+                player.sendMessage(Msg.mm("<green>Teleported!"));
             } else {
-                sender.sendMessage(MM."Only players can use this command");
+                sender.sendMessage(Msg.mm("Only players can use this command"));
             }
         }, entityArgument);
 
@@ -73,10 +72,10 @@ public class TeleportCommand extends Command {
                 Pos p = context.get(positionArgument).from(player).asPosition();
 
                 player.teleport(p.withPitch(player.getPosition().pitch()).withYaw(player.getPosition().yaw()));
-                player.sendMessage(MM."<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(\{Utils.TWO_PLACES.format(p.x())}, \{Utils.TWO_PLACES.format(p.y())}, \{Utils.TWO_PLACES.format(p.z())})");
+                player.sendMessage(Msg.mm("<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", " + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z())));
 
             } else {
-                sender.sendMessage(MM."Only players can use this command");
+                sender.sendMessage(Msg.mm("Only players can use this command"));
             }
         }, positionArgument);
     }

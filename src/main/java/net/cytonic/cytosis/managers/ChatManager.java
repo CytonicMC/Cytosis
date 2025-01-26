@@ -10,6 +10,7 @@ import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -17,8 +18,6 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * This class handles chat messages and channels
@@ -89,7 +88,7 @@ public class ChatManager {
     public void handlePrivateMessage(String message, CytosisPlayer player) {
         if (!openPrivateChannels.asMap().containsKey(player.getUuid())) {
             player.setChatChannel(ChatChannel.ALL);
-            player.sendMessage(MM."<red>Your active conversation has expired, so you were put in the ALL channel.");
+            player.sendMessage(Msg.mm("<red>Your active conversation has expired, so you were put in the ALL channel."));
             return;
         }
 
@@ -97,10 +96,10 @@ public class ChatManager {
         PlayerRank recipientRank = Cytosis.getRankManager().getPlayerRank(uuid).orElseThrow();
         Component recipient = recipientRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid), recipientRank.getTeamColor()));
 //
-        Component component = MM."<dark_aqua>From <reset>".append(player.getRank().getPrefix().append(MM."\{player.getUsername()}")).append(MM."<dark_aqua> » ").append(Component.text(message, NamedTextColor.WHITE));
+        Component component = Msg.mm("<dark_aqua>From <reset>").append(player.getRank().getPrefix().append(Msg.mm(player.getUsername()))).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE));
         Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerMessage(player.getUuid(), uuid, message);
         Cytosis.getNatsManager().sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(component), player.getUuid()));
-        player.sendMessage(MM."<dark_aqua>To <reset>".append(recipient).append(MM."<dark_aqua> » ").append(Component.text(message, NamedTextColor.WHITE)));
+        player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE)));
     }
 
     public void openPrivateMessage(CytosisPlayer player, UUID uuid) {

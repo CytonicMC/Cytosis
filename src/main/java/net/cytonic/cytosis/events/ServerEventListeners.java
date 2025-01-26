@@ -9,6 +9,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
@@ -24,9 +25,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
-
 
 /**
  * A class that registers Cytosis required server events
@@ -54,7 +52,7 @@ public final class ServerEventListeners {
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
             final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
-            Logger.info(STR."\{player.getUsername()} (\{player.getUuid()}) joined with the ip: \{player.getPlayerConnection().getServerAddress()}");
+            Logger.info(player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection().getServerAddress());
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
@@ -86,12 +84,12 @@ public final class ServerEventListeners {
                     if (player.canUseChannel(channel) || channel == ChatChannel.ALL) {
                         Cytosis.getChatManager().sendMessage(originalMessage, channel, player);
                     } else {
-                        player.sendMessage(MM."<red>Whoops! It looks like you can't chat in the \{channel.name().toLowerCase()} channel. \uD83E\uDD14");
+                        player.sendMessage(Msg.mm("<red>Whoops! It looks like you can't chat in the " + channel.name().toLowerCase() + " channel. \uD83E\uDD14"));
                         Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
                     }
                     return;
                 }
-                player.sendMessage(MM."<red>Whoops! You're currently muted.");
+                player.sendMessage(Msg.mm("<red>Whoops! You're currently muted."));
             });
         }));
 

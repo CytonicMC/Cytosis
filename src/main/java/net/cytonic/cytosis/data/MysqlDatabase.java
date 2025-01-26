@@ -44,7 +44,7 @@ public class MysqlDatabase {
      */
     public MysqlDatabase() {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
-                .uncaughtExceptionHandler((t, e) -> Logger.error(STR."An uncaught exception occoured on the thread: \{t.getName()}", e)).factory());
+                .uncaughtExceptionHandler((t, e) -> Logger.error("An uncaught exception occoured on the thread: " + t.getName(), e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
         this.port = CytosisSettings.DATABASE_PORT;
         this.database = CytosisSettings.DATABASE_NAME;
@@ -77,7 +77,7 @@ public class MysqlDatabase {
         worker.submit(() -> {
             if (!isConnected()) {
                 try {
-                    connection = DriverManager.getConnection(STR."jdbc:mysql://\{host}:\{port}/\{database}?useSSL=\{ssl}&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
+                    connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + ssl + "&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
                     Logger.info("Successfully connected to the MySQL Database!");
                     future.complete(null);
                 } catch (SQLException e) {
@@ -312,7 +312,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst adding a warn!", e);
+                Logger.error("An error occurred whilst adding a warn!", e);
                 future.completeExceptionally(e);
             }
         });
@@ -340,7 +340,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst adding a player message from \{sender} to \{target}.", e);
+                Logger.error("An error occurred whilst adding a player message from " + sender + " to " + target + ".", e);
                 future.completeExceptionally(e);
             }
         });
@@ -367,7 +367,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst muting the player \{uuid}.", e);
+                Logger.error("An error occurred whilst muting the player " + uuid + ".", e);
                 future.completeExceptionally(e);
             }
         });
@@ -392,7 +392,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst unmuting the player \{uuid}.", e);
+                Logger.error("An error occurred whilst unmuting the player " + uuid + ".", e);
                 future.completeExceptionally(e);
             }
         });
@@ -425,7 +425,7 @@ public class MysqlDatabase {
                     future.complete(false);
                 }
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst determining if the player \{uuid} is muted.", e);
+                Logger.error("An error occurred whilst determining if the player " + uuid + " is muted.", e);
                 future.completeExceptionally(e);
             }
         });
@@ -456,7 +456,7 @@ public class MysqlDatabase {
                     setPlayerRank(uuid, PlayerRank.DEFAULT);
                 }
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst fetching the rank of '\{uuid}'");
+                Logger.error("An error occurred whilst fetching the rank of '" + uuid + "'");
             }
         });
         return future;
@@ -482,7 +482,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst setting the rank of '\{uuid}'");
+                Logger.error("An error occurred whilst setting the rank of '" + uuid + "'");
             }
         });
         return future;
@@ -556,7 +556,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst banning the player \{uuid}.", e);
+                Logger.error("An error occurred whilst banning the player " + uuid + ".", e);
                 future.completeExceptionally(e);
             }
         });
@@ -588,7 +588,7 @@ public class MysqlDatabase {
                             BanData banData = new BanData(rs.getString("reason"), expiry, true);
                             future.complete(banData);
                         } catch (Exception e) {
-                            Logger.error(STR."An error occurred whilst determining if the player \{uuid} is banned.", e);
+                            Logger.error("An error occurred whilst determining if the player " + uuid + " is banned.", e);
                             future.complete(new BanData(null, null, true));
                         }
                     }
@@ -596,7 +596,7 @@ public class MysqlDatabase {
                     future.complete(new BanData(null, null, false));
                 }
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst determining if the player \{uuid} is banned.", e);
+                Logger.error("An error occurred whilst determining if the player " + uuid + " is banned.", e);
                 future.completeExceptionally(e);
             }
         });
@@ -620,10 +620,10 @@ public class MysqlDatabase {
                 if (rs.next()) {
                     future.complete(UUID.fromString(rs.getString("uuid")));
                 } else {
-                    future.completeExceptionally(new IllegalArgumentException(STR."The player '\{name}' doesn't exist!"));
+                    future.completeExceptionally(new IllegalArgumentException("The player '" + name + "' doesn't exist!"));
                 }
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst determining \{name}'s UUID.", e);
+                Logger.error("An error occurred whilst determining " + name + "'s UUID.", e);
                 future.completeExceptionally(e);
             }
         });
@@ -648,7 +648,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst setting the name of \{player.getUuid().toString()}.", e);
+                Logger.error("An error occurred whilst setting the name of " + player.getUuid().toString() + ".", e);
                 future.completeExceptionally(e);
             }
         });
@@ -672,7 +672,7 @@ public class MysqlDatabase {
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error(STR."An error occurred whilst unbanning the player \{uuid}.", e);
+                Logger.error("An error occurred whilst unbanning the player " + uuid + ".", e);
                 future.completeExceptionally(e);
             }
         });
@@ -750,7 +750,7 @@ public class MysqlDatabase {
                     future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");
-                    throw new RuntimeException(STR."World not found: \{worldName}");
+                    throw new RuntimeException("World not found: " + worldName);
                 }
             } catch (Exception e) {
                 Logger.error("An error occurred whilst fetching a world!", e);
@@ -785,7 +785,7 @@ public class MysqlDatabase {
                     future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");
-                    throw new RuntimeException(STR."World not found: \{worldName}");
+                    throw new RuntimeException("World not found: " + worldName);
                 }
             } catch (Exception e) {
                 Logger.error("An error occurred whilst fetching a world!", e);

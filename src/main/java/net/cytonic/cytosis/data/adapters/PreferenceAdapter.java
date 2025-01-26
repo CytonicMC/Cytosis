@@ -56,7 +56,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
                 if (pref instanceof JsonPreference<?> json) {
                     out.value(json.serialize());
                 } else
-                    throw new UnsupportedOperationException(STR."Unsupported type: \{value.value().getClass().getName()}");
+                    throw new UnsupportedOperationException("Unsupported type: " + value.value().getClass().getName());
             }
         }
 

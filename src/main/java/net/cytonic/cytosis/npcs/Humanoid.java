@@ -54,7 +54,7 @@ public class Humanoid extends EntityCreature implements NPC {
      */
     public Humanoid(UUID uuid) {
         super(EntityType.PLAYER, uuid);
-        this.username = STR."npc-\{uuid.toString().substring(0, 12)}";
+        this.username = "npc-" + uuid.toString().substring(0, 12) + "";
         this.skin = null;
     }
 
@@ -71,7 +71,7 @@ public class Humanoid extends EntityCreature implements NPC {
         super.updateNewViewer(player);
         player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
 
-        var team = new TeamsPacket(STR."NPC-\{getUuid().toString()}",
+        var team = new TeamsPacket("NPC-" + getUuid().toString() + "",
                 new TeamsPacket.CreateTeamAction(Component.empty(),
                         (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
                         TeamsPacket.CollisionRule.NEVER, glowingColor,

@@ -30,9 +30,9 @@ public class PreferenceRegistry {
      */
     public <T> void write(@NotNull TypedNamespace<T> namespace, @NotNull Preference<T> value) {
         if (preferences.containsKey(namespace))
-            throw new IllegalArgumentException(STR."There is already a preference registered under the namespace \{namespace.namespaceID().asString()}");
+            throw new IllegalArgumentException("There is already a preference registered under the namespace " + namespace.namespaceID().asString());
         if (value.value() != null && !namespace.type().equals(value.value().getClass()))
-            throw new IllegalArgumentException(STR."The preference value must be of type \{namespace.type().getSimpleName()}");
+            throw new IllegalArgumentException("The preference value must be of type " + namespace.type().getSimpleName());
         preferences.put(namespace, new Entry<>(namespace, value));
     }
 
@@ -49,9 +49,9 @@ public class PreferenceRegistry {
             return;
         }
         if (!namespace.namespaceID().equals(value.namespace()))
-            throw new IllegalArgumentException(STR."The preference namespace must be \{namespace.namespaceID()}");
+            throw new IllegalArgumentException("The preference namespace must be " + namespace.namespaceID());
         if (!namespace.type().equals(value.value().getClass()))
-            throw new IllegalArgumentException(STR."The preference value must be of type \{namespace.type().getSimpleName()}");
+            throw new IllegalArgumentException("The preference value must be of type " + namespace.type().getSimpleName());
         write(namespace, (Preference<T>) value);
     }
 
@@ -67,7 +67,7 @@ public class PreferenceRegistry {
     @SuppressWarnings("unchecked")
     public <T> Entry<T> get(TypedNamespace<T> namespace) {
         if (!contains(namespace))
-            throw new IllegalArgumentException(STR."There is no preference registered under the namespace \{namespace.namespaceID().asString()}");
+            throw new IllegalArgumentException("There is no preference registered under the namespace " + namespace.namespaceID().asString());
 
         Entry<?> entry = preferences.get(namespace);
 

@@ -3,6 +3,7 @@ package net.cytonic.cytosis;
 import lombok.Getter;
 import net.cytonic.cytosis.auditlog.Category;
 import net.cytonic.cytosis.auditlog.Entry;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -11,13 +12,12 @@ import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static net.cytonic.cytosis.data.DatabaseTemplate.QUERY;
 
 /**
  * A class that holds data about the status of the Cytonic network
@@ -46,13 +46,17 @@ public class CytonicNetwork {
     public void importData() {
         Cytosis.getNatsManager().fetchServers();
         RedisDatabase redis = Cytosis.getDatabaseManager().getRedisDatabase();
+        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
         onlinePlayers.clear();
         onlineFlattened.clear();
         servers.clear();
         networkPlayersOnServers.clear();
 
 
-        QUERY."SELECT * FROM cytonic_players".whenComplete((rs, throwable) -> {
+
+
+        PreparedStatement players = db.prepareStatement("SELECT * FROM cytonic_players");
+        db.query(players).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading players!", throwable);
                 return;
@@ -67,7 +71,8 @@ public class CytonicNetwork {
             }
         });
 
-        QUERY."SELECT * FROM cytonic_ranks".whenComplete((rs, throwable) -> {
+        PreparedStatement ranks = db.prepareStatement("SELECT * FROM cytonic_ranks");
+        db.query(ranks).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
                 return;
@@ -81,7 +86,8 @@ public class CytonicNetwork {
             }
         });
 
-        QUERY."SELECT * FROM cytonic_bans".whenComplete((rs, throwable) -> {
+        PreparedStatement bans = db.prepareStatement("SELECT * FROM cytonic_bans");
+        db.query(bans).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading bans!", throwable);
                 return;
@@ -101,7 +107,8 @@ public class CytonicNetwork {
             }
         });
 
-        QUERY."SELECT * FROM cytonic_mutes".whenComplete((rs, throwable) -> {
+        PreparedStatement mutes = db.prepareStatement("SELECT * FROM cytonic_mutes");
+        db.query(mutes).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading mutes!", throwable);
                 return;
@@ -133,8 +140,19 @@ public class CytonicNetwork {
         // the player has not played before
         playerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
 
+        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
+
+        PreparedStatement rank = db.prepareStatement("SELECT * FROM cytonic_ranks WHERE uuid = ?");
+        try {
+            rank.setString(1, uuid.toString());
+        } catch (SQLException e) {
+            // this is a problem, and an error should 100% be thrown here and interrrupt something
+            throw new RuntimeException(e);
+        }
+
+
         // update it to see if the player's rank changed since the server started
-        QUERY."SELECT rank_id FROM cytonic_ranks where uuid = '\{uuid.toString()}'".whenComplete((rs, throwable) -> {
+        db.query(rank).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
                 return;
@@ -148,7 +166,14 @@ public class CytonicNetwork {
             }
         });
 
-        QUERY."SELECT * FROM cytonic_bans WHERE uuid = '\{uuid.toString()}'".whenComplete((rs, throwable) -> {
+        PreparedStatement bans = db.prepareStatement("SELECT * FROM cytonic_bans WHERE uuid = ?");
+        try {
+            bans.setString(1, uuid.toString());
+        } catch (SQLException e) {
+            // this is a problem, and an error should 100% be thrown here and interrrupt something
+            throw new RuntimeException(e);
+        }
+        db.query(bans).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading bans!", throwable);
                 return;
@@ -158,11 +183,18 @@ public class CytonicNetwork {
                     bannedPlayers.put(uuid, new BanData(rs.getString("reason"), Instant.parse(rs.getString("to_expire")), true));
                 }
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading bans!", e);
+                throw new RuntimeException("An error occurred whilst loading bans!", e);
             }
         });
 
-        QUERY."SELECT * FROM cytonic_mutes WHERE uuid = '\{uuid.toString()}'".whenComplete((rs, throwable) -> {
+        PreparedStatement muted = db.prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+        try {
+            muted.setString(1, uuid.toString());
+        } catch (SQLException e) {
+            // this is a problem, and an error should 100% be thrown here and interrrupt something
+            throw new RuntimeException(e);
+        }
+        db.query(muted).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading mutes!", throwable);
                 return;

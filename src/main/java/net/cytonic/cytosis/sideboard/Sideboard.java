@@ -56,7 +56,7 @@ public class Sideboard {
      */
     public Sideboard(Player player) {
         this.player = Objects.requireNonNull(player, "player");
-        this.id = STR."sb-\{Integer.toHexString(ThreadLocalRandom.current().nextInt())}";
+        this.id = "sb-" + Integer.toHexString(ThreadLocalRandom.current().nextInt());
 
         sendObjectivePacket(ObjectiveMode.CREATE);
         sendDisplayObjectivePacket();
@@ -353,6 +353,7 @@ public class Sideboard {
 
     /**
      * Get an empty line
+     *
      * @return an empty line
      */
     public Component emptyLine() {
@@ -365,16 +366,17 @@ public class Sideboard {
         }
 
         if (checkInRange && line >= this.lines.size()) {
-            throw new IllegalArgumentException(STR."Line number must be under \{this.lines.size()}");
+            throw new IllegalArgumentException("Line number must be under " + this.lines.size());
         }
 
         if (checkMax && line >= 16) {
-            throw new IllegalArgumentException(STR."Line number is too high: \{line}");
+            throw new IllegalArgumentException("Line number is too high: " + line);
         }
     }
 
     /**
      * Gets a score from a line by number
+     *
      * @param line the line
      * @return the score
      */
@@ -384,6 +386,7 @@ public class Sideboard {
 
     /**
      * Gets a line by the score number
+     *
      * @param score The score
      * @return The line by the score
      */
@@ -393,6 +396,7 @@ public class Sideboard {
 
     /**
      * gets a line by score
+     *
      * @param lines The existing lines
      * @param score The score
      * @return The Line
@@ -403,6 +407,7 @@ public class Sideboard {
 
     /**
      * Sends the objective packet
+     *
      * @param mode with the mode
      */
     public void sendObjectivePacket(ObjectiveMode mode) {
@@ -415,7 +420,7 @@ public class Sideboard {
                     packet = new ScoreboardObjectivePacket(this.id, (byte) 1, this.title, ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
             case 2 ->
                     packet = new ScoreboardObjectivePacket(this.id, (byte) 2, this.title, ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
-            default -> throw new IllegalArgumentException(STR."Invalid mode: \{mode}");
+            default -> throw new IllegalArgumentException("Invalid mode: " + mode);
         }
 
         sendPacket(packet);
@@ -430,7 +435,8 @@ public class Sideboard {
 
     /**
      * Sends a score packet
-     * @param score The score
+     *
+     * @param score  The score
      * @param action the action
      */
     public void sendScorePacket(int score, ScoreboardAction action) {
@@ -439,7 +445,8 @@ public class Sideboard {
 
     /**
      * Sends a score packet
-     * @param score The score
+     *
+     * @param score  The score
      * @param action the action
      */
     private void sendModernScorePacket(int score, ScoreboardAction action) {
@@ -457,8 +464,9 @@ public class Sideboard {
 
     /**
      * Sends a team packet
+     *
      * @param score The score
-     * @param mode the mode
+     * @param mode  the mode
      */
     public void sendTeamPacket(int score, TeamMode mode) {
         sendTeamPacket(score, mode, Component.empty(), Component.empty());
@@ -466,8 +474,9 @@ public class Sideboard {
 
     /**
      * Sends a team packet
-     * @param score the score
-     * @param mode the mode
+     *
+     * @param score  the score
+     * @param mode   the mode
      * @param prefix the prefix
      * @param suffix the suffix
      */
@@ -487,7 +496,6 @@ public class Sideboard {
         sendPacket(new TeamsPacket(this.id + ':' + score, action));
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private void sendPacket(ServerPacket packet) {
         if (this.deleted) throw new IllegalStateException("This Sideboard has been deleted");
         if (this.player.isOnline()) player.sendPacket(packet);

@@ -75,7 +75,7 @@ public class RabbitMQ {
         try {
             channel.queueDeclare(queue, false, false, false, null);
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to register the queue '\{queue}'", e);
+            Logger.error("An error occurred whilst attempting to register the queue '" + queue + "'", e);
         }
     }
 
@@ -89,7 +89,7 @@ public class RabbitMQ {
         try {
             channel.exchangeDeclare(exchange, type);
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to register the exchange '\{exchange}'", e);
+            Logger.error("An error occurred whilst attempting to register the exchange '" + exchange + "'", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class RabbitMQ {
         try {
             channel.queueBind(queue, exchange, routingKey);
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to bind the queue '\{queue}'", e);
+            Logger.error("An error occurred whilst attempting to bind the queue '" + queue + "'", e);
         }
     }
 
@@ -116,10 +116,10 @@ public class RabbitMQ {
      */
     public void consumeQueue(String queue, DeliverCallback deliverCallback) {
         try {
-            channel.basicConsume(queue, true, deliverCallback, _ -> {
+            channel.basicConsume(queue, true, deliverCallback, string -> {
             });
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to consume the queue! '\{queue}'", e);
+            Logger.error("An error occurred whilst attempting to consume the queue! '" + queue + "'", e);
         }
     }
 
@@ -134,7 +134,7 @@ public class RabbitMQ {
         try {
             channel.basicConsume(queue, true, deliverCallback, cancelCallback);
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to consume the queue! '\{queue}'", e);
+            Logger.error("An error occurred whilst attempting to consume the queue! '" + queue + "'", e);
         }
     }
 
@@ -148,7 +148,7 @@ public class RabbitMQ {
         try {
             channel.basicPublish("", queue, null, message.getBytes());
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to send a message to the queue! '\{queue}'", e);
+            Logger.error("An error occurred whilst attempting to send a message to the queue! '" + queue + "'", e);
         }
     }
 
@@ -163,7 +163,7 @@ public class RabbitMQ {
         try {
             channel.basicPublish(exchange, queue, null, message.getBytes());
         } catch (IOException e) {
-            Logger.error(STR."An error occurred whilst attempting to send a message to the queue! '\{queue}' on exchange '\{exchange}'", e);
+            Logger.error("An error occurred whilst attempting to send a message to the queue! '" + queue + "' on exchange '" + exchange + "'", e);
         }
     }
 

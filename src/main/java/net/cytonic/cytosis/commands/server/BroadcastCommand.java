@@ -2,12 +2,11 @@ package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
-import static net.cytonic.cytosis.utils.MiniMessageTemplate.MM;
 
 /**
  * The class representing the broadcast command
@@ -22,20 +21,20 @@ public class BroadcastCommand extends Command {
         setCondition(CommandUtils.IS_ADMIN);
         var broadcastArgument = ArgumentType.StringArray("broadcastArgument");
         var serverArgument = ArgumentType.Word("type").from("all", "this");
-        serverArgument.setSuggestionCallback((_, _, suggestion) -> {
+        serverArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("all"));
             suggestion.addEntry(new SuggestionEntry("this"));
         });
-        setDefaultExecutor((sender, _) -> sender.sendMessage(MM."<RED>Usage: /broadcast (message)"));
+        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>Usage: /broadcast (message)")));
         addSyntax((sender, context) -> {
-                if (!Cytosis.getOnlinePlayers().isEmpty()) {
-                    Component broadcast = MM."<aqua><b>Broadcast</b></aqua> <gray>»</gray> <white>\{String.join(" ", context.get(broadcastArgument))}";
-                    if (context.get(serverArgument).equalsIgnoreCase("this")) {
-                        Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
-                    } else if (context.get(serverArgument).equalsIgnoreCase("all")) {
-                        Cytosis.getDatabaseManager().getRedisDatabase().sendBroadcast(broadcast);
-                    }
+            if (!Cytosis.getOnlinePlayers().isEmpty()) {
+                Component broadcast = Msg.mm("<aqua><b>Broadcast</b></aqua> <gray>»</gray> <white>" + String.join(" ", context.get(broadcastArgument)));
+                if (context.get(serverArgument).equalsIgnoreCase("this")) {
+                    Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
+                } else if (context.get(serverArgument).equalsIgnoreCase("all")) {
+                    Cytosis.getDatabaseManager().getRedisDatabase().sendBroadcast(broadcast);
                 }
+            }
         }, serverArgument, broadcastArgument);
     }
 }
