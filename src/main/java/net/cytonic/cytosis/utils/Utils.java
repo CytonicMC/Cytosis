@@ -1,20 +1,21 @@
 package net.cytonic.cytosis.utils;
 
 import com.google.common.reflect.TypeToken;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import net.cytonic.cytosis.data.containers.ServerStatusContainer;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.logging.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A class holding utility methods
