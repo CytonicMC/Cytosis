@@ -39,10 +39,6 @@ public class RedisDatabase {
      * Broadcast channel
      */
     public static final String BROADCAST_CHANNEL = "broadcast";
-    /**
-     * Player message channel
-     */
-    public static final String PLAYER_MESSAGE_CHANNEL = "player-message";
 
     /**
      * Player warn
