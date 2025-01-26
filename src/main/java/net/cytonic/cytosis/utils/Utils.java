@@ -1,20 +1,21 @@
 package net.cytonic.cytosis.utils;
 
 import com.google.common.reflect.TypeToken;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import net.cytonic.cytosis.data.containers.ServerStatusContainer;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.logging.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A class holding utility methods
@@ -58,7 +59,10 @@ public final class Utils {
     public static String getServerIP() {
         String serverIP;
         try {
-            serverIP = InetAddress.getLocalHost().getHostAddress();
+            serverIP = getInternalIP();
+            if (serverIP == null) {
+                serverIP = InetAddress.getLocalHost().getHostAddress();
+            }
         } catch (UnknownHostException e) {
             Logger.error("An error occurred whilst fetching this server's IP address! Bailing out!", e);
             return "ERROR";
@@ -91,6 +95,26 @@ public final class Utils {
         }
 
         throw new IllegalArgumentException("Unsupported type for cloning: " + value.getClass());
+    }
 
+
+    // the IP of this machine on the tailscale network
+    @Nullable
+    @SneakyThrows
+    public static String getInternalIP() {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface iface = interfaces.nextElement();
+            if (iface.getName().equals("tailscale0")) { // Tailscale's default interface name
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (addr instanceof Inet4Address) { // Change to Inet6Address for IPv6
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        }
+        return null; // No Tailscale IP found
     }
 }
