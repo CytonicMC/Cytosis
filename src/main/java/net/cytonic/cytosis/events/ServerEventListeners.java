@@ -157,7 +157,7 @@ public final class ServerEventListeners {
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:vanish-packet-sniper", true, 0, PlayerPacketOutEvent.class, (e -> {
             if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
             if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
-            if (!Cytosis.getVanishManager().getVanishedEntityIds().contains(packet.entityId())) return;
+            if (!Cytosis.getVanishManager().getVanished().containsValue(packet.entityId())) return;
 
             Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(packet.entries());
 
