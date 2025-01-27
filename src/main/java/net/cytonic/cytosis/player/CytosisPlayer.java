@@ -255,6 +255,13 @@ public class CytosisPlayer extends Player {
         return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getRank());
     }
 
+    /**
+     * Returns this player's rank prefix followed by their name in the appropriate color.
+     * <br>
+     * Example: {@code [OWNER] Foxikle}
+     *
+     * @return The formatted name, including their rank prefix
+     */
     public Component formattedName() {
         return rank.getPrefix().append(Component.text(getUsername()));
     }
