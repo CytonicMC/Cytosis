@@ -1,15 +1,17 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.time.Instant;
@@ -21,15 +23,22 @@ public class MuteCommand extends Command {
         super("mute");
         setCondition(CommandUtils.IS_MODERATOR);
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /mute (player) (duration)")));
-        var playerArg = ArgumentType.Word("target");
+        ArgumentWord playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching players..."));
             }
-            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((ignored1, name) ->
+            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((uuid, name) ->
                     suggestion.addEntry(new SuggestionEntry(name)));
         });
-        var durationArg = ArgumentType.Word("duration");
+        ArgumentWord durationArg = ArgumentType.Word("duration");
+        durationArg.setSuggestionCallback((sender, context, suggestion) -> {
+            suggestion.addEntry(new SuggestionEntry("1h"));
+            suggestion.addEntry(new SuggestionEntry("12h"));
+            suggestion.addEntry(new SuggestionEntry("1d"));
+            suggestion.addEntry(new SuggestionEntry("7d"));
+            suggestion.addEntry(new SuggestionEntry("30d"));
+        });
 
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer actor) {
@@ -71,8 +80,11 @@ public class MuteCommand extends Command {
                                 sender.sendMessage(Msg.mm("<red>" + target + " cannot be muted!"));
                                 return;
                             }
+                            Component snoop = actor.formattedName().append(Msg.mm("<gray> muted ")).append(SnoopUtils.toTarget(uuid))
+                                    .append(Msg.mm("<gray> for " + DurationParser.unparseFull(dur) + "."));
 
-                            Cytosis.getDatabaseManager().getMysqlDatabase().mutePlayer(uuid, dur, new Entry(uuid, actor.getUuid(), Category.MUTE, "command")).whenComplete((ignored, throwable3) -> {
+                            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_MUTE, SnoopUtils.toSnoop(snoop));
+                            Cytosis.getDatabaseManager().getMysqlDatabase().mutePlayer(uuid, dur).whenComplete((ignored, throwable3) -> {
                                 if (throwable3 != null) {
                                     actor.sendMessage(Msg.mm("<red>An error occured whilst muting " + target + "!"));
                                     return;

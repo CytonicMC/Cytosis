@@ -1,11 +1,12 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -16,7 +17,7 @@ public class UnmuteCommand extends Command {
 
     public UnmuteCommand() {
         super("unmute");
-        setCondition(CommandUtils.IS_ADMIN);
+        setCondition(CommandUtils.IS_MODERATOR);
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /unmute (player)")));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
@@ -40,8 +41,14 @@ public class UnmuteCommand extends Command {
                 sender.sendMessage(Msg.mm("<red>" + player + " is not muted!"));
                 return;
             }
-            Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(uuid, new Entry(uuid, actor.getUuid(), Category.UNMUTE, "command"));
-            sender.sendMessage(Msg.mm("<GREEN><b>UNMUTED!</green> <gray>" + player + " was successfully unmuted!"));
+
+
+            Component snoop = actor.formattedName().append(Msg.mm("<gray> unmuted ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray>."));
+
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNMUTE, SnoopUtils.toSnoop(snoop));
+
+            Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(uuid);
+            sender.sendMessage(Msg.mm("<green><b>UNMUTED!</green> <gray>" + player + " was successfully unmuted!"));
         }, playerArg);
     }
 }

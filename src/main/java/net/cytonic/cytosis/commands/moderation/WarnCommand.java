@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -63,7 +63,8 @@ public class WarnCommand extends Command {
                     actor.sendMessage(Msg.mm("<green>Warned " + player + ".").append(string));
 
                     Component component = Msg.mm("<red>You have been warned.").append(string);
-                    Cytosis.getDatabaseManager().getRedisDatabase().warnPlayer(uuid, actor.getUuid(), component, reason, new Entry(uuid, actor.getUuid(), Category.WARN, "warn_command"));
+                    Component snoop = actor.formattedName().append(Msg.mm("<gray> warned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
+                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_WARN, SnoopUtils.toSnoop(snoop));
                 });
             }
         }, playerArg, reasonArg);

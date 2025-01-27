@@ -2,10 +2,13 @@ package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -85,6 +88,15 @@ public class RankCommand extends Command {
     }
 
     private void setRank(CytosisPlayer player, PlayerRank rank, CommandSender sender) {
+        Component actor;
+        if (sender instanceof CytosisPlayer p) {
+            actor = p.formattedName();
+        } else {
+            actor = Msg.mm("<red>UNKNOWN");
+        }
+        Component snoop = actor.append(Msg.mm("<gray> changed ")).append(player.formattedName()).append(Msg.mm("<gray>'s rank to ")
+                .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))).append(Msg.mm("<gray>."));
+        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHANGE_RANK, SnoopUtils.toSnoop(snoop));
         Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((v, t) -> {
             if (t != null) {
                 sender.sendMessage(Msg.mm("<red>An error occurred whilst setting " + player.getUsername() + "'s rank! Check the console for more details."));
