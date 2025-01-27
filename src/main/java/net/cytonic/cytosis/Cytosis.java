@@ -394,6 +394,14 @@ public final class Cytosis {
             Logger.info("Loading Cytosis snoops");
             // load snoops
             snooperManager.registerChannel(CytosisSnoops.PLAYER_BAN);
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_UNBAN);
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_KICK);
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_UNMUTE);
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_MUTE);
+            snooperManager.registerChannel(CytosisSnoops.PLAYER_WARN);
+            snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
+            snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
+
 
             // Gui Framework...
             ClickableItemRegistry.getInstance().registerAll();
