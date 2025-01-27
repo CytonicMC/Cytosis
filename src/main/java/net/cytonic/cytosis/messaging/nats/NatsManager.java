@@ -4,7 +4,6 @@ package net.cytonic.cytosis.messaging.nats;
 import io.nats.client.*;
 import lombok.SneakyThrows;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
 import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
@@ -464,8 +463,8 @@ public class NatsManager {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
-        kickPlayer(player.getUuid(), reason, component, entry);
+    public void kickPlayer(Player player, KickReason reason, Component component) {
+        kickPlayer(player.getUuid(), reason, component);
     }
 
     /**
@@ -476,8 +475,7 @@ public class NatsManager {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+    public void kickPlayer(UUID player, KickReason reason, Component component) {
         PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
         Thread.ofVirtual().name("NATS player kicker").start(() -> publish(Subjects.PLAYER_KICK, container.toString().getBytes()));
     }

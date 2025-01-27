@@ -1,8 +1,6 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
@@ -94,7 +92,7 @@ public class CytonicNetwork {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNBAN, "Natural Expiration"));
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")));
                     } else {
                         BanData banData = new BanData(rs.getString("reason"), expiry, true);
                         bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
@@ -115,7 +113,7 @@ public class CytonicNetwork {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNMUTE, "Natural Expiration"));
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")));
                     } else mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
                 }
             } catch (SQLException e) {
