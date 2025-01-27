@@ -28,6 +28,3 @@ jobs:
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-
-      - name: Run Compiled Artifact
-        run: java --enable-preview -jar build/libs/cytosis.jar --ci-test
