@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Setter
 @Getter
-@SuppressWarnings("UnstableApiUsage")
 public class PlayerListManager {
 
     private final UUID[][] listUUIDs; // <column, entry>

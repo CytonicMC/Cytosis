@@ -25,7 +25,6 @@ public class ActionbarManager {
     /**
      * Sets up the manager, registering event listeners, and starting the loop.
      */
-    @SuppressWarnings("UnstableApiUsage")
     public void init() {
         Events.onJoin((player) -> messageQueues.put(player.getUuid(), new LinkedList<>()));
         Events.onLeave((player) -> messageQueues.remove(player.getUuid()));
