@@ -1,10 +1,7 @@
 package net.cytonic.cytosis.managers;
 
-import io.nats.client.Dispatcher;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
-import net.cytonic.cytosis.data.containers.snooper.SnooperContainer;
 import net.cytonic.cytosis.data.containers.snooper.*;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -62,12 +59,11 @@ public class SnooperManager {
             SnooperContainer container = SnooperContainer.deserialize(message.getData());
 
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
-                if (!player.isStaff()) return;
-                if (!player.canRecieveSnoop(channel.recipients())) return;
-                if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) return;
+                if (!player.isStaff()) continue;
+                if (!player.canRecieveSnoop(channel.recipients())) continue;
+                if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) continue;
                 if (!player.getPreference(CytosisNamespaces.LISTENING_SNOOPS).snoops().contains(channel.id().asString()))
-                    return;
-
+                    continue;
 
                 player.sendMessage(container.message());
             }
