@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.data;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.PlayerWarnContainer;
 import net.cytonic.cytosis.logging.Logger;
@@ -85,10 +84,8 @@ public class RedisDatabase {
      * @param actor       the actor
      * @param warnMessage the message to warn the player with
      * @param reason      the reason
-     * @param entry       the audit log entry
      */
-    public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason, Entry entry) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+    public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason) {
         Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerWarn(actor, target, reason);
         PlayerWarnContainer container = new PlayerWarnContainer(target, JSONComponentSerializer.json().serialize(warnMessage));
         jedisPub.publish(PLAYER_WARN, container.toString());
