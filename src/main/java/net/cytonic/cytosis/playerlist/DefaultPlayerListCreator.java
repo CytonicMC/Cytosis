@@ -3,12 +3,14 @@ package net.cytonic.cytosis.playerlist;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 
 import java.time.Instant;
@@ -31,13 +33,19 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
      * @return the list of columns whose size is {@code colCount}
      */
     @Override
-    public List<Column> createColumns(Player player) {
+    public List<Column> createColumns(CytosisPlayer player) {
         List<Column> columns = new ArrayList<>();
 
         List<PlayerListEntry> players = new ArrayList<>();
 
-        for (Player p : Cytosis.getOnlinePlayers()) {
-            if (Cytosis.getPreferenceManager().getPlayerPreference(p.getUuid(), CytosisPreferences.VANISHED)) continue;
+        for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
+            if (p.getPreference(CytosisPreferences.VANISHED)) {
+                if (!player.isStaff()) continue;
+                players.add(new PlayerListEntry(p.getRank().getPrefix().color(NamedTextColor.GRAY)
+                        .decorate(TextDecoration.STRIKETHROUGH, TextDecoration.ITALIC).append(p.getName()), p.getRank().ordinal(),
+                        new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())));
+                continue;
+            }
             PlayerRank rank = Cytosis.getRankManager().getPlayerRank(p.getUuid()).orElse(PlayerRank.DEFAULT);
             players.add(new PlayerListEntry(rank.getPrefix().append(p.getName()), rank.ordinal(),
                     new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())));
@@ -87,7 +95,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
      * @return the component to be displayed as the header
      */
     @Override
-    public Component header(Player player) {
+    public Component header(CytosisPlayer player) {
         return Msg.mm("<aqua><b>CytonicMC");
     }
 
@@ -98,7 +106,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
      * @return the component to be displayed as the footer
      */
     @Override
-    public Component footer(Player player) {
+    public Component footer(CytosisPlayer player) {
         return Msg.mm("<aqua>mc.cytonic.net").appendNewline().append(Msg.mm("<gold>forums.cytonic.net"));
     }
 

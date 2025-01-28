@@ -1,9 +1,8 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.objects.BanData;
@@ -11,6 +10,8 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -87,9 +88,11 @@ public class BanCommand extends Command {
                                     actor.sendMessage(Msg.mm("<red>An error occured whilst banning " + player + "!"));
                                     return;
                                 }
-                                Cytosis.getNatsManager().kickPlayer(uuid, KickReason.BANNED, Msg.formatBanMessage(new BanData(reason, dur, true)), new Entry(uuid, actor.getUuid(), Category.KICK, "ban_command"));
+                                Cytosis.getNatsManager().kickPlayer(uuid, KickReason.BANNED, Msg.formatBanMessage(new BanData(reason, dur, true)));
                                 actor.sendMessage(Msg.mm("<green>" + player + " was successfully banned for " + DurationParser.unparseFull(dur) + "."));
-                                Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(new Entry(uuid, actor.getUuid(), Category.BAN, reason));
+
+                                Component snoop = actor.formattedName().append(Msg.mm("<gray> banned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for " + DurationParser.unparseFull(dur) + " with the reason " + reason));
+                                Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_BAN, SnoopUtils.toSnoop(snoop));
                             });
                         });
                     });

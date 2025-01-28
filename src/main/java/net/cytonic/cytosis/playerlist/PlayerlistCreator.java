@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.playerlist;
 
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface PlayerlistCreator {
      * @return The list of categories
      * @param player The player to create {@link Column}s for
      */
-    List<Column> createColumns(Player player);
+    List<Column> createColumns(CytosisPlayer player);
 
     /**
      * Creates the header for the playerlist
@@ -24,7 +24,7 @@ public interface PlayerlistCreator {
      * @return The header in Component form
      * @param player The player to create the header for
      */
-    Component header(Player player);
+    Component header(CytosisPlayer player);
 
     /**
      * creates the footer for the playerlist
@@ -32,7 +32,7 @@ public interface PlayerlistCreator {
      * @return The footer in Component form
      * @param player The player to create the footer for
      */
-    Component footer(Player player);
+    Component footer(CytosisPlayer player);
 
     /**
      * Gets the number of columns, between one and 4, inclusive.

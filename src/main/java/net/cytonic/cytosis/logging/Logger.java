@@ -5,6 +5,11 @@
  */
 package net.cytonic.cytosis.logging;
 
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 
@@ -61,6 +66,8 @@ public interface Logger {
      * @param args the arguments used to format the message
      */
     static void error(String message, Object... args) {
+        Component component = Msg.mm("<red><b>Error Logged on server '" + Cytosis.SERVER_ID + "'</b></red><newline><gray> Message: " + message);
+        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
         LOGGER.error(message, args);
     }
 
@@ -70,6 +77,8 @@ public interface Logger {
      * @param ex the throwable to log
      */
     static void error(String message, Throwable ex) {
+        Component component = Msg.mm("<red><b>Error Logged on server '" + Cytosis.SERVER_ID + "'</b></red><newline><gray> Message: " + message + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
+        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
         LOGGER.error(message, ex);
     }
 }

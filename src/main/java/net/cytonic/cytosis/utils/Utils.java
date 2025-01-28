@@ -117,4 +117,25 @@ public final class Utils {
         }
         return null; // No Tailscale IP found
     }
+
+    /**
+     * Capitalizes the first letter of each word in the string, separated by a delimiter of " ".
+     *
+     * @param input The input
+     * @return The captialized string
+     */
+    public static String captializeFirstLetters(String input) {
+        String[] words = input.split(" ");
+        StringBuilder capitalized = new StringBuilder();
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                capitalized.append(word.substring(0, 1).toUpperCase())
+                        .append(word.substring(1).toLowerCase())
+                        .append(" ");
+            }
+        }
+
+        return capitalized.toString().trim();
+    }
 }

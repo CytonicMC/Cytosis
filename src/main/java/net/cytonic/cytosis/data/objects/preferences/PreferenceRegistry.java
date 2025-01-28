@@ -151,6 +151,10 @@ public class PreferenceRegistry {
         return Iterables.getFirst(entries, null).preference().type();
     }
 
+    public boolean isJson(TypedNamespace<?> namespace) {
+        return get(namespace).preference instanceof JsonPreference<?>;
+    }
+
     /**
      * A record representing a registry entry
      *

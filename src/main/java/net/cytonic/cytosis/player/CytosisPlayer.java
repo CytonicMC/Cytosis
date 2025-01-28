@@ -255,6 +255,13 @@ public class CytosisPlayer extends Player {
         return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getRank());
     }
 
+    /**
+     * Returns this player's rank prefix followed by their name in the appropriate color.
+     * <br>
+     * Example: {@code [OWNER] Foxikle}
+     *
+     * @return The formatted name, including their rank prefix
+     */
     public Component formattedName() {
         return rank.getPrefix().append(Component.text(getUsername()));
     }
@@ -298,5 +305,12 @@ public class CytosisPlayer extends Player {
         } else {
             Cytosis.getVanishManager().disableVanish(this);
         }
+    }
+
+    public boolean canRecieveSnoop(byte flags) {
+        if ((flags & 0x01) != 0 && rank == PlayerRank.OWNER) return true;
+        if ((flags & 0x02) != 0 && rank == PlayerRank.ADMIN) return true;
+        if ((flags & 0x04) != 0 && rank == PlayerRank.MODERATOR) return true;
+        return (flags & 0x08) != 0 && rank == PlayerRank.HELPER;
     }
 }

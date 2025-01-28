@@ -1,8 +1,6 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
@@ -53,9 +51,7 @@ public class CytonicNetwork {
         networkPlayersOnServers.clear();
 
 
-
-
-        PreparedStatement players = db.prepareStatement("SELECT * FROM cytonic_players");
+        PreparedStatement players = db.prepare("SELECT * FROM cytonic_players");
         db.query(players).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading players!", throwable);
@@ -71,7 +67,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement ranks = db.prepareStatement("SELECT * FROM cytonic_ranks");
+        PreparedStatement ranks = db.prepare("SELECT * FROM cytonic_ranks");
         db.query(ranks).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
@@ -86,7 +82,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement bans = db.prepareStatement("SELECT * FROM cytonic_bans");
+        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans");
         db.query(bans).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading bans!", throwable);
@@ -96,7 +92,7 @@ public class CytonicNetwork {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNBAN, "Natural Expiration"));
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")));
                     } else {
                         BanData banData = new BanData(rs.getString("reason"), expiry, true);
                         bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
@@ -107,7 +103,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement mutes = db.prepareStatement("SELECT * FROM cytonic_mutes");
+        PreparedStatement mutes = db.prepare("SELECT * FROM cytonic_mutes");
         db.query(mutes).whenComplete((rs, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst loading mutes!", throwable);
@@ -117,7 +113,7 @@ public class CytonicNetwork {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")), new Entry(UUID.fromString(rs.getString("uuid")), null, Category.UNMUTE, "Natural Expiration"));
+                        Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")));
                     } else mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
                 }
             } catch (SQLException e) {
@@ -142,7 +138,7 @@ public class CytonicNetwork {
 
         MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
-        PreparedStatement rank = db.prepareStatement("SELECT * FROM cytonic_ranks WHERE uuid = ?");
+        PreparedStatement rank = db.prepare("SELECT * FROM cytonic_ranks WHERE uuid = ?");
         try {
             rank.setString(1, uuid.toString());
         } catch (SQLException e) {
@@ -166,7 +162,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement bans = db.prepareStatement("SELECT * FROM cytonic_bans WHERE uuid = ?");
+        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans WHERE uuid = ?");
         try {
             bans.setString(1, uuid.toString());
         } catch (SQLException e) {
@@ -187,7 +183,7 @@ public class CytonicNetwork {
             }
         });
 
-        PreparedStatement muted = db.prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+        PreparedStatement muted = db.prepare("SELECT * FROM cytonic_mutes WHERE uuid = ?");
         try {
             muted.setString(1, uuid.toString());
         } catch (SQLException e) {

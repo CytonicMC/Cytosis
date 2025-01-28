@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -9,24 +10,21 @@ import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
+import net.minestom.server.utils.PacketSendingUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class handles vanishing
  */
+@NoArgsConstructor
 public class VanishManager {
 
-    private final List<UUID> vanishedPlayers = new ArrayList<>();
     @Getter
-    private final List<Integer> vanishedEntityIds = new ArrayList<>();
-
-    /**
-     * A default constructor for VanishManager
-     */
-    public VanishManager() {
-
-    }
+    private final Map<UUID, Integer> vanished = new HashMap<>();
 
     /**
      * Enables vanish for a player
@@ -34,8 +32,7 @@ public class VanishManager {
      * @param player the player to vanish
      */
     public void enableVanish(Player player) {
-        vanishedPlayers.add(player.getUuid());
-        vanishedEntityIds.add(player.getEntityId());
+        vanished.put(player.getUuid(), player.getEntityId());
         EntityMetaDataPacket invis = new EntityMetaDataPacket(player.getEntityId(), Map.of(0, Metadata.Byte((byte) (0x20 | 0x40))));
         TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""),
                 (byte) 0x02, TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER,
@@ -61,8 +58,7 @@ public class VanishManager {
      * @param player the player to unvanish
      */
     public void disableVanish(CytosisPlayer player) {
-        vanishedPlayers.remove(player.getUuid());
-        vanishedEntityIds.remove((Object) player.getEntityId());
+        vanished.remove(player.getUuid());
 
         Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(player.getMetadataPacket().entries());
         byte byteVal = 0;
@@ -71,15 +67,13 @@ public class VanishManager {
         }
         byteVal &= ~(0x20 | 0x40);
         entries.put(0, Metadata.Byte(byteVal));
-        var packet = new EntityMetaDataPacket(player.getEntityId(), entries);
 
         Cytosis.getRankManager().setupCosmetics(player, Cytosis.getCytonicNetwork().getPlayerRanks().get(player.getUuid()));
-        player.sendPacket(packet);
-        Cytosis.getOnlinePlayers().forEach(p -> p.sendPacket(packet));
+        PacketSendingUtils.broadcastPlayPacket(new EntityMetaDataPacket(player.getEntityId(), entries));
         player.updateViewableRule(p -> true);
     }
 
     public boolean isVanished(UUID uuid) {
-        return vanishedPlayers.contains(uuid);
+        return vanished.containsKey(uuid);
     }
 }

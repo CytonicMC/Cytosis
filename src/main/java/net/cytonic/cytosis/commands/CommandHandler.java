@@ -9,6 +9,7 @@ import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.moderation.*;
 import net.cytonic.cytosis.commands.server.*;
 import net.cytonic.cytosis.commands.staff.*;
+import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
@@ -74,6 +75,7 @@ public class CommandHandler {
         cm.register(new RecalculatePermissions());
         cm.register(new YoinkCommand());
         cm.register(new ReplyCommand());
+        cm.register(new SnooperCommand());
     }
 
     /**

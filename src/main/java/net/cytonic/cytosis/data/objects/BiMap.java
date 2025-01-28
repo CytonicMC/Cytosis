@@ -19,6 +19,7 @@ public class BiMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
     private final ConcurrentHashMap<K, V> keyToValue = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<V, K> valueToKey = new ConcurrentHashMap<>();
+
     /**
      * A default constructor
      */
@@ -46,6 +47,16 @@ public class BiMap<K, V> implements Iterable<Map.Entry<K, V>> {
     public void remove(K key, V value) {
         keyToValue.remove(key);
         valueToKey.remove(value);
+    }
+
+    public void removeByKey(K key) {
+        V key2 = keyToValue.remove(key);
+        if (key2 != null) valueToKey.remove(key2);
+    }
+
+    public void removeByValue(V key) {
+        K key2 = valueToKey.remove(key);
+        if (key2 != null) keyToValue.remove(key2);
     }
 
     /**

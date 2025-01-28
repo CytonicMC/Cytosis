@@ -30,6 +30,7 @@ public class PreferenceData {
      */
     public static PreferenceData deserialize(String data) {
         Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP.getType()); // <NamespaceID, Preference>
+
         return new PreferenceData(preferences);
     }
 
@@ -72,11 +73,13 @@ public class PreferenceData {
      * @param <T>       The type of the preference
      */
     public <T> void set(TypedNamespace<T> namespace, T value) {
-        preferences.put(namespace, new NamespacedPreference<>(namespace, value));
+        if (PreferenceManager.PREFERENCE_REGISTRY.isJson(namespace)) {
+            preferences.put(namespace, new JsonPreference<>(namespace, value));
+        } else preferences.put(namespace, new NamespacedPreference<>(namespace, value));
     }
 
     public <T> void set(NamespacedPreference<T> preference) {
-        preferences.put(preference.typedNamespace(), preference);
+        set(preference.typedNamespace(), preference.value());
     }
 
     /**

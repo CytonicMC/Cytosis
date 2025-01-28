@@ -22,7 +22,7 @@ public class YoinkCommand extends Command {
     public YoinkCommand() {
         super("yoink", "pullhere", "warpplayertothiserver", "pullplayertothisserver");
         setCondition(CommandUtils.IS_STAFF);
-        setDefaultExecutor((sender, context) -> sender.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red><gray> You need to specify a player!")));
+        setDefaultExecutor((sender, context) -> sender.sendMessage(Msg.whoops("You need to specify a player!")));
 
         var playerArgument = ArgumentType.Word("player");
         playerArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> Cytosis.getCytonicNetwork().getOnlinePlayers().getValues().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.toString()))));
@@ -34,7 +34,7 @@ public class YoinkCommand extends Command {
             String playerName = context.get(playerArgument);
             UUID uuid = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(playerName.toLowerCase());
             if (uuid.equals(player.getUuid())) {
-                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red><gray> You cannot do this to yourself!"));
+                player.sendMessage(Msg.whoops("You cannot do this to yourself!"));
                 return;
             }
             if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(uuid)) {

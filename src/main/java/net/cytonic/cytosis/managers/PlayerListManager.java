@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.*;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
@@ -22,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Setter
 @Getter
-@SuppressWarnings("UnstableApiUsage")
 public class PlayerListManager {
 
     private final UUID[][] listUUIDs; // <column, entry>
@@ -51,7 +51,7 @@ public class PlayerListManager {
      *
      * @param player The player to set up
      */
-    public void setupPlayer(Player player) {
+    public void setupPlayer(CytosisPlayer player) {
         // setup tab header & footer
         player.sendPlayerListHeaderAndFooter(creator.header(player), creator.footer(player));
 
@@ -126,7 +126,7 @@ public class PlayerListManager {
      *
      * @param player the player to update
      */
-    public void update(Player player) {
+    public void update(CytosisPlayer player) {
         List<Column> columns = creator.createColumns(player);
         if (columns.size() != creator.getColumnCount())
             throw new IllegalArgumentException("Column count does not match size of column list");

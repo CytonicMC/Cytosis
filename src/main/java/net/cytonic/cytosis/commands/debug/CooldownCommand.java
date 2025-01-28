@@ -71,17 +71,17 @@ public class CooldownCommand extends Command {
 
             if (ac == CooldownAction.CLEAR_GLOBAL) {
                 network.resetGlobalCooldown(node);
-                player.sendMessage(Msg.mm("<green><b>SUCCESS!</b></green> <gray>Reset the global cooldown '<yellow>" + node.asString() + "</yellow>'."));
+                player.sendMessage(Msg.success("Reset the global cooldown '<yellow>" + node.asString() + "</yellow>'."));
             } else if (ac == CooldownAction.CLEAR_PERSONAL) {
                 network.resetGlobalCooldown(node);
-                player.sendMessage(Msg.mm("<green><b>SUCCESS!</b></green> <gray>Reset your personal cooldown '<yellow>" + node.asString() + "</yellow>'."));
+                player.sendMessage(Msg.success("Reset your personal cooldown '<yellow>" + node.asString() + "</yellow>'."));
             } else if (ac == CooldownAction.GET_GLOBAL) {
                 if (network.isOnGlobalCooldown(node)) {
                     Instant expires = network.getGlobalExpiry(node);
                     player.sendMessage(Msg.mm("<yellow><b>TICK TOCK!</b></yellow> <gray>The global cooldown '<yellow>" + node.asString() + "</yellow>' is set to expire in " + DurationParser.unparseFull(expires) + "."));
                     return;
                 }
-                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red><gray> The global cooldown '<yellow>" + node.asString() + "</yellow>' isn't active!"));
+                player.sendMessage(Msg.whoops("The global cooldown '<yellow>" + node.asString() + "</yellow>' isn't active!"));
                 return;
             } else if (ac == CooldownAction.GET_PERSONAL) {
                 if (network.isOnPersonalCooldown(player.getUuid(), node)) {
@@ -89,14 +89,14 @@ public class CooldownCommand extends Command {
                     player.sendMessage(Msg.mm("<yellow><b>TICK TOCK!</b></yellow> <gray>Your personal cooldown '<yellow>" + node.asString() + "</yellow>' is set to expire in " + DurationParser.unparseFull(expires) + "."));
                     return;
                 }
-                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red><gray> Your personal cooldown '<yellow>" + node.asString() + "</yellow>' isn't active!"));
+                player.sendMessage(Msg.whoops("Your personal cooldown '<yellow>" + node.asString() + "</yellow>' isn't active!"));
                 return;
             }
 
             String[] duration = context.get(durationArg);
 
             if (duration.length == 0) {
-                player.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red> <gray>You must provide a duration!"));
+                player.sendMessage(Msg.whoops("You must provide a duration!"));
                 return;
             }
 
@@ -105,11 +105,11 @@ public class CooldownCommand extends Command {
             switch (ac) {
                 case SET_GLOBAL -> {
                     network.setGlobal(node, expiry);
-                    player.sendMessage(Msg.mm("<green><b>SUCCESS!</b></green> <gray>Set the global cooldown '<yellow>" + node.asString() + "</yellow>' to expire in " + DurationParser.unparseFull(expiry) + "."));
+                    player.sendMessage(Msg.success("Set the global cooldown '<yellow>" + node.asString() + "</yellow>' to expire in " + DurationParser.unparseFull(expiry) + "."));
                 }
                 case SET_PERSONAL -> {
                     network.setPersonal(player.getUuid(), node, expiry);
-                    player.sendMessage(Msg.mm("<green><b>SUCCESS!</b></green> <gray>Set your personal cooldown '<yellow>" + node.asString() + "</yellow>' to expire in " + DurationParser.unparseFull(expiry)));
+                    player.sendMessage(Msg.success("Set your personal cooldown '<yellow>" + node.asString() + "</yellow>' to expire in " + DurationParser.unparseFull(expiry)));
                 }
             }
         }, action, nodeArg, durationArg);

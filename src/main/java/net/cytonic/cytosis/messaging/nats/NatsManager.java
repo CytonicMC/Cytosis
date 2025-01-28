@@ -4,7 +4,6 @@ package net.cytonic.cytosis.messaging.nats;
 import io.nats.client.*;
 import lombok.SneakyThrows;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
 import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
@@ -40,6 +39,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static io.nats.client.ConnectionListener.Events.*;
 
@@ -52,6 +52,7 @@ public class NatsManager {
 
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
+    private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
 
     @SneakyThrows
     public void setup() {
@@ -72,6 +73,11 @@ public class NatsManager {
                 RequestContainer request;
                 while ((request = requestQueue.poll()) != null) {
                     connection.request(request.channel, request.data).whenComplete(request.consumer);
+                }
+
+                SubscribeContainer subscribe;
+                while ((subscribe = subscribeQueue.poll()) != null) {
+                    connection.createDispatcher(subscribe.consumer::accept).subscribe(subscribe.channel);
                 }
 
                 if (!started) {
@@ -239,7 +245,7 @@ public class NatsManager {
             if (Cytosis.getPlayer(request.sender()).isEmpty()) return; // not online, don't care anymore.
             CytosisPlayer p = Cytosis.getPlayer(request.sender()).get();
             if (throwable != null) {
-                p.sendMessage(Msg.mm("<red><b>SERVER ERROR!</b></red><gray> An error occured whilst sending your friend request!"));
+                p.sendMessage(Msg.serverError("An error occured whilst sending your friend request!"));
                 Logger.error("Internal error whilst sending friend request", throwable);
             }
             FriendApiResponse response = FriendApiResponse.deserialize(new String(message.getData()));
@@ -250,9 +256,9 @@ public class NatsManager {
             Component recipient = recipientRank.getPrefix().append(Component.text(recipientName));
 
             if (response.code().equalsIgnoreCase("ALREADY_SENT")) {
-                p.sendMessage(Msg.mm("<red><b>WHOOPS!</b></red><gray> You have already sent a friend request to ").append(recipient).append(Msg.mm("<gray>!")));
+                p.sendMessage(Msg.whoops("You have already sent a friend request to ").append(recipient).append(Msg.mm("<gray>!")));
             } else {
-                p.sendMessage(Msg.mm("<red><b>SERVER EEROR!</b></red><gray> Failed to send your friend request to ").append(recipient).append(Msg.mm("<gray>! Error: " + response.message())));
+                p.sendMessage(Msg.serverError("Failed to send your friend request to ").append(recipient).append(Msg.mm("<gray>! Error: " + response.message())));
                 Logger.error("Failed to send " + request.sender() + "'s friend request to " + request.recipient() + "!. Error: " + response.message() + " | Code: " + response.code());
             }
         }));
@@ -285,7 +291,7 @@ public class NatsManager {
     private void handleAccept(String response, @Nullable Throwable throwable, @Nullable UUID recipient, @Nullable UUID sender) {
         if (throwable != null) {
             if (recipient != null) {
-                Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>SERVER ERROR</b></red> <gray> Failed to process your friend request!")));
+                Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process your friend request!")));
             }
             Logger.error("Internal error upon proccessing a friend acceptance.", throwable);
         }
@@ -297,11 +303,11 @@ public class NatsManager {
         Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You don't have an active friend request from ").append(senderComp).append(Msg.mm("<gray>!"))));
+            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.whoops("You don't have an active friend request from ").append(senderComp).append(Msg.mm("<gray>!"))));
         }
 
         if (recipient != null) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>SERVER ERROR</b></red> <gray> Failed to process accepting your friend request: " + api.message())));
+            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process accepting your friend request: " + api.message())));
         }
         Logger.info("Failed to accept friend request: " + api.code());
     }
@@ -309,7 +315,7 @@ public class NatsManager {
     private void handleDecline(String response, @Nullable Throwable throwable, @Nullable UUID recipient, @Nullable UUID sender) {
         if (throwable != null) {
             if (recipient != null) {
-                Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>SERVER ERROR</b></red> <gray> Failed to process declining your friend request!")));
+                Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request!")));
             }
             Logger.error("Internal error upon proccessing a friend decline.", throwable);
         }
@@ -320,13 +326,13 @@ public class NatsManager {
         Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You don't have an active friend request from ").append(senderComp).append(Msg.mm("<gray>!"))));
+            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.whoops("You don't have an active friend request from ").append(senderComp).append(Msg.mm("<gray>!"))));
         }
 
         if (api.success()) return;
 
         if (recipient != null) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>SERVER ERROR</b></red> <gray> Failed to process declining your friend request: " + api.message())));
+            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request: " + api.message())));
         }
         Logger.info("Failed to accept friend request: " + api.code());
     }
@@ -457,8 +463,8 @@ public class NatsManager {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(Player player, KickReason reason, Component component, Entry entry) {
-        kickPlayer(player.getUuid(), reason, component, entry);
+    public void kickPlayer(Player player, KickReason reason, Component component) {
+        kickPlayer(player.getUuid(), reason, component);
     }
 
     /**
@@ -469,8 +475,7 @@ public class NatsManager {
      * @param reason    The reason for kicking the player
      * @param component The kick message displayed
      */
-    public void kickPlayer(UUID player, KickReason reason, Component component, Entry entry) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().addAuditLogEntry(entry);
+    public void kickPlayer(UUID player, KickReason reason, Component component) {
         PlayerKickContainer container = new PlayerKickContainer(player, reason, JSONComponentSerializer.json().serialize(component));
         Thread.ofVirtual().name("NATS player kicker").start(() -> publish(Subjects.PLAYER_KICK, container.toString().getBytes()));
     }
@@ -573,11 +578,21 @@ public class NatsManager {
         requestQueue.add(new RequestContainer(channel, data, consumer));
     }
 
-    private record PublishContainer(String channel, byte[] data) {
+    public void subscribe(String channel, Consumer<Message> consumer) {
+        if (connection != null) {
+            connection.createDispatcher(consumer::accept).subscribe(channel);
+            return;
+        }
 
+        subscribeQueue.add(new SubscribeContainer(channel, consumer));
+    }
+
+    private record PublishContainer(String channel, byte[] data) {
     }
 
     private record RequestContainer(String channel, byte[] data, BiConsumer<Message, Throwable> consumer) {
+    }
 
+    private record SubscribeContainer(String channel, Consumer<Message> consumer) {
     }
 }

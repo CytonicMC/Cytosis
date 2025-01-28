@@ -25,7 +25,7 @@ public class CreateInstanceCommand extends Command {
         });
         addSyntax((sender, context) -> {
             String type = context.get(typeArg);
-            sender.sendMessage(Msg.mm("<red><b>WHOOPS!</b><red><gray> This command is currently disabled."));
+            sender.sendMessage(Msg.whoops("This command is currently disabled."));
             switch (type.toLowerCase()) {
                 case "proxy" -> {
 //                    Cytosis.getContainerizedInstanceManager().createProxyInstance();

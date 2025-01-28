@@ -1,11 +1,12 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -40,7 +41,13 @@ public class UnbanCommand extends Command {
                 sender.sendMessage(Msg.mm("<red>" + player + " is not banned!"));
                 return;
             }
-            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid, new Entry(uuid, actor.getUuid(), Category.UNBAN, "command"));
+
+
+            Component snoop = actor.formattedName().append(Msg.mm("<gray> unbanned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray>."));
+
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNBAN, SnoopUtils.toSnoop(snoop));
+
+            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid);
             sender.sendMessage(Msg.mm("<green><b>UNBANNED!</b></green><gray> " + player + " was successfully unbanned!"));
         }, playerArg);
     }

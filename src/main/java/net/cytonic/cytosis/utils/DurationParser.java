@@ -60,6 +60,7 @@ public final class DurationParser {
     public static String unparse(@Nullable Instant instant, String spacing) {
         if (instant == null) return null;
         Duration duration = Duration.between(Instant.now(), instant);
+        if (duration.isNegative()) duration = Duration.between(instant, Instant.now()); // work for inverted durations
 
         long years = Math.abs(duration.toDays() / 365);
         long days = Math.abs(duration.toDays() % 365);
@@ -100,6 +101,7 @@ public final class DurationParser {
     public static String unparseFull(@Nullable Instant instant) {
         if (instant == null) return null;
         Duration duration = Duration.between(Instant.now(), instant);
+        if (duration.isNegative()) duration = Duration.between(instant, Instant.now()); // work for inverted durations
 
         long years = duration.toDays() / 365;
         long days = duration.toDays() % 365;
@@ -136,7 +138,6 @@ public final class DurationParser {
         } else {
             builder.append("Less than 1 Second");
         }
-
 
         return builder.toString();
     }

@@ -18,14 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class ActionbarManager {
+    private final Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
     @Setter
-    private ActionbarSupplier defaultSupplier = ActionbarSupplier.EMPTY;
-    private Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
+    private ActionbarSupplier defaultSupplier = ActionbarSupplier.DEFAULT;
 
     /**
      * Sets up the manager, registering event listeners, and starting the loop.
      */
-    @SuppressWarnings("UnstableApiUsage")
     public void init() {
         Events.onJoin((player) -> messageQueues.put(player.getUuid(), new LinkedList<>()));
         Events.onLeave((player) -> messageQueues.remove(player.getUuid()));

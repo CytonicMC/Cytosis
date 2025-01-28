@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.auditlog.Category;
-import net.cytonic.cytosis.auditlog.Entry;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -56,7 +57,9 @@ public class KickCommand extends Command {
                         sender.sendMessage(Msg.mm("<red>" + player + " cannot be kicked!"));
                         return;
                     }
-                    Cytosis.getNatsManager().kickPlayer(uuid, KickReason.COMMAND, Msg.mm("\n<red>You have been kicked. \n<aqua>Reason: " + reason), new Entry(uuid, actor.getUuid(), Category.KICK, "kick_command"));
+                    Component snoop = actor.formattedName().append(Msg.mm("<gray> kicked ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
+                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_KICK, SnoopUtils.toSnoop(snoop));
+                    Cytosis.getNatsManager().kickPlayer(uuid, KickReason.COMMAND, Msg.mm("\n<red>You have been kicked. \n<aqua>Reason: " + reason));
                 });
             }
         }, playerArg, reasonArg);
