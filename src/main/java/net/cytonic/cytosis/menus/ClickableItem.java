@@ -43,14 +43,14 @@ public interface ClickableItem {
     /**
      * Provides a function to generate the ItemStack for this clickable item.
      *
-     * @return A function that takes a SkyblockPlayer and returns an ItemStack.
+     * @return A function that takes a CytosisPlayer and returns an ItemStack.
      */
     @NotNull Function<CytosisPlayer, ItemStack> item();
 
     /**
      * Defines the action to be performed when this item is clicked.
      *
-     * @return A BiConsumer that takes a SkyblockPlayer and an InventoryPreClickEvent.
+     * @return A BiConsumer that takes a CytosisPlayer and an InventoryPreClickEvent.
      */
     @NotNull BiConsumer<CytosisPlayer, InventoryPreClickEvent> onClick();
 }
