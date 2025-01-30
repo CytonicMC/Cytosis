@@ -14,6 +14,7 @@ import net.cytonic.cytosis.data.containers.friends.FriendResponse;
 import net.cytonic.cytosis.data.containers.friends.OrganicFriendResponse;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.data.containers.servers.SendPlayerToServerContainer;
+import net.cytonic.cytosis.data.containers.servers.ServerSendReponse;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -116,7 +117,7 @@ public class NatsManager {
     }
 
     public void sendStartup() {
-        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), "GROUP_HERE").serialize().getBytes();
+        byte[] data = new ServerStatusContainer(Cytosis.getServerGroup().type(), Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.getServerGroup().group()).serialize().getBytes();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
                     try {
                         Logger.info("Registering server with Cydian!");
@@ -129,7 +130,7 @@ public class NatsManager {
     }
 
     public void sendShutdown() {
-        byte[] data = new ServerStatusContainer("TYPE_HERE", Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), "GROUP_HERE").serialize().getBytes();
+        byte[] data = new ServerStatusContainer(Cytosis.getServerGroup().type(), Utils.getServerIP(), Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.getServerGroup().group()).serialize().getBytes();
         // send it sync, so the connection doesn't get closed
         publish(Subjects.SERVER_SHUTDOWN, data);
     }
@@ -487,7 +488,21 @@ public class NatsManager {
      * @param server the destination server
      */
     public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
-        Thread.ofVirtual().name("NATS Player Sender").start(() -> publish(Subjects.PLAYER_SEND, new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes()));
+        Thread.ofVirtual().name("NATS Player Sender").start(() -> request(Subjects.PLAYER_SEND, new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes(), (message, throwable) -> {
+            if (Cytosis.getPlayer(player).isEmpty()) return;
+            Player p = Cytosis.getPlayer(player).get();
+            if (throwable != null) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", server.id()));
+            }
+
+            ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
+
+            if (!reponse.success()) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(), reponse.message()));
+            } else {
+                p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", server.id()));
+            }
+        }));
     }
 
     public void listenForPlayerServerChange() {
