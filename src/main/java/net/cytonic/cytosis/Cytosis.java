@@ -45,6 +45,7 @@ import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
@@ -79,7 +80,7 @@ public final class Cytosis {
     public static final String VERSION = "0.1";
     @Setter
     @Getter
-    private static ServerGroup serverGroup = new ServerGroup("default", "default", true);
+    private static ServerGroup serverGroup = new ServerGroup("cytonic", "lobby", true);
     // manager stuff
     @Getter
     private static MinecraftServer minecraftServer;
@@ -291,6 +292,7 @@ public final class Cytosis {
     public static void completeNonEssentialTasks(long start) {
         BlockPlacementUtils.init();
 
+        Logger.info("Starting NATS manager!");
         natsManager = new NatsManager();
         if (!flags.contains("--ci-test")) natsManager.setup(); // don't connect to NATS in compile and run checks
 
@@ -322,18 +324,6 @@ public final class Cytosis {
             vanishManager = new VanishManager();
             Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
             MinecraftServer.getSchedulerManager().buildShutdownTask(Cytosis::shutdownHandler);
-
-            Logger.info("Initializing Plugin Manager!");
-            pluginManager = new PluginManager();
-            Logger.info("Loading plugins!");
-
-            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
-                try {
-                    pluginManager.loadPlugins(Path.of("plugins"));
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading plugins!", e);
-                }
-            });
 
             Logger.info("Starting Player list manager");
             playerListManager = new PlayerListManager();
@@ -406,6 +396,23 @@ public final class Cytosis {
             // Gui Framework...
             ClickableItemRegistry.getInstance().registerAll();
 
+            Logger.info("Initializing Plugin Manager!");
+            pluginManager = new PluginManager();
+            Logger.info("Loading plugins!");
+            //            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
+            try {
+                if (new File("plugins").exists() && new File("plugins").isDirectory()) {
+                    pluginManager.loadPlugins(Path.of("plugins"));
+                } else {
+                    new File("plugins").mkdir();
+                    Logger.info("Created plugins directory!");
+                }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst loading plugins!", e);
+                throw new RuntimeException("An error occurred whilst loading plugins!", e);
+            }
+//            });
+
 
             // Start the server
             Logger.info("Server started on port " + CytosisSettings.SERVER_PORT + "");
@@ -418,7 +425,7 @@ public final class Cytosis {
             }
             long end = System.currentTimeMillis();
             Logger.info("Server started in " + (end - start) + "ms!");
-            Logger.info("Server id = " + SERVER_ID + "");
+            Logger.info("Server group = " + SERVER_ID + "");
 
 
             if (flags.contains("--ci-test")) {
