@@ -22,4 +22,10 @@ public class ClickableItemRegistry extends Registry<NamespaceID, ClickableItem> 
             // duplicate keys do not matter in this case
         }
     }
+
+    public void add(@NotNull ClickableItem... clickableItems) {
+        for (ClickableItem clickableItem : clickableItems) {
+            add(clickableItem);
+        }
+    }
 }
