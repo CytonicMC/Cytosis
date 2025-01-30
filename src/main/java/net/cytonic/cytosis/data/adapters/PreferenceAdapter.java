@@ -92,12 +92,18 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
 
         in.endObject();
 
-        if (rawID == null) throw new JsonParseException("Preference deserialization failed: No id found");
+        if (rawID == null) throw new JsonParseException("Preference deserialization failed: No group found");
 
         NamespaceID id = NamespaceID.from(rawID);
 
         Class<T> type = (Class<T>) Cytosis.getPreferenceManager().getPreferenceRegistry().getTypeFromNamespace(id);
-        PreferenceRegistry.Entry<T> preference = Cytosis.getPreferenceManager().getPreferenceRegistry().get(new TypedNamespace<>(id, type));
+        PreferenceRegistry.Entry<T> preference;
+        try {
+            preference = Cytosis.getPreferenceManager().getPreferenceRegistry().get(new TypedNamespace<>(id, type));
+        } catch (IllegalArgumentException e) {
+            // this server doesn't have the plugin that created that preference
+            return null;
+        }
 
         if (preference.preference() instanceof JsonPreference<T> json) {
             return new JsonPreference<>(id, type, json.deserialize(value.toString())); // should already be a string....

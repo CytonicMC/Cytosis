@@ -19,7 +19,7 @@ public class Menu extends Inventory {
     Map<Integer, ClickableItem> clickables = new HashMap<>();
 
     /**
-     * Constructs a new SkyblockInventory.
+     * Constructs a new Inventory.
      *
      * @param inventoryType the type of inventory to create
      * @param title         the title of the inventory
@@ -58,7 +58,7 @@ public class Menu extends Inventory {
      * Adds a clickable item to the inventory at the specified slot.
      *
      * @param clickable the ClickableItem to add
-     * @param player    the SkyblockPlayer for whom the item is being added
+     * @param player    the CytosisPlayer for whom the item is being added
      * @param slot      the inventory slot to place the item in
      */
     public void setClickableItem(@NotNull ClickableItem clickable, @NotNull CytosisPlayer player, int slot) {

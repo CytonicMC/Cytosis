@@ -5,10 +5,12 @@ LABEL authors="CytonicMC"
 WORKDIR /app
 
 # Copy cytosis Jar
-COPY ../../build/libs/cytosis.jar .
+ADD ../../build/libs/cytosis.jar .
+
+ADD ../../build/libs/config.toml .
 
 # Expose the port
-EXPOSE 25565
+EXPOSE 25567
 
 # Run the java
-CMD ["java", "-DSERVER_PORT=25565", "-jar", "--enable-preview", "cytosis.jar"]
+CMD ["java", "-jar", "cytosis.jar"]

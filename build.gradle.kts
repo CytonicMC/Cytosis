@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:698af959c8")
+    api("net.minestom:minestom-snapshots:32735340d7")
     api("com.google.code.gson:gson:2.12.0") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.18.0")// better components
@@ -54,6 +54,7 @@ tasks {
     assemble {
         dependsOn("shadowJar")
         dependsOn("copyShadowJarToSecondary")
+        dependsOn("copyForDocker")
     }
     named<ShadowJar>("shadowJar") {
         manifest {
@@ -68,6 +69,13 @@ tasks {
             )
         )
     }
+}
+
+tasks.register<Copy>("copyForDocker") {
+    dependsOn(tasks.shadowJar)
+    from(tasks.shadowJar.get().archiveFile)
+
+    into(layout.buildDirectory.dir("libs"))
 }
 
 tasks.register<Copy>("copyShadowJarToSecondary") {

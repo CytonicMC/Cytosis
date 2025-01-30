@@ -16,8 +16,8 @@ public interface Msg {
     /**
      * Parses MiniMessage into a Component
      */
-    static Component mm(String message) {
-        return MiniMessage.miniMessage().deserialize(message).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    static Component mm(String message, Object... args) {
+        return MiniMessage.miniMessage().deserialize(String.format(message, args)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     static List<Component> wrap(String minimessage) {
@@ -28,16 +28,16 @@ public interface Msg {
         return ComponentWrapper.wrap(mm(minimessage), width);
     }
 
-    static Component whoops(String str) {
-        return mm("<red><b>WHOOPS!</b></red><gray> " + str);
+    static Component whoops(String str, Object... args) {
+        return mm(String.format("<red><b>WHOOPS!</b></red><gray> " + str, args));
     }
 
-    static Component serverError(String str) {
-        return mm("<red><b>SERVER ERROR!</b></red><gray> " + str);
+    static Component serverError(String str, Object... args) {
+        return mm(String.format("<red><b>SERVER ERROR!</b></red><gray> " + str, args));
     }
 
-    static Component success(String str) {
-        return mm("<green><b>SUCCESS!</b></green><gray> " + str);
+    static Component success(String str, Object... args) {
+        return mm(String.format("<green><b>SUCCESS!</b></green><gray> " + str, args));
     }
 
     /**

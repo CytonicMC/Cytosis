@@ -6,11 +6,11 @@ import com.google.gson.Gson;
 /**
  * A record representing a server group
  *
- * @param id          the id of the server group
- * @param mapName     the map name of the server group
+ * @param group          the group of the server group
+ * @param type     the map name of the server group
  * @param canFallback whether you can fall back to this server group
  */
-public record ServerGroup(String id, String mapName, boolean canFallback) {
+public record ServerGroup(String group, String type, boolean canFallback) {
 
     /**
      * Deserializes the given json into a {@link ServerGroup}

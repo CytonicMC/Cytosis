@@ -15,6 +15,12 @@ public class ClickableItemRegistry extends Registry<NamespaceID, ClickableItem> 
         add(ClickableItem.CLOSE_BUTTON);
     }
 
+    public void addAll(@NotNull ClickableItem... clickableItems) {
+        for (ClickableItem clickableItem : clickableItems) {
+            add(clickableItem);
+        }
+    }
+
     public void add(@NotNull ClickableItem clickableItem) {
         try {
             add(clickableItem.id(), clickableItem);

@@ -6,7 +6,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 
-import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -39,7 +38,7 @@ public class DefaultCreator implements SideboardCreator {
                     Msg.mm("<green>Rank: ").append(Component.text(player.getRank().name(), (player.getRank().getTeamColor()))),
                     Msg.mm("<green>Chat Channel<white>: " + player.getChatChannel().name()),
                     Msg.mm(""),
-                    Msg.mm("<yellow>" + InetAddress.getLocalHost().getHostAddress())
+                    Msg.mm("<yellow>mc.cytonic.net")
             );
         } catch (Exception e) {
             Logger.error("error", e);
