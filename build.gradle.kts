@@ -71,6 +71,13 @@ tasks {
     }
 }
 
+tasks.register<Copy>("copyForDocker") {
+    dependsOn(tasks.shadowJar)
+    from(tasks.shadowJar.get().archiveFile)
+
+    into(layout.buildDirectory.dir("libs"))
+}
+
 tasks.register<Copy>("copyShadowJarToSecondary") {
     dependsOn(tasks.shadowJar)
 
