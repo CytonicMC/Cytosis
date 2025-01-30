@@ -54,6 +54,7 @@ tasks {
     assemble {
         dependsOn("shadowJar")
         dependsOn("copyShadowJarToSecondary")
+        dependsOn("copyForDocker")
     }
     named<ShadowJar>("shadowJar") {
         manifest {
