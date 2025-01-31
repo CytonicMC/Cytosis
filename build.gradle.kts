@@ -21,7 +21,7 @@ repositories {
 dependencies {
     api("net.cytonic:CytosisPluginProcessor:1.0")
     api("net.minestom:minestom-snapshots:32735340d7")
-    api("com.google.code.gson:gson:2.12.0") // serializing
+    api("com.google.code.gson:gson:2.12.1") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.18.0")// better components
     implementation("com.mysql:mysql-connector-j:9.2.0") //mysql connector
