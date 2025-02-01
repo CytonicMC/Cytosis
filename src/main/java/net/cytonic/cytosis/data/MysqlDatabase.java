@@ -203,7 +203,7 @@ public class MysqlDatabase {
             if (isConnected()) {
                 PreparedStatement ps;
                 try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data varchar(100))");
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT)");
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
