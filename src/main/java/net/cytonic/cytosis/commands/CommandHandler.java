@@ -7,6 +7,8 @@ import net.cytonic.cytosis.commands.debug.PreferenceCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.moderation.*;
+import net.cytonic.cytosis.commands.movement.LobbyCommand;
+import net.cytonic.cytosis.commands.movement.PlayCommand;
 import net.cytonic.cytosis.commands.server.*;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
@@ -39,43 +41,46 @@ public class CommandHandler {
      */
     public void registerCytosisCommands() {
         CommandManager cm = Cytosis.getCommandManager();
-        cm.register(new GamemodeCommand());
-        cm.register(new RankCommand());
-        cm.register(new BanCommand());
-        cm.register(new ChatChannelCommand());
-        cm.register(new StopCommand());
-        cm.register(new ServerCommand());
-        cm.register(new CreateInstanceCommand());
-        cm.register(new ShutdownInstancesCommand());
-        cm.register(new PodDetailsCommand());
-        cm.register(new TeleportCommand());
-        cm.register(new FindCommand());
-        cm.register(new PreferenceCommand());
-        cm.register(new ServerAlertsCommand());
-        cm.register(new FlyCommand());
-        cm.register(new BroadcastCommand());
-        cm.register(new HelpCommand());
-        cm.register(new AllChatCommand());
-        cm.register(new TimeCommand());
-        cm.register(new VersionCommand());
-        cm.register(new PingCommand());
-        //cm.register(new ReportCommand());
-        cm.register(new FriendCommand());
-        cm.register(new ClearchatCommand());
-        cm.register(new VanishCommand());
-        cm.register(new IgnoreChatChannelCommand());
-        cm.register(new UnbanCommand());
-        cm.register(new MuteCommand());
-        cm.register(new UnmuteCommand());
-        cm.register(new KickCommand());
-        cm.register(new MsgCommand());
-        cm.register(new WarnCommand());
-        cm.register(new CooldownCommand(Cytosis.getNetworkCooldownManager()));
-        cm.register(new LoopCommand());
-        cm.register(new RecalculatePermissions());
-        cm.register(new YoinkCommand());
-        cm.register(new ReplyCommand());
-        cm.register(new SnooperCommand());
+        cm.register(
+                new GamemodeCommand(),
+                new RankCommand(),
+                new BanCommand(),
+                new ChatChannelCommand(),
+                new StopCommand(),
+                new ServerCommand(),
+                new CreateInstanceCommand(),
+                new ShutdownInstancesCommand(),
+                new PodDetailsCommand(),
+                new TeleportCommand(),
+                new FindCommand(),
+                new PreferenceCommand(),
+                new ServerAlertsCommand(),
+                new FlyCommand(),
+                new BroadcastCommand(),
+                new HelpCommand(),
+                new AllChatCommand(),
+                new TimeCommand(),
+                new VersionCommand(),
+                new PingCommand(),
+                new FriendCommand(),
+                new ClearchatCommand(),
+                new VanishCommand(),
+                new IgnoreChatChannelCommand(),
+                new UnbanCommand(),
+                new MuteCommand(),
+                new UnmuteCommand(),
+                new KickCommand(),
+                new MsgCommand(),
+                new WarnCommand(),
+                new CooldownCommand(Cytosis.getNetworkCooldownManager()),
+                new LoopCommand(),
+                new RecalculatePermissions(),
+                new YoinkCommand(),
+                new ReplyCommand(),
+                new SnooperCommand(),
+                new PlayCommand(),
+                new LobbyCommand()
+        );
     }
 
     /**
