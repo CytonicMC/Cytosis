@@ -18,7 +18,7 @@ public class TimeCommand extends Command {
     public TimeCommand() {
         super("time");
         setCondition(CommandUtils.IS_STAFF);
-        var timeArgument = ArgumentType.Word("time").from("day", "night", "noon", "midnight", "sunrise", "sunset");
+        var timeArgument = ArgumentType.Word("time").from("day", "night", "noon", "midnight", "sunrise", "sunset", "freeze");
         var timeInteger = ArgumentType.Integer("timeInteger");
         timeArgument.setSuggestionCallback((sender, cmdc, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("day"));
@@ -27,6 +27,7 @@ public class TimeCommand extends Command {
             suggestion.addEntry(new SuggestionEntry("midnight"));
             suggestion.addEntry(new SuggestionEntry("sunrise"));
             suggestion.addEntry(new SuggestionEntry("sunset"));
+            suggestion.addEntry(new SuggestionEntry("freeze"));
         });
         setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>Usage: /time (time)")));
         addSyntax((sender, context) -> {
@@ -54,6 +55,15 @@ public class TimeCommand extends Command {
                 case "sunset" -> {
                     Cytosis.getDefaultInstance().setTime(12000); // Sunset
                     sender.sendMessage(Msg.mm("<GREEN>Time set to sunset."));
+                }
+                case "freeze" -> {
+                    if (Cytosis.getDefaultInstance().getTimeRate() == 1) {
+                        Cytosis.getDefaultInstance().setTimeRate(0);
+                        sender.sendMessage(Msg.mm("<green>Time frozen."));
+                    } else if (Cytosis.getDefaultInstance().getTimeRate() == 0) {
+                        Cytosis.getDefaultInstance().setTimeRate(1);
+                        sender.sendMessage(Msg.mm("<green>Time unfrozen."));
+                    }
                 }
             }
 

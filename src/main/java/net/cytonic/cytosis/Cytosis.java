@@ -87,6 +87,7 @@ public final class Cytosis {
     @Getter
     private static net.minestom.server.instance.InstanceManager minestomInstanceManager;
     @Getter
+    @Setter
     private static InstanceContainer defaultInstance;
     @Getter
     private static EventHandler eventHandler;

@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.cytonic.cytosis.Cytosis;
@@ -203,7 +204,7 @@ public class MysqlDatabase {
             if (isConnected()) {
                 PreparedStatement ps;
                 try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data varchar(100))");
+                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT)");
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
@@ -736,6 +737,31 @@ public class MysqlDatabase {
                 }
             } catch (Exception e) {
                 Logger.error("An error occurred whilst fetching a world!", e);
+                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+            }
+        });
+        return future;
+    }
+
+    public CompletableFuture<JsonObject> getWorldExtraData(String worldName, String worldType) {
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        if (!isConnected())
+            throw new IllegalStateException("The database must have an open connection to fetch the extra data from a world!");
+        worker.submit(() -> {
+            try (PreparedStatement ps = connection.prepareStatement("SELECT extra_data FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
+                ps.setString(1, worldName);
+                ps.setString(2, worldType);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    JsonObject extraData = Cytosis.GSON.fromJson(rs.getString("extra_data"), JsonObject.class);
+                    future.complete(extraData);
+                } else {
+                    Logger.error("The result set is empty!");
+                    throw new RuntimeException("World data not found: " + worldName);
+                }
+            } catch (Exception e) {
+                Logger.error("An error occurred whilst fetching the extra data from a world!", e);
                 future.completeExceptionally(e);
                 throw new RuntimeException(e);
             }

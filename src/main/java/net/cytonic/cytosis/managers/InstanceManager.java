@@ -1,7 +1,9 @@
 package net.cytonic.cytosis.managers;
 
+import com.google.gson.JsonObject;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.logging.Logger;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
@@ -41,6 +43,18 @@ public class InstanceManager {
             container.setChunkLoader(new PolarLoader(world));
             Cytosis.getMinestomInstanceManager().registerInstance(container);
             future.complete(container);
+        });
+        return future;
+    }
+
+    public CompletableFuture<JsonObject> getExtraData(String worldName, String worldType) {
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        Cytosis.getDatabaseManager().getMysqlDatabase().getWorldExtraData(worldName, worldType).whenComplete((extraData, throwable) -> {
+            if (throwable != null) {
+                future.completeExceptionally(throwable);
+            } else {
+                future.complete(extraData);
+            }
         });
         return future;
     }
