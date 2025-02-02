@@ -425,7 +425,7 @@ public final class Cytosis {
             }
             long end = System.currentTimeMillis();
             Logger.info("Server started in " + (end - start) + "ms!");
-            Logger.info("Server group = " + SERVER_ID + "");
+            Logger.info("Server group = " + serverGroup.group());
 
 
             if (flags.contains("--ci-test")) {
