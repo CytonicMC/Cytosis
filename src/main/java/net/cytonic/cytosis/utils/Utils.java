@@ -114,15 +114,6 @@ public final class Utils {
                     }
                 }
             }
-            if (iface.getName().equals("docker0")) {
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    if (addr instanceof Inet4Address) { // Change to Inet6Address for IPv6
-                        return addr.getHostAddress();
-                    }
-                }
-            }
         }
         return null; // No other IP found (Docker or Tailscale)
     }

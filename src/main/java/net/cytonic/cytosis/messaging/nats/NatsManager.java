@@ -14,6 +14,7 @@ import net.cytonic.cytosis.data.containers.friends.FriendResponse;
 import net.cytonic.cytosis.data.containers.friends.OrganicFriendResponse;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.data.containers.servers.SendPlayerToServerContainer;
+import net.cytonic.cytosis.data.containers.servers.SendToServerTypeContainer;
 import net.cytonic.cytosis.data.containers.servers.ServerSendReponse;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
@@ -501,6 +502,26 @@ public class NatsManager {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(), reponse.message()));
             } else {
                 p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", server.id()));
+            }
+        }));
+    }
+
+    public void sendPlayerToServer(UUID player, String group, String id, @Nullable String displayname) {
+        Thread.ofVirtual().name("NATS Player Sender").start(() -> request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypeContainer(player, group, id).serialize(), (message, throwable) -> {
+            if (Cytosis.getPlayer(player).isEmpty()) return;
+            Player p = Cytosis.getPlayer(player).get();
+            if (throwable != null) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", displayname == null ? "the a server" : displayname));
+                Logger.error("An error occured whilst sending " + player + " to a generic " + group + ":" + id + "! <red>(%s)</red>", throwable);
+            }
+
+            ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
+
+            Logger.debug("Sent " + reponse.message() + " to " + player);
+            if (!reponse.success()) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", displayname == null ? "the a server" : displayname, reponse.message()));
+            } else {
+                p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", displayname == null ? "the a server" : displayname));
             }
         }));
     }
