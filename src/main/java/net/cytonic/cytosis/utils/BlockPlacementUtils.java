@@ -336,7 +336,6 @@ public class BlockPlacementUtils {
         return new BlockPlacementRule(block) {
             @Override
             public Block blockPlace(@NotNull PlacementState placementState) {
-                Logger.debug(placementState.cursorPosition() + "");
                 return blockUpdate(new UpdateState(placementState.instance(), placementState.placePosition(), placementState.block(), placementState.blockFace()));
             }
 
