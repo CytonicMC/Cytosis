@@ -79,7 +79,8 @@ public class CommandHandler {
                 new ReplyCommand(),
                 new SnooperCommand(),
                 new PlayCommand(),
-                new LobbyCommand()
+                new LobbyCommand(),
+                new WhereAmiCommand()
         );
     }
 
