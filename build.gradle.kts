@@ -50,6 +50,32 @@ tasks.withType<Javadoc> {
     javadocOptions.addStringOption("source", "21")
 }
 
+val generateBuildInfo = tasks.register("generateBuildInfo") {
+    dependsOn("incrementBuildNumber")
+
+    val outputDir = file("$projectDir/build/generated/sources/buildinfo")
+    val packageDir = File(outputDir, "net/cytonic/cytosis/utils")
+    val buildInfoFile = File(packageDir, "BuildInfo.java")
+
+    doLast {
+        packageDir.mkdirs()
+        outputDir.mkdirs()
+        buildInfoFile.createNewFile()
+        buildInfoFile.writeText(
+            """
+            package net.cytonic.cytosis.utils;
+            
+            public class BuildInfo {
+                public static final String BUILD_VERSION = "${project.version}";
+                public static final String BUILD_NUMBER = "$buildNumber";
+                public static final String GIT_COMMIT = "${"git rev-parse --short HEAD".runCommand()}";
+            }
+            """.trimIndent()
+        )
+        println("Generated BuildInfo.java at $buildInfoFile")
+    }
+}
+
 tasks {
     assemble {
         dependsOn("shadowJar")
