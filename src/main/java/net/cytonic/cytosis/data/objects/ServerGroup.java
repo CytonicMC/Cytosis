@@ -41,4 +41,8 @@ public record ServerGroup(String group, String type, boolean canFallback) {
         return serialize();
     }
 
+    public String humanReadable() {
+        return group + ":" + type;
+    }
+
 }
