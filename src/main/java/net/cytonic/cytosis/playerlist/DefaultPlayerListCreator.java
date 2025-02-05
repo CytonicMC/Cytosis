@@ -23,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DefaultPlayerListCreator implements PlayerlistCreator {
 
-    private final int colCount = 4;
+    private final int colCount = 3;
     private final Instant start = Instant.now();
 
     /**
@@ -51,25 +51,18 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
                     new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())));
         }
 
-        Column players1 = new Column(Msg.mm("<dark_purple><b>        Players    "), PlayerListFavicon.PURPLE);
-        if (players.size() >= 19) {
-            players1.setEntries(new ArrayList<>(players.subList(0, 19)));
-            players = new ArrayList<>(players.subList(19, players.size()));
-        } else {
-            players1.setEntries(new ArrayList<>(players));
-            players.clear();
-        }
-
-
-        Column players2 = new Column(Msg.mm("<dark_purple><b>        Players    "), PlayerListFavicon.PURPLE);
+        Column playerCol = new Column(Msg.mm("<dark_purple><b>        Players    "), PlayerListFavicon.PURPLE);
         if (players.size() >= 19) {
             int extra = players.size() - 19;
             players = new ArrayList<>(players.subList(0, 18));
             players.add(new PlayerListEntry(Msg.mm("<italic> + " + extra + " more"), 100));
+        } else {
+            playerCol.setEntries(new ArrayList<>(players));
+            players.clear();
         }
-        players2.setEntries(players);
-        columns.add(players1);
-        columns.add(players2);
+
+
+        columns.add(playerCol);
 
         columns.add(new Column(Msg.mm("<dark_aqua><b>     Server Info"), PlayerListFavicon.BLUE,
                 Utils.list(new PlayerListEntry(Msg.mm("<dark_aqua>Uptime: " + DurationParser.unparse(start, " ") + ""), 0),
