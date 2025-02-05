@@ -50,6 +50,32 @@ tasks.withType<Javadoc> {
     javadocOptions.addStringOption("source", "21")
 }
 
+val generateBuildInfo = tasks.register("generateBuildInfo") {
+    dependsOn("incrementBuildNumber")
+
+    val outputDir = file("$projectDir/build/generated/sources/buildinfo")
+    val packageDir = File(outputDir, "net/cytonic/cytosis/utils")
+    val buildInfoFile = File(packageDir, "BuildInfo.java")
+
+    doLast {
+        packageDir.mkdirs()
+        outputDir.mkdirs()
+        buildInfoFile.createNewFile()
+        buildInfoFile.writeText(
+            """
+            package net.cytonic.cytosis.utils;
+            
+            public class BuildInfo {
+                public static final String BUILD_VERSION = "${project.version}";
+                public static final String BUILD_NUMBER = "$buildNumber";
+                public static final String GIT_COMMIT = "${"git rev-parse --short HEAD".runCommand()}";
+            }
+            """.trimIndent()
+        )
+        println("Generated BuildInfo.java at $buildInfoFile")
+    }
+}
+
 tasks {
     assemble {
         dependsOn("shadowJar")
@@ -138,3 +164,37 @@ publishing {
         }
     }
 }
+
+val buildNumberFile = file("build-number.txt")
+
+val buildNumber: Int = if (buildNumberFile.exists()) {
+    buildNumberFile.readText().trim().toInt() + 1
+} else {
+    1
+}
+
+tasks.register("incrementBuildNumber") {
+    doLast {
+        buildNumberFile.writeText(buildNumber.toString())
+        println("Build Number: $buildNumber")
+    }
+}
+
+// Add generated source directory to Java compilation
+tasks.compileJava {
+    dependsOn(generateBuildInfo)
+    source(generateBuildInfo.map { layout.buildDirectory.dir("generated/sources/buildinfo").get() })
+}
+
+sourceSets.main {
+    java.srcDir(layout.buildDirectory.dir("generated/sources/buildinfo"))
+}
+
+
+project.extra["BUILD_NUMBER"] = buildNumber
+
+// Helper function to run shell commands
+fun String.runCommand(): String =
+    ProcessBuilder("sh", "-c", this)
+        .start()
+        .inputStream.bufferedReader().readText().trim()
