@@ -69,6 +69,7 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
                 public static final String BUILD_VERSION = "${project.version}";
                 public static final String BUILD_NUMBER = "$buildNumber";
                 public static final String GIT_COMMIT = "${"git rev-parse --short HEAD".runCommand()}";
+                public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
             }
             """.trimIndent()
         )
