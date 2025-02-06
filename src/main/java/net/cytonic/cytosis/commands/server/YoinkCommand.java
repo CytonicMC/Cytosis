@@ -33,6 +33,10 @@ public class YoinkCommand extends Command {
 
             String playerName = context.get(playerArgument);
             UUID uuid = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(playerName.toLowerCase());
+            if (uuid == null) {
+                sender.sendMessage(Msg.whoops("The player " + playerName + " doesn't exist!"));
+                return;
+            }
             if (uuid.equals(player.getUuid())) {
                 player.sendMessage(Msg.whoops("You cannot do this to yourself!"));
                 return;

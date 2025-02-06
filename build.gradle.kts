@@ -28,7 +28,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("com.rabbitmq:amqp-client:5.24.0") // Message broker
+    api("com.rabbitmq:amqp-client:5.25.0") // Message broker
     api("dev.hollowcube:polar:1.12.2") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.4.0-jre")
@@ -48,6 +48,33 @@ tasks.withType<Jar> {
 tasks.withType<Javadoc> {
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "21")
+}
+
+val generateBuildInfo = tasks.register("generateBuildInfo") {
+    dependsOn("incrementBuildNumber")
+
+    val outputDir = file("$projectDir/build/generated/sources/buildinfo")
+    val packageDir = File(outputDir, "net/cytonic/cytosis/utils")
+    val buildInfoFile = File(packageDir, "BuildInfo.java")
+
+    doLast {
+        packageDir.mkdirs()
+        outputDir.mkdirs()
+        buildInfoFile.createNewFile()
+        buildInfoFile.writeText(
+            """
+            package net.cytonic.cytosis.utils;
+            
+            public class BuildInfo {
+                public static final String BUILD_VERSION = "${project.version}";
+                public static final String BUILD_NUMBER = "$buildNumber";
+                public static final String GIT_COMMIT = "${"git rev-parse --short HEAD".runCommand()}";
+                public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
+            }
+            """.trimIndent()
+        )
+        println("Generated BuildInfo.java at $buildInfoFile")
+    }
 }
 
 tasks {
@@ -138,3 +165,37 @@ publishing {
         }
     }
 }
+
+val buildNumberFile = file("build-number.txt")
+
+val buildNumber: Int = if (buildNumberFile.exists()) {
+    buildNumberFile.readText().trim().toInt() + 1
+} else {
+    1
+}
+
+tasks.register("incrementBuildNumber") {
+    doLast {
+        buildNumberFile.writeText(buildNumber.toString())
+        println("Build Number: $buildNumber")
+    }
+}
+
+// Add generated source directory to Java compilation
+tasks.compileJava {
+    dependsOn(generateBuildInfo)
+    source(generateBuildInfo.map { layout.buildDirectory.dir("generated/sources/buildinfo").get() })
+}
+
+sourceSets.main {
+    java.srcDir(layout.buildDirectory.dir("generated/sources/buildinfo"))
+}
+
+
+project.extra["BUILD_NUMBER"] = buildNumber
+
+// Helper function to run shell commands
+fun String.runCommand(): String =
+    ProcessBuilder("sh", "-c", this)
+        .start()
+        .inputStream.bufferedReader().readText().trim()
