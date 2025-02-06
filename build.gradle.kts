@@ -195,7 +195,13 @@ sourceSets.main {
 project.extra["BUILD_NUMBER"] = buildNumber
 
 // Helper function to run shell commands
-fun String.runCommand(): String =
-    ProcessBuilder("sh", "-c", this)
-        .start()
-        .inputStream.bufferedReader().readText().trim()
+fun String.runCommand(): String {
+    val isWindows = System.getProperty("os.name").lowercase().contains("win")
+    val process = if (isWindows) {
+        ProcessBuilder("cmd", "/c", this)
+    } else {
+        ProcessBuilder("sh", "-c", this)
+    }.start()
+
+    return process.inputStream.bufferedReader().readText().trim()
+}
