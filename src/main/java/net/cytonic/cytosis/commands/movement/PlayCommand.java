@@ -19,7 +19,7 @@ public class PlayCommand extends Command {
                 case "gg", "gilded", "gilded_gorge" ->
                         Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");
                 case "bw", "bedwars" ->//todo: Some sort of logic for game queuing
-                        Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), "bedwars", "game_server", "BedWars");
+                        Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), "bedwars", "solos", "BedWars");
 
             }
         }, word);
