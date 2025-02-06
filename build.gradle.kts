@@ -28,7 +28,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("com.rabbitmq:amqp-client:5.24.0") // Message broker
+    api("com.rabbitmq:amqp-client:5.25.0") // Message broker
     api("dev.hollowcube:polar:1.12.2") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.4.0-jre")
@@ -69,6 +69,7 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
                 public static final String BUILD_VERSION = "${project.version}";
                 public static final String BUILD_NUMBER = "$buildNumber";
                 public static final String GIT_COMMIT = "${"git rev-parse --short HEAD".runCommand()}";
+                public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
             }
             """.trimIndent()
         )
