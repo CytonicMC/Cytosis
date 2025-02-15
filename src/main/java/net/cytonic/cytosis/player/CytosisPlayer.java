@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.player;
 
+import io.github.togar2.pvp.player.CombatPlayerImpl;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
@@ -27,7 +28,7 @@ import java.util.UUID;
  */
 @Getter
 @SuppressWarnings("unused")
-public class CytosisPlayer extends Player {
+public class CytosisPlayer extends CombatPlayerImpl {
     private PlayerRank rank;
 
     /**
