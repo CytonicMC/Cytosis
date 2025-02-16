@@ -3,6 +3,9 @@ package net.cytonic.cytosis;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
+import io.github.togar2.pvp.MinestomPvP;
+import io.github.togar2.pvp.feature.CombatFeatureSet;
+import io.github.togar2.pvp.feature.CombatFeatures;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.commands.CommandHandler;
@@ -150,7 +153,7 @@ public final class Cytosis {
     public static void main(String[] args) {
         // handle uncaught exceptions
         Logger.info("Starting server!");
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error("Uncaught exception in thread " + t.getName() + "", e));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error("Uncaught exception in thread " + t.getName(), e));
 
         flags = List.of(args);
         long start = System.currentTimeMillis();
@@ -412,11 +415,19 @@ public final class Cytosis {
                 Logger.error("An error occurred whilst loading plugins!", e);
                 throw new RuntimeException("An error occurred whilst loading plugins!", e);
             }
-//            });
 
+            try {
+                Logger.info("Loading PVP");
+                MinestomPvP.init();
+                CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
+                MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
+                MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
+            } catch (Exception e) {
+                Logger.error("error", e);
+            }
 
             // Start the server
-            Logger.info("Server started on port " + CytosisSettings.SERVER_PORT + "");
+            Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
             minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
             MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
             try {
