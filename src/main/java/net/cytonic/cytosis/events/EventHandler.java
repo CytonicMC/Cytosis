@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.events;
 
+import io.github.togar2.pvp.events.*;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.book.EditBookEvent;
@@ -14,6 +15,7 @@ import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.PickupExperienceEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
+import net.minestom.server.event.player.PlayerSpectateEvent;
 import net.minestom.server.event.server.ClientPingServerEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
@@ -229,6 +231,27 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(ClientPingServerEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerListPingEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(ServerTickMonitorEvent.class, (this::handleEvent));
-        // Cytosis Events
+        // Pvp
+        GLOBAL_HANDLER.addListener(AnchorChargeEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(AnchorExplodeEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(CrystalPlaceEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(DamageBlockEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(EntityKnockbackEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(EntityPreDeathEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(EquipmentDamageEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(ExplosionEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(ExplosivePrimeEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(FinalAttackEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(FinalDamageEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(FishingBobberRetrieveEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(LegacyKnockbackEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(EntityKnockbackEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PrepareAttackEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PickupEntityEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerExhaustEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerRegenerateEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerSpectateEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PotionVisibilityEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(TotemUseEvent.class, (this::handleEvent));
     }
 }
