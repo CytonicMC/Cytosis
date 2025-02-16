@@ -39,6 +39,7 @@ dependencies {
     implementation("io.nats:jnats:2.20.5")
     implementation("org.jooq:jooq:3.19.18") // database queries
     implementation("com.github.utfunderscore:MinestomPvP:latest_minestom-SNAPSHOT") // pvp
+    implementation("eu.koboo:minestom-invue:21")
 }
 
 tasks.withType<Jar> {
