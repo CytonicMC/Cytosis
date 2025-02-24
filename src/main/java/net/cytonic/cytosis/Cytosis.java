@@ -3,6 +3,8 @@ package net.cytonic.cytosis;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
+import eu.koboo.minestom.invue.api.ViewRegistry;
+import eu.koboo.minestom.invue.core.MinestomInvue;
 import io.github.togar2.pvp.MinestomPvP;
 import io.github.togar2.pvp.feature.CombatFeatureSet;
 import io.github.togar2.pvp.feature.CombatFeatures;
@@ -81,6 +83,7 @@ public final class Cytosis {
      * The version of Cytosis
      */
     public static final String VERSION = "0.1";
+    public static final ViewRegistry VIEW_REGISTRY = MinestomInvue.create();
     @Setter
     @Getter
     private static ServerGroup serverGroup = new ServerGroup("cytonic", "lobby", true);
@@ -294,7 +297,11 @@ public final class Cytosis {
      * @param start The time the server started
      */
     public static void completeNonEssentialTasks(long start) {
+        Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
+
+        Logger.info("Initializing view registry");
+        VIEW_REGISTRY.enable();
 
         Logger.info("Starting NATS manager!");
         natsManager = new NatsManager();
