@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * A class representing a Player NPC
+ * A class representing a Player NPC. To create one use the builder methods in {@link NPC}
  */
 @SuppressWarnings("UnstableApiUsage")
 public class Humanoid extends EntityCreature implements NPC {

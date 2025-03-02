@@ -2,8 +2,7 @@ package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
-import net.cytonic.cytosis.menus.Menu;
-import net.cytonic.cytosis.menus.snooper.SnooperMenu;
+import net.cytonic.cytosis.menus.snooper.SnooperProvider;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.Command;
@@ -35,7 +34,6 @@ public class SnooperAuditCommand extends Command {
             String searchFor = String.join(" ", c.get(search));
             if (searchFor.contains("--force")) {
                 searchFor = searchFor.replace("--force", "");
-                Cytosis.getSnooperManager().getPersistenceManager().invalidateCache();
                 player.sendMessage(Msg.mm("<yellow><b>CLEARED!</b></yellow><gray> Invalidated the cached snoops!"));
             }
             boolean ascending = true;
@@ -44,9 +42,7 @@ public class SnooperAuditCommand extends Command {
                 ascending = false;
             }
 
-            Menu inventory = new SnooperMenu(rawChannel, player, searchFor, ascending);
-            player.openInventory(inventory);
-
+            new SnooperProvider(rawChannel, searchFor, ascending).open(player);
 
         }, SnooperCommand.CHANNELS, search);
     }

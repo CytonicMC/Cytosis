@@ -5,11 +5,13 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NPCInteractType;
+import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
@@ -109,6 +111,7 @@ public final class ServerEventListeners {
                 Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
                 if (optional.isPresent() && optional.get() == event.getTarget()) {
                     NPC npc = optional.get();
+                    MinecraftServer.getGlobalEventHandler().call(new NpcInteractEvent(npc, player, npc.getActions()));
                     npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.ATTACK, player));
                 }
             }
@@ -117,6 +120,7 @@ public final class ServerEventListeners {
             Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
             if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
                 NPC npc = optional.get();
+                MinecraftServer.getGlobalEventHandler().call(new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()));
                 npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
             }
         }));
