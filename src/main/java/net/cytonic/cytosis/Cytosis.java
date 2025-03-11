@@ -26,7 +26,6 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
-import net.cytonic.cytosis.menus.ClickableItemRegistry;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -403,14 +402,9 @@ public final class Cytosis {
             snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
             snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
 
-
-            // Gui Framework...
-            ClickableItemRegistry.getInstance().registerAll();
-
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
-            //            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
             try {
                 if (new File("plugins").exists() && new File("plugins").isDirectory()) {
                     pluginManager.loadPlugins(Path.of("plugins"));

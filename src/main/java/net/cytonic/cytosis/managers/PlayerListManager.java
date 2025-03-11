@@ -102,7 +102,7 @@ public class PlayerListManager {
                 UUID uuid = listUUIDs[i][j];
                 packets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-                        List.of(new PlayerInfoUpdatePacket.Entry(uuid, "!" + col + "-" + row, List.of(playerFavicons.get(player.getUuid())[i][j]),
+                        List.of(new PlayerInfoUpdatePacket.Entry(uuid, "!" + col + "-" + row, List.of(playerFavicons.get(player.getUuid())[i][j]), // line 105
                                 true, 1, GameMode.CREATIVE, playerComponents.get(player.getUuid())[i][j], null, order)
                         )));
                 order++;

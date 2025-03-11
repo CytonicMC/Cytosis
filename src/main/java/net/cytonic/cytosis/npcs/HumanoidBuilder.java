@@ -10,7 +10,7 @@ import net.minestom.server.instance.Instance;
 import java.util.UUID;
 
 /**
- * A builder for creating Humanoid NPCs
+ * A builder for creating Humanoid NPCs, to use it call {@link  NPC#ofHumanoid(Humanoid)} or {@link NPC#ofHumanoid(Pos, Instance)}
  */
 public class HumanoidBuilder {
     private final Pos pos;
