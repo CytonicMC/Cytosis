@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.events;
 
 import io.github.togar2.pvp.events.*;
+import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.book.EditBookEvent;
@@ -253,5 +254,8 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(PlayerSpectateEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PotionVisibilityEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(TotemUseEvent.class, (this::handleEvent));
+
+        // Cytosis Events
+        GLOBAL_HANDLER.addListener(NpcInteractEvent.class, (this::handleEvent));
     }
 }
