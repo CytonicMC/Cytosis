@@ -37,7 +37,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
     implementation("io.nats:jnats:2.20.5")
-    implementation("org.jooq:jooq:3.20.1") // database queries
+    implementation("org.jooq:jooq:3.20.2") // database queries
     implementation("com.github.utfunderscore:MinestomPvP:latest_minestom-SNAPSHOT") // pvp
     implementation("eu.koboo:minestom-invue:1.0.1")
 }
