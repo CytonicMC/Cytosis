@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.tag.Tag;
 
 import java.util.UUID;
 
@@ -56,7 +57,58 @@ public class HumanoidBuilder {
      * @return The builder with updated data
      */
     public HumanoidBuilder skin(String value, String signature) {
-        this.skin(new PlayerSkin(value, signature));
+        return this.skin(new PlayerSkin(value, signature));
+    }
+
+    /**
+     * Sets the skin to a random default skin like steve or alex
+     *
+     * @return the builder for chaining
+     */
+    public HumanoidBuilder defaultSkin() {
+        return this.skin(new PlayerSkin(null, null));
+    }
+
+    /**
+     * Makes this NPC either able to be damaged or unable to be damaged
+     *
+     * @param invulnerable if this npc should be immune to damage
+     * @return the builder, for chaining
+     */
+    public HumanoidBuilder invulnerable(boolean invulnerable) {
+        NPC.setInvulnerable(invulnerable);
+        return this;
+    }
+
+    /**
+     * Makes this NPC invulnerable, or unable to be damaged
+     *
+     * @return the builder, for chaining
+     */
+    public HumanoidBuilder invulnerable() {
+        return this.invulnerable(true);
+    }
+
+    /**
+     * Tags this NPC with the given string value. Repeating this tag overwrites any previously written data
+     *
+     * @param tag The string data to associate with the NPC
+     * @return The builder, for chaining
+     */
+    public HumanoidBuilder tag(String tag) {
+        return tag(net.cytonic.cytosis.npcs.NPC.DATA_TAG, tag);
+    }
+
+    /**
+     * Tags the NPC with the given Tag and corresponding value. Calling this method multiple times for the same tag, overwrites existing data.
+     *
+     * @param tag   The tag to tag the NPC with
+     * @param value the value to associate with the tag
+     * @param <T>   The type of the tag.
+     * @return the builder, for chaining.
+     */
+    public <T> HumanoidBuilder tag(Tag<T> tag, T value) {
+        NPC.setTag(tag, value);
         return this;
     }
 
