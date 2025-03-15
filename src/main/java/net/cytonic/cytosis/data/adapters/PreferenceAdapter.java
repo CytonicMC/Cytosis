@@ -11,10 +11,7 @@ import com.google.gson.stream.JsonWriter;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
-import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.data.objects.preferences.Preference;
-import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
+import net.cytonic.cytosis.data.objects.preferences.*;
 import net.minestom.server.utils.NamespaceID;
 
 import java.io.IOException;
@@ -26,7 +23,6 @@ import java.util.UUID;
  *
  * @param <T> The type of the preference
  */
-@SuppressWarnings("preview")
 @NoArgsConstructor
 public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements TypeAdapterFactory {
 
@@ -35,6 +31,9 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
      */
     @Override
     public void write(JsonWriter out, Preference<?> value) throws IOException {
+        if (value == null) {
+            throw new IllegalArgumentException("Null preferences are not supported");
+        }
         if (!(value instanceof NamespacedPreference<?> pref)) { // json pref is an instance of namespaced
             throw new JsonParseException("Unsupported preference type: " + value.getClass().getName());
         }
@@ -50,7 +49,14 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
             case Boolean bool -> out.value(bool);
             case UUID uuid -> out.value(uuid.toString());
             case Enum<?> constant -> out.value(constant.name());
-            case null -> out.nullValue();
+            case null -> {
+                // fallbacks values are null, as  they keep them specially
+                if (value instanceof FallbackPreference<?> fallback) {
+                    out.value(fallback.getRawValue());
+                } else {
+                    out.nullValue();
+                }
+            }
             default -> {
                 if (pref instanceof JsonPreference<?> json) {
                     out.value(json.serialize());
@@ -96,13 +102,14 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
 
         NamespaceID id = NamespaceID.from(rawID);
 
+        // the easist and fastest way
         Class<T> type = (Class<T>) Cytosis.getPreferenceManager().getPreferenceRegistry().getTypeFromNamespace(id);
         PreferenceRegistry.Entry<T> preference;
         try {
             preference = Cytosis.getPreferenceManager().getPreferenceRegistry().get(new TypedNamespace<>(id, type));
         } catch (IllegalArgumentException e) {
-            // this server doesn't have the plugin that created that preference
-            return null;
+            // Create a FallbackPreference instead of returning null
+            return new FallbackPreference<>(new TypedNamespace<>(id, (Class<T>) String.class), String.valueOf(value));
         }
 
         if (preference.preference() instanceof JsonPreference<T> json) {
