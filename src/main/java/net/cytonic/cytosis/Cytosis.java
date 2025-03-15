@@ -402,6 +402,20 @@ public final class Cytosis {
             snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
             snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
 
+            try {
+                Logger.info("Loading PVP");
+                MinestomPvP.init();
+                CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
+                MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
+                MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
+            } catch (Exception e) {
+                Logger.error("error", e);
+            }
+
+            //
+            // PLUGIN LOADING IS ALWAYS LAST!!!!
+            // (This is so any apis it depends on are guarenteed to already by loaded!)
+            //
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
@@ -415,16 +429,6 @@ public final class Cytosis {
             } catch (Exception e) {
                 Logger.error("An error occurred whilst loading plugins!", e);
                 throw new RuntimeException("An error occurred whilst loading plugins!", e);
-            }
-
-            try {
-                Logger.info("Loading PVP");
-                MinestomPvP.init();
-                CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
-                MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
-                MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
-            } catch (Exception e) {
-                Logger.error("error", e);
             }
 
             // Start the server
