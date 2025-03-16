@@ -5,6 +5,7 @@ import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.metadata.PlayerMeta;
 import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
@@ -33,6 +34,7 @@ public class Humanoid extends EntityCreature implements NPC {
     private PlayerSkin skin;
     private boolean glowing = false;
     private NamedTextColor glowingColor = NamedTextColor.WHITE;
+    private boolean damagable = false;
 
     /**
      * Creates a new Humanoid from uuid, username, and skin
@@ -71,7 +73,7 @@ public class Humanoid extends EntityCreature implements NPC {
         super.updateNewViewer(player);
         player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
 
-        var team = new TeamsPacket("NPC-" + getUuid().toString() + "",
+        var team = new TeamsPacket("NPC-" + getUuid(),
                 new TeamsPacket.CreateTeamAction(Component.empty(),
                         (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
                         TeamsPacket.CollisionRule.NEVER, glowingColor,
@@ -140,20 +142,22 @@ public class Humanoid extends EntityCreature implements NPC {
 
     @Override
     public void createHolograms() {
+
         final double spacing = 0.3;
         for (int i = 0; i < lines.size(); i++) {
             Entity hologram = new Entity(EntityType.TEXT_DISPLAY);
             int finalI = i;
+            Pos pos = position.add(0, ((i + 1) * spacing), 0);
             hologram.editEntityMeta(TextDisplayMeta.class, meta -> {
                 meta.setText(lines.get(finalI));
                 meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
                 meta.setHasNoGravity(true);
+                meta.setTranslation(new Vec(0, ((finalI + 1) * spacing), 0));
             });
 
-            Pos pos = position.add(0, (i * spacing) + 2.05, 0);
 
             hologram.setInstance(instance, pos);
-            hologram.teleport(pos);
+            addPassenger(hologram);
         }
     }
 }
