@@ -31,7 +31,7 @@ dependencies {
     api("com.rabbitmq:amqp-client:5.25.0") // Message broker
     api("dev.hollowcube:polar:1.13.0") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
-    api("com.google.guava:guava:33.4.0-jre")
+    api("com.google.guava:guava:33.4.5-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
