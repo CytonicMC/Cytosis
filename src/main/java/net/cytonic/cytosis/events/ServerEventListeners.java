@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.events;
 
+import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -17,6 +18,7 @@ import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
+import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.utils.time.TimeUnit;
@@ -31,6 +33,8 @@ import java.util.Optional;
  */
 @NoArgsConstructor
 public final class ServerEventListeners {
+
+    public static double RAW_MSPT = 0;
 
     /**
      * Adds Cytosis required server events
@@ -52,7 +56,7 @@ public final class ServerEventListeners {
         Logger.info("Registering player spawn event.");
         Cytosis.getEventHandler().registerListener(new EventListener<>("core:player-spawn", false, 1, PlayerSpawnEvent.class, (event -> {
             final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
-            Logger.info(player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection().getServerAddress());
+            Logger.info(player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection().getRemoteAddress());
             Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
             player.setGameMode(GameMode.ADVENTURE);
             Cytosis.getDatabaseManager().getMysqlDatabase().addPlayer(player);
@@ -65,6 +69,10 @@ public final class ServerEventListeners {
             }
             for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
                 if (p.isVanished()) p.setVanished(true);
+            }
+            if (!player.hasPlayedBefore() && Cytosis.isMetricsEnabled()) {
+                // add a new player who hasn't played before
+                Cytosis.getMetricsManager().addToLongCounter("players.unique", 1, Attributes.empty());
             }
         })));
 
@@ -84,12 +92,12 @@ public final class ServerEventListeners {
                     if (player.canUseChannel(channel) || channel == ChatChannel.ALL) {
                         Cytosis.getChatManager().sendMessage(originalMessage, channel, player);
                     } else {
-                        player.sendMessage(Msg.mm("<red>Whoops! It looks like you can't chat in the " + channel.name().toLowerCase() + " channel. \uD83E\uDD14"));
+                        player.sendMessage(Msg.whoops("It looks like you can't chat in the " + channel.name().toLowerCase() + " channel. \uD83E\uDD14"));
                         Cytosis.getChatManager().setChannel(player.getUuid(), ChatChannel.ALL);
                     }
                     return;
                 }
-                player.sendMessage(Msg.mm("<red>Whoops! You're currently muted."));
+                player.sendMessage(Msg.whoops("You're currently muted."));
             });
         }));
 
@@ -170,6 +178,11 @@ public final class ServerEventListeners {
                 if (!p.isStaff()) return;
                 p.sendPacket(new EntityMetaDataPacket(packet.entityId(), entries));
             });
+        })));
+
+        Logger.info("Registering tick time events");
+        Cytosis.getEventHandler().registerListeners(new EventListener<>("core:tick-monitor", true, 0, ServerTickMonitorEvent.class, (event -> {
+            RAW_MSPT = event.getTickMonitor().getTickTime();
         })));
     }
 }
