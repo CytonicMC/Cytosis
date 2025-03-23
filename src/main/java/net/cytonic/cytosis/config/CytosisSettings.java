@@ -11,16 +11,11 @@ import java.util.Map;
  */
 public final class CytosisSettings {
     /**
-     * Defualt constructor
-     */
-    private CytosisSettings() {
-    }
-
-    // Logging
-    /**
      * Should the server log player joins
      */
     public static boolean LOG_PLAYER_JOINS = true;
+
+    // Logging
     /**
      * Should the server log player quits
      */
@@ -33,12 +28,12 @@ public final class CytosisSettings {
      * Should the server log player chat messages
      */
     public static boolean LOG_PLAYER_CHAT = true;
-
-    // Database
     /**
      * Should the server use the database
      */
     public static boolean DATABASE_ENABLED = true;
+
+    // Database
     /**
      * Database username
      */
@@ -63,12 +58,12 @@ public final class CytosisSettings {
      * Use SSL?
      */
     public static boolean DATABASE_USE_SSL = false;
-
-    // server
     /**
      * Should Cytosis run in proxy mode?
      */
     public static boolean SERVER_PROXY_MODE = false;
+
+    // server
     /**
      * The velocity forwarding secret
      */
@@ -77,7 +72,6 @@ public final class CytosisSettings {
      * The port to start on
      */
     public static int SERVER_PORT = 25565;
-
     /**
      * The name of the world to load from the database
      */
@@ -86,7 +80,6 @@ public final class CytosisSettings {
      * The pos for players to spawn at
      */
     public static Pos SERVER_SPAWN_POS = new Pos(0, 1, 0);
-
     /**
      * Should Cytosis use RabbitMQ?
      */
@@ -107,12 +100,12 @@ public final class CytosisSettings {
      * The port to connect to RabbitMQ on
      */
     public static int RABBITMQ_PORT = 5672;
-
-    //Redis
     /**
      * The redis port
      */
     public static int REDIS_PORT = 6379;
+
+    //Redis
     /**
      * The redis hostname
      */
@@ -121,8 +114,6 @@ public final class CytosisSettings {
      * The redis password
      */
     public static String REDIS_PASSWORD = "";
-
-
     /*
      * The configuration for the NATS message tool
      */
@@ -130,6 +121,9 @@ public final class CytosisSettings {
     public static int NATS_PORT = 4222;
     public static String NATS_PASSWORD = "";
     public static String NATS_USERNAME = "";
+
+    private CytosisSettings() {
+    }
 
     /**
      * Loads the config from a config map
@@ -253,8 +247,6 @@ public final class CytosisSettings {
         if (System.getenv("NATS_USERNAME") != null) NATS_USERNAME = System.getenv("NATS_USERNAME");
         if (System.getenv("NATS_PASSWORD") != null) NATS_PASSWORD = System.getenv("NATS_PASSWORD");
         if (System.getenv("NATS_PORT") != null) NATS_PORT = Integer.parseInt(System.getenv("NATS_PORT"));
-
-
     }
 
     /**

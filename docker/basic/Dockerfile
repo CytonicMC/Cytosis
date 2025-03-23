@@ -3,6 +3,12 @@ LABEL authors="CytonicMC"
 
 # Set the working directory
 WORKDIR /app
+# OTEL stuff
+ARG OTEL_PORT
+ARG OTEL_HOST
+
+ENV OTEL_PORT=${OTEL_PORT}
+ENV OTEL_HOSTNAME=${OTEL_HOST}
 
 # Copy cytosis Jar
 ADD ../../build/libs/cytosis.jar .
