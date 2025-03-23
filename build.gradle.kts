@@ -40,6 +40,13 @@ dependencies {
     implementation("org.jooq:jooq:3.20.1") // database queries
     implementation("com.github.utfunderscore:MinestomPvP:latest_minestom-SNAPSHOT") // pvp
     implementation("eu.koboo:minestom-invue:1.0.1")
+
+
+    // Core OpenTelemetry API & SDK
+    implementation("io.opentelemetry:opentelemetry-api:1.30.1")
+    implementation("io.opentelemetry:opentelemetry-sdk:1.30.1")
+    // OTLP Exporter (to send data to a collector/backend)
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.30.1")
 }
 
 tasks.withType<Jar> {
