@@ -37,7 +37,28 @@ public class MetricsManager {
         meter = CytosisOpenTelemetry.getMeter("cytosis");
     }
 
-    private void validateMetricName(String name) {
+    /**
+     * Creates a new Metrics manager with the specified meter
+     *
+     * @param meter the meter to follow
+     */
+    public MetricsManager(Meter meter) {
+        this.meter = meter;
+    }
+
+    /**
+     * Creates a new metrics manager with the meter identified by the given string
+     *
+     * @param name The name to identify the meter by
+     */
+    public MetricsManager(String name) {
+        this.meter = CytosisOpenTelemetry.getMeter(name);
+    }
+
+    private void validateState(String name) {
+        if (!Cytosis.isMetricsEnabled()) {
+            throw new IllegalStateException("Metrics collection has not been enabled!");
+        }
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Metric name cannot be null or empty");
         }
@@ -54,7 +75,7 @@ public class MetricsManager {
      * @param unit        the unit counted
      */
     public void createLongCounter(String counterName, String description, String unit) {
-        validateMetricName(counterName);
+        validateState(counterName);
         longsCounters.put(counterName, meter.counterBuilder(counterName).setDescription(description).setUnit(unit).build());
     }
 
@@ -66,7 +87,7 @@ public class MetricsManager {
      * @param unit        the unit counted
      */
     public void createDoubleCounter(String counterName, String description, String unit) {
-        validateMetricName(counterName);
+        validateState(counterName);
         doublesCounters.put(counterName, meter.counterBuilder(counterName).setDescription(description).setUnit(unit).ofDoubles().build());
     }
 
@@ -79,7 +100,7 @@ public class MetricsManager {
      *                    already included by default.
      */
     public void addToLongCounter(String counterName, long value, Attributes extraAttributes) {
-        validateMetricName(counterName);
+        validateState(counterName);
         if (value <= 0) return; // no negative values, adding 0 does nothing
         if (!longsCounters.containsKey(counterName)) return;
         longsCounters.get(counterName).add(value, Attributes.builder().putAll(extraAttributes)
@@ -97,7 +118,7 @@ public class MetricsManager {
      *                        already included by default.
      */
     public void addToDoubleCounter(String counterName, double value, Attributes extraAttributes) {
-        validateMetricName(counterName);
+        validateState(counterName);
         if (value <= 0) return; // no negative values
         if (!doublesCounters.containsKey(counterName)) return;
         doublesCounters.get(counterName).add(value, Attributes.builder().putAll(extraAttributes)
@@ -119,7 +140,7 @@ public class MetricsManager {
      *                        already included by default.
      */
     public void createDoubleGauge(String gaugeName, String description, String unit, Function<Void, Double> function, Attributes extraAttributes) {
-        validateMetricName(gaugeName);
+        validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit)
                 .buildWithCallback(observableDoubleMeasurement -> observableDoubleMeasurement
                         .record(function.apply(null), Attributes.builder().putAll(extraAttributes)
@@ -139,7 +160,7 @@ public class MetricsManager {
      *                        already included by default.
      */
     public void createLongGauge(String gaugeName, String description, String unit, Function<Void, Long> function, Attributes extraAttributes) {
-        validateMetricName(gaugeName);
+        validateState(gaugeName);
         meter.gaugeBuilder(gaugeName)
                 .setDescription(description)
                 .setUnit(unit).ofLongs()
@@ -164,7 +185,7 @@ public class MetricsManager {
      * @param unit          the unit this histogram collects
      */
     public void createDoubleHistogram(String histogramName, String description, String unit) {
-        validateMetricName(histogramName);
+        validateState(histogramName);
         doubleHistograms.put(
                 histogramName, meter
                         .histogramBuilder(histogramName)
@@ -182,7 +203,7 @@ public class MetricsManager {
      * @param unit          the unit this histogram collects
      */
     public void createLongHistogram(String histogramName, String description, String unit) {
-        validateMetricName(histogramName);
+        validateState(histogramName);
         longHistograms.put(
                 histogramName, meter
                         .histogramBuilder(histogramName)
@@ -204,7 +225,7 @@ public class MetricsManager {
      *                        already included by default.
      */
     public void recordDouble(String histogram, double value, Attributes extraAttributes) {
-        validateMetricName(histogram);
+        validateState(histogram);
         if (value < 0) return;
         if (!doubleHistograms.containsKey(histogram)) return;
         doubleHistograms.get(histogram).record(value, Attributes.builder().putAll(extraAttributes)
@@ -223,7 +244,7 @@ public class MetricsManager {
      *                        already included by default.
      */
     public void recordLong(String histogram, long value, Attributes extraAttributes) {
-        validateMetricName(histogram);
+        validateState(histogram);
         if (value < 0) return;
         if (!longHistograms.containsKey(histogram)) return;
         longHistograms.get(histogram).record(value, Attributes.builder().putAll(extraAttributes)
