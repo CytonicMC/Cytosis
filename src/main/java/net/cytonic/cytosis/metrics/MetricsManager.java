@@ -82,7 +82,9 @@ public class MetricsManager {
         validateMetricName(counterName);
         if (value <= 0) return; // no negative values, adding 0 does nothing
         if (!longsCounters.containsKey(counterName)) return;
-        longsCounters.get(counterName).add(value, Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID).build());
+        longsCounters.get(counterName).add(value, Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID)
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServerGroup().humanReadable()).build());
     }
 
     /**
@@ -98,7 +100,9 @@ public class MetricsManager {
         validateMetricName(counterName);
         if (value <= 0) return; // no negative values
         if (!doublesCounters.containsKey(counterName)) return;
-        doublesCounters.get(counterName).add(value, Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID).build());
+        doublesCounters.get(counterName).add(value, Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID)
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServerGroup().humanReadable()).build());
     }
 
     // guages
@@ -118,7 +122,9 @@ public class MetricsManager {
         validateMetricName(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit)
                 .buildWithCallback(observableDoubleMeasurement -> observableDoubleMeasurement
-                        .record(function.apply(null), Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID).build()));
+                        .record(function.apply(null), Attributes.builder().putAll(extraAttributes)
+                                .put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID)
+                                .put(AttributeKey.stringKey("server_type"), Cytosis.getServerGroup().humanReadable()).build()));
     }
 
     /**
@@ -140,7 +146,10 @@ public class MetricsManager {
                 .buildWithCallback(call ->
                         call.record(
                                 function.apply(null),
-                                Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID).build()
+                                Attributes.builder().putAll(extraAttributes)
+                                        .put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID)
+                                        .put(AttributeKey.stringKey("server_type"), Cytosis.getServerGroup().humanReadable())
+                                        .build()
                         )
                 );
     }
@@ -198,7 +207,9 @@ public class MetricsManager {
         validateMetricName(histogram);
         if (value < 0) return;
         if (!doubleHistograms.containsKey(histogram)) return;
-        doubleHistograms.get(histogram).record(value, Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID).build());
+        doubleHistograms.get(histogram).record(value, Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID)
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServerGroup().humanReadable()).build());
     }
 
     /**
@@ -215,6 +226,8 @@ public class MetricsManager {
         validateMetricName(histogram);
         if (value < 0) return;
         if (!longHistograms.containsKey(histogram)) return;
-        longHistograms.get(histogram).record(value, Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID).build());
+        longHistograms.get(histogram).record(value, Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), Cytosis.SERVER_ID)
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServerGroup().humanReadable()).build());
     }
 }
