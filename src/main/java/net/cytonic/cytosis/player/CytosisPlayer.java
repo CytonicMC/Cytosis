@@ -314,4 +314,8 @@ public class CytosisPlayer extends CombatPlayerImpl {
         if ((flags & 0x04) != 0 && rank == PlayerRank.MODERATOR) return true;
         return (flags & 0x08) != 0 && rank == PlayerRank.HELPER;
     }
+
+    public boolean hasPlayedBefore() {
+        return Cytosis.getCytonicNetwork().hasPlayedBefore(getUuid());
+    }
 }
