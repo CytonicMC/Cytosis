@@ -25,7 +25,6 @@ public class CytosisOpenTelemetry {
         String url;
         try {
             url = getUrl();
-            Logger.debug(url);
         } catch (Exception e) {
             Cytosis.setMetricsEnabled(false);
             return;
@@ -74,10 +73,14 @@ public class CytosisOpenTelemetry {
     }
 
     private static String getUrl() {
+        Logger.debug("Debugging URL!");
         // these get read directly from env as the file manager isn't started yet.
         String OPEN_TELEMETRY_HOST = null;
         int OPEN_TELEMETRY_PORT = -1;
 
+
+        if (System.getenv("OTEL_PORT") != null) OPEN_TELEMETRY_PORT = Integer.parseInt(System.getenv("OTEL_PORT"));
+        if (System.getenv("OTEL_HOSTNAME") != null) OPEN_TELEMETRY_HOST = System.getenv("OTEL_HOSTNAME");
         if (System.getProperty("OTEL_PORT") != null)
             OPEN_TELEMETRY_PORT = Integer.parseInt(System.getProperty("OTEL_PORT"));
         if (System.getProperty("OTEL_HOSTNAME") != null) OPEN_TELEMETRY_HOST = System.getProperty("OTEL_HOSTNAME");
