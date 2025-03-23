@@ -28,7 +28,6 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
-import net.cytonic.cytosis.menus.ClickableItemRegistry;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
@@ -435,14 +434,23 @@ public final class Cytosis {
             snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
             snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
 
+            try {
+                Logger.info("Loading PVP");
+                MinestomPvP.init();
+                CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
+                MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
+                MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
+            } catch (Exception e) {
+                Logger.error("error", e);
+            }
 
-            // Gui Framework...
-            ClickableItemRegistry.getInstance().registerAll();
-
+            //
+            // PLUGIN LOADING IS ALWAYS LAST!!!!
+            // (This is so any apis it depends on are guarenteed to already by loaded!)
+            //
             Logger.info("Initializing Plugin Manager!");
             pluginManager = new PluginManager();
             Logger.info("Loading plugins!");
-            //            Thread.ofVirtual().name("CytosisPluginLoader").start(() -> {
             try {
                 if (new File("plugins").exists() && new File("plugins").isDirectory()) {
                     pluginManager.loadPlugins(Path.of("plugins"));
@@ -455,16 +463,6 @@ public final class Cytosis {
                 throw new RuntimeException("An error occurred whilst loading plugins!", e);
             }
             if (metricsEnabled && span != null) span.addEvent("Plugins loaded", Instant.now());
-
-            try {
-                Logger.info("Loading PVP");
-                MinestomPvP.init();
-                CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
-                MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
-                MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
-            } catch (Exception e) {
-                Logger.error("error", e);
-            }
 
             // Start the server
             Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);

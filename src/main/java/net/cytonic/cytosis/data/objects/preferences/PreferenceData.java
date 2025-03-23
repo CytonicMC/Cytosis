@@ -99,4 +99,12 @@ public class PreferenceData {
     public String serialize() {
         return Cytosis.GSON.toJson(preferences, Utils.PREFERENCE_MAP.getType());
     }
+
+
+    @Override
+    public String toString() {
+        return "PreferenceData [preferences=" +
+                preferences +
+                "]";
+    }
 }

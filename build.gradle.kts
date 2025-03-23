@@ -31,15 +31,15 @@ dependencies {
     api("com.rabbitmq:amqp-client:5.25.0") // Message broker
     api("dev.hollowcube:polar:1.13.0") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
-    api("com.google.guava:guava:33.4.0-jre")
+    api("com.google.guava:guava:33.4.5-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
     implementation("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("io.nats:jnats:2.20.5")
-    implementation("org.jooq:jooq:3.20.1") // database queries
+    implementation("io.nats:jnats:2.20.6")
+    implementation("org.jooq:jooq:3.20.2") // database queries
     implementation("com.github.utfunderscore:MinestomPvP:latest_minestom-SNAPSHOT") // pvp
-    implementation("eu.koboo:minestom-invue:1.0.1")
+    implementation("eu.koboo:minestom-invue:2025.1.1")
 
 
     // Core OpenTelemetry API & SDK
