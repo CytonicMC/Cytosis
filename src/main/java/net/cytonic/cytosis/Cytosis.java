@@ -8,6 +8,8 @@ import eu.koboo.minestom.invue.core.MinestomInvue;
 import io.github.togar2.pvp.MinestomPvP;
 import io.github.togar2.pvp.feature.CombatFeatureSet;
 import io.github.togar2.pvp.feature.CombatFeatures;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.commands.CommandHandler;
@@ -29,6 +31,9 @@ import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.menus.ClickableItemRegistry;
 import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.messaging.nats.NatsManager;
+import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
+import net.cytonic.cytosis.metrics.MetricsHooks;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
@@ -143,6 +148,11 @@ public final class Cytosis {
     private static NatsManager natsManager;
     @Getter
     private static SnooperManager snooperManager;
+    @Getter
+    private static MetricsManager metricsManager;
+    @Getter
+    @Setter
+    private static boolean metricsEnabled = false;
 
 
     private Cytosis() {
@@ -154,9 +164,21 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        // start metrics as the very first thing
+        CytosisOpenTelemetry.setup();
+        Span span;
+        if (metricsEnabled) {
+            Tracer tracer = CytosisOpenTelemetry.getTracer("Cytosis");
+            span = tracer.spanBuilder("startup").startSpan();
+        } else {
+            span = null; // effectively final
+        }
+        metricsManager = new MetricsManager();
         // handle uncaught exceptions
-        Logger.info("Starting server!");
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> Logger.error("Uncaught exception in thread " + t.getName(), e));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            e.printStackTrace(System.err);
+            Logger.error("Uncaught exception in thread " + t.getName(), e);
+        });
 
         flags = List.of(args);
         long start = System.currentTimeMillis();
@@ -207,7 +229,10 @@ public final class Cytosis {
                 Logger.info("Completing nonessential startup tasks.");
 
                 try {
-                    completeNonEssentialTasks(start);
+                    if (metricsEnabled && span != null) {
+                        span.addEvent("Essential startup tasks completed", Instant.now());
+                    }
+                    completeNonEssentialTasks(start, span);
                 } catch (Exception e) {
                     Logger.error("ERR: ", e);
                 }
@@ -296,7 +321,7 @@ public final class Cytosis {
      *
      * @param start The time the server started
      */
-    public static void completeNonEssentialTasks(long start) {
+    public static void completeNonEssentialTasks(long start, Span span) {
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
 
@@ -310,6 +335,11 @@ public final class Cytosis {
         // commands
         MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) -> MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
 
+        if (metricsEnabled) {
+            Logger.info("Starting metric hooks");
+            MetricsHooks.init();
+        }
+
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
         databaseManager.setupDatabases().whenComplete((ignored, throwable) -> {
@@ -317,6 +347,8 @@ public final class Cytosis {
                 Logger.error("An error occurred whilst initializing the database!", throwable);
                 return;
             }
+
+            if (metricsEnabled && span != null) span.addEvent("Connected to database", Instant.now());
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
@@ -422,6 +454,7 @@ public final class Cytosis {
                 Logger.error("An error occurred whilst loading plugins!", e);
                 throw new RuntimeException("An error occurred whilst loading plugins!", e);
             }
+            if (metricsEnabled && span != null) span.addEvent("Plugins loaded", Instant.now());
 
             try {
                 Logger.info("Loading PVP");
@@ -445,7 +478,10 @@ public final class Cytosis {
             long end = System.currentTimeMillis();
             Logger.info("Server started in " + (end - start) + "ms!");
             Logger.info("Server group = " + serverGroup.group());
-
+            if (metricsEnabled && span != null) {
+                span.addEvent("Server started in " + (end - start) + "ms.", Instant.now());
+                span.end(Instant.now());
+            }
 
             if (flags.contains("--ci-test")) {
                 Logger.info("Stopping server due to '--ci-test' flag.");
