@@ -88,5 +88,6 @@ public class SideboardManager {
     public void cancelUpdates() {
         if (task == null) return;
         task.cancel();
+        task = null;
     }
 }
