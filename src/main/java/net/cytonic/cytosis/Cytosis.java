@@ -52,6 +52,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
+import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -389,7 +390,7 @@ public final class Cytosis {
 
             Logger.info("Creating sideboard manager!");
             sideboardManager = new SideboardManager();
-            sideboardManager.updateBoards();
+            sideboardManager.autoUpdateBoards(TaskSchedule.seconds(1L));
 
             Logger.info("Starting NPC manager!");
             npcManager = new NPCManager();
@@ -521,7 +522,7 @@ public final class Cytosis {
     private static void shutdownHandler() {
         messagingManager.shutdown();
         databaseManager.shutdown();
-        sideboardManager.shutdown();
+        sideboardManager.cancelUpdates();
         pluginManager.unloadPlugins();
         getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
     }
