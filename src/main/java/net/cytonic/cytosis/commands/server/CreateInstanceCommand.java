@@ -1,15 +1,15 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * A command to create a new instance
  */
-public class CreateInstanceCommand extends Command {
+public class CreateInstanceCommand extends CytosisCommand {
 
     /**
      * A command to create a new instance

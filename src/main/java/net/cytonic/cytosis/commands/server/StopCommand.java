@@ -1,16 +1,16 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * A class representing the stop command
  */
-public class StopCommand extends Command {
+public class StopCommand extends CytosisCommand {
 
     /**
      * A simple command to stop the server

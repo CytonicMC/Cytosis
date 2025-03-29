@@ -2,16 +2,16 @@ package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * The class representing the broadcast command
  */
-public class BroadcastCommand extends Command {
+public class BroadcastCommand extends CytosisCommand {
 
     /**
      * Creates a new command and sets up the consumers and execution logic

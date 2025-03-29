@@ -1,14 +1,14 @@
 package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
 /**
  * The class representing the fly command
  */
-public class FlyCommand extends Command {
+public class FlyCommand extends CytosisCommand {
 
     /**
      * Creates a new command and sets up the consumers and execution logic

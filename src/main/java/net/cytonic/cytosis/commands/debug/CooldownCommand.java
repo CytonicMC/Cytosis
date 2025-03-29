@@ -2,12 +2,12 @@ package net.cytonic.cytosis.commands.debug;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.key.Key;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -17,7 +17,7 @@ import java.time.Instant;
 /**
  * A command to debug cooldowns
  */
-public class CooldownCommand extends Command {
+public class CooldownCommand extends CytosisCommand {
 
     /**
      * A command to debug cooldowns

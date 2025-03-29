@@ -1,16 +1,16 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.server.command.builder.Command;
 
 import java.util.Set;
 
-public class SnooperListCommand extends Command {
+public class SnooperListCommand extends CytosisCommand {
     public SnooperListCommand() {
         super("list");
         setCondition(CommandUtils.IS_STAFF);

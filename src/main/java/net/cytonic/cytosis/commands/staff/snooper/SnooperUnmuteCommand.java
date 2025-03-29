@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 
-public class SnooperUnmuteCommand extends Command {
+public class SnooperUnmuteCommand extends CytosisCommand {
     public SnooperUnmuteCommand() {
         super("unmute");
         setCondition(CommandUtils.IS_STAFF);

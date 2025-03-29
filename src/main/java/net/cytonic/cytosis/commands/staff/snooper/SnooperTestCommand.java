@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -9,10 +10,9 @@ import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 
-public class SnooperTestCommand extends Command {
+public class SnooperTestCommand extends CytosisCommand {
     public SnooperTestCommand() {
         super("test");
         setCondition(CommandUtils.IS_ADMIN);

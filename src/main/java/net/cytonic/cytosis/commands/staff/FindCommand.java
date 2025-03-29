@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
@@ -9,7 +10,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Locates a player on the network
  */
-public class FindCommand extends Command {
+public class FindCommand extends CytosisCommand {
 
     /**
      * A command to find a player on the network

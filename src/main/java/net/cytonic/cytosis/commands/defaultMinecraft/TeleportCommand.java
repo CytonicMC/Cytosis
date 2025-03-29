@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -13,7 +13,7 @@ import net.minestom.server.utils.entity.EntityFinder;
 /**
  * A command for teleporting :)
  */
-public class TeleportCommand extends Command {
+public class TeleportCommand extends CytosisCommand {
 
     /**
      * A command for teleporting to a player, exact location, or relative block position

@@ -2,13 +2,13 @@ package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-public class SnooperBlindCommand extends Command {
+public class SnooperBlindCommand extends CytosisCommand {
     public SnooperBlindCommand() {
         super("blind");
         setCondition(CommandUtils.IS_STAFF);

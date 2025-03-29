@@ -1,15 +1,15 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.Command;
 
 /**
  * A command to show the user the details of the pod the instance is running in
  */
-public class PodDetailsCommand extends Command {
+public class PodDetailsCommand extends CytosisCommand {
 
     /**
      * See above, but details for pods.

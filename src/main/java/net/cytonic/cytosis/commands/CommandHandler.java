@@ -7,6 +7,7 @@ import net.cytonic.cytosis.commands.debug.PreferenceCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.disabling.DisableCommand;
+import net.cytonic.cytosis.commands.disabling.EnableCommand;
 import net.cytonic.cytosis.commands.moderation.*;
 import net.cytonic.cytosis.commands.movement.LobbyCommand;
 import net.cytonic.cytosis.commands.movement.PlayCommand;
@@ -82,7 +83,8 @@ public class CommandHandler {
                 new PlayCommand(),
                 new LobbyCommand(),
                 new WhereAmiCommand(),
-                new DisableCommand()
+                new DisableCommand(),
+                new EnableCommand()
         );
     }
 

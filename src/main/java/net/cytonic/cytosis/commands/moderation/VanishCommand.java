@@ -2,16 +2,16 @@ package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 
 /**
  * The class representing the vanish command
  */
-public class VanishCommand extends Command {
+public class VanishCommand extends CytosisCommand {
 
     /**
      * Creates a new command and sets up the consumers and execution logic

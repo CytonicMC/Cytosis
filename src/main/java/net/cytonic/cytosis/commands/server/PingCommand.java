@@ -1,14 +1,14 @@
 package net.cytonic.cytosis.commands.server;
 
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 
 
 /**
  * The class representing the ping command
  */
-public class PingCommand extends Command {
+public class PingCommand extends CytosisCommand {
 
     /**
      * Creates a new command and sets up the consumers and execution logic

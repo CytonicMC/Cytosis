@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
@@ -10,7 +11,6 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -21,7 +21,7 @@ import java.util.Optional;
 /**
  * A command that allows players to change another player's rank
  */
-public class RankCommand extends Command {
+public class RankCommand extends CytosisCommand {
 
     /**
      * A command that allows authorized users to change player ranks
