@@ -56,28 +56,28 @@ public class MuteCommand extends CytosisCommand {
                 }
                 Cytosis.getDatabaseManager().getMysqlDatabase().findUUIDByName(target).whenComplete((uuid, throwable) -> {
                     if (throwable != null) {
-                        sender.sendMessage(Msg.mm("<red>An error occured whilst finding " + target + "!"));
+                        sender.sendMessage(Msg.serverError("An error occured whilst finding %s!", target));
                         Logger.error("error", throwable);
                         return;
                     }
                     Cytosis.getDatabaseManager().getMysqlDatabase().isMuted(uuid).whenComplete((muted, throwable1) -> {
                         if (throwable1 != null) {
-                            sender.sendMessage(Msg.mm("<red>An error occured whilst finding if " + target + " is muted!"));
+                            sender.sendMessage(Msg.serverError("<red>An error occured whilst finding if %s is muted!", target));
                             Logger.error("error", throwable1);
                             return;
                         }
                         if (muted) {
-                            sender.sendMessage(Msg.mm("<red>" + target + " is already muted!"));
+                            sender.sendMessage(Msg.mm("%s is already muted!", target));
                             return;
                         }
                         Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
                             if (throwable2 != null) {
-                                sender.sendMessage(Msg.mm("<red>An error occured whilst finding " + target + "'s rank!"));
+                                sender.sendMessage(Msg.serverError("An error occured whilst finding %s's rank!", target));
                                 Logger.error("error", throwable2);
                                 return;
                             }
                             if (playerRank.isStaff()) {
-                                sender.sendMessage(Msg.mm("<red>" + target + " cannot be muted!"));
+                                sender.sendMessage(Msg.whoops("%s cannot be muted!", target));
                                 return;
                             }
                             Component snoop = actor.formattedName().append(Msg.mm("<gray> muted ")).append(SnoopUtils.toTarget(uuid))
@@ -86,10 +86,10 @@ public class MuteCommand extends CytosisCommand {
                             Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_MUTE, SnoopUtils.toSnoop(snoop));
                             Cytosis.getDatabaseManager().getMysqlDatabase().mutePlayer(uuid, dur).whenComplete((ignored, throwable3) -> {
                                 if (throwable3 != null) {
-                                    actor.sendMessage(Msg.mm("<red>An error occured whilst muting " + target + "!"));
+                                    actor.sendMessage(Msg.serverError("An error occured whilst muting %s!", target));
                                     return;
                                 }
-                                actor.sendMessage(Msg.mm("<GREEN><b>MUTED!</green> <gray>" + target + " was successfully muted for " + DurationParser.unparseFull(dur) + "."));
+                                actor.sendMessage(Msg.greenSplash("MUTED!", "%s was successfully muted for %s.", target, DurationParser.unparseFull(dur)));
                             });
                         });
                     });

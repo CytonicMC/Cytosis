@@ -19,7 +19,7 @@ public class SnooperMuteCommand extends CytosisCommand {
                 return;
             }
             player.updatePreference(CytosisNamespaces.MUTE_SNOOPER, true);
-            player.sendMessage(Msg.mm("<b><red>MUTED!</red></b><gray> Snooper has been muted."));
+            player.sendMessage(Msg.redSplash("MUTED!", "Snooper has been muted."));
         });
     }
 }

@@ -37,6 +37,6 @@ public class CommandUtils {
         };
     }
 
-    public static final Component COMMAND_DISABLED = Msg.mm("<red><b>DISABLED!</b></red><gray> This command has been disabled.</gray>");
+    public static final Component COMMAND_DISABLED = Msg.redSplash("DISABLED!", "This command has been disabled.");
 
 }

@@ -34,7 +34,7 @@ public class SnooperAuditCommand extends CytosisCommand {
             String searchFor = String.join(" ", c.get(search));
             if (searchFor.contains("--force")) {
                 searchFor = searchFor.replace("--force", "");
-                player.sendMessage(Msg.mm("<yellow><b>CLEARED!</b></yellow><gray> Invalidated the cached snoops!"));
+                player.sendMessage(Msg.yellowSplash("CLEARED!", "Invalidated the cached snoops!"));
             }
             boolean ascending = true;
             if (searchFor.contains("--descending")) {

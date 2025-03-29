@@ -46,8 +46,8 @@ public class YoinkCommand extends CytosisCommand {
                 return;
             }
             Cytosis.getNatsManager().sendPlayerToServer(uuid, Cytosis.currentServer(), null);
-            player.sendMessage(Msg.mm("<gold><b>YOINK!</b></gold><gray> Successfully warped to your server!"));
-            Component component = Msg.mm("<#be9e25><b>YOINKED!</b></#be9e25><gray> ").append(player.formattedName()).append(Msg.mm("<gray> pulled you to their server!"));
+            player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
+            Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName()).append(Msg.mm("<gray> pulled you to their server!"));
             Cytosis.getNatsManager().sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.INTERNAL_MESSAGE, JSONComponentSerializer.json().serialize(component), null));
         }), playerArgument);
 

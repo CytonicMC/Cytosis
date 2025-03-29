@@ -36,14 +36,14 @@ public class VanishManager {
         EntityMetaDataPacket invis = new EntityMetaDataPacket(player.getEntityId(), Map.of(0, Metadata.Byte((byte) (0x20 | 0x40))));
         TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""),
                 (byte) 0x02, TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER,
-                NamedTextColor.GRAY, Msg.mm("<gray><b>VANISHED! "), Msg.mm(""), List.of(player.getUsername())));
+                NamedTextColor.GRAY, Msg.coloredBadge("VANISHED!", "gray"), Msg.mm(""), List.of(player.getUsername())));
         player.sendPackets(invis, selfTeam);
         player.updateViewableRule(p -> {
             CytosisPlayer cp = (CytosisPlayer) p;
             if (cp.isStaff()) {
                 TeamsPacket packet = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""),
                         (byte) 0x02, TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER,
-                        NamedTextColor.GRAY, Msg.mm("<gray><b>VANISHED! "), Msg.mm(""), List.of(p.getUsername(), player.getUsername())));
+                        NamedTextColor.GRAY, Msg.coloredBadge("VANISHED!", "gray"), Msg.mm(""), List.of(p.getUsername(), player.getUsername())));
                 p.sendPackets(packet, invis);
                 return true;
             }

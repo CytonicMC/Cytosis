@@ -161,7 +161,7 @@ public class SnooperProvider extends ViewProvider {
      */
     @Override
     public void open(Player player) {
-        player.sendMessage(Msg.mm("<b><dark_gray>LOADING! </dark_gray></b><gray> We're crunching the data for you, just a moment!"));
+        player.sendMessage(Msg.darkGreySplash("LOADING!", "We're crunching the data for you, just a moment!"));
 
         fetchData().whenComplete((result, throwable) -> {
             pagination = registry.pageable(

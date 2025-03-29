@@ -2,6 +2,7 @@ package net.cytonic.cytosis.utils;
 
 import net.cytonic.cytosis.data.objects.BanData;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
@@ -29,15 +30,115 @@ public interface Msg {
     }
 
     static Component whoops(String str, Object... args) {
-        return mm(String.format("<red><b>WHOOPS!</b></red><gray> " + str, args));
+        return mm("<red><b>WHOOPS!</b></red><gray> " + str, args);
     }
 
     static Component serverError(String str, Object... args) {
-        return mm(String.format("<red><b>SERVER ERROR!</b></red><gray> " + str, args));
+        return mm("<red><b>SERVER ERROR!</b></red><gray> " + str, args);
     }
 
     static Component success(String str, Object... args) {
-        return mm(String.format("<green><b>SUCCESS!</b></green><gray> " + str, args));
+        return mm("<green><b>SUCCESS!</b></green><gray> " + str, args);
+    }
+
+    static Component network(String str, Object... args) {
+        return mm("<yellow><b>NETWORK!</b></yellow><gray> " + str, args);
+    }
+
+    static Component tip(String str, Object... args) {
+        return mm("<green><b>TIP!</b></green><gray> " + str, args);
+    }
+
+
+    static Component aquaSplash(String splash, String text, Object... args) {
+        return mm("<aqua><b>" + splash + "</b></aqua><gray> " + text, args);
+    }
+
+    static Component darkAquaSplash(String splash, String text, Object... args) {
+        return mm("<dark_aqua><b>" + splash + "</b></darkAqua><gray> " + text, args);
+    }
+
+    static Component greenSplash(String splash, String text, Object... args) {
+        return mm("<green><b>" + splash + "</b></green><gray> " + text, args);
+    }
+
+    static Component darkGreenSplash(String splash, String text, Object... args) {
+        return mm("<dark_green><b>" + splash + "</b></dark_green><gray> " + text, args);
+    }
+
+    static Component blueSplash(String splash, String text, Object... args) {
+        return mm("<blue><b>" + splash + "</b></blue><gray> " + text, args);
+    }
+
+    static Component darkBlueSplash(String splash, String text, Object... args) {
+        return mm("<dark_blue><b>" + splash + "</b></dark_blue><gray> " + text, args);
+    }
+
+    static Component redSplash(String splash, String text, Object... args) {
+        return mm("<red><b>" + splash + "</b></red><gray> " + text, args);
+    }
+
+    static Component darkRedSplash(String splash, String text, Object... args) {
+        return mm("<dark_red><b>" + splash + "</b></dark_red><gray> " + text, args);
+    }
+
+    static Component pinkSplash(String splash, String text, Object... args) {
+        return mm("<light_purple><b>" + splash + "</b></light_purple><gray> " + text, args);
+    }
+
+    static Component purpleSplash(String splash, String text, Object... args) {
+        return mm("<dark_purple><b>" + splash + "</b></dark_purple><gray> " + text, args);
+    }
+
+    static Component greySplash(String splash, String text, Object... args) {
+        return mm("<gray><b>" + splash + "</b></gray><gray> " + text, args);
+    }
+
+    static Component darkGreySplash(String splash, String text, Object... args) {
+        return mm("<dark_gray><b>" + splash + "</b></dark_gray><gray> " + text, args);
+    }
+
+    static Component yellowSplash(String splash, String text, Object... args) {
+        return mm("<yellow><b>" + splash + "</b></yellow><gray> " + text, args);
+    }
+
+    static Component whiteSplash(String splash, String text, Object... args) {
+        return mm("<white><b>" + splash + "</b></white><gray> " + text, args);
+    }
+
+    static Component blackSplash(String splash, String text, Object... args) {
+        return mm("<black><b>" + splash + "</b></black><gray> " + text, args);
+    }
+
+    static Component goldSplash(String splash, String text, Object... args) {
+        return mm("<gold><b>" + splash + "</b></gold><gray> " + text, args);
+    }
+
+    static Component splash(String splash, TextColor color, String text, Object... args) {
+        return mm("<#" + color.asHexString() + "><b>" + splash + "</b></#" + color.asHexString() + "><gray> " + text, args);
+    }
+
+    static Component splash(String splash, String hex, String text, Object... args) {
+        return mm("<#" + hex + "><b>" + splash + "</b></#" + hex + "><gray> " + text, args);
+    }
+
+    /**
+     * Makes a badge with the specified DEFAULT COLOR("red", "yellow", ect)
+     *
+     * @param splash the splash text
+     * @param color  the default minecraft color
+     * @return the formatted badge
+     */
+    static Component coloredBadge(String splash, String color) {
+        return mm("<" + color + "><b>" + splash + "</b></" + color + ">");
+    }
+
+    static Component badge(String splash, String hex) {
+        return mm("<#" + hex + "><b>" + splash + "</b></#" + hex + ">");
+    }
+
+    static Component badge(String splash, TextColor color) {
+        return mm("<#" + color.asHexString() + "><b>" + splash + "</b></#" + color.asHexString() + ">");
     }
 
     /**
