@@ -6,11 +6,11 @@ import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentStringArray;
-import net.minestom.server.utils.NamespaceID;
 
 public class SnooperTestCommand extends Command {
     public SnooperTestCommand() {
@@ -26,7 +26,7 @@ public class SnooperTestCommand extends Command {
         addSyntax((s, ctx) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = ctx.getRaw(SnooperCommand.CHANNELS);
-            SnooperChannel realChannel = Cytosis.getSnooperManager().getChannel(NamespaceID.from(rawChannel));
+            SnooperChannel realChannel = Cytosis.getSnooperManager().getChannel(Key.key(rawChannel));
             if (realChannel == null) {
                 s.sendMessage(Msg.whoops("The channel '" + rawChannel + "' doesn't exist!"));
                 return;

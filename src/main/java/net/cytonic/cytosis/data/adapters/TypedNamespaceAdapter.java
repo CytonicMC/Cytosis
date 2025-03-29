@@ -8,7 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -28,8 +28,8 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
 
         out.beginObject();
 
-        // Serialize NamespaceID
-        out.name("namespaceID");
+        // Serialize Key
+        out.name("namespace");
         out.value(value.namespaceID().asString());
 
         // Serialize Class<T>
@@ -46,15 +46,14 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
     public TypedNamespace<?> read(JsonReader in) throws IOException {
         in.beginObject();
 
-        NamespaceID namespaceID = null;
+        Key namespace = null;
         Class<?> type = null;
 
         while (in.hasNext()) {
             String name = in.nextName();
-            if ("namespaceID".equals(name)) {
+            if ("namespace".equals(name)) {
                 // Deserialize NamespaceID
-                String namespaceIDString = in.nextString();
-                namespaceID = NamespaceID.from(namespaceIDString);
+                namespace = Key.key(in.nextString());
             } else if ("type".equals(name)) {
                 // Deserialize Class<T>
                 String className = in.nextString();
@@ -69,7 +68,7 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
 
         in.endObject();
 
-        return new TypedNamespace<>(namespaceID, type);
+        return new TypedNamespace<>(namespace, type);
     }
 
     /**

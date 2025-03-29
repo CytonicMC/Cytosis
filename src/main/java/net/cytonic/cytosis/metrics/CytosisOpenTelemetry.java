@@ -81,6 +81,7 @@ public class CytosisOpenTelemetry {
 
         if (System.getenv("OTEL_PORT") != null) OPEN_TELEMETRY_PORT = Integer.parseInt(System.getenv("OTEL_PORT"));
         if (System.getenv("OTEL_HOSTNAME") != null) OPEN_TELEMETRY_HOST = System.getenv("OTEL_HOSTNAME");
+
         if (System.getProperty("OTEL_PORT") != null)
             OPEN_TELEMETRY_PORT = Integer.parseInt(System.getProperty("OTEL_PORT"));
         if (System.getProperty("OTEL_HOSTNAME") != null) OPEN_TELEMETRY_HOST = System.getProperty("OTEL_HOSTNAME");

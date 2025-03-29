@@ -5,7 +5,7 @@ import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.utils.Utils;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +23,7 @@ public class JsonPreference<T> extends NamespacedPreference<T> {
      * @param type        the type of the preference
      * @param value       the default value, nullable
      */
-    public JsonPreference(NamespaceID namespaceID, Class<T> type, @Nullable T value) {
+    public JsonPreference(Key namespaceID, Class<T> type, @Nullable T value) {
         super(namespaceID, type, value);
     }
 
@@ -31,7 +31,7 @@ public class JsonPreference<T> extends NamespacedPreference<T> {
         super(namespaceID, value);
     }
 
-    public JsonPreference(NamespaceID namespaceID, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer, JsonPreferenceDeserializer<T> deserializer) {
+    public JsonPreference(Key namespaceID, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer, JsonPreferenceDeserializer<T> deserializer) {
         super(namespaceID, type, value);
         this.serializer = serializer;
         this.deserializer = deserializer;

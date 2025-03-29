@@ -7,8 +7,8 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -146,18 +146,18 @@ public class SnooperManager {
     }
 
     @Nullable
-    public SnooperChannel getChannel(NamespaceID namespaceID) {
+    public SnooperChannel getChannel(Key namespaceID) {
         return registry.getChannel(namespaceID);
     }
 
     private class SnooperRegistry {
-        private final Map<NamespaceID, SnooperChannel> channels = new ConcurrentHashMap<>();
+        private final Map<Key, SnooperChannel> channels = new ConcurrentHashMap<>();
 
         protected SnooperRegistry() {
         }
 
         @Nullable
-        public SnooperChannel getChannel(NamespaceID namespaceID) {
+        public SnooperChannel getChannel(Key namespaceID) {
             return channels.get(namespaceID);
         }
 

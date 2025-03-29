@@ -19,8 +19,7 @@ repositories {
 }
 
 dependencies {
-    api("net.cytonic:CytosisPluginProcessor:1.0")
-    api("net.minestom:minestom-snapshots:620ebe5d6b")
+    api("net.minestom:minestom-snapshots:0366b58bfe")
     api("com.google.code.gson:gson:2.12.1") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.19.0")// better components
@@ -39,7 +38,10 @@ dependencies {
     implementation("io.nats:jnats:2.20.6")
     implementation("org.jooq:jooq:3.20.2") // database queries
     implementation("com.github.utfunderscore:MinestomPvP:latest_minestom-SNAPSHOT") // pvp
-    implementation("eu.koboo:minestom-invue:2025.1.1")
+    implementation("eu.koboo:minestom-invue:2025.1.1") {
+        // we want to use our own, thank you :)
+        exclude(group = "net.minestom", module = "minestom-snapshots")
+    }
 
 
     // Core OpenTelemetry API & SDK

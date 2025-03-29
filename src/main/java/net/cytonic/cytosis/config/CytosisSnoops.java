@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.config;
 
 import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 
 public class CytosisSnoops {
 
@@ -16,36 +16,36 @@ public class CytosisSnoops {
     /**
      * Used whenever a moderator unmutes a player
      */
-    public static final SnooperChannel PLAYER_UNMUTE = new SnooperChannel("cytosis.snooper.player.unmute", NamespaceID.from("cytosis:unmute"), ALL_STAFF);
+    public static final SnooperChannel PLAYER_UNMUTE = new SnooperChannel("cytosis.snooper.player.unmute", Key.key("cytosis:unmute"), ALL_STAFF);
     /**
      * Used whenever a moderator mutes a player
      */
-    public static final SnooperChannel PLAYER_MUTE = new SnooperChannel("cytosis.snooper.player.mute", NamespaceID.from("cytosis:mute"), ALL_STAFF);
+    public static final SnooperChannel PLAYER_MUTE = new SnooperChannel("cytosis.snooper.player.mute", Key.key("cytosis:mute"), ALL_STAFF);
     /**
      * used whenever a staff member clears the chat
      */
-    public static final SnooperChannel CHAT_CLEAR = new SnooperChannel("cytosis.snooper.chat.clear", NamespaceID.from("cytosis:clear"), ALL_STAFF);
-    public static final SnooperChannel PLAYER_SERVER_CHANGE = new SnooperChannel("cytosis.snooper.player.server.change", NamespaceID.from("cytosis:switch_server"), ALL_STAFF);
-    public static final SnooperChannel CHANGE_RANK = new SnooperChannel("cytosis.snooper.change_rank", NamespaceID.from("cytosis:change_rank"), ALL_STAFF);
+    public static final SnooperChannel CHAT_CLEAR = new SnooperChannel("cytosis.snooper.chat.clear", Key.key("cytosis:clear"), ALL_STAFF);
+    public static final SnooperChannel PLAYER_SERVER_CHANGE = new SnooperChannel("cytosis.snooper.player.server.change", Key.key("cytosis:switch_server"), ALL_STAFF);
+    public static final SnooperChannel CHANGE_RANK = new SnooperChannel("cytosis.snooper.change_rank", Key.key("cytosis:change_rank"), ALL_STAFF);
 
-    public static final SnooperChannel SERVER_ERROR = new SnooperChannel("cytosis.snooper.server_error", NamespaceID.from("cytosis:server_error"), ADMIN);
+    public static final SnooperChannel SERVER_ERROR = new SnooperChannel("cytosis.snooper.server_error", Key.key("cytosis:server_error"), ADMIN);
     /**
      * Used whenever a moderator bans a player
      */
-    public static final SnooperChannel PLAYER_BAN = new SnooperChannel("cytosis.snooper.player.bans", NamespaceID.from("cytosis:ban"), MODERATOR);
+    public static final SnooperChannel PLAYER_BAN = new SnooperChannel("cytosis.snooper.player.bans", Key.key("cytosis:ban"), MODERATOR);
     /**
      * Used whenever a moderator unbans a player
      */
-    public static final SnooperChannel PLAYER_UNBAN = new SnooperChannel("cytosis.snooper.player.unbans", NamespaceID.from("cytosis:unban"), MODERATOR);
+    public static final SnooperChannel PLAYER_UNBAN = new SnooperChannel("cytosis.snooper.player.unbans", Key.key("cytosis:unban"), MODERATOR);
     /**
      * Used whenever a moderator warns a player
      */
-    public static final SnooperChannel PLAYER_WARN = new SnooperChannel("cytosis.snooper.player.warn", NamespaceID.from("cytosis:warn"), MODERATOR);
+    public static final SnooperChannel PLAYER_WARN = new SnooperChannel("cytosis.snooper.player.warn", Key.key("cytosis:warn"), MODERATOR);
 
     /**
      * Used whenever a moderator kicks a player via commands. Not triggered on a server initiated kick
      */
-    public static final SnooperChannel PLAYER_KICK = new SnooperChannel("cytosis.snooper.player.kick", NamespaceID.from("cytosis:kick"), MODERATOR);
+    public static final SnooperChannel PLAYER_KICK = new SnooperChannel("cytosis.snooper.player.kick", Key.key("cytosis:kick"), MODERATOR);
 
 
 }
