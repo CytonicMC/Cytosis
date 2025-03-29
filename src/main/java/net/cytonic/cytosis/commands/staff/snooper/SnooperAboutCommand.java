@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 
-public class SnooperAboutCommand extends Command {
+public class SnooperAboutCommand extends CytosisCommand {
     public SnooperAboutCommand() {
         super("about");
         setDefaultExecutor((sender, ctx) -> {

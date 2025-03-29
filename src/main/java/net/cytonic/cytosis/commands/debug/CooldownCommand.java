@@ -2,22 +2,22 @@ package net.cytonic.cytosis.commands.debug;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.utils.NamespaceID;
 
 import java.time.Instant;
 
 /**
  * A command to debug cooldowns
  */
-public class CooldownCommand extends Command {
+public class CooldownCommand extends CytosisCommand {
 
     /**
      * A command to debug cooldowns
@@ -34,7 +34,7 @@ public class CooldownCommand extends Command {
 
         var nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (NamespaceID preference : network.getAllKeys()) {
+            for (Key preference : network.getAllKeys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -67,7 +67,7 @@ public class CooldownCommand extends Command {
                 return;
             }
 
-            NamespaceID node = NamespaceID.from(context.get(nodeArg));
+            Key node = Key.key(context.get(nodeArg));
 
             if (ac == CooldownAction.CLEAR_GLOBAL) {
                 network.resetGlobalCooldown(node);

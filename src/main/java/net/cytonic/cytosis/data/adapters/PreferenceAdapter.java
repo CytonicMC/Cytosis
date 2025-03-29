@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.*;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -100,7 +100,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
 
         if (rawID == null) throw new JsonParseException("Preference deserialization failed: No group found");
 
-        NamespaceID id = NamespaceID.from(rawID);
+        Key id = Key.key(rawID);
 
         // the easist and fastest way
         Class<T> type = (Class<T>) Cytosis.getPreferenceManager().getPreferenceRegistry().getTypeFromNamespace(id);

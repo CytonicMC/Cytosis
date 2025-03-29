@@ -1,15 +1,15 @@
 package net.cytonic.cytosis.commands.chatting;
 
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-public class IgnoreChatChannelCommand extends Command {
+public class IgnoreChatChannelCommand extends CytosisCommand {
 
     public IgnoreChatChannelCommand() {
         super("ignorechatchannel");

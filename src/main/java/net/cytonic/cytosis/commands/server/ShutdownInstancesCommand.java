@@ -1,15 +1,15 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * A command for closing all instances of cytosis on a kubernetes cluster
  */
-public class ShutdownInstancesCommand extends Command {
+public class ShutdownInstancesCommand extends CytosisCommand {
 
     /**
      * A command to close all instances

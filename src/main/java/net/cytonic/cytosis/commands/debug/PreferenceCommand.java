@@ -3,23 +3,23 @@ package net.cytonic.cytosis.commands.debug;
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.utils.NamespaceID;
 
 import java.util.UUID;
 
 /**
  * A command for updating the preferences of a player
  */
-public class PreferenceCommand extends Command {
+public class PreferenceCommand extends CytosisCommand {
 
     /**
      * A simple command for debugging preferences
@@ -33,7 +33,7 @@ public class PreferenceCommand extends Command {
 
         var nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (NamespaceID preference : Cytosis.getPreferenceManager().getPreferenceRegistry().namespaces()) {
+            for (Key preference : Cytosis.getPreferenceManager().getPreferenceRegistry().namespaces()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -45,7 +45,7 @@ public class PreferenceCommand extends Command {
                 sender.sendMessage(Msg.mm("<red>You must be a player to use this command!"));
                 return;
             }
-            NamespaceID node = NamespaceID.from(context.get(nodeArg));
+            Key node = Key.key(context.get(nodeArg));
             PreferenceManager manager = Cytosis.getPreferenceManager();
             Preference<?> preference = manager.getPreferenceRegistry().get_UNSAFE(node);
             if (preference == null) {

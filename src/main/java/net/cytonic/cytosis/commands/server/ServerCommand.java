@@ -2,20 +2,20 @@ package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * A class representing the server command
  */
-public class ServerCommand extends Command {
+public class ServerCommand extends CytosisCommand {
 
     /**
      * Sends players to a server from the command

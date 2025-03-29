@@ -3,6 +3,8 @@ package net.cytonic.cytosis.commands;
 import lombok.experimental.UtilityClass;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.condition.CommandCondition;
 
 @UtilityClass
@@ -34,5 +36,7 @@ public class CommandUtils {
             return player.getRank() == rank;
         };
     }
+
+    public static final Component COMMAND_DISABLED = Msg.mm("<red><b>DISABLED!</b></red><gray> This command has been disabled.</gray>");
 
 }

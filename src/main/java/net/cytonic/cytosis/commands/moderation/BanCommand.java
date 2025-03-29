@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.enums.KickReason;
@@ -12,7 +13,6 @@ import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -22,7 +22,7 @@ import java.time.Instant;
 /**
  * A command that allows authorized players to ban players.
  */
-public class BanCommand extends Command {
+public class BanCommand extends CytosisCommand {
     /**
      * Creates the command and sets the consumers
      */

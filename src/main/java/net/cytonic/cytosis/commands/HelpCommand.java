@@ -1,13 +1,12 @@
 package net.cytonic.cytosis.commands;
 
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
 /**
  * The class representing the help command
  */
-public class HelpCommand extends Command {
+public class HelpCommand extends CytosisCommand {
 
     /**
      * Creates a new command and sets up the consumers and execution logic

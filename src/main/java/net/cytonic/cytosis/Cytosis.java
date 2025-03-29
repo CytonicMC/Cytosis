@@ -17,6 +17,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
+import net.cytonic.cytosis.data.adapters.KeyAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
 import net.cytonic.cytosis.data.objects.CytonicServer;
@@ -28,7 +29,6 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
-import net.cytonic.cytosis.messaging.MessagingManager;
 import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
 import net.cytonic.cytosis.metrics.MetricsHooks;
@@ -40,6 +40,7 @@ import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.hollowcube.polar.PolarLoader;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
@@ -77,9 +78,11 @@ public final class Cytosis {
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
             .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
+            .registerTypeAdapter(Key.class, new KeyAdapter())
             .registerTypeAdapter(Instant.class, new InstantAdapter())
             .registerTypeAdapterFactory(new TypedNamespaceAdapter())
             .registerTypeAdapterFactory(new PreferenceAdapter<>())
+            .registerTypeAdapterFactory(new KeyAdapter())
             .enableComplexMapKeySerialization()
             .setStrictness(Strictness.LENIENT)
             .serializeNulls()
@@ -112,8 +115,6 @@ public final class Cytosis {
     private static FileManager fileManager;
     @Getter
     private static DatabaseManager databaseManager;
-    @Getter
-    private static MessagingManager messagingManager;
     @Getter
     private static ConsoleSender consoleSender;
     @Getter
@@ -151,6 +152,8 @@ public final class Cytosis {
     @Getter
     private static MetricsManager metricsManager;
     @Getter
+    private static CommandDisablingManager commandDisablingManager;
+    @Getter
     @Setter
     private static boolean metricsEnabled = false;
 
@@ -164,8 +167,11 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        flags = List.of(args);
+        if (!flags.contains("--no-metrics")) {
+            CytosisOpenTelemetry.setup();
+        }
         // start metrics as the very first thing
-        CytosisOpenTelemetry.setup();
         Span span;
         if (metricsEnabled) {
             Tracer tracer = CytosisOpenTelemetry.getTracer("Cytosis");
@@ -180,7 +186,6 @@ public final class Cytosis {
             Logger.error("Uncaught exception in thread " + t.getName(), e);
         });
 
-        flags = List.of(args);
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting server.");
@@ -352,6 +357,17 @@ public final class Cytosis {
 
             Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
 
+            Logger.info("Initializing server commands");
+            commandHandler = new CommandHandler();
+            commandHandler.setupConsole();
+            commandHandler.registerCytosisCommands();
+
+            Logger.info("Setting up command disabling");
+            commandDisablingManager = new CommandDisablingManager();
+            commandDisablingManager.loadRemotes();
+            commandDisablingManager.setupConsumers();
+
+
             Logger.info("Database initialized!");
             Logger.info("Setting up event handlers");
             eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
@@ -370,15 +386,6 @@ public final class Cytosis {
 
             Logger.info("Starting Player list manager");
             playerListManager = new PlayerListManager();
-
-            messagingManager = new MessagingManager();
-            messagingManager.initialize().whenComplete((unused, th) -> {
-                if (th != null) {
-                    Logger.error("An error occurred whilst initializing the messaging manager!", th);
-                } else {
-                    Logger.info("Messaging manager initialized!");
-                }
-            });
 
             Logger.info("Starting Friend manager!");
             friendManager = new FriendManager();
@@ -410,11 +417,6 @@ public final class Cytosis {
             networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
             networkCooldownManager.importFromRedis();
             Logger.info("Started network cooldown manager");
-
-            Logger.info("Initializing server commands");
-            commandHandler = new CommandHandler();
-            commandHandler.setupConsole();
-            commandHandler.registerCytosisCommands();
 
             Logger.info("starting actionbar manager");
             actionbarManager = new ActionbarManager();
@@ -520,7 +522,7 @@ public final class Cytosis {
     }
 
     private static void shutdownHandler() {
-        messagingManager.shutdown();
+        natsManager.shutdown();
         databaseManager.shutdown();
         sideboardManager.cancelUpdates();
         pluginManager.unloadPlugins();

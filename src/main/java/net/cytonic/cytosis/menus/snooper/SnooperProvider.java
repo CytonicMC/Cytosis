@@ -17,13 +17,13 @@ import net.cytonic.cytosis.menus.utils.PaginatedBorder;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.click.ClickType;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.Unit;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +52,7 @@ public class SnooperProvider extends ViewProvider {
         this.search = search;
         this.ascending = ascending;
 
-        permission = Objects.requireNonNull(Cytosis.getSnooperManager().getChannel(NamespaceID.from(id))).recipients();
+        permission = Objects.requireNonNull(Cytosis.getSnooperManager().getChannel(Key.key(id))).recipients();
 
         pattern = registry.pattern(
                 "#########",

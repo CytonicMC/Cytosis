@@ -3,7 +3,7 @@ package net.cytonic.cytosis.data.objects.preferences;
 import com.google.common.collect.Iterables;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -103,13 +103,13 @@ public class PreferenceRegistry {
      * An unsafe version of {@link #contains(TypedNamespace)}, but it doesn't require a typed namespace.
      * <p> Don't use this if you can avoid it.
      *
-     * @param namespaceID the namespace
+     * @param namespace the namespace
      * @return if the registry contains the preference
      */
     @ApiStatus.Internal
-    public boolean contains_UNSAFE(NamespaceID namespaceID) {
-        if (namespaceID == null) return false;
-        return preferences.keySet().stream().map(TypedNamespace::namespaceID).collect(Collectors.toSet()).contains(namespaceID);
+    public boolean contains_UNSAFE(Key namespace) {
+        if (namespace == null) return false;
+        return preferences.keySet().stream().map(TypedNamespace::namespaceID).collect(Collectors.toSet()).contains(namespace);
     }
 
     /**
@@ -117,7 +117,7 @@ public class PreferenceRegistry {
      *
      * @return the set of namespaces
      */
-    public Set<NamespaceID> namespaces() {
+    public Set<Key> namespaces() {
         return preferences.keySet().stream().map(TypedNamespace::namespaceID).collect(Collectors.toSet());
     }
 
@@ -134,18 +134,18 @@ public class PreferenceRegistry {
      * An unsafe version of {@link #get(TypedNamespace)}, but it doesn't require a typed namespace. Its unsafe because it cannot
      * guarantee type safety.
      *
-     * @param namespaceID the namespace
+     * @param namespace the namespace
      * @return the preference
      */
     @ApiStatus.Internal
     @Nullable
-    public Preference<?> get_UNSAFE(NamespaceID namespaceID) {
-        Set<Entry<?>> ids = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().equals(namespaceID)).collect(Collectors.toSet());
+    public Preference<?> get_UNSAFE(Key namespace) {
+        Set<Entry<?>> ids = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().equals(namespace)).collect(Collectors.toSet());
         return Iterables.getFirst(ids, null).preference();
     }
 
-    public Class<?> getTypeFromNamespace(NamespaceID namespaceID) {
-        Set<Entry<?>> entries = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().equals(namespaceID)).collect(Collectors.toSet());
+    public Class<?> getTypeFromNamespace(Key namespace) {
+        Set<Entry<?>> entries = preferences.values().stream().filter(e -> e.namespaceID().namespaceID().equals(namespace)).collect(Collectors.toSet());
         if (entries.isEmpty()) return null;
         if (entries.size() > 1) throw new IllegalStateException("Multiple preferences registered under the name id!");
         return Iterables.getFirst(entries, null).preference().type();

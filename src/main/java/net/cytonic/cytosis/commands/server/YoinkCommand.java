@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -9,7 +10,6 @@ import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class YoinkCommand extends Command {
+public class YoinkCommand extends CytosisCommand {
 
     public YoinkCommand() {
         super("yoink", "pullhere", "warpplayertothiserver", "pullplayertothisserver");

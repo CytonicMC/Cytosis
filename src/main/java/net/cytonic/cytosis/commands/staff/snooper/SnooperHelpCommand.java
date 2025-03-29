@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 
-public class SnooperHelpCommand extends Command {
+public class SnooperHelpCommand extends CytosisCommand {
     public SnooperHelpCommand() {
         super("help");
         setCondition(CommandUtils.IS_STAFF);

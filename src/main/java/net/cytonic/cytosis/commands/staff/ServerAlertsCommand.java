@@ -2,16 +2,16 @@ package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 
 /**
  * A command to toggle server alerts for when they start and stop
  */
-public class ServerAlertsCommand extends Command {
+public class ServerAlertsCommand extends CytosisCommand {
 
     /**
      * A command to toggle server alerts

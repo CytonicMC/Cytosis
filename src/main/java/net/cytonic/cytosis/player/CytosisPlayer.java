@@ -8,13 +8,13 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.builder.CommandResult;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -123,7 +123,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param namespace the namespace of the cooldown
      * @return the boolean true if the player is on cooldown
      */
-    public boolean onNetworkCooldown(NamespaceID namespace) {
+    public boolean onNetworkCooldown(Key namespace) {
         return Cytosis.getNetworkCooldownManager().isOnPersonalCooldown(getUuid(), namespace);
     }
 
@@ -133,7 +133,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param namespace the namespace of the cooldown
      * @param expiry    the instant the cooldown is to expire
      */
-    public void setNetworkCooldown(NamespaceID namespace, Instant expiry) {
+    public void setNetworkCooldown(Key namespace, Instant expiry) {
         Cytosis.getNetworkCooldownManager().setPersonal(getUuid(), namespace, expiry);
     }
 
@@ -144,7 +144,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the instant the specified cooldown expires. May be null if the player isn't on cooldown
      */
     @Nullable
-    public Instant getNetworkCooldown(NamespaceID namespace) {
+    public Instant getNetworkCooldown(Key namespace) {
         return Cytosis.getNetworkCooldownManager().getPersonalExpiry(getUuid(), namespace);
     }
 

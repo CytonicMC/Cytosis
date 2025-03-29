@@ -1,17 +1,17 @@
 package net.cytonic.cytosis.commands.staff;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.timer.TaskSchedule;
 
 /**
  * A command that loops other commands
  */
-public class LoopCommand extends Command {
+public class LoopCommand extends CytosisCommand {
     /**
      * A constructor for the loop command.
      */

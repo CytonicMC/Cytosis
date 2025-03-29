@@ -3,7 +3,7 @@ package net.cytonic.cytosis.managers;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.logging.Logger;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NetworkCooldownManager {
     private final RedisDatabase redis;
-    private final Map<NamespaceID, Instant> global = new ConcurrentHashMap<>();
-    private final Map<UUID, Map<NamespaceID, Instant>> personal = new ConcurrentHashMap<>();
+    private final Map<Key, Instant> global = new ConcurrentHashMap<>();
+    private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
 
     /**
      * A default constructor
@@ -39,10 +39,10 @@ public class NetworkCooldownManager {
     /**
      * Determines if the global cooldown is active
      *
-     * @param id the {@link NamespaceID} id of the cooldown
+     * @param id the {@link Key} id of the cooldown
      * @return if the specified cooldown is active
      */
-    public boolean isOnGlobalCooldown(NamespaceID id) {
+    public boolean isOnGlobalCooldown(Key id) {
         if (!global.containsKey(id)) return false;
         Instant expire = global.get(id);
         if (expire.isAfter(Instant.now())) return true;
@@ -57,7 +57,7 @@ public class NetworkCooldownManager {
      * @param id   the id of the cooldown
      * @return if the player is currently on cooldown for the specified cooldown
      */
-    public boolean isOnPersonalCooldown(UUID uuid, NamespaceID id) {
+    public boolean isOnPersonalCooldown(UUID uuid, Key id) {
         if (!personal.containsKey(uuid)) return false;
         if (!personal.get(uuid).containsKey(id)) return false;
         Instant expire = personal.get(uuid).get(id);
@@ -70,18 +70,18 @@ public class NetworkCooldownManager {
      * Resets the personal cooldown for the specified player and id
      *
      * @param uuid the {@link UUID} of the player
-     * @param id   the {@link NamespaceID} id of the cooldown
+     * @param id   the {@link Key} id of the cooldown
      */
-    public void resetPersonalCooldown(UUID uuid, NamespaceID id) {
+    public void resetPersonalCooldown(UUID uuid, Key id) {
         resetPersonalCooldown(uuid, id, true);
     }
 
     /**
      * Resets the global cooldown for a specifiec cooldown
      *
-     * @param id the {@link NamespaceID}  id of the cooldown
+     * @param id the {@link Key}  id of the cooldown
      */
-    public void resetGlobalCooldown(NamespaceID id) {
+    public void resetGlobalCooldown(Key id) {
         resetGlobalCooldown(id, true);
     }
 
@@ -89,10 +89,10 @@ public class NetworkCooldownManager {
      * Resets a player's individual cooldown (yay!)
      *
      * @param uuid   The player's uuid
-     * @param id     the {@link NamespaceID} of the cooldown
+     * @param id     the {@link Key} of the cooldown
      * @param notify if the server should notify other servers to update their cache
      */
-    public void resetPersonalCooldown(UUID uuid, NamespaceID id, boolean notify) {
+    public void resetPersonalCooldown(UUID uuid, Key id, boolean notify) {
         if (!personal.containsKey(uuid)) return;
         personal.get(uuid).remove(id);
         redis.removeFromHash(toPersonalKey(uuid), id.asString());
@@ -109,7 +109,7 @@ public class NetworkCooldownManager {
      * @param id     the ID of the cooldown
      * @param notify if the server should notify other servers to update their local caches
      */
-    public void resetGlobalCooldown(NamespaceID id, boolean notify) {
+    public void resetGlobalCooldown(Key id, boolean notify) {
         if (!global.containsKey(id)) return;
         global.remove(id);
         if (notify) {
@@ -124,7 +124,7 @@ public class NetworkCooldownManager {
      * @param id     The id of the cooldown
      * @param expire the instant it should expire at
      */
-    public void setGlobal(NamespaceID id, @Nullable Instant expire) {
+    public void setGlobal(Key id, @Nullable Instant expire) {
         if (expire == null || expire.isBefore(Instant.now())) {
             resetGlobalCooldown(id, false);
             return;
@@ -136,13 +136,13 @@ public class NetworkCooldownManager {
     }
 
     /**
-     * Updates a player's cooldown by the specified UUID and NamespaceID
+     * Updates a player's cooldown by the specified UUID and Key
      *
      * @param uuid   The player
      * @param id     The id of the cooldown
      * @param expire the instant this cooldown should expire at
      */
-    public void setPersonal(UUID uuid, NamespaceID id, Instant expire) {
+    public void setPersonal(UUID uuid, Key id, Instant expire) {
         if (expire == null || expire.isBefore(Instant.now())) {
             resetPersonalCooldown(uuid, id, false);
             return;
@@ -165,9 +165,9 @@ public class NetworkCooldownManager {
             UUID uuid = UUID.fromString(personalKey.split("COOLDOWN_PERSONAL_KEY:")[1]);
 
             Map<String, String> results = redis.getHash(personalKey);
-            Map<NamespaceID, Instant> personalMap = new HashMap<>();
+            Map<Key, Instant> personalMap = new HashMap<>();
 
-            results.forEach((key, value) -> personalMap.put(NamespaceID.from(key), Instant.parse(value)));
+            results.forEach((key, value) -> personalMap.put(Key.key(key), Instant.parse(value)));
             personal.put(uuid, personalMap);
         }
         long end = System.currentTimeMillis();
@@ -175,9 +175,9 @@ public class NetworkCooldownManager {
 
         start = System.currentTimeMillis();
         Map<String, String> results = redis.getHash(RedisDatabase.GLOBAL_COOLDOWNS_KEY);
-        Map<NamespaceID, Instant> globalMap = new HashMap<>();
+        Map<Key, Instant> globalMap = new HashMap<>();
 
-        results.forEach((key, value) -> globalMap.put(NamespaceID.from(key), Instant.parse(value)));
+        results.forEach((key, value) -> globalMap.put(Key.key(key), Instant.parse(value)));
         global.putAll(globalMap);
         end = System.currentTimeMillis();
 
@@ -191,7 +191,7 @@ public class NetworkCooldownManager {
      * @return the instant it expires.
      */
     @Nullable
-    public Instant getGlobalExpiry(NamespaceID node) {
+    public Instant getGlobalExpiry(Key node) {
         return global.get(node);
     }
 
@@ -202,7 +202,7 @@ public class NetworkCooldownManager {
      * @return the instant it expires.
      */
     @Nullable
-    public Instant getPersonalExpiry(UUID uuid, NamespaceID node) {
+    public Instant getPersonalExpiry(UUID uuid, Key node) {
         return personal.get(uuid).get(node);
     }
 
@@ -211,9 +211,10 @@ public class NetworkCooldownManager {
      *
      * @return the set of personal keys
      */
-    public Set<NamespaceID> getPersonalKeys() {
-        Set<NamespaceID> personalKeys = new HashSet<>();
-        personal.forEach((uuid, namespaceIDInstantMap) -> namespaceIDInstantMap.forEach((namespaceID, instant) -> personalKeys.add(NamespaceID.from(namespaceID))));
+    public Set<Key> getPersonalKeys() {
+        Set<Key> personalKeys = new HashSet<>();
+        personal.forEach((uuid, namespaceIDInstantMap) ->
+                namespaceIDInstantMap.forEach((namespaceID, instant) -> personalKeys.add(namespaceID)));
         return personalKeys;
     }
 
@@ -222,7 +223,7 @@ public class NetworkCooldownManager {
      *
      * @return the set of global keys
      */
-    public Set<NamespaceID> getGlobalKeys() {
+    public Set<Key> getGlobalKeys() {
         return global.keySet();
     }
 
@@ -231,8 +232,8 @@ public class NetworkCooldownManager {
      *
      * @return The set of every tracked key
      */
-    public Set<NamespaceID> getAllKeys() {
-        Set<NamespaceID> keys = getPersonalKeys();
+    public Set<Key> getAllKeys() {
+        Set<Key> keys = getPersonalKeys();
         keys.addAll(global.keySet());
         return keys;
     }

@@ -1,9 +1,9 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -13,7 +13,7 @@ import net.minestom.server.entity.Player;
 /**
  * The class representing the gamemode command
  */
-public class GamemodeCommand extends Command {
+public class GamemodeCommand extends CytosisCommand {
 
     /**
      * Creates a new command and sets up the consumers and execution logic

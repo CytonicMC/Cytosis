@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.moderation;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.logging.Logger;
@@ -9,14 +10,13 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.util.UUID;
 
 
-public class KickCommand extends Command {
+public class KickCommand extends CytosisCommand {
 
     public KickCommand() {
         super("kick");

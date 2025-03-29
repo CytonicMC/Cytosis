@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.BuildInfo;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 
-public class WhereAmiCommand extends Command {
+public class WhereAmiCommand extends CytosisCommand {
 
     public WhereAmiCommand() {
         super("whereami");

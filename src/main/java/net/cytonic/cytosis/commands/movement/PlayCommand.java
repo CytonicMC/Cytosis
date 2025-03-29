@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.commands.movement;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 
-public class PlayCommand extends Command {
+public class PlayCommand extends CytosisCommand {
     public PlayCommand() {
         super("play");
         ArgumentWord word = new ArgumentWord("word").from("gg", "bw", "gilded", "bedwars", "gilded_gorge");

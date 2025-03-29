@@ -1,19 +1,19 @@
 package net.cytonic.cytosis.commands.chatting;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * A class that handles the chat channel command
  */
-public class ChatChannelCommand extends Command {
+public class ChatChannelCommand extends CytosisCommand {
 
     /**
      * Creates the command

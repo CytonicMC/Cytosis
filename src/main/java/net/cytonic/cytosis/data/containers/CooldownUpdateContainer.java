@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public class CooldownUpdateContainer implements Container {
 
     private final String id = "UPDATE_COOLDOWN";
     private CooldownTarget target = null;
-    private NamespaceID namespace = null;
+    private Key namespace = null;
     private Instant expiry = null;
     private UUID userUuid = null;
 

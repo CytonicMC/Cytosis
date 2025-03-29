@@ -2,13 +2,13 @@ package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
-public class SnooperCommand extends Command {
+public class SnooperCommand extends CytosisCommand {
 
     public static final ArgumentWord CHANNELS = ArgumentType.Word("channels");
 

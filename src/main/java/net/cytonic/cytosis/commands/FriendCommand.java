@@ -5,7 +5,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.condition.Conditions;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -17,7 +16,7 @@ import java.util.UUID;
 /**
  * A command to handle friends
  */
-public class FriendCommand extends Command {
+public class FriendCommand extends CytosisCommand {
 
     /**
      * Creates the command

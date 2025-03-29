@@ -3,7 +3,6 @@ package net.cytonic.cytosis.commands;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
@@ -11,7 +10,7 @@ import net.minestom.server.entity.Player;
 /**
  * A command for reporting players
  */
-public class ReportCommand extends Command {
+public class ReportCommand extends CytosisCommand {
 
     /**
      * A command to report players

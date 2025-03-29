@@ -12,7 +12,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
@@ -85,7 +85,7 @@ public class PreferenceManager {
                     }
                     preferenceData.put(uuid, data);
                     data.get(CytosisPreferences.LISTENING_SNOOPS).snoops().forEach(s -> {
-                        if (Cytosis.getSnooperManager().getChannel(NamespaceID.from(s)) == null) {
+                        if (Cytosis.getSnooperManager().getChannel(Key.key(s)) == null) {
                             // big problem if null
                             Logger.warn("Player " + uuid + " is listening to the channel '" + s + "', but it isnt registered!");
                             Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>ERROR!</b></red><gray> Failed to start listening on snooper channel '" + s + "'")));
@@ -169,7 +169,7 @@ public class PreferenceManager {
      * @throws ClassCastException       if the preference is of the incorrect type
      */
     @SuppressWarnings("unchecked") // it is a checked cast
-    public <T> void updatePlayerPreference_UNSAFE(UUID uuid, NamespaceID preference, @Nullable T value) {
+    public <T> void updatePlayerPreference_UNSAFE(UUID uuid, Key preference, @Nullable T value) {
         TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(preference)).findFirst().orElse(null);
         if (typed == null) throw new IllegalArgumentException("The preference " + preference + " does not exist!");
         if (value != null && typed.type() != value.getClass())
@@ -181,14 +181,14 @@ public class PreferenceManager {
      * Gets the preference of a player
      *
      * @param uuid        The player
-     * @param namespaceID the namespace
+     * @param namespace the namespace
      * @param <T>         the type of the preference
      * @return the player's preference
      */
     @SuppressWarnings("unchecked")
-    public <T> T getPlayerPreference_UNSAFE(UUID uuid, NamespaceID namespaceID) {
-        TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(namespaceID)).findFirst().orElse(null);
-        if (typed == null) throw new IllegalArgumentException("The preference " + namespaceID + " does not exist!");
+    public <T> T getPlayerPreference_UNSAFE(UUID uuid, Key namespace) {
+        TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(namespace)).findFirst().orElse(null);
+        if (typed == null) throw new IllegalArgumentException("The preference " + namespace + " does not exist!");
         return getPlayerPreference(uuid, (TypedNamespace<T>) typed);
     }
 

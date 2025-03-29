@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.commands.movement;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.minestom.server.command.builder.Command;
 
-public class LobbyCommand extends Command {
+public class LobbyCommand extends CytosisCommand {
 
     public LobbyCommand() {
         super("lobby", "l");

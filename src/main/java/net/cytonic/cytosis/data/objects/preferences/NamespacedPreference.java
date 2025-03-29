@@ -2,7 +2,7 @@ package net.cytonic.cytosis.data.objects.preferences;
 
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.utils.Utils;
-import net.minestom.server.utils.NamespaceID;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -21,12 +21,12 @@ public class NamespacedPreference<T> extends Preference<T> {
         this.namespaceID = namespaceID;
     }
 
-    public NamespacedPreference(NamespaceID namespaceID, Class<T> type, @Nullable T value) {
+    public NamespacedPreference(Key namespaceID, Class<T> type, @Nullable T value) {
         super(type, type.cast(value));
         this.namespaceID = new TypedNamespace<>(namespaceID, type);
     }
 
-    public NamespaceID namespace() {
+    public Key namespace() {
         return namespaceID.namespaceID();
     }
 
@@ -35,7 +35,7 @@ public class NamespacedPreference<T> extends Preference<T> {
     }
 
     @Override
-    public NamespacedPreference<T> clone() throws CloneNotSupportedException {
+    public NamespacedPreference<T> clone() {
         return new NamespacedPreference<>(namespaceID.namespaceID(), type(), Utils.clone(value()));
     }
 }
