@@ -8,15 +8,16 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sideboard.DefaultCreator;
 import net.cytonic.cytosis.sideboard.Sideboard;
 import net.cytonic.cytosis.sideboard.SideboardCreator;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.timer.Task;
+import net.minestom.server.timer.TaskSchedule;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A manager class for sideboards
@@ -24,7 +25,9 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 public class SideboardManager {
     private final Map<UUID, Sideboard> sideboards = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService updateExecutor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().name("Cytosis-Sideboard-Updater").factory());
+    @Getter
+    @Nullable
+    private Task task = null;
     @Getter
     @Setter
     private SideboardCreator sideboardCreator = new DefaultCreator();
@@ -40,6 +43,7 @@ public class SideboardManager {
 
     /**
      * Removes a player from the sideboard manager
+     *
      * @param player the player
      */
     public void removePlayer(Player player) {
@@ -48,13 +52,14 @@ public class SideboardManager {
 
     /**
      * Removes a player from the sideboard manager
+     *
      * @param player the player
      */
     public void removePlayer(UUID player) {
         sideboards.remove(player);
     }
 
-    private void updatePlayer() {
+    public void updatePlayersNow() {
         sideboards.forEach((uuid, sideboard) -> {
             Optional<CytosisPlayer> player = Cytosis.getPlayer(uuid);
             if (player.isEmpty()) {
@@ -68,16 +73,21 @@ public class SideboardManager {
     }
 
     /**
-     * schedule the sideboard updater
+     * schedule the sideboard updater.
      */
-    public void updateBoards() {
-        updateExecutor.scheduleAtFixedRate(this::updatePlayer, 1, 1, TimeUnit.SECONDS);
+    public void autoUpdateBoards(TaskSchedule schedule) {
+        task = MinecraftServer.getSchedulerManager()
+                .buildTask(this::updatePlayersNow)
+                .repeat(schedule)
+                .schedule();
     }
 
     /**
-     * Shuts down the worker
+     * Shuts down the repeating task. It can be reenabled with {@link SideboardManager#autoUpdateBoards(TaskSchedule)}
      */
-    public void shutdown() {
-        updateExecutor.shutdown();
+    public void cancelUpdates() {
+        if (task == null) return;
+        task.cancel();
+        task = null;
     }
 }
