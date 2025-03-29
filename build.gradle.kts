@@ -27,7 +27,6 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("com.rabbitmq:amqp-client:5.25.0") // Message broker
     api("dev.hollowcube:polar:1.13.0") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.4.5-jre")
@@ -37,7 +36,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
     implementation("io.nats:jnats:2.20.6")
     implementation("org.jooq:jooq:3.20.2") // database queries
-    implementation("com.github.utfunderscore:MinestomPvP:latest_minestom-SNAPSHOT") // pvp
+    implementation("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
     implementation("eu.koboo:minestom-invue:2025.1.1") {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
