@@ -27,7 +27,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("dev.hollowcube:polar:1.13.0") // Polar
+    api("dev.hollowcube:polar:1.14.0") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
     api("com.google.guava:guava:33.4.6-jre")
     implementation("org.reflections:reflections:0.10.2") // reflection utils
