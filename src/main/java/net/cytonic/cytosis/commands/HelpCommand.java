@@ -22,10 +22,10 @@ public class HelpCommand extends CytosisCommand {
                 player.sendMessage(Msg.mm("<white><b>\u25C6</b></white> <gold><hover:show_text:'<gold>Click to go to appeals!'><click:open_url:'https://cytonic.net/forums/topics/PUNISHMENT_APPEALS'>Appeals</click>"));
                 player.sendMessage(Msg.mm("<white><b>\u25C6</b></white> <gold><hover:show_text:'<gold>Click to go to bug reports!'><click:open_url:'https://cytonic.net/forums/topics/BUG_REPORTS'>Bug Reports</click>"));
                 player.sendMessage(" ");
-                player.sendMessage(Msg.mm("<aqua>Don't be afraid to ask a staff member for help either in-game, on our forums, or on discord."));
-                player.sendMessage(Msg.mm("<st><dark_green>                                                                                "));
+                player.sendMessage(Msg.aqua("Don't be afraid to ask a staff member for help either in-game, on our forums, or on discord."));
+                player.sendMessage(Msg.darkGreen("<st>                                                                                "));
             } else {
-                sender.sendMessage(Msg.mm("<RED>Only players may execute this command!"));
+                sender.sendMessage(Msg.whoops("Only players may execute this command!"));
             }
         });
     }

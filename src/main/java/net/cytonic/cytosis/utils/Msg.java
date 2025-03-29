@@ -141,6 +141,70 @@ public interface Msg {
         return mm("<#" + color.asHexString() + "><b>" + splash + "</b></#" + color.asHexString() + ">");
     }
 
+    static Component aqua(String text, Object... args) {
+        return mm("<aqua>" + text, args);
+    }
+
+    static Component darkAqua(String text, Object... args) {
+        return mm("<dark_aqua>" + text, args);
+    }
+
+    static Component green(String text, Object... args) {
+        return mm("<green>" + text, args);
+    }
+
+    static Component darkGreen(String text, Object... args) {
+        return mm("<dark_green>" + text, args);
+    }
+
+    static Component blue(String text, Object... args) {
+        return mm("<blue>" + text, args);
+    }
+
+    static Component darkBlue(String text, Object... args) {
+        return mm("<dark_blue>" + text, args);
+    }
+
+    static Component red(String text, Object... args) {
+        return mm("<red>" + text, args);
+    }
+
+    static Component darkRed(String text, Object... args) {
+        return mm("<dark_red>" + text, args);
+    }
+
+    static Component pink(String text, Object... args) {
+        return mm("<light_purple>" + text, args);
+    }
+
+    static Component purple(String text, Object... args) {
+        return mm("<dark_purple>" + text, args);
+    }
+
+    static Component grey(String text, Object... args) {
+        return mm("<gray>" + text, args);
+    }
+
+    static Component darkGrey(String text, Object... args) {
+        return mm("<dark_gray>" + text, args);
+    }
+
+    static Component yellow(String text, Object... args) {
+        return mm("<yellow>" + text, args);
+    }
+
+    static Component white(String text, Object... args) {
+        return mm("<white>" + text, args);
+    }
+
+    static Component black(String text, Object... args) {
+        return mm("<black>" + text, args);
+    }
+
+    static Component gold(String text, Object... args) {
+        return mm("<gold>" + text, args);
+    }
+
     /**
      * Gets a formatted ban message
      *

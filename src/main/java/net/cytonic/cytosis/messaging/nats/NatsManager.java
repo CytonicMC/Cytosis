@@ -168,11 +168,11 @@ public class NatsManager {
                 for (Player player : Cytosis.getOnlinePlayers()) {
                     if (player.getUuid().equals(request.recipient())) {
                         player.sendMessage(line);
-                        player.sendMessage(Msg.mm("<aqua>Your friend request from ").append(sender).append(Msg.mm("<aqua> has expired!")));
+                        player.sendMessage(Msg.aqua("Your friend request from ").append(sender).append(Msg.aqua(" has expired!")));
                         player.sendMessage(line);
                     } else if (player.getUuid().equals(request.sender())) {
                         player.sendMessage(line);
-                        player.sendMessage(Msg.mm("<aqua>Your friend request to ").append(target).append(Msg.mm("<aqua> has expired!")));
+                        player.sendMessage(Msg.aqua("Your friend request to ").append(target).append(Msg.aqua(" has expired!")));
                         player.sendMessage(line);
                     }
                 }
