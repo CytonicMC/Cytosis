@@ -506,6 +506,24 @@ public class NatsManager {
         }));
     }
 
+    public void sendPlayerToServer(UUID player, String serverID, @Nullable UUID instance) {
+        Thread.ofVirtual().name("NATS Player Sender").start(() -> request(Subjects.PLAYER_SEND, new SendPlayerToServerContainer(player, serverID, instance).serialize().getBytes(), (message, throwable) -> {
+            if (Cytosis.getPlayer(player).isEmpty()) return;
+            Player p = Cytosis.getPlayer(player).get();
+            if (throwable != null) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", serverID));
+            }
+
+            ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
+
+            if (!reponse.success()) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", serverID, reponse.message()));
+            } else {
+                p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", serverID));
+            }
+        }));
+    }
+
     public void sendPlayerToServer(UUID player, String group, String id, @Nullable String displayname) {
         Thread.ofVirtual().name("NATS Player Sender").start(() -> request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypeContainer(player, group, id).serialize(), (message, throwable) -> {
             if (Cytosis.getPlayer(player).isEmpty()) return;
