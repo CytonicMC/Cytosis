@@ -18,7 +18,7 @@ public class UnmuteCommand extends CytosisCommand {
     public UnmuteCommand() {
         super("unmute");
         setCondition(CommandUtils.IS_MODERATOR);
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /unmute (player)")));
+        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<red>Usage: /unmute (player)")));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
@@ -33,12 +33,12 @@ public class UnmuteCommand extends CytosisCommand {
 
             final String player = context.get(playerArg);
             if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(player)) {
-                sender.sendMessage(Msg.mm("<red>The player " + player + " doesn't exist!"));
+                sender.sendMessage(Msg.whoops("The player %s doesn't exist!", player));
                 return;
             }
             UUID uuid = Cytosis.getCytonicNetwork().getLifetimePlayers().getByValue(player);
             if (!Cytosis.getCytonicNetwork().getMutedPlayers().containsKey(uuid)) {
-                sender.sendMessage(Msg.mm("<red>" + player + " is not muted!"));
+                sender.sendMessage(Msg.whoops("%s is not muted!", player));
                 return;
             }
 
@@ -48,7 +48,7 @@ public class UnmuteCommand extends CytosisCommand {
             Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNMUTE, SnoopUtils.toSnoop(snoop));
 
             Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(uuid);
-            sender.sendMessage(Msg.mm("<green><b>UNMUTED!</green> <gray>" + player + " was successfully unmuted!"));
+            sender.sendMessage(Msg.greenSplash("UNMUTED", "%s was successfully unmuted!", player));
         }, playerArg);
     }
 }

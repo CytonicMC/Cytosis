@@ -17,9 +17,9 @@ public class PingCommand extends CytosisCommand {
         super("ping");
         setDefaultExecutor((sender, cmdc) -> {
             if (sender instanceof final CytosisPlayer player) {
-                player.sendMessage(Msg.mm("<yellow><b>Pong!</b></yellow> <gray>Your ping is " + player.getLatency() + "ms."));
+                player.sendMessage(Msg.yellowSplash("Pong!", "Your ping is " + player.getLatency() + "ms."));
             } else {
-                sender.sendMessage(Msg.mm("<red>Only players may execute this command!"));
+                sender.sendMessage(Msg.whoops("Only players may execute this command!"));
             }
         });
     }

@@ -58,9 +58,9 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
             player.updatePreference(CytosisPreferences.IGNORED_CHAT_CHANNELS, container);
 
             if (!container.getForChannel(channel)) {
-                player.sendMessage(Msg.mm("<gray><b>UNIGNORED!</b> You are no longer ignoring the <gold>" + channel.name() + "</gold> chat."));
+                player.sendMessage(Msg.greySplash("UNIGNORED!", "You are no longer ignoring the <gold>" + channel.name() + "</gold> chat."));
             } else {
-                player.sendMessage(Msg.mm("<gray><b>IGNORED!</b> You successfully muted <gold>" + channel.name() + "</gold> chat."));
+                player.sendMessage(Msg.greySplash("IGNORED!", "You successfully muted <gold>" + channel.name() + "</gold> chat."));
             }
         }), chatChannelArgument);
     }

@@ -122,7 +122,7 @@ public class SnooperManager {
             return;
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.with(channel));
-        player.sendMessage(Msg.mm("<b><#e829aa>SNOOPED!</#e829aa></b><gray> Successfully started snooping on the '" + channel + "' channel!"));
+        player.sendMessage(Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
     }
 
     public void blind(CytosisPlayer player, @NotNull String channel) {
@@ -132,7 +132,7 @@ public class SnooperManager {
             return;
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.without(channel));
-        player.sendMessage(Msg.mm("<b><#ff0034>DESNOOPED!</#ff0034></b><gray> Successfully stopped snooping on the '" + channel + "' channel!"));
+        player.sendMessage(Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
     }
 
     /**

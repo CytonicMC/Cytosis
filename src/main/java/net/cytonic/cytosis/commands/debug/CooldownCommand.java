@@ -49,9 +49,9 @@ public class CooldownCommand extends CytosisCommand {
             CooldownAction ac = context.get(action);
 
             if (ac == CooldownAction.HELP) {
-                sender.sendMessage(Msg.mm("<green><b>Cooldown Help</b></green> <newline><gray><i>A debug command for testing the Cytosis cooldown api.</i></gray><newline><newline> <newline> <gold>/cooldown set_personal <node> <expiry></gold><gray><i> Sets a personal cooldown</i></gray> <newline> <gold>/cooldown set_global <node> <expiry></gold><gray><i> Sets a global cooldown</i></gray> <newline> <gold>/cooldown clear_personal <node></gold><gray><i> Resets a personal cooldown</i></gray> <newline> <gold>/cooldown clear_global <node></gold><gray><i> Resets a global cooldown</i></gray><newline> <gold>/cooldown help</gold><gray><i> Displays this message</i></gray><newline> <gold>/cooldown get_global <node></gold><gray><i> Gets the expiry of a global cooldown node</i></gray><newline> <gold>/cooldown get_personal <node></gold><gray><i> Gets the expiry of a personal cooldown node</i></gray>"));
+                sender.sendMessage(Msg.greenSplash("Cooldown Help", "<newline><i>A debug command for testing the Cytosis cooldown api.</i></gray><newline><newline> <newline> <gold>/cooldown set_personal <node> <expiry></gold><gray><i> Sets a personal cooldown</i></gray> <newline> <gold>/cooldown set_global <node> <expiry></gold><gray><i> Sets a global cooldown</i></gray> <newline> <gold>/cooldown clear_personal <node></gold><gray><i> Resets a personal cooldown</i></gray> <newline> <gold>/cooldown clear_global <node></gold><gray><i> Resets a global cooldown</i></gray><newline> <gold>/cooldown help</gold><gray><i> Displays this message</i></gray><newline> <gold>/cooldown get_global <node></gold><gray><i> Gets the expiry of a global cooldown node</i></gray><newline> <gold>/cooldown get_personal <node></gold><gray><i> Gets the expiry of a personal cooldown node</i></gray>"));
             } else {
-                player.sendMessage(Msg.mm("<red>Invalid syntax! Use '/cooldown help' for more information!"));
+                player.sendMessage(Msg.whoops("Invalid syntax! Use '/cooldown help' for more information!"));
             }
         }, action);
 
@@ -78,7 +78,7 @@ public class CooldownCommand extends CytosisCommand {
             } else if (ac == CooldownAction.GET_GLOBAL) {
                 if (network.isOnGlobalCooldown(node)) {
                     Instant expires = network.getGlobalExpiry(node);
-                    player.sendMessage(Msg.mm("<yellow><b>TICK TOCK!</b></yellow> <gray>The global cooldown '<yellow>" + node.asString() + "</yellow>' is set to expire in " + DurationParser.unparseFull(expires) + "."));
+                    player.sendMessage(Msg.yellowSplash("TICK TOCK!", "The global cooldown '<yellow>" + node.asString() + "</yellow>' is set to expire in " + DurationParser.unparseFull(expires) + "."));
                     return;
                 }
                 player.sendMessage(Msg.whoops("The global cooldown '<yellow>" + node.asString() + "</yellow>' isn't active!"));
@@ -86,7 +86,7 @@ public class CooldownCommand extends CytosisCommand {
             } else if (ac == CooldownAction.GET_PERSONAL) {
                 if (network.isOnPersonalCooldown(player.getUuid(), node)) {
                     Instant expires = network.getPersonalExpiry(player.getUuid(), node);
-                    player.sendMessage(Msg.mm("<yellow><b>TICK TOCK!</b></yellow> <gray>Your personal cooldown '<yellow>" + node.asString() + "</yellow>' is set to expire in " + DurationParser.unparseFull(expires) + "."));
+                    player.sendMessage(Msg.yellowSplash("TICK TOCK!", "Your personal cooldown '<yellow>" + node.asString() + "</yellow>' is set to expire in " + DurationParser.unparseFull(expires) + "."));
                     return;
                 }
                 player.sendMessage(Msg.whoops("Your personal cooldown '<yellow>" + node.asString() + "</yellow>' isn't active!"));

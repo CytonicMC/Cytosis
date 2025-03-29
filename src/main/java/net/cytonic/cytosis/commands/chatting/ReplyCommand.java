@@ -11,7 +11,7 @@ public class ReplyCommand extends CytosisCommand {
         super("reply", "r");
         var msgArgument = ArgumentType.StringArray("msg");
         setDefaultExecutor((sender, context) -> {
-            sender.sendMessage(Msg.mm("<red><b></b></red><gray> you must have a message to reply with!"));
+            sender.sendMessage(Msg.whoops("You must have a message to reply with!"));
         });
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) {

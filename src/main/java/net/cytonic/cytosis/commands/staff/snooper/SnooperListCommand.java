@@ -19,7 +19,7 @@ public class SnooperListCommand extends CytosisCommand {
             boolean muted = player.getPreference(CytosisNamespaces.MUTE_SNOOPER);
 
             Set<String> channels = player.getPreference(CytosisNamespaces.LISTENING_SNOOPS).snoops();
-            Component header = Msg.mm("<b><#e829aa>SNOOPER LIST!</#e829aa></b><gray> » ").append(muted ? Msg.mm("(MUTED)") : Component.text()).appendNewline();
+            Component header = Msg.splash("SNOOPER LIST!", "e829aa", "» ").append(muted ? Msg.mm("(MUTED)") : Component.text()).appendNewline();
             if (channels.isEmpty()) {
                 header = header.append(Msg.mm("<red>You arrent snooping on any channels right now."));
             } else {

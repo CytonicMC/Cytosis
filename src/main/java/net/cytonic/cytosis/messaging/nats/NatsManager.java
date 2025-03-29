@@ -168,11 +168,11 @@ public class NatsManager {
                 for (Player player : Cytosis.getOnlinePlayers()) {
                     if (player.getUuid().equals(request.recipient())) {
                         player.sendMessage(line);
-                        player.sendMessage(Msg.mm("<aqua>Your friend request from ").append(sender).append(Msg.mm("<aqua> has expired!")));
+                        player.sendMessage(Msg.aqua("Your friend request from ").append(sender).append(Msg.aqua(" has expired!")));
                         player.sendMessage(line);
                     } else if (player.getUuid().equals(request.sender())) {
                         player.sendMessage(line);
-                        player.sendMessage(Msg.mm("<aqua>Your friend request to ").append(target).append(Msg.mm("<aqua> has expired!")));
+                        player.sendMessage(Msg.aqua("Your friend request to ").append(target).append(Msg.aqua(" has expired!")));
                         player.sendMessage(line);
                     }
                 }
@@ -501,7 +501,7 @@ public class NatsManager {
             if (!reponse.success()) {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(), reponse.message()));
             } else {
-                p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", server.id()));
+                p.sendMessage(Msg.network("Sending you to %s!", server.id()));
             }
         }));
     }
@@ -519,7 +519,7 @@ public class NatsManager {
             if (!reponse.success()) {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", serverID, reponse.message()));
             } else {
-                p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", serverID));
+                p.sendMessage(Msg.network("Sending you to %s!", serverID));
             }
         }));
     }
@@ -539,7 +539,7 @@ public class NatsManager {
             if (!reponse.success()) {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", displayname == null ? "the a server" : displayname, reponse.message()));
             } else {
-                p.sendMessage(Msg.mm("<yellow><b>NETWORK!</b></yellow><gray> Sending you to %s!", displayname == null ? "the a server" : displayname));
+                p.sendMessage(Msg.network("Sending you to %s!", displayname == null ? "the a server" : displayname));
             }
         }));
     }

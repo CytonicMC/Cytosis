@@ -46,7 +46,7 @@ public class MsgCommand extends CytosisCommand {
 
                 if (msg.isEmpty()) {
                     Component recipient = targetRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getOnlinePlayers().getByKey(uuid), targetRank.getTeamColor()));
-                    actor.sendMessage(Msg.mm("<b><dark_aqua>CHAT CHANNEL!</dark_aqua></b><gray> You opened a direct message to ")
+                    actor.sendMessage(Msg.darkAquaSplash("CHAT CHANNEL!", "You opened a direct message to ")
                             .append(recipient).append(Msg.mm("<gray>! <i><dark_gray>Whenever you type in chat your messages get sent to them!")));
                     Cytosis.getChatManager().setChannel(actor.getUuid(), ChatChannel.PRIVATE_MESSAGE);
                     Cytosis.getChatManager().openPrivateMessage(actor, uuid);

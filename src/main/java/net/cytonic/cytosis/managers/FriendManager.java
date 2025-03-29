@@ -175,18 +175,18 @@ public class FriendManager {
      */
     public void listFriends(Player player) {
         if (getFriends(player.getUuid()).isEmpty()) {
-            player.sendMessage(Msg.mm("<red><b>ERROR!</b></red> <gray>You have no friends :("));
-            player.sendMessage(Msg.mm("<green><b>TIP!<b/></green> <gray>Perhaps you should invite some with /friend add <player>"));
+            player.sendMessage(Msg.whoops("You have no friends :("));
+            player.sendMessage(Msg.tip("Perhaps you should invite some with /friend add <player>"));
             return;
         }
 
-        player.sendMessage(Msg.mm("<aqua><b>Friends List</b> <gray>(" + getFriends(player.getUuid()).size() + ") <dark_gray>»</dark_gray>"));
+        player.sendMessage(Msg.aquaSplash("Friends List", "(" + getFriends(player.getUuid()).size() + ") <dark_gray>»</dark_gray>"));
 
         for (UUID friend : getFriends(player.getUuid())) {
             PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(friend);
             boolean online = Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(friend);
             String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(friend);
-            player.sendMessage(Msg.mm("<dark_gray>  > </dark_gray>").append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - ")).append(online ? Msg.mm("<green><b>ONLINE!") : Msg.mm(" <red><b>OFFLINE :("))));
+            player.sendMessage(Msg.mm("<dark_gray>  > </dark_gray>").append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - ")).append(online ? Msg.coloredBadge("ONLINE!", "green") : Msg.coloredBadge("OFFLINE :(", "red"))));
         }
     }
 

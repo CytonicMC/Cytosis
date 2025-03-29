@@ -34,7 +34,7 @@ public class EnableCommand extends CytosisCommand {
                         return;
                     }
                     manager.enableCommandGlobally(command);
-                    sender.sendMessage(Msg.mm("<green><b>ENABLED!</b><green><gray> enabled the '" + rawCommand + "' command on every server."));
+                    sender.sendMessage(Msg.greenSplash("ENABLED!", "enabled the '" + rawCommand + "' command on every server."));
                     return;
                 }
 
@@ -43,7 +43,7 @@ public class EnableCommand extends CytosisCommand {
                     return;
                 }
                 manager.enableCommandLocally(command);
-                sender.sendMessage(Msg.mm("<green><b>ENABLED!</b><green><gray> enabled the '" + rawCommand + "' command on this server."));
+                sender.sendMessage(Msg.greenSplash("ENABLED!", "enabled the '" + rawCommand + "' command on this server."));
             }
 
         }, cmd, global);
