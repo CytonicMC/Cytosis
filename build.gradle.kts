@@ -24,8 +24,8 @@ dependencies {
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     implementation("net.kyori:adventure-text-minimessage:4.19.0")// better components
     implementation("com.mysql:mysql-connector-j:9.2.0") //mysql connector
-    compileOnly("org.projectlombok:lombok:1.18.36") // lombok
-    annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
+    compileOnly("org.projectlombok:lombok:1.18.38") // lombok
+    annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
     implementation("org.tomlj:tomlj:1.1.1") // Config lang
     api("dev.hollowcube:polar:1.14.0") // Polar
     api("redis.clients:jedis:5.2.0") // redis client
