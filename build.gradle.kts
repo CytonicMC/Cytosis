@@ -35,7 +35,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
     implementation("io.nats:jnats:2.21.0")
-    implementation("org.jooq:jooq:3.20.2") // database queries
+    implementation("org.jooq:jooq:3.20.3") // database queries
     implementation("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
     implementation("eu.koboo:minestom-invue:2025.1.1") {
         // we want to use our own, thank you :)
