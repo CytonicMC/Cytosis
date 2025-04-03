@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.*;
 import net.kyori.adventure.text.Component;
@@ -100,6 +101,10 @@ public class PlayerListManager {
             for (int j = 0; j < listUUIDs[i].length; j++) {
                 char row = (char) ('a' + j);
                 UUID uuid = listUUIDs[i][j];
+
+                Logger.debug("i: " + i + " j: " + j + " uuid: " + uuid);
+                Logger.debug("Favicons: " + Arrays.toString(playerFavicons.get(player.getUuid())));
+
                 packets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(uuid, "!" + col + "-" + row, List.of(playerFavicons.get(player.getUuid())[i][j]), // line 105
