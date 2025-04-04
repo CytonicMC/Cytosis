@@ -3,7 +3,6 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.*;
 import net.kyori.adventure.text.Component;
@@ -26,9 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public class PlayerListManager {
 
-    private final UUID[][] listUUIDs; // <column, entry>
     private final Map<UUID, Component[][]> playerComponents = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerInfoUpdatePacket.Property[][]> playerFavicons = new ConcurrentHashMap<>();
+    private UUID[][] listUUIDs; // <column, entry>
     private PlayerlistCreator creator;
     // in ticks
     private int updateInterval = 20;
@@ -45,6 +44,20 @@ public class PlayerListManager {
                 listUUIDs[i][j] = UUID.randomUUID();
             }
         }
+    }
+
+    public void setCreator(PlayerlistCreator creator) {
+        this.creator = creator;
+
+        listUUIDs = new UUID[creator.getColumnCount()][20];
+        for (int i = 0; i < listUUIDs.length; i++) {
+            for (int j = 0; j < listUUIDs[i].length; j++) {
+                listUUIDs[i][j] = UUID.randomUUID();
+            }
+        }
+
+        playerComponents.clear();
+        playerFavicons.clear();
     }
 
     /**
@@ -101,10 +114,6 @@ public class PlayerListManager {
             for (int j = 0; j < listUUIDs[i].length; j++) {
                 char row = (char) ('a' + j);
                 UUID uuid = listUUIDs[i][j];
-
-                Logger.debug("i: " + i + " j: " + j + " uuid: " + uuid);
-                Logger.debug("Favicons: " + Arrays.toString(playerFavicons.get(player.getUuid())));
-
                 packets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(uuid, "!" + col + "-" + row, List.of(playerFavicons.get(player.getUuid())[i][j]), // line 105
