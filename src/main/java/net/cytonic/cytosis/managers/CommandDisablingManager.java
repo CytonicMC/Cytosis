@@ -102,7 +102,7 @@ public class CommandDisablingManager {
             for (String cmd : cmds) {
                 CytosisCommand command = parseCommand(cmd);
                 if (command != null) {
-                    Logger.debug("Disabling command: " + cmd);
+                    Logger.info("Disabling command: " + cmd);
                     command.setDisabled(true);
                 } else {
                     Logger.warn("Failed to disable command: " + cmd);
