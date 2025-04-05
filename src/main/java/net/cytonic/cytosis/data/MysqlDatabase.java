@@ -37,12 +37,7 @@ public class MysqlDatabase {
     private final String username;
     private final String password;
     private final boolean ssl;
-    /**
-     * -- GETTER --
-     * Gets the connection
-     *
-     * @return the connection to the database
-     */
+
     @Getter
     private Connection connection;
 
@@ -60,7 +55,7 @@ public class MysqlDatabase {
         this.ssl = CytosisSettings.DATABASE_USE_SSL;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             Logger.error("Failed to load database driver", e);
         }
     }
@@ -75,42 +70,32 @@ public class MysqlDatabase {
     }
 
     /**
-     * connects to the database
-     *
-     * @return a future that completes when the connection is successful
+     * Connects to the database, blocking until completed
      */
-    public CompletableFuture<Void> connect() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        worker.submit(() -> {
-            if (!isConnected()) {
-                try {
-                    connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + ssl + "&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
-                    Logger.info("Successfully connected to the MySQL Database!");
-                    future.complete(null);
-                } catch (SQLException e) {
-                    Logger.error("Invalid Database Credentials!", e);
-                    MinecraftServer.stopCleanly();
-                    future.completeExceptionally(e);
-                }
+    public void connect() {
+        if (!isConnected()) {
+            try {
+                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + ssl + "&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
+                Logger.info("Successfully connected to the MySQL Database!");
+            } catch (SQLException e) {
+                Logger.error("Invalid Database Credentials!", e);
+                MinecraftServer.stopCleanly();
             }
-        });
-        return future;
+        }
     }
 
     /**
      * Disconnects from the database server
      */
     public void disconnect() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                try {
-                    connection.close();
-                    Logger.info("Database connection closed!");
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst disconnecting from the database. Please report the following stacktrace to CytonicMC: ", e);
-                }
+        if (isConnected()) {
+            try {
+                connection.close();
+                Logger.info("Database connection closed!");
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst disconnecting from the database. Please report the following stacktrace to CytonicMC: ", e);
             }
-        });
+        }
     }
 
     /**
@@ -132,100 +117,91 @@ public class MysqlDatabase {
      * Creates the chat messages table
      */
     private void createChatTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_chat (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, uuid VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
             }
-        });
+        }
+
     }
 
     /**
      * Creates the ranks table
      */
     private void createRanksTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_ranks (uuid VARCHAR(36), rank_id VARCHAR(16), PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_ranks (uuid VARCHAR(36), rank_id VARCHAR(16), PRIMARY KEY(uuid))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
             }
-        });
+        }
+
     }
 
     /**
      * Creates the bans table
      */
     private void createBansTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_bans (uuid VARCHAR(36), to_expire VARCHAR(100), reason TINYTEXT, PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_bans` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_bans (uuid VARCHAR(36), to_expire VARCHAR(100), reason TINYTEXT, PRIMARY KEY(uuid))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_bans` table.", e);
             }
-        });
+        }
+
     }
 
     /**
      * Creates the player data table
      */
     private void createPlayersTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (uuid VARCHAR(36), name VARCHAR(16), PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (uuid VARCHAR(36), name VARCHAR(16), PRIMARY KEY(uuid))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
             }
-        });
+        }
     }
 
     /**
      * Creates the world table
      */
     public void createWorldTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT)");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT)");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
             }
-        });
+        }
     }
 
     /**
      * Create the player join logging table
      */
     private void createPlayerJoinsTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_joins (joined TIMESTAMP, uuid VARCHAR(36), ip TEXT)")) {
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_player_joins` table.", e);
-                }
+        if (isConnected()) {
+            try (PreparedStatement ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_joins (joined TIMESTAMP, uuid VARCHAR(36), ip TEXT)")) {
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_player_joins` table.", e);
             }
-        });
+        }
     }
 
 
@@ -233,48 +209,42 @@ public class MysqlDatabase {
      * Creates the bans table
      */
     private void createMutesTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_mutes (uuid VARCHAR(36), to_expire VARCHAR(100), PRIMARY KEY(uuid))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_mutes` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_mutes (uuid VARCHAR(36), to_expire VARCHAR(100), PRIMARY KEY(uuid))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_mutes` table.", e);
             }
-        });
+        }
     }
 
     /**
      * Creates the player messages table
      */
     private void createPlayerMessagesTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_messages (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, sender VARCHAR(36), target VARCHAR(36), message TEXT, PRIMARY KEY(id))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_messages (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, sender VARCHAR(36), target VARCHAR(36), message TEXT, PRIMARY KEY(id))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
             }
-        });
+        }
     }
 
     private void createPlayerWarnsTable() {
-        worker.submit(() -> {
-            if (isConnected()) {
-                PreparedStatement ps;
-                try {
-                    ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_warns (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, target VARCHAR(36), actor VARCHAR(36), reason TEXT, PRIMARY KEY(id))");
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    Logger.error("An error occurred whilst creating the `cytonic_player_warns` table.", e);
-                }
+        if (isConnected()) {
+            PreparedStatement ps;
+            try {
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_player_warns (id INT NOT NULL AUTO_INCREMENT, timestamp TIMESTAMP, target VARCHAR(36), actor VARCHAR(36), reason TEXT, PRIMARY KEY(id))");
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                Logger.error("An error occurred whilst creating the `cytonic_player_warns` table.", e);
             }
-        });
+        }
     }
 
     public CompletableFuture<Void> addPlayerWarn(UUID actor, UUID target, String reason) {
