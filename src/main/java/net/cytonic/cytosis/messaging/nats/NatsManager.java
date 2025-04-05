@@ -93,7 +93,7 @@ public class NatsManager {
                     listenForChatMessage();
                 }
             } else {
-                Logger.info("Disconnected from NATS server!");
+                Logger.info("Disconnected from NATS server! ({})", type.name());
                 connection = null;
             }
         };
@@ -535,7 +535,6 @@ public class NatsManager {
 
             ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
 
-            Logger.debug("Sent " + reponse.message() + " to " + player);
             if (!reponse.success()) {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", displayname == null ? "the a server" : displayname, reponse.message()));
             } else {
