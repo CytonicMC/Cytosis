@@ -44,10 +44,10 @@ dependencies {
 
 
     // Core OpenTelemetry API & SDK
-    implementation("io.opentelemetry:opentelemetry-api:1.48.0")
-    implementation("io.opentelemetry:opentelemetry-sdk:1.48.0")
+    implementation("io.opentelemetry:opentelemetry-api:1.49.0")
+    implementation("io.opentelemetry:opentelemetry-sdk:1.49.0")
     // OTLP Exporter (to send data to a collector/backend)
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.48.0")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.49.0")
 }
 
 tasks.withType<Jar> {
