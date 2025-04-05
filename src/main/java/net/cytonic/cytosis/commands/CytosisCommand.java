@@ -2,7 +2,6 @@ package net.cytonic.cytosis.commands;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandExecutor;
@@ -53,12 +52,10 @@ public class CytosisCommand extends Command {
     @Override
     public void setDefaultExecutor(@Nullable CommandExecutor executor) {
         super.setDefaultExecutor((s, c) -> {
-            Logger.debug("Disabled: " + disabled);
             if (checkDisabled(s)) {
                 s.sendMessage(CommandUtils.COMMAND_DISABLED);
                 return;
             }
-            Logger.debug("Still continuing");
 
             if (executor != null) {
                 executor.apply(s, c);
