@@ -4,6 +4,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Metadata;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +39,11 @@ public class NicknameManager {
         var entry = new PlayerInfoUpdatePacket.Entry(playerUuid, nick, properties, true,
                 0, GameMode.SURVIVAL, null, null, -1);
 
-        player.sendPacketsToViewers(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
+
+        player.sendPacketsToViewers(
+                new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
+                new EntityMetaDataPacket(player.getEntityId(), Map.of(17, Metadata.Byte((byte) 127)))
+        );
         player.updateViewerRule();
     }
 

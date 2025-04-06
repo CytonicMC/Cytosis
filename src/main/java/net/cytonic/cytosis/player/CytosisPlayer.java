@@ -331,7 +331,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
         }
         ;
 
-        NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(player.getUuid());
+        NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(getUuid());
         var properties = new ArrayList<PlayerInfoUpdatePacket.Property>();
 
         if (data.value() != null && data.signature() != null) {
