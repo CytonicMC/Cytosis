@@ -54,7 +54,7 @@ dependencies {
     runtimeDownloadOnly("net.minestom:minestom-snapshots:0366b58bfe")
     runtimeDownloadOnly("com.google.code.gson:gson:2.12.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
-    runtimeDownloadOnly("dev.hollowcube:polar:1.13.0")
+    runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
     runtimeDownloadOnly("redis.clients:jedis:5.2.0")
     runtimeDownloadOnly("com.google.guava:guava:33.4.6-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
