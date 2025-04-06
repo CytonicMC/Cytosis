@@ -8,20 +8,23 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.builder.CommandResult;
+import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
+import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the managers themselves.
@@ -317,5 +320,31 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
     public boolean hasPlayedBefore() {
         return Cytosis.getCytonicNetwork().hasPlayedBefore(getUuid());
+    }
+
+
+    @Override
+    public void updateNewViewer(@NotNull Player player) {
+        if (!Cytosis.getNicknameManager().isNicked(getUuid())) {
+            super.updateNewViewer(player);
+            return;
+        }
+        ;
+
+        NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(player.getUuid());
+        var properties = new ArrayList<PlayerInfoUpdatePacket.Property>();
+
+        if (data.value() != null && data.signature() != null) {
+            properties.add(new PlayerInfoUpdatePacket.Property("textures", data.value(), data.signature()));
+        }
+        var entry = new PlayerInfoUpdatePacket.Entry(getUuid(), data.nickname(), properties, true,
+                0, GameMode.SURVIVAL, null, null, -1);
+        player.sendPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
+
+        // Spawn the player entity
+        super.updateNewViewer(player);
+
+        // Enable skin layers
+        player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
     }
 }

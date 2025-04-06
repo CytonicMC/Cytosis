@@ -33,6 +33,7 @@ import net.cytonic.cytosis.messaging.nats.NatsManager;
 import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.metrics.MetricsManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
@@ -65,7 +66,7 @@ import java.util.*;
  * The main class for Cytosis
  */
 @Getter
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public final class Cytosis {
 
     /**
@@ -75,18 +76,7 @@ public final class Cytosis {
     /**
      * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
      */
-    public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
-            .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
-            .registerTypeAdapter(Key.class, new KeyAdapter())
-            .registerTypeAdapter(Instant.class, new InstantAdapter())
-            .registerTypeAdapterFactory(new TypedNamespaceAdapter())
-            .registerTypeAdapterFactory(new PreferenceAdapter<>())
-            .registerTypeAdapterFactory(new KeyAdapter())
-            .enableComplexMapKeySerialization()
-            .setStrictness(Strictness.LENIENT)
-            .serializeNulls()
-            .create();
+    public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter()).registerTypeAdapter(Preference.class, new PreferenceAdapter<>()).registerTypeAdapter(Key.class, new KeyAdapter()).registerTypeAdapter(Instant.class, new InstantAdapter()).registerTypeAdapterFactory(new TypedNamespaceAdapter()).registerTypeAdapterFactory(new PreferenceAdapter<>()).registerTypeAdapterFactory(new KeyAdapter()).enableComplexMapKeySerialization().setStrictness(Strictness.LENIENT).serializeNulls().create();
     /**
      * The version of Cytosis
      */
@@ -100,8 +90,8 @@ public final class Cytosis {
     private static MinecraftServer minecraftServer;
     @Getter
     private static net.minestom.server.instance.InstanceManager minestomInstanceManager;
-    @Getter
     @Setter
+    @Getter
     private static InstanceContainer defaultInstance;
     @Getter
     private static EventHandler eventHandler;
@@ -153,6 +143,8 @@ public final class Cytosis {
     private static MetricsManager metricsManager;
     @Getter
     private static CommandDisablingManager commandDisablingManager;
+    @Getter
+    private static NicknameManager nicknameManager;
     @Getter
     @Setter
     private static boolean metricsEnabled = false;

@@ -14,6 +14,7 @@ import net.cytonic.cytosis.commands.movement.PlayCommand;
 import net.cytonic.cytosis.commands.server.*;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
+import net.cytonic.cytosis.commands.util.nicknames.NickCommand;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
@@ -84,7 +85,8 @@ public class CommandHandler {
                 new LobbyCommand(),
                 new WhereAmiCommand(),
                 new DisableCommand(),
-                new EnableCommand()
+                new EnableCommand(),
+                new NickCommand()
         );
     }
 
