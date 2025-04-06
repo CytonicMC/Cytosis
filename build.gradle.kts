@@ -56,7 +56,7 @@ dependencies {
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
     runtimeDownloadOnly("dev.hollowcube:polar:1.13.0")
     runtimeDownloadOnly("redis.clients:jedis:5.2.0")
-    runtimeDownloadOnly("com.google.guava:guava:33.4.5-jre")
+    runtimeDownloadOnly("com.google.guava:guava:33.4.6-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
 
