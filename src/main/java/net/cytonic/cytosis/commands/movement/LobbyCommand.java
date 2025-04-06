@@ -10,7 +10,7 @@ public class LobbyCommand extends CytosisCommand {
         super("lobby", "l");
         setDefaultExecutor((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), "cytonic", "lobby", "a Lobby");
+            Cytosis.getNatsManager().sendPlayerToGenericServer(player.getUuid(), "cytonic", "lobby", "a Lobby");
         });
     }
 }

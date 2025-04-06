@@ -4,8 +4,9 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.6"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
+    id("dev.vankka.dependencydownload.plugin") version "1.3.1"
 }
 
 group = "net.cytonic"
@@ -19,46 +20,59 @@ repositories {
 }
 
 dependencies {
-    api("net.minestom:minestom-snapshots:0366b58bfe")
-    api("com.google.code.gson:gson:2.12.1") // serializing
-    api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
-    implementation("net.kyori:adventure-text-minimessage:4.20.0")// better components
-    implementation("com.mysql:mysql-connector-j:9.2.0") //mysql connector
+    compileOnlyApi("net.minestom:minestom-snapshots:0366b58bfe")
+    compileOnlyApi("com.google.code.gson:gson:2.12.1") // serializing
+    compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
+    compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
+    compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
+    compileOnlyApi("com.google.guava:guava:33.4.6-jre")
+    compileOnlyApi("com.github.TogAr2:MinestomPvP:1b2f862baa")
+
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
-    implementation("org.tomlj:tomlj:1.1.1") // Config lang
-    api("dev.hollowcube:polar:1.14.0") // Polar
-    api("redis.clients:jedis:5.2.0") // redis client
-    api("com.google.guava:guava:33.4.6-jre")
-    implementation("org.reflections:reflections:0.10.2") // reflection utils
-    implementation("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
-    implementation("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("io.nats:jnats:2.21.0")
-    implementation("org.jooq:jooq:3.20.3") // database queries
-    implementation("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
-    implementation("eu.koboo:minestom-invue:2025.1.1") {
+
+    runtimeDownload("net.kyori:adventure-text-minimessage:4.20.0")// better components
+    runtimeDownload("com.mysql:mysql-connector-j:9.2.0") //mysql connector
+    runtimeDownload("org.tomlj:tomlj:1.1.1") // Config lang
+    runtimeDownload("org.reflections:reflections:0.10.2") // reflection utils
+    runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
+    runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
+    runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
+    runtimeDownload("io.nats:jnats:2.21.0")
+    runtimeDownload("org.jooq:jooq:3.20.3") // database queries
+    runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
+    runtimeDownload("io.opentelemetry:opentelemetry-api:1.48.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.48.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.48.0")
+    runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
+
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
 
+    // the compileonlyapis need to be downloaded at runtime, too.
+    runtimeDownloadOnly("net.minestom:minestom-snapshots:0366b58bfe")
+    runtimeDownloadOnly("com.google.code.gson:gson:2.12.1")
+    runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
+    runtimeDownloadOnly("dev.hollowcube:polar:1.13.0")
+    runtimeDownloadOnly("redis.clients:jedis:5.2.0")
+    runtimeDownloadOnly("com.google.guava:guava:33.4.6-jre")
+    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
-    // Core OpenTelemetry API & SDK
-    implementation("io.opentelemetry:opentelemetry-api:1.49.0")
-    implementation("io.opentelemetry:opentelemetry-sdk:1.49.0")
-    // OTLP Exporter (to send data to a collector/backend)
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.49.0")
+
+    // Dependency loading
+    implementation("dev.vankka:dependencydownload-runtime:1.3.1")
 }
 
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
-    }
-}
 tasks.withType<Javadoc> {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "21")
 }
+
+var bundled = false
 
 val generateBuildInfo = tasks.register("generateBuildInfo") {
     dependsOn("incrementBuildNumber")
@@ -80,6 +94,7 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
                 public static final String BUILD_NUMBER = "$buildNumber";
                 public static final String GIT_COMMIT = "${"git rev-parse --short HEAD".runCommand()}";
                 public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
+                public static final boolean DEPENDENCIES_BUNDLED=${bundled};
             }
             """.trimIndent()
         )
@@ -87,39 +102,99 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
     }
 }
 
-tasks {
-    assemble {
-        dependsOn("shadowJar")
-        dependsOn("copyShadowJarToSecondary")
-        dependsOn("copyForDocker")
-    }
-    named<ShadowJar>("shadowJar") {
-        manifest {
-            attributes["Main-Class"] = "net.cytonic.cytosis.Cytosis"
-        }
-        mergeServiceFiles()
-        archiveFileName.set("cytosis.jar")
-        archiveClassifier.set("")
-        destinationDirectory.set(
-            file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
-            )
-        )
+tasks.register("fatJar") { // all included
+    group = "Accessory Build"
+    description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
+    bundled = true
+    dependsOn(fatShadow)
+    dependsOn("build")
+    finalizedBy("copyShadowJarToSecondary", "copyShadowJarForDocker")
+}
+
+tasks.register("thinJar") {
+    group = "Accessory Build"
+    description = "Builds Cytosis without including any dependencies included in the final jar. <1Mb jar sizes :)"
+
+    bundled = false
+    dependsOn(thinShadow)
+    finalizedBy("copyJarToSecondary", "copyJarForDocker")
+}
+
+val thinShadow = tasks.register<ShadowJar>("thinShadow") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+
+    mergeServiceFiles()
+    archiveFileName.set("cytosis.jar")
+    archiveClassifier.set("")
+    destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())))
+    from(sourceSets.main.get().output)
+
+    configurations = listOf(project.configurations.runtimeClasspath.get())
+
+    manifest {
+        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
     }
 }
 
-tasks.register<Copy>("copyForDocker") {
-    dependsOn(tasks.shadowJar)
-    from(tasks.shadowJar.get().archiveFile)
+val fatShadow = tasks.register<ShadowJar>("fatShadow") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
+    mergeServiceFiles()
+    archiveFileName.set("cytosis.jar")
+    archiveClassifier.set("")
+    destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())))
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+
+
+    configurations = listOf(
+        project.configurations.runtimeClasspath.get(),
+        project.configurations.getByName("runtimeDownload"),
+        project.configurations.getByName("runtimeDownloadOnly")
+    )
+    from(sourceSets.main.get().output)
+
+    manifest {
+        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
+    }
+}
+
+tasks.register<Copy>("copyShadowJarForDocker") {
+    dependsOn(fatShadow)
+    from(fatShadow.get().archiveFile)
     into(layout.buildDirectory.dir("libs"))
 }
-
 tasks.register<Copy>("copyShadowJarToSecondary") {
-    dependsOn(tasks.shadowJar)
+    dependsOn(fatShadow)
 
     if (providers.gradleProperty("server_dir2").isPresent) {
-        from(tasks.shadowJar.get().archiveFile)
+        from(fatShadow.get().archiveFile)
+        into(providers.gradleProperty("server_dir2"))
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes["Signing-Required"] = "false"
+    }
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+}
+
+tasks.register<Copy>("copyJarForDocker") {
+    dependsOn(thinShadow)
+    from(thinShadow.get().archiveFile)
+    into(layout.buildDirectory.dir("libs"))
+}
+tasks.register<Copy>("copyJarToSecondary") {
+    dependsOn(thinShadow)
+
+    if (providers.gradleProperty("server_dir2").isPresent) {
+        from(thinShadow.get().archiveFile)
         into(providers.gradleProperty("server_dir2"))
     }
 }
@@ -169,7 +244,7 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-            artifact(tasks["shadowJar"])
+            artifact(thinShadow.get().archiveFile)
             artifact(javadocJar)
             artifact(sourcesJar)
         }
@@ -215,3 +290,4 @@ fun String.runCommand(): String {
 
     return process.inputStream.bufferedReader().readText().trim()
 }
+

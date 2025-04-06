@@ -17,9 +17,9 @@ public class PlayCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             switch (context.get(word).toLowerCase()) {
                 case "gg", "gilded", "gilded_gorge" ->
-                        Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");
+                        Cytosis.getNatsManager().sendPlayerToGenericServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");
                 case "bw", "bedwars" ->//todo: Some sort of logic for game queuing
-                        Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), "bedwars", "solos", "BedWars");
+                        Cytosis.getNatsManager().sendPlayerToGenericServer(player.getUuid(), "bedwars", "solos", "BedWars");
 
             }
         }, word);

@@ -93,7 +93,7 @@ public class NatsManager {
                     listenForChatMessage();
                 }
             } else {
-                Logger.info("Disconnected from NATS server!");
+                Logger.info("Disconnected from NATS server! ({})", type.name());
                 connection = null;
             }
         };
@@ -496,10 +496,10 @@ public class NatsManager {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", server.id()));
             }
 
-            ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
+            ServerSendReponse response = ServerSendReponse.parse(message.getData());
 
-            if (!reponse.success()) {
-                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(), reponse.message()));
+            if (!response.success()) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(), response.message()));
             } else {
                 p.sendMessage(Msg.network("Sending you to %s!", server.id()));
             }
@@ -514,17 +514,17 @@ public class NatsManager {
                 p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", serverID));
             }
 
-            ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
+            ServerSendReponse response = ServerSendReponse.parse(message.getData());
 
-            if (!reponse.success()) {
-                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", serverID, reponse.message()));
+            if (!response.success()) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", serverID, response.message()));
             } else {
                 p.sendMessage(Msg.network("Sending you to %s!", serverID));
             }
         }));
     }
 
-    public void sendPlayerToServer(UUID player, String group, String id, @Nullable String displayname) {
+    public void sendPlayerToGenericServer(UUID player, String group, String id, @Nullable String displayname) {
         Thread.ofVirtual().name("NATS Player Sender").start(() -> request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypeContainer(player, group, id).serialize(), (message, throwable) -> {
             if (Cytosis.getPlayer(player).isEmpty()) return;
             Player p = Cytosis.getPlayer(player).get();
@@ -533,11 +533,10 @@ public class NatsManager {
                 Logger.error("An error occured whilst sending " + player + " to a generic " + group + ":" + id + "! <red>(%s)</red>", throwable);
             }
 
-            ServerSendReponse reponse = ServerSendReponse.parse(message.getData());
+            ServerSendReponse response = ServerSendReponse.parse(message.getData());
 
-            Logger.debug("Sent " + reponse.message() + " to " + player);
-            if (!reponse.success()) {
-                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", displayname == null ? "the a server" : displayname, reponse.message()));
+            if (!response.success()) {
+                p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", displayname == null ? "the a server" : displayname, response.message()));
             } else {
                 p.sendMessage(Msg.network("Sending you to %s!", displayname == null ? "the a server" : displayname));
             }

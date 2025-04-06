@@ -15,7 +15,6 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.logging.Logger;
 
 
 public class CytosisOpenTelemetry {
@@ -73,7 +72,6 @@ public class CytosisOpenTelemetry {
     }
 
     private static String getUrl() {
-        Logger.debug("Debugging URL!");
         // these get read directly from env as the file manager isn't started yet.
         String OPEN_TELEMETRY_HOST = null;
         int OPEN_TELEMETRY_PORT = -1;
