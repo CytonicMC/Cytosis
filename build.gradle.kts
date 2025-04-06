@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.5"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "1.3.1"
 }
@@ -60,15 +60,6 @@ dependencies {
     implementation("dev.vankka:dependencydownload-runtime:1.3.1")
 }
 
-tasks.withType<Jar> {
-    dependsOn(
-        "generateRuntimeDownloadResourceForRuntimeDownloadOnly",
-        "generateRuntimeDownloadResourceForRuntimeDownload"
-    )
-    manifest {
-        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
-    }
-}
 tasks.withType<Javadoc> {
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "21")
@@ -104,43 +95,99 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
     }
 }
 
-tasks {
-    assemble {
-        dependsOn("shadowJar")
-        dependsOn("copyShadowJarToSecondary")
-        dependsOn("copyForDocker")
-    }
-    named<ShadowJar>("shadowJar") {
-        dependsOn(
-            "generateRuntimeDownloadResourceForRuntimeDownloadOnly",
-            "generateRuntimeDownloadResourceForRuntimeDownload"
-        )
-//        manifest {
-//            attributes["Main-Class"] = "net.cytonic.cytosis.BootStrap"
-//        }
-        mergeServiceFiles()
-        archiveFileName.set("cytosis.jar")
-        archiveClassifier.set("")
-        destinationDirectory.set(
-            file(
-                providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())
-            )
-        )
+tasks.register("fatJar") { // all included
+    group = "Accessory Build"
+    description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
+    bundled = true
+    dependsOn(fatShadow)
+    dependsOn("build")
+    finalizedBy("copyShadowJarToSecondary", "copyShadowJarForDocker")
+}
+
+tasks.register("thinJar") {
+    group = "Accessory Build"
+    description = "Builds Cytosis without including any dependencies included in the final jar. <1Mb jar sizes :)"
+
+    bundled = false
+    dependsOn(thinShadow)
+    finalizedBy("copyJarToSecondary", "copyJarForDocker")
+}
+
+val thinShadow = tasks.register<ShadowJar>("thinShadow") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+
+    mergeServiceFiles()
+    archiveFileName.set("cytosis.jar")
+    archiveClassifier.set("")
+    destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())))
+    from(sourceSets.main.get().output)
+
+    configurations = listOf(project.configurations.runtimeClasspath.get())
+
+    manifest {
+        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
     }
 }
 
-tasks.register<Copy>("copyForDocker") {
-    dependsOn(tasks.shadowJar)
-    from(tasks.shadowJar.get().archiveFile)
+val fatShadow = tasks.register<ShadowJar>("fatShadow") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
+    mergeServiceFiles()
+    archiveFileName.set("cytosis.jar")
+    archiveClassifier.set("")
+    destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())))
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+
+
+    configurations = listOf(
+        project.configurations.runtimeClasspath.get(),
+        project.configurations.getByName("runtimeDownload"),
+        project.configurations.getByName("runtimeDownloadOnly")
+    )
+    from(sourceSets.main.get().output)
+
+    manifest {
+        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
+    }
+}
+
+tasks.register<Copy>("copyShadowJarForDocker") {
+    dependsOn(fatShadow)
+    from(fatShadow.get().archiveFile)
     into(layout.buildDirectory.dir("libs"))
 }
-
 tasks.register<Copy>("copyShadowJarToSecondary") {
-    dependsOn(tasks.shadowJar)
+    dependsOn(fatShadow)
 
     if (providers.gradleProperty("server_dir2").isPresent) {
-        from(tasks.shadowJar.get().archiveFile)
+        from(fatShadow.get().archiveFile)
+        into(providers.gradleProperty("server_dir2"))
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes["Signing-Required"] = "false"
+    }
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+}
+
+tasks.register<Copy>("copyJarForDocker") {
+    dependsOn(thinShadow)
+    from(thinShadow.get().archiveFile)
+    into(layout.buildDirectory.dir("libs"))
+}
+tasks.register<Copy>("copyJarToSecondary") {
+    dependsOn(thinShadow)
+
+    if (providers.gradleProperty("server_dir2").isPresent) {
+        from(thinShadow.get().archiveFile)
         into(providers.gradleProperty("server_dir2"))
     }
 }
@@ -190,7 +237,7 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-            artifact(tasks["shadowJar"])
+            artifact(tasks["jar"])
             artifact(javadocJar)
             artifact(sourcesJar)
         }
@@ -236,3 +283,4 @@ fun String.runCommand(): String {
 
     return process.inputStream.bufferedReader().readText().trim()
 }
+
