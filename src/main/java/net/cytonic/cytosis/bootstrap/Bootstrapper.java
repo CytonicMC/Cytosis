@@ -18,9 +18,6 @@ import java.util.concurrent.Executors;
 
 public class Bootstrapper {
     public static void main(String[] args) throws URISyntaxException, IOException {
-        BootstrapLogger.info("Starting boostrapper");
-        BootstrapLogger.info("Classpath: " + System.getProperty("java.class.path"));
-
         if (!BuildInfo.DEPENDENCIES_BUNDLED) {
             long start = System.currentTimeMillis();
             BootstrapLogger.info("Loading dependencies");
