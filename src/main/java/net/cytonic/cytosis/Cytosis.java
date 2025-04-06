@@ -8,8 +8,6 @@ import eu.koboo.minestom.invue.core.MinestomInvue;
 import io.github.togar2.pvp.MinestomPvP;
 import io.github.togar2.pvp.feature.CombatFeatureSet;
 import io.github.togar2.pvp.feature.CombatFeatures;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.Tracer;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.commands.CommandHandler;
@@ -171,18 +169,9 @@ public final class Cytosis {
         if (!flags.contains("--no-metrics")) {
             CytosisOpenTelemetry.setup();
         }
-        // start metrics as the very first thing
-        Span span;
-        if (metricsEnabled) {
-            Tracer tracer = CytosisOpenTelemetry.getTracer("Cytosis");
-            span = tracer.spanBuilder("startup").startSpan();
-        } else {
-            span = null; // effectively final
-        }
         metricsManager = new MetricsManager();
         // handle uncaught exceptions
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            e.printStackTrace(System.err);
             Logger.error("Uncaught exception in thread " + t.getName(), e);
         });
 
@@ -220,29 +209,165 @@ public final class Cytosis {
 
         // Everything after this point depends on config contents
         Logger.info("Initializing file manager");
-        fileManager.init().whenComplete((ignored, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst initializing the file manager!", throwable);
-            } else {
-                Logger.info("File manager initialized!");
-                CytosisSettings.loadEnvironmentVariables();
-                CytosisSettings.loadCommandArgs();
-                if (CytosisSettings.SERVER_PROXY_MODE) {
-                    Logger.info("Enabling velocity!");
-                    VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
-                } else mojangAuth();
-                Logger.info("Completing nonessential startup tasks.");
+        fileManager.init();
 
-                try {
-                    if (metricsEnabled && span != null) {
-                        span.addEvent("Essential startup tasks completed", Instant.now());
-                    }
-                    completeNonEssentialTasks(start, span);
-                } catch (Exception e) {
-                    Logger.error("ERR: ", e);
-                }
+        Logger.info("Loading Cytosis Settings");
+        CytosisSettings.loadEnvironmentVariables();
+        CytosisSettings.loadCommandArgs();
+
+        Logger.info("Initializing database");
+        databaseManager = new DatabaseManager();
+        databaseManager.setupDatabases();
+
+        if (CytosisSettings.SERVER_PROXY_MODE) {
+            Logger.info("Enabling velocity!");
+            VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
+        } else mojangAuth();
+
+        Logger.info("Initializing block placements");
+        BlockPlacementUtils.init();
+
+        Logger.info("Initializing view registry");
+        VIEW_REGISTRY.enable();
+
+        Logger.info("Starting NATS manager!");
+        natsManager = new NatsManager();
+        if (!flags.contains("--ci-test")) natsManager.setup(); // don't connect to NATS in compile and run checks
+
+        // commands
+        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) -> MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
+
+        if (metricsEnabled) {
+            Logger.info("Starting metric hooks");
+            MetricsHooks.init();
+        }
+
+
+        Thread.ofVirtual().name("Cs-WorldLoader").start(Cytosis::loadWorld);
+
+        Logger.info("Initializing server commands");
+        commandHandler = new CommandHandler();
+        commandHandler.setupConsole();
+        commandHandler.registerCytosisCommands();
+
+        Logger.info("Setting up command disabling");
+        commandDisablingManager = new CommandDisablingManager();
+        commandDisablingManager.loadRemotes();
+        commandDisablingManager.setupConsumers();
+
+
+        Logger.info("Setting up event handlers");
+        eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
+        eventHandler.init();
+
+        Logger.info("Loading player preferences");
+        preferenceManager = new PreferenceManager();
+
+        Logger.info("Initializing server events");
+        ServerEventListeners.initServerEvents();
+
+        Logger.info("Loading vanish manager!");
+        vanishManager = new VanishManager();
+        Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
+        MinecraftServer.getSchedulerManager().buildShutdownTask(Cytosis::shutdownHandler);
+
+        Logger.info("Starting Player list manager");
+        playerListManager = new PlayerListManager();
+
+        Logger.info("Starting Friend manager!");
+        friendManager = new FriendManager();
+        friendManager.init();
+
+        Logger.info("Initializing Rank Manager");
+        rankManager = new RankManager();
+        rankManager.init();
+
+        Logger.info("Creating sideboard manager!");
+        sideboardManager = new SideboardManager();
+        sideboardManager.autoUpdateBoards(TaskSchedule.seconds(1L));
+
+        Logger.info("Starting NPC manager!");
+        npcManager = new NPCManager();
+
+        try {
+            if (CytosisSettings.SERVER_PROXY_MODE) {
+                Logger.info("Loading network setup!");
+                cytonicNetwork = new CytonicNetwork();
+                cytonicNetwork.importData();
+                cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
             }
-        });
+        } catch (Exception e) {
+            Logger.error("An error occurred whilst loading network setup!", e);
+        }
+
+        Logger.info("Starting cooldown managers");
+        networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
+        networkCooldownManager.importFromRedis();
+        Logger.info("Started network cooldown manager");
+
+        Logger.info("starting actionbar manager");
+        actionbarManager = new ActionbarManager();
+        actionbarManager.init();
+
+        Logger.info("Starting Snooper Manager");
+        snooperManager = new SnooperManager();
+        Logger.info("Loading snooper channels from redis");
+        snooperManager.loadChannelsFromRedis();
+        Logger.info("Loading Cytosis snoops");
+        // load snoops
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_BAN);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_UNBAN);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_KICK);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_UNMUTE);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_MUTE);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_WARN);
+        snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
+        snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
+
+        try {
+            Logger.info("Loading PVP");
+            MinestomPvP.init();
+            CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
+            MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
+            MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
+        } catch (Exception e) {
+            Logger.error("error", e);
+        }
+
+        //
+        // PLUGIN LOADING IS ALWAYS LAST!!!!
+        // (This is so any apis it depends on are guarenteed to already by loaded!)
+        //
+        Logger.info("Initializing Plugin Manager!");
+        pluginManager = new PluginManager();
+        Logger.info("Loading plugins!");
+        try {
+            if (new File("plugins").exists() && new File("plugins").isDirectory()) {
+                pluginManager.loadPlugins(Path.of("plugins"));
+            } else {
+                new File("plugins").mkdir();
+                Logger.info("Created plugins directory!");
+            }
+        } catch (Exception e) {
+            Logger.error("An error occurred whilst loading plugins!", e);
+            throw new RuntimeException("An error occurred whilst loading plugins!", e);
+        }
+
+        // Start the server
+        Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
+        minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
+        MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception: ", e));
+
+        natsManager.sendStartup();
+
+        long end = System.currentTimeMillis();
+        Logger.info("Server started in " + (end - start) + "ms!");
+        Logger.info("Server id = " + SERVER_ID);
+
+        if (flags.contains("--ci-test")) {
+            Logger.info("Stopping server due to '--ci-test' flag.");
+            MinecraftServer.stopCleanly();
+        }
     }
 
     /**
@@ -317,176 +442,6 @@ public final class Cytosis {
                 defaultInstance.setChunkSupplier(LightingChunk::new);
                 defaultInstance.enableAutoChunkLoad(true);
                 Logger.info("World loaded!");
-            }
-        });
-    }
-
-    /**
-     * Completes nonessential startup tasks for the server
-     *
-     * @param start The time the server started
-     */
-    public static void completeNonEssentialTasks(long start, Span span) {
-        Logger.info("Initializing block placements");
-        BlockPlacementUtils.init();
-
-        Logger.info("Initializing view registry");
-        VIEW_REGISTRY.enable();
-
-        Logger.info("Starting NATS manager!");
-        natsManager = new NatsManager();
-        if (!flags.contains("--ci-test")) natsManager.setup(); // don't connect to NATS in compile and run checks
-
-        // commands
-        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) -> MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
-
-        if (metricsEnabled) {
-            Logger.info("Starting metric hooks");
-            MetricsHooks.init();
-        }
-
-        Logger.info("Initializing database");
-        databaseManager = new DatabaseManager();
-        databaseManager.setupDatabases().whenComplete((ignored, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst initializing the database!", throwable);
-                return;
-            }
-
-            if (metricsEnabled && span != null) span.addEvent("Connected to database", Instant.now());
-
-            Thread.ofVirtual().name("WorldLoader").start(Cytosis::loadWorld);
-
-            Logger.info("Initializing server commands");
-            commandHandler = new CommandHandler();
-            commandHandler.setupConsole();
-            commandHandler.registerCytosisCommands();
-
-            Logger.info("Setting up command disabling");
-            commandDisablingManager = new CommandDisablingManager();
-            commandDisablingManager.loadRemotes();
-            commandDisablingManager.setupConsumers();
-
-
-            Logger.info("Database initialized!");
-            Logger.info("Setting up event handlers");
-            eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
-            eventHandler.init();
-
-            Logger.info("Loading player preferences");
-            preferenceManager = new PreferenceManager();
-
-            Logger.info("Initializing server events");
-            ServerEventListeners.initServerEvents();
-
-            Logger.info("Loading vanish manager!");
-            vanishManager = new VanishManager();
-            Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
-            MinecraftServer.getSchedulerManager().buildShutdownTask(Cytosis::shutdownHandler);
-
-            Logger.info("Starting Player list manager");
-            playerListManager = new PlayerListManager();
-
-            Logger.info("Starting Friend manager!");
-            friendManager = new FriendManager();
-            friendManager.init();
-
-            Logger.info("Initializing Rank Manager");
-            rankManager = new RankManager();
-            rankManager.init();
-
-            Logger.info("Creating sideboard manager!");
-            sideboardManager = new SideboardManager();
-            sideboardManager.autoUpdateBoards(TaskSchedule.seconds(1L));
-
-            Logger.info("Starting NPC manager!");
-            npcManager = new NPCManager();
-
-            try {
-                if (CytosisSettings.SERVER_PROXY_MODE) {
-                    Logger.info("Loading network setup!");
-                    cytonicNetwork = new CytonicNetwork();
-                    cytonicNetwork.importData();
-                    cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst loading network setup!", e);
-            }
-
-            Logger.info("Starting cooldown managers");
-            networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
-            networkCooldownManager.importFromRedis();
-            Logger.info("Started network cooldown manager");
-
-            Logger.info("starting actionbar manager");
-            actionbarManager = new ActionbarManager();
-            actionbarManager.init();
-
-            Logger.info("Starting Snooper Manager");
-            snooperManager = new SnooperManager();
-            Logger.info("Loading snooper channels from redis");
-            snooperManager.loadChannelsFromRedis();
-            Logger.info("Loading Cytosis snoops");
-            // load snoops
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_BAN);
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_UNBAN);
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_KICK);
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_UNMUTE);
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_MUTE);
-            snooperManager.registerChannel(CytosisSnoops.PLAYER_WARN);
-            snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
-            snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
-
-            try {
-                Logger.info("Loading PVP");
-                MinestomPvP.init();
-                CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
-                MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
-                MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
-            } catch (Exception e) {
-                Logger.error("error", e);
-            }
-
-            //
-            // PLUGIN LOADING IS ALWAYS LAST!!!!
-            // (This is so any apis it depends on are guarenteed to already by loaded!)
-            //
-            Logger.info("Initializing Plugin Manager!");
-            pluginManager = new PluginManager();
-            Logger.info("Loading plugins!");
-            try {
-                if (new File("plugins").exists() && new File("plugins").isDirectory()) {
-                    pluginManager.loadPlugins(Path.of("plugins"));
-                } else {
-                    new File("plugins").mkdir();
-                    Logger.info("Created plugins directory!");
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst loading plugins!", e);
-                throw new RuntimeException("An error occurred whilst loading plugins!", e);
-            }
-            if (metricsEnabled && span != null) span.addEvent("Plugins loaded", Instant.now());
-
-            // Start the server
-            Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
-            minecraftServer.start("0.0.0.0", CytosisSettings.SERVER_PORT);
-            MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception", e));
-            try {
-                natsManager.sendStartup();
-            } catch (Exception e) {
-                Logger.error("ERROR: ", e);
-            }
-            long end = System.currentTimeMillis();
-            Logger.info("Server started in " + (end - start) + "ms!");
-            Logger.info("Server group = " + serverGroup.group());
-            if (metricsEnabled && span != null) {
-                span.addEvent("Server started in " + (end - start) + "ms.", Instant.now());
-                span.end(Instant.now());
-            }
-
-            if (flags.contains("--ci-test")) {
-                Logger.info("Stopping server due to '--ci-test' flag.");
-                MinecraftServer.stopCleanly();
             }
         });
     }

@@ -3,8 +3,6 @@ package net.cytonic.cytosis.data;
 import lombok.Getter;
 import net.cytonic.cytosis.logging.Logger;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
  * A class managing databases
  */
@@ -31,24 +29,18 @@ public class DatabaseManager {
 
     /**
      * Sets up the databases by creating tables and creating connections
-     *
-     * @return A future that completes once all databases are connected
      */
-    public CompletableFuture<Void> setupDatabases() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
+    public void setupDatabases() {
         Logger.info("Connecting to MySQL Database.");
         mysqlDatabase = new MysqlDatabase();
-        mysqlDatabase.connect().whenComplete((ignored, throwable) -> future.complete(null));
+
+        mysqlDatabase.connect();
         mysqlDatabase.createTables();
 
         Logger.info("Connecting to the Redis Database.");
-        try {
-            redisDatabase = new RedisDatabase(); // it handles initialization in the constructor
-        } catch (Exception ex) {
-            Logger.error("An error occurred!", ex);
-        }
+        redisDatabase = new RedisDatabase(); // it handles initialization in the constructor
+
 
         Logger.info("All Databases connected.");
-        return future;
     }
 }

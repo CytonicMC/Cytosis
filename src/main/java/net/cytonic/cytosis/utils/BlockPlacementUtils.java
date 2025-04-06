@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.utils;
 
-import net.cytonic.cytosis.logging.Logger;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.block.Block;
@@ -416,8 +415,6 @@ public class BlockPlacementUtils {
                 double y = state.cursorPosition().y();
 //                boolean up = y == 0.0 ^ !(y == 1.0) || y > 0.5;
                 boolean up = (y == 0.0 || y > 0.5) && y != 1.0;
-
-                Logger.debug("" + state.cursorPosition());
 
                 return blockUpdate(new UpdateState(
                         state.instance(),
