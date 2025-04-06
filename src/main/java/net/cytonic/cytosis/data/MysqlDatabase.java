@@ -55,7 +55,7 @@ public class MysqlDatabase {
         this.ssl = CytosisSettings.DATABASE_USE_SSL;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             Logger.error("Failed to load database driver", e);
         }
     }
