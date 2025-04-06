@@ -244,7 +244,7 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-            artifact(thinShadow.get().archiveFile)
+            artifact(fatShadow.get().archiveFile)
             artifact(javadocJar)
             artifact(sourcesJar)
         }
