@@ -61,6 +61,9 @@ dependencies {
 }
 
 tasks.withType<Javadoc> {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "21")
 }
@@ -237,7 +240,7 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-            artifact(tasks["jar"])
+            artifact(thinShadow.get().archiveFile)
             artifact(javadocJar)
             artifact(sourcesJar)
         }

@@ -22,8 +22,6 @@ public class FileManager {
 
     /**
      * Initializes the necessary files and configurations.
-     *
-     * @return A CompletableFuture representing the completion of the initialization process.
      */
     public void init() {
         createConfigFile();

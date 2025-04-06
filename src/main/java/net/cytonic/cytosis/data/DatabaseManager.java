@@ -29,8 +29,6 @@ public class DatabaseManager {
 
     /**
      * Sets up the databases by creating tables and creating connections
-     *
-     * @return A future that completes once all databases are connected
      */
     public void setupDatabases() {
         Logger.info("Connecting to MySQL Database.");
