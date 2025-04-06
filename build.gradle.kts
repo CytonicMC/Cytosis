@@ -25,12 +25,13 @@ dependencies {
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
-    compileOnlyApi("com.google.guava:guava:33.4.5-jre")
+    compileOnlyApi("com.google.guava:guava:33.4.6-jre")
+    compileOnlyApi("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
-    compileOnly("org.projectlombok:lombok:1.18.36") // lombok
-    annotationProcessor("org.projectlombok:lombok:1.18.36") // lombok
+    compileOnly("org.projectlombok:lombok:1.18.38") // lombok
+    annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
 
-    runtimeDownload("net.kyori:adventure-text-minimessage:4.19.0")// better components
+    runtimeDownload("net.kyori:adventure-text-minimessage:4.20.0")// better components
     runtimeDownload("com.mysql:mysql-connector-j:9.2.0") //mysql connector
     runtimeDownload("org.tomlj:tomlj:1.1.1") // Config lang
     runtimeDownload("org.reflections:reflections:0.10.2") // reflection utils
@@ -44,6 +45,7 @@ dependencies {
     runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.48.0")
     runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.48.0")
     runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
+
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
@@ -55,6 +57,8 @@ dependencies {
     runtimeDownloadOnly("dev.hollowcube:polar:1.13.0")
     runtimeDownloadOnly("redis.clients:jedis:5.2.0")
     runtimeDownloadOnly("com.google.guava:guava:33.4.5-jre")
+    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
+
 
     // Dependency loading
     implementation("dev.vankka:dependencydownload-runtime:1.3.1")
