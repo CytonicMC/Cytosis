@@ -41,9 +41,9 @@ dependencies {
     runtimeDownload("io.nats:jnats:2.21.0")
     runtimeDownload("org.jooq:jooq:3.20.3") // database queries
     runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
-    runtimeDownload("io.opentelemetry:opentelemetry-api:1.48.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.48.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.48.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-api:1.49.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.49.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.49.0")
     runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
 
         // we want to use our own, thank you :)
