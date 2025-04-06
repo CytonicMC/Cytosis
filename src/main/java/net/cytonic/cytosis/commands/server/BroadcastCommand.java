@@ -25,10 +25,10 @@ public class BroadcastCommand extends CytosisCommand {
             suggestion.addEntry(new SuggestionEntry("all"));
             suggestion.addEntry(new SuggestionEntry("this"));
         });
-        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>Usage: /broadcast (message)")));
+        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.whoops("Usage: /broadcast (message)")));
         addSyntax((sender, context) -> {
             if (!Cytosis.getOnlinePlayers().isEmpty()) {
-                Component broadcast = Msg.mm("<aqua><b>Broadcast</b></aqua> <gray>»</gray> <white>" + String.join(" ", context.get(broadcastArgument)));
+                Component broadcast = Msg.aquaSplash("Broadcast", "» <white>" + String.join(" ", context.get(broadcastArgument)));
                 if (context.get(serverArgument).equalsIgnoreCase("this")) {
                     Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
                 } else if (context.get(serverArgument).equalsIgnoreCase("all")) {

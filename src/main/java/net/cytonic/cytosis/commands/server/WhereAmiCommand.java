@@ -12,7 +12,7 @@ public class WhereAmiCommand extends CytosisCommand {
         super("whereami");
         setDefaultExecutor((sender, context) -> {
             sender.sendMessage(
-                    Msg.mm("<b><yellow>SERVER INFO!</yellow></b><gray> Here is some basic server information:").appendNewline()
+                    Msg.yellowSplash("SERVER INFO!", "Here is some basic server information:").appendNewline()
                             .append(Msg.mm("<gold>Server ID: </gold><gray>" + Cytosis.SERVER_ID)).appendNewline()
                             .append(Msg.mm("<gold>Latest Commit: </gold><gray>" + BuildInfo.GIT_COMMIT)).appendNewline()
                             .append(Msg.mm("<gold>Build Version: </gold><gray>" + BuildInfo.BUILD_VERSION)).appendNewline()

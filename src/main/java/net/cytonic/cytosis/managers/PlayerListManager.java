@@ -25,9 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public class PlayerListManager {
 
-    private final UUID[][] listUUIDs; // <column, entry>
     private final Map<UUID, Component[][]> playerComponents = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerInfoUpdatePacket.Property[][]> playerFavicons = new ConcurrentHashMap<>();
+    private UUID[][] listUUIDs; // <column, entry>
     private PlayerlistCreator creator;
     // in ticks
     private int updateInterval = 20;
@@ -44,6 +44,20 @@ public class PlayerListManager {
                 listUUIDs[i][j] = UUID.randomUUID();
             }
         }
+    }
+
+    public void setCreator(PlayerlistCreator creator) {
+        this.creator = creator;
+
+        listUUIDs = new UUID[creator.getColumnCount()][20];
+        for (int i = 0; i < listUUIDs.length; i++) {
+            for (int j = 0; j < listUUIDs[i].length; j++) {
+                listUUIDs[i][j] = UUID.randomUUID();
+            }
+        }
+
+        playerComponents.clear();
+        playerFavicons.clear();
     }
 
     /**

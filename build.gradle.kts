@@ -23,7 +23,7 @@ dependencies {
     compileOnlyApi("net.minestom:minestom-snapshots:0366b58bfe")
     compileOnlyApi("com.google.code.gson:gson:2.12.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
-    compileOnlyApi("dev.hollowcube:polar:1.13.0") // Polar
+    compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
     compileOnlyApi("com.google.guava:guava:33.4.5-jre")
 
@@ -37,8 +37,8 @@ dependencies {
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    runtimeDownload("io.nats:jnats:2.20.6")
-    runtimeDownload("org.jooq:jooq:3.20.2") // database queries
+    runtimeDownload("io.nats:jnats:2.21.0")
+    runtimeDownload("org.jooq:jooq:3.20.3") // database queries
     runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
     runtimeDownload("io.opentelemetry:opentelemetry-api:1.48.0")
     runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.48.0")

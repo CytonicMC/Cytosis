@@ -34,7 +34,7 @@ public class DisableCommand extends CytosisCommand {
                         return;
                     }
                     manager.disableCommandGlobally(command);
-                    sender.sendMessage(Msg.mm("<red><b>DISABLED!</b></red><gray> disabled the '" + rawCommand + "' command on every server."));
+                    sender.sendMessage(Msg.redSplash("DISABLED!", "disabled the '" + rawCommand + "' command on every server."));
                     return;
                 }
 
@@ -43,7 +43,7 @@ public class DisableCommand extends CytosisCommand {
                     return;
                 }
                 manager.disableCommandLocally(command);
-                sender.sendMessage(Msg.mm("<red><b>DISABLED!</b></red><gray> disabled the '" + rawCommand + "' command on this server."));
+                sender.sendMessage(Msg.redSplash("DISABLED!", "disabled the '" + rawCommand + "' command on this server."));
             }
 
         }, cmd, global);

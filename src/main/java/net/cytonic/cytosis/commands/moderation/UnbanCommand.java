@@ -18,7 +18,7 @@ public class UnbanCommand extends CytosisCommand {
     public UnbanCommand() {
         super("unban");
         setCondition(CommandUtils.IS_MODERATOR);
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /unban (player)")));
+        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<red>Usage: /unban (player)")));
         var playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
@@ -33,12 +33,12 @@ public class UnbanCommand extends CytosisCommand {
 
             final String player = context.get(playerArg);
             if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(player)) {
-                sender.sendMessage(Msg.mm("<red>The player " + player + " doesn't exist!"));
+                sender.sendMessage(Msg.whoops("The player %s doesn't exist!", player));
                 return;
             }
             UUID uuid = Cytosis.getCytonicNetwork().getLifetimePlayers().getByValue(player);
             if (!Cytosis.getCytonicNetwork().getBannedPlayers().containsKey(uuid)) {
-                sender.sendMessage(Msg.mm("<red>" + player + " is not banned!"));
+                sender.sendMessage(Msg.whoops("%s is not banned!", player));
                 return;
             }
 
@@ -48,7 +48,7 @@ public class UnbanCommand extends CytosisCommand {
             Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNBAN, SnoopUtils.toSnoop(snoop));
 
             Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid);
-            sender.sendMessage(Msg.mm("<green><b>UNBANNED!</b></green><gray> " + player + " was successfully unbanned!"));
+            sender.sendMessage(Msg.greenSplash("UNBANNED!", "%s was successfully unbanned!", player));
         }, playerArg);
     }
 }

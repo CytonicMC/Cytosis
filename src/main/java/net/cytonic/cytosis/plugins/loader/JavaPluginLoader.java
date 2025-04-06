@@ -48,9 +48,9 @@ public class JavaPluginLoader {
         }
 
         SerializedDescription pd = serialized.get();
-        assert pd.getName() != null;
-        if (!SerializedDescription.ID_PATTERN.matcher(pd.getName()).matches()) {
-            throw new net.cytonic.cytosis.plugins.loader.PluginLoadError("Plugin ID '" + pd.getName() + "' is invalid.");
+        assert pd.getId() != null;
+        if (!SerializedDescription.ID_PATTERN.matcher(pd.getId()).matches()) {
+            throw new net.cytonic.cytosis.plugins.loader.PluginLoadError("Plugin ID '" + pd.getId() + "' is invalid.");
         }
 
         assert pd.getDependencies() != null;

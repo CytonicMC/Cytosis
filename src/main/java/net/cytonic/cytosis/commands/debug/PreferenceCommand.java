@@ -60,7 +60,7 @@ public class PreferenceCommand extends CytosisCommand {
                 Object value = null;
                 if (raw.equalsIgnoreCase("null")) {
                     manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, null);
-                    player.sendMessage(Msg.mm("<#db0d74><b>NULLIFIED!</b></#db0d74> <gray>Successfully set preference node <yellow>" + node.asString() + "</yellow> to null."));
+                    player.sendMessage(Msg.splash("NULLIFIED!", "db0d74", "Successfully set preference node <yellow>" + node.asString() + "</yellow> to null."));
                     return;
                 }
                 if (type.isEnum()) {

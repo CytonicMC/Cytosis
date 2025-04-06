@@ -105,7 +105,7 @@ public final class Utils {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {
             NetworkInterface iface = interfaces.nextElement();
-            if (iface.getName().equals("tailscale0")) { // Tailscale's default interface name
+            if (iface.getDisplayName().contains("tailscale")) {
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     InetAddress addr = addresses.nextElement();

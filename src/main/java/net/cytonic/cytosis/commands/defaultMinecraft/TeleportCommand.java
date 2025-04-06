@@ -42,7 +42,7 @@ public class TeleportCommand extends CytosisCommand {
                 float pitch = context.get(pitchArg) == -91.0F ? player.getPosition().pitch() : context.get(pitchArg);
                 Pos p = new Pos(context.get(xArg), context.get(yArg), context.get(zArg), yaw, pitch);
                 player.teleport(p);
-                player.sendMessage(Msg.mm("<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", " + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z()) + ")"));
+                player.sendMessage(Msg.aquaSplash("TELEPORTED!", "<dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", " + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z()) + ")"));
             } else {
                 sender.sendMessage(Msg.mm("Only players can use this command"));
             }
@@ -72,7 +72,7 @@ public class TeleportCommand extends CytosisCommand {
                 Pos p = context.get(positionArgument).from(player).asPosition();
 
                 player.teleport(p.withPitch(player.getPosition().pitch()).withYaw(player.getPosition().yaw()));
-                player.sendMessage(Msg.mm("<aqua><b>Teleported!</b></aqua> <dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", " + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z())));
+                player.sendMessage(Msg.aquaSplash("TELEPORTED!", "<dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", " + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z())));
 
             } else {
                 sender.sendMessage(Msg.mm("Only players can use this command"));

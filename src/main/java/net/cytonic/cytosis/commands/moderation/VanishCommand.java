@@ -24,12 +24,12 @@ public class VanishCommand extends CytosisCommand {
                 return;
             }
             if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-                player.sendMessage(Msg.mm("<#cec4c6><b>UNVANISHED!</#cec4c6> <gray>Vanish is now disabled!"));
+                player.sendMessage(Msg.splash("UNVANISHED!", "cec4c6", "Vanish is now disabled!"));
                 Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.VANISHED, false);
                 Cytosis.getVanishManager().disableVanish(player);
                 return;
             }
-            player.sendMessage(Msg.mm("<#787072><b>VANISHED!</#787072> <gray>Vanish is now enabled!"));
+            player.sendMessage(Msg.splash("VANISHED!", "787072", "Vanish is now enabled!"));
             Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.VANISHED, true);
             Cytosis.getVanishManager().enableVanish(player);
         });
