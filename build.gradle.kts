@@ -38,7 +38,7 @@ dependencies {
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    runtimeDownload("io.nats:jnats:2.21.0")
+    runtimeDownload("io.nats:jnats:2.21.1")
     runtimeDownload("org.jooq:jooq:3.20.3") // database queries
     runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
     runtimeDownload("io.opentelemetry:opentelemetry-api:1.49.0")
