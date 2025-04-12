@@ -1,8 +1,9 @@
 name: Build and push Docker Image
-run-name: Deploy Docker image to GHCR by @${{ github.actor }}
+run-name: Deploy Docker Image by @${{ github.actor }}
 
 env:
   GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+  CONFIG_TOML: ${{ secrets.CONFIG_TOML }}
 
 on:
   push:
@@ -14,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      CONFIG_TOML: ${{ secrets.CONFIG_TOML }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +24,8 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      #      - run: chmod +x gradlew
+      - name: Write config.toml
+        run: echo "${{ secrets.CONFIG_TOML }}" > ./config.toml
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

@@ -13,7 +13,7 @@ ARG OTEL_HOST
 # Copy cytosis Jar
 ADD ../../build/libs/cytosis.jar .
 
-ADD ../../config.toml .
+COPY ../../config.toml .
 
 # Expose the port
 EXPOSE 25567
