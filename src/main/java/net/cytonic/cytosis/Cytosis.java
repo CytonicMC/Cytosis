@@ -190,8 +190,6 @@ public final class Cytosis {
             }
         });
 
-        Logger.debug(Thread.currentThread().getName());
-
         long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting Cytosis server...");
