@@ -25,7 +25,7 @@ dependencies {
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
-    compileOnlyApi("com.google.guava:guava:33.4.6-jre")
+    compileOnlyApi("com.google.guava:guava:33.4.8-jre")
     compileOnlyApi("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
@@ -38,12 +38,12 @@ dependencies {
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    runtimeDownload("io.nats:jnats:2.21.0")
+    runtimeDownload("io.nats:jnats:2.21.1")
     runtimeDownload("org.jooq:jooq:3.20.3") // database queries
     runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
-    runtimeDownload("io.opentelemetry:opentelemetry-api:1.48.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.48.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.48.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-api:1.49.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.49.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.49.0")
     runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
 
         // we want to use our own, thank you :)
@@ -54,9 +54,9 @@ dependencies {
     runtimeDownloadOnly("net.minestom:minestom-snapshots:0366b58bfe")
     runtimeDownloadOnly("com.google.code.gson:gson:2.12.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
-    runtimeDownloadOnly("dev.hollowcube:polar:1.13.0")
+    runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
     runtimeDownloadOnly("redis.clients:jedis:5.2.0")
-    runtimeDownloadOnly("com.google.guava:guava:33.4.6-jre")
+    runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
 
