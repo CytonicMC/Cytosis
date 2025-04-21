@@ -43,7 +43,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
 import net.minestom.server.entity.Player;
-import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
@@ -90,6 +89,8 @@ public final class Cytosis {
      */
     public static final String VERSION = "0.1";
     public static final ViewRegistry VIEW_REGISTRY = MinestomInvue.create();
+
+    public static final boolean IS_NOMAD = System.getenv().containsKey("NOMAD_JOB_ID");
     @Setter
     @Getter
     private static ServerGroup serverGroup = new ServerGroup("cytonic", "lobby", true);
@@ -152,6 +153,8 @@ public final class Cytosis {
     @Getter
     private static CommandDisablingManager commandDisablingManager;
     @Getter
+    private static ServerInstancingManager serverInstancingManager;
+    @Getter
     @Setter
     private static boolean metricsEnabled = false;
 
@@ -172,12 +175,26 @@ public final class Cytosis {
         metricsManager = new MetricsManager();
         // handle uncaught exceptions
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            Logger.error("Uncaught exception in thread " + t.getName(), e);
+            try {
+                Logger.error("Uncaught exception in thread " + t.getName(), e);
+            } catch (Exception e1) {
+                e1.printStackTrace(System.err);
+            }
         });
+
+        Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
+            try {
+                Logger.error("Uncaught exception in thread " + t.getName(), e);
+            } catch (Exception e1) {
+                e1.printStackTrace(System.err);
+            }
+        });
+
+        Logger.debug(Thread.currentThread().getName());
 
         long start = System.currentTimeMillis();
         // Initialize the server
-        Logger.info("Starting server.");
+        Logger.info("Starting Cytosis server...");
         minecraftServer = MinecraftServer.init();
         MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
@@ -219,10 +236,35 @@ public final class Cytosis {
         databaseManager = new DatabaseManager();
         databaseManager.setupDatabases();
 
-        if (CytosisSettings.SERVER_PROXY_MODE) {
-            Logger.info("Enabling velocity!");
-            VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
-        } else mojangAuth();
+        Logger.info("Starting NATS manager!");
+        natsManager = new NatsManager();
+        if (!flags.contains("--ci-test")) {
+            natsManager.setup(); // don't connect to NATS in compile and run checks
+        } else {
+            Logger.warn("Skipping NATS manager setup for CI test!");
+        }
+
+        Logger.info("Starting Snooper Manager");
+        snooperManager = new SnooperManager();
+        Logger.info("Loading snooper channels from redis");
+        snooperManager.loadChannelsFromRedis();
+        Logger.info("Loading Cytosis snoops");
+        // load snoops
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_BAN);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_UNBAN);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_KICK);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_UNMUTE);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_MUTE);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_WARN);
+        snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
+        snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
+
+
+        Logger.info("Enabling velocity!");
+        VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
+
+        Logger.info("Starting server instancing manager");
+        serverInstancingManager = new ServerInstancingManager();
 
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
@@ -230,10 +272,7 @@ public final class Cytosis {
         Logger.info("Initializing view registry");
         VIEW_REGISTRY.enable();
 
-        Logger.info("Starting NATS manager!");
-        natsManager = new NatsManager();
-        if (!flags.contains("--ci-test")) natsManager.setup(); // don't connect to NATS in compile and run checks
-
+        Logger.info("Adding a singed command packet handler");
         // commands
         MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) -> MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
 
@@ -247,7 +286,6 @@ public final class Cytosis {
 
         Logger.info("Initializing server commands");
         commandHandler = new CommandHandler();
-        commandHandler.setupConsole();
         commandHandler.registerCytosisCommands();
 
         Logger.info("Setting up command disabling");
@@ -290,12 +328,10 @@ public final class Cytosis {
         npcManager = new NPCManager();
 
         try {
-            if (CytosisSettings.SERVER_PROXY_MODE) {
-                Logger.info("Loading network setup!");
-                cytonicNetwork = new CytonicNetwork();
-                cytonicNetwork.importData();
-                cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
-            }
+            Logger.info("Loading network setup!");
+            cytonicNetwork = new CytonicNetwork();
+            cytonicNetwork.importData();
+            cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT));
         } catch (Exception e) {
             Logger.error("An error occurred whilst loading network setup!", e);
         }
@@ -308,21 +344,6 @@ public final class Cytosis {
         Logger.info("starting actionbar manager");
         actionbarManager = new ActionbarManager();
         actionbarManager.init();
-
-        Logger.info("Starting Snooper Manager");
-        snooperManager = new SnooperManager();
-        Logger.info("Loading snooper channels from redis");
-        snooperManager.loadChannelsFromRedis();
-        Logger.info("Loading Cytosis snoops");
-        // load snoops
-        snooperManager.registerChannel(CytosisSnoops.PLAYER_BAN);
-        snooperManager.registerChannel(CytosisSnoops.PLAYER_UNBAN);
-        snooperManager.registerChannel(CytosisSnoops.PLAYER_KICK);
-        snooperManager.registerChannel(CytosisSnoops.PLAYER_UNMUTE);
-        snooperManager.registerChannel(CytosisSnoops.PLAYER_MUTE);
-        snooperManager.registerChannel(CytosisSnoops.PLAYER_WARN);
-        snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
-        snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
 
         try {
             Logger.info("Loading PVP");
@@ -415,14 +436,6 @@ public final class Cytosis {
     }
 
     /**
-     * Sets up Mojang Authentication
-     */
-    public static void mojangAuth() {
-        Logger.info("Initializing Mojang Authentication");
-        MojangAuth.init(); //VERY IMPORTANT! (This is online mode!)
-    }
-
-    /**
      * Loads the world based on the settings
      */
     public static void loadWorld() {
@@ -436,7 +449,9 @@ public final class Cytosis {
         Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
         databaseManager.getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
             if (throwable != null) {
-                Logger.error("An error occurred whilst initializing the world!", throwable);
+                Logger.error("An error occurred whilst initializing the world! Reverting to a basic world", throwable);
+                defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+                defaultInstance.setChunkSupplier(LightingChunk::new);
             } else {
                 defaultInstance.setChunkLoader(new PolarLoader(polarWorld));
                 defaultInstance.setChunkSupplier(LightingChunk::new);
