@@ -75,7 +75,6 @@ tasks.withType<Javadoc> {
 var bundled = false
 
 val generateBuildInfo = tasks.register("generateBuildInfo") {
-    dependsOn("incrementBuildNumber")
 
     val outputDir = file("$projectDir/build/generated/sources/buildinfo")
     val packageDir = File(outputDir, "net/cytonic/cytosis/utils")
