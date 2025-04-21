@@ -35,4 +35,9 @@ public class Subjects {
     public static final String FRIEND_REMOVED = "friends.removed";
 
     public static final String CHAT_MESSAGE = "chat.message";
+
+    public static final String CREATE_SERVER = "servers.create";
+    public static final String DELETE_ALL_SERVERS = "servers.delete.all";
+    public static final String DELETE_SERVER = "servers.delete";
+    public static final String UPDATE_SERVER = "servers.update";
 }
