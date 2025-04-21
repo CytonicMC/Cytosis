@@ -38,13 +38,10 @@ jobs:
       - name: Login to GHCR
         run: echo $GHCR_TOKEN | docker login ghcr.io -u CytonicMC --password-stdin
 
-      - name: Build Docker Image for multiple platforms
+      - name: Build and push Docker Image for multiple platforms
         run: |
           docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/cytonicmc/cytosis:latest -f docker/basic/Dockerfile . --push
-
-      - name: Push Docker Image
-        run: docker push ghcr.io/cytonicmc/cytosis:latest
 
         # Commit and push the changes
       - name: Commit and Push Build Number
