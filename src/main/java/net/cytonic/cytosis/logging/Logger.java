@@ -58,7 +58,7 @@ public interface Logger {
      * @param args    The args to format the message
      */
     static void info(String message, Object... args) {
-        LOGGER.info(message, args);
+        LOGGER.info(message.formatted(args));
         if (Cytosis.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder()
@@ -78,7 +78,7 @@ public interface Logger {
      * @param args    The arguments to format the message
      */
     static void warn(String message, Object... args) {
-        LOGGER.warn(message, args);
+        LOGGER.warn(message.formatted(args));
         if (Cytosis.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder()
@@ -99,10 +99,13 @@ public interface Logger {
      */
     static void error(String message, Object... args) {
 
-        LOGGER.error(message, args);
+        LOGGER.error(message.formatted(args));
         Component component = Msg.mm("<red><b>Error Logged on server '" + Cytosis.SERVER_ID + "'</b></red><newline><gray> Message: " + message);
-        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
-
+        try {
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
+        } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
+            Logger.warn("Failed to log error via snooper!");
+        }
         if (Cytosis.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder()
@@ -123,7 +126,11 @@ public interface Logger {
      */
     static void error(String message, Throwable ex) {
         Component component = Msg.mm("<red><b>Error Logged on server '" + Cytosis.SERVER_ID + "'</b></red><newline><gray> Message: " + message + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
-        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
+        try {
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
+        } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
+            Logger.warn("Failed to log error via snooper!");
+        }
         LOGGER.error(message, ex);
         if (Cytosis.isMetricsEnabled()) {
             Span span = Span.current();
