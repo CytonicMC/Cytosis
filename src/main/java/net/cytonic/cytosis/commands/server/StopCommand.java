@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.server;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.CommandUtils;
 import net.cytonic.cytosis.commands.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
@@ -23,6 +24,11 @@ public class StopCommand extends CytosisCommand {
         confirmArgument.setSuggestionCallback(((cmds, cmdc, suggestion) -> suggestion.addEntry(new SuggestionEntry("confirm"))));
         addSyntax((sender, context) -> {
             if (context.get(confirmArgument).equalsIgnoreCase("confirm")) {
+                if (Cytosis.IS_NOMAD) {
+                    Cytosis.getServerInstancingManager().deleteThisServerInstance();
+                    sender.sendMessage(Msg.success("Dispatched the shutdown of this instance!"));
+                    return;
+                }
                 sender.sendMessage("Stopping the server...");
                 MinecraftServer.stopCleanly();
             }
