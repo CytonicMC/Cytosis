@@ -29,6 +29,12 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions@github.com"
 
+      - name: Increment Build Number
+        run: ./gradlew incrementBuildNumber
+        env:
+          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+          REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
       - name: Assemble Jar
         run: ./gradlew fatJar
         env:
@@ -46,7 +52,6 @@ jobs:
         # Commit and push the changes
       - name: Commit and Push Build Number
         run: |
-          git add build-number.txt
           git commit -m "Increment build number"
           git push origin master
         env:
