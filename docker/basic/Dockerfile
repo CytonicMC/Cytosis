@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.6_7-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 LABEL authors="CytonicMC"
 
 # Set the working directory
@@ -12,8 +12,6 @@ ARG OTEL_HOST
 
 # Copy cytosis Jar
 ADD ../../build/libs/cytosis.jar .
-
-COPY ../../config.toml .
 
 # Expose the port
 EXPOSE 25567

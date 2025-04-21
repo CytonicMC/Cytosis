@@ -36,7 +36,6 @@ public class MysqlDatabase {
     private final String database;
     private final String username;
     private final String password;
-    private final boolean ssl;
 
     @Getter
     private Connection connection;
@@ -52,7 +51,6 @@ public class MysqlDatabase {
         this.database = CytosisSettings.DATABASE_NAME;
         this.username = CytosisSettings.DATABASE_USER;
         this.password = CytosisSettings.DATABASE_PASSWORD;
-        this.ssl = CytosisSettings.DATABASE_USE_SSL;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -75,7 +73,7 @@ public class MysqlDatabase {
     public void connect() {
         if (!isConnected()) {
             try {
-                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + ssl + "&autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
+                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
                 Logger.info("Successfully connected to the MySQL Database!");
             } catch (SQLException e) {
                 Logger.error("Invalid Database Credentials!", e);
@@ -673,7 +671,6 @@ public class MysqlDatabase {
             } catch (Exception e) {
                 Logger.error("An error occurred whilst fetching a world!", e);
                 future.completeExceptionally(e);
-                throw new RuntimeException(e);
             }
         });
         return future;

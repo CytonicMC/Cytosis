@@ -3,7 +3,6 @@ run-name: Deploy Docker Image by @${{ github.actor }}
 
 env:
   GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-  CONFIG_TOML: ${{ secrets.CONFIG_TOML }}
 
 on:
   push:
@@ -15,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      CONFIG_TOML: ${{ secrets.CONFIG_TOML }}
 
     steps:
       - uses: actions/checkout@v4
@@ -23,12 +21,13 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '21'
-
-      - name: Write config.toml
-        run: echo "${{ secrets.CONFIG_TOML }}" > ./config.toml
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Git configuration
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
 
       - name: Assemble Jar
         run: ./gradlew fatJar
@@ -36,15 +35,24 @@ jobs:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
-      - name: Build Docker Image
-        run: docker build -t cytosis -f docker/basic/Dockerfile .
-
-      - name: Tag Docker Image
-        run: docker tag cytosis ghcr.io/cytonicmc/cytosis:latest
-
       - name: Login to GHCR
         run: echo $GHCR_TOKEN | docker login ghcr.io -u CytonicMC --password-stdin
 
+      - name: Build Docker Image for multiple platforms
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/cytonicmc/cytosis:latest -f docker/basic/Dockerfile . --push
+
       - name: Push Docker Image
         run: docker push ghcr.io/cytonicmc/cytosis:latest
+
+        # Commit and push the changes
+      - name: Commit and Push Build Number
+        run: |
+          git add build-number.txt
+          git commit -m "Increment build number"
+          git push origin master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
