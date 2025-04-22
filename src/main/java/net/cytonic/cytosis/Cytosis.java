@@ -310,6 +310,9 @@ public final class Cytosis {
         Logger.info("Starting Player list manager");
         playerListManager = new PlayerListManager();
 
+        Logger.info("Starting Nickname manager!");
+        nicknameManager = new NicknameManager();
+
         Logger.info("Starting Friend manager!");
         friendManager = new FriendManager();
         friendManager.init();
