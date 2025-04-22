@@ -33,7 +33,7 @@ public class CommandUtils {
     public static CommandCondition withRank(PlayerRank rank) {
         return (sender, commandString) -> {
             if (!(sender instanceof CytosisPlayer player)) return false;
-            return player.getRank() == rank;
+            return player.getTrueRank() == rank;
         };
     }
 
