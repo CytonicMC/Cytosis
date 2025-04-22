@@ -67,18 +67,31 @@ public class ChatManager {
             handlePrivateMessage(originalMessage, player);
         }
 
-        Component message = Component.text("")
-                .append(channelComponent)
-                .append(Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getPrefix())
-                .append(Component.text(player.getUsername(), (Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getTeamColor())))
-                .append(Component.text(":", Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()))
-                .appendSpace()
-                .append(Component.text(originalMessage, Cytosis.getRankManager().getPlayerRank(player.getUuid()).orElseThrow().getChatColor()));
+
+        Component message = Component.text("");
+        if (channel.isShouldDeanonymize()) {
+            message = message.append(channelComponent)
+                    .append(player.getTrueRank().getPrefix())
+                    .append(Component.text(player.getTrueUsername(), (player.getTrueRank().getTeamColor())))
+                    .append(Component.text(":", player.getTrueRank().getChatColor()))
+                    .appendSpace()
+                    .append(Component.text(originalMessage, player.getTrueRank().getChatColor()));
+        } else {
+            message = message.append(channelComponent)
+                    .append(player.getRank().getPrefix())
+                    .append(Component.text(player.getUsername(), (player.getRank().getTeamColor())))
+                    .append(Component.text(":", player.getRank().getChatColor()))
+                    .appendSpace()
+                    .append(Component.text(originalMessage, player.getRank().getChatColor()));
+        }
+
         if (channel == ChatChannel.ALL) {
             //todo: this may want to become instance based
+            Component finalMessage = message;
             Cytosis.getOnlinePlayers().forEach((p) -> {
+                // todo: admins see real name?
                 if (!p.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel))
-                    p.sendMessage(message);
+                    p.sendMessage(finalMessage);
             });
             return;
         }
@@ -94,9 +107,10 @@ public class ChatManager {
 
         UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
         PlayerRank recipientRank = Cytosis.getRankManager().getPlayerRank(uuid).orElseThrow();
+
         Component recipient = recipientRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid), recipientRank.getTeamColor()));
-//
-        Component component = Msg.mm("<dark_aqua>From <reset>").append(player.getRank().getPrefix().append(Msg.mm(player.getUsername()))).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE));
+
+        Component component = Msg.mm("<dark_aqua>From <reset>").append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername()))).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE));
         Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerMessage(player.getUuid(), uuid, message);
         Cytosis.getNatsManager().sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(component), player.getUuid()));
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE)));
