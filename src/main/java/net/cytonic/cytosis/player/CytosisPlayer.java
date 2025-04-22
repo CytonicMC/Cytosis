@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.player;
 
 import io.github.togar2.pvp.player.CombatPlayerImpl;
-import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -13,26 +12,25 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.builder.CommandResult;
-import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
-import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
+import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the managers themselves.
  */
-@Getter
 @SuppressWarnings("unused")
 public class CytosisPlayer extends CombatPlayerImpl {
     private PlayerRank rank;
+
 
     /**
      * Creates a new instance of a player
@@ -48,6 +46,17 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
         rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElse(PlayerRank.DEFAULT);
+    }
+
+    public PlayerRank getTrueRank() {
+        return rank;
+    }
+
+    public PlayerRank getRank() {
+        if (isNicked()) {
+            return Cytosis.getNicknameManager().getData(getUuid()).rank();
+        }
+        return getTrueRank();
     }
 
     /**
@@ -229,7 +238,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public boolean isStaff() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getRank());
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getTrueRank());
     }
 
     /**
@@ -238,7 +247,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return If this player has administrative permissions
      */
     public boolean isAdmin() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN).contains(getRank());
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN).contains(getTrueRank());
     }
 
     /**
@@ -247,7 +256,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return If this player has moderation permissions
      */
     public boolean isModerator() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR).contains(getRank());
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR).contains(getTrueRank());
     }
 
     /**
@@ -256,7 +265,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return If this player has helping permissions
      */
     public boolean isHelper() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getRank());
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getTrueRank());
     }
 
     /**
@@ -322,29 +331,64 @@ public class CytosisPlayer extends CombatPlayerImpl {
         return Cytosis.getCytonicNetwork().hasPlayedBefore(getUuid());
     }
 
+    @Override
+    public @NotNull String getUsername() {
+        if (isNicked()) {
+            return Cytosis.getNicknameManager().getData(getUuid()).nickname();
+        }
+        return getTrueUsername();
+    }
+
+    /**
+     * Gets the player's name as a component. This will either return the display name
+     * (if set) or a component holding the username.
+     *
+     * @return the name
+     */
+    @Override
+    public @NotNull Component getName() {
+        return Component.text(getUsername());
+    }
+
+    public @NotNull Component getTrueName() {
+        return Component.text(getTrueUsername());
+    }
+
+
+    /**
+     * Gets the player skin.
+     *
+     * @return the player skin object,
+     * null means that the player has his {@link #getUuid()} default skin
+     */
+    @Override
+    public @Nullable PlayerSkin getSkin() {
+        if (isNicked()) {
+            NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(getUuid());
+            return new PlayerSkin(data.value(), data.signature());
+        }
+        return super.getSkin();
+    }
+
+    public @Nullable PlayerSkin getTrueSkin() {
+        return super.getSkin();
+    }
+
+    public @NotNull String getTrueUsername() {
+        return super.getUsername();
+    }
+
+    public boolean isNicked() {
+        return Cytosis.getNicknameManager().isNicked(getUuid());
+    }
 
     @Override
     public void updateNewViewer(@NotNull Player player) {
-        if (!Cytosis.getNicknameManager().isNicked(getUuid())) {
+        if (!isNicked()) {
             super.updateNewViewer(player);
-            return;
+        } else {
+            Cytosis.getNicknameManager().sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, false);
         }
-        ;
 
-        NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(getUuid());
-        var properties = new ArrayList<PlayerInfoUpdatePacket.Property>();
-
-        if (data.value() != null && data.signature() != null) {
-            properties.add(new PlayerInfoUpdatePacket.Property("textures", data.value(), data.signature()));
-        }
-        var entry = new PlayerInfoUpdatePacket.Entry(getUuid(), data.nickname(), properties, true,
-                0, GameMode.SURVIVAL, null, null, -1);
-        player.sendPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
-
-        // Spawn the player entity
-        super.updateNewViewer(player);
-
-        // Enable skin layers
-        player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
     }
 }
