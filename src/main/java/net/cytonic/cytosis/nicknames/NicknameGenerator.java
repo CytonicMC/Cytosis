@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.nicknames;
 
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.Tuple;
 
 import java.util.Map;
@@ -31,9 +32,9 @@ public class NicknameGenerator {
         String noun = pickRandom(NOUNS);
 
         boolean useUnderscore = RANDOM.nextBoolean();
-        boolean useNumber = RANDOM.nextDouble() < 0.4;
+        boolean useNumber = RANDOM.nextBoolean();
         boolean useLeet = RANDOM.nextBoolean();
-        boolean useWeirdCase = RANDOM.nextDouble() < 0.4;
+        boolean useWeirdCase = RANDOM.nextDouble() < 0.2;
 
         if (useLeet) {
             adj = applyLeetspeak(adj);
@@ -48,7 +49,23 @@ public class NicknameGenerator {
         String number = useNumber ? String.valueOf(RANDOM.nextInt(10000)) : "";
         String suffix = pickRandom(SUFFIXES);
 
-        return base + number + suffix;
+        // Try full combo
+        String full = base + number + suffix;
+        if (full.length() <= 16) return full;
+
+        // Try without suffix
+        full = base + number;
+        if (full.length() <= 16) return full;
+
+        // Try without number
+        full = base + suffix;
+        if (full.length() <= 16) return full;
+
+        // Just base
+        if (base.length() <= 16) return base;
+
+        // Last resort: trim base to fit
+        return base.substring(0, 16);
     }
 
     private static <T> T pickRandom(T[] arr) {
@@ -84,5 +101,9 @@ public class NicknameGenerator {
      */
     public static Tuple<String, String> generateSkin() {
         return pickRandom(SKIN_DATA);
+    }
+
+    public static PlayerRank generateRank() {
+        return PlayerRank.values()[RANDOM.nextInt(PlayerRank.values().length - 4) + 4]; // No staff ranks
     }
 }
