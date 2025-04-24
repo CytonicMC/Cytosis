@@ -24,11 +24,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Set up Git configuration
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@github.com"
-
       - name: Increment Build Number
         run: ./gradlew incrementBuildNumber
         env:
@@ -49,13 +44,6 @@ jobs:
           docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/cytonicmc/cytosis:latest -f docker/basic/Dockerfile . --push
 
-        # Commit and push the changes
-      - name: Commit and Push Build Number
-        run: |
-          git add build-number.txt
-          git commit -m "Increment build number"
-          git push origin master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
 
 

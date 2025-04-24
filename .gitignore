@@ -43,7 +43,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-build-number.txt
 # runtime dependencies
 /cache/
 /config.toml

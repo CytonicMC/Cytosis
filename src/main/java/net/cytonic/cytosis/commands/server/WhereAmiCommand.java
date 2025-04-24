@@ -14,9 +14,8 @@ public class WhereAmiCommand extends CytosisCommand {
             sender.sendMessage(
                     Msg.yellowSplash("SERVER INFO!", "Here is some basic server information:").appendNewline()
                             .append(Msg.mm("<gold>Server ID: </gold><gray>" + Cytosis.SERVER_ID)).appendNewline()
-                            .append(Msg.mm("<gold>Latest Commit: </gold><gray>" + BuildInfo.GIT_COMMIT)).appendNewline()
+                            .append(Msg.mm("<gold>Latest Commit: </gold><gray><hover:show_text:'<gold><b>Click to copy Commit Hash!'><click:copy_to_clipboard:%s>%s", BuildInfo.GIT_COMMIT, BuildInfo.GIT_COMMIT)).appendNewline()
                             .append(Msg.mm("<gold>Build Version: </gold><gray>" + BuildInfo.BUILD_VERSION)).appendNewline()
-                            .append(Msg.mm("<gold>Build Number: </gold><gray>" + BuildInfo.BUILD_NUMBER)).appendNewline()
                             .append(Msg.mm("<gold>Built: </gold><gray>" + DurationParser.unparseFull(BuildInfo.BUILT_AT) + " ago")).appendNewline()
                             .append(Msg.mm("<gold>Server Type: </gold><gray>" + Cytosis.getServerGroup().humanReadable())).appendNewline()
             );
