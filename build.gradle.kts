@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compileOnlyApi("net.minestom:minestom-snapshots:0366b58bfe")
-    compileOnlyApi("com.google.code.gson:gson:2.12.1") // serializing
+    compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
@@ -52,7 +52,7 @@ dependencies {
 
     // the compileonlyapis need to be downloaded at runtime, too.
     runtimeDownloadOnly("net.minestom:minestom-snapshots:0366b58bfe")
-    runtimeDownloadOnly("com.google.code.gson:gson:2.12.1")
+    runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
     runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
     runtimeDownloadOnly("redis.clients:jedis:5.2.0")
