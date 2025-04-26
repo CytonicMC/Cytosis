@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.commands.chatting;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.CytosisCommand;
+import net.cytonic.cytosis.commands.util.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
@@ -28,13 +28,22 @@ public class AllChatCommand extends CytosisCommand {
         });
         addSyntax((sender, context) -> {
             if (sender instanceof final CytosisPlayer player) {
-                Component message = Component.text("")
-                        .append(player.getRank().getPrefix())
-                        .append(Component.text(player.getUsername(), (player.getRank().getTeamColor())))
+                Component nonSelf = Component.text("")
+                        .append(player.formattedName())
                         .append(Component.text(":", player.getRank().getChatColor()))
                         .appendSpace()
                         .append(Component.text(String.join(" ", context.get(chatMessage)), player.getRank().getChatColor()));
-                Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
+                Cytosis.getOnlinePlayers().forEach((p) -> {
+                    if (!p.getUuid().equals(player.getUuid())) {
+                        p.sendMessage(nonSelf);
+                        return;
+                    }
+                    player.sendMessage(Component.text("")
+                            .append(player.trueFormattedName())
+                            .append(Component.text(":", player.getTrueRank().getChatColor()))
+                            .appendSpace()
+                            .append(Component.text(String.join(" ", context.get(chatMessage)), player.getTrueRank().getChatColor())));
+                });
             } else {
                 sender.sendMessage(Msg.mm("<RED>Only players may execute this command!"));
             }

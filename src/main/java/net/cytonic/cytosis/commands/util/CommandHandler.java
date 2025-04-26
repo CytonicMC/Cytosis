@@ -1,6 +1,8 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.util;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.FriendCommand;
+import net.cytonic.cytosis.commands.HelpCommand;
 import net.cytonic.cytosis.commands.chatting.*;
 import net.cytonic.cytosis.commands.debug.CooldownCommand;
 import net.cytonic.cytosis.commands.debug.PreferenceCommand;
@@ -11,10 +13,11 @@ import net.cytonic.cytosis.commands.disabling.EnableCommand;
 import net.cytonic.cytosis.commands.moderation.*;
 import net.cytonic.cytosis.commands.movement.LobbyCommand;
 import net.cytonic.cytosis.commands.movement.PlayCommand;
+import net.cytonic.cytosis.commands.nicknames.NickCommand;
+import net.cytonic.cytosis.commands.nicknames.RevealCommand;
 import net.cytonic.cytosis.commands.server.*;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
-import net.cytonic.cytosis.commands.util.nicknames.NickCommand;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
@@ -86,7 +89,8 @@ public class CommandHandler {
                 new WhereAmiCommand(),
                 new DisableCommand(),
                 new EnableCommand(),
-                new NickCommand()
+                new NickCommand(),
+                new RevealCommand()
         );
     }
 

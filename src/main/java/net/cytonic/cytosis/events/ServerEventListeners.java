@@ -66,8 +66,15 @@ public final class ServerEventListeners {
             Cytosis.getPlayerListManager().setupPlayer(player);
             Cytosis.getRankManager().addPlayer(player);
             Cytosis.getCommandHandler().recalculateCommands(player);
-            if (Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+            if (player.getPreference(CytosisPreferences.VANISHED)) {
                 player.setVanished(true);
+            }
+            try {
+                if (player.getPreference(CytosisPreferences.NICKNAME_DATA) != null) {
+                    Cytosis.getNicknameManager().loadNickedPlayer(player);
+                }
+            } catch (Exception e) {
+                Logger.error("Failed to load nickname data for " + player.getUsername() + " (" + player.getUuid() + ")", e);
             }
             for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
                 if (p.isVanished()) p.setVanished(true);

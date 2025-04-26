@@ -1,14 +1,12 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
-import net.cytonic.cytosis.commands.CommandUtils;
-import net.cytonic.cytosis.commands.CytosisCommand;
+import net.cytonic.cytosis.commands.util.CommandUtils;
+import net.cytonic.cytosis.commands.util.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.utils.entity.EntityFinder;
 
 /**
  * A command for teleporting :)
@@ -21,12 +19,6 @@ public class TeleportCommand extends CytosisCommand {
     public TeleportCommand() {
         super("teleport", "tp");
         setCondition(CommandUtils.IS_ADMIN);
-
-        var entityArgument = ArgumentType.Entity("entity").singleEntity(true).onlyPlayers(true);
-//        entityArgument.setSuggestionCallback((sender, _, suggestion) -> {
-//            if (!(sender instanceof CytosisPlayer player && player.hasPermission("cytosis.commands.teleport"))) return;
-//            Cytosis.getOnlinePlayers().forEach(entity -> suggestion.addEntry(new SuggestionEntry(entity.getUsername())));
-//        });
 
         var positionArgument = ArgumentType.RelativeBlockPosition("position");
 
@@ -53,18 +45,12 @@ public class TeleportCommand extends CytosisCommand {
         // entity arg
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer player) {
-                EntityFinder finder = context.get(entityArgument);
-                Entity entity = finder.findFirstEntity(sender);
-                if (entity == null) {
-                    player.sendMessage(Msg.mm("<red>Failed to find player."));
-                    return;
-                }
-                player.teleport(entity.getPosition());
+//                player.teleport(context.get(CommandUtils.ONLINE_PLAYERS).getPosition());
                 player.sendMessage(Msg.mm("<green>Teleported!"));
             } else {
                 sender.sendMessage(Msg.mm("Only players can use this command"));
             }
-        }, entityArgument);
+        }, CommandUtils.ONLINE_PLAYERS);
 
         // relative
         addSyntax((sender, context) -> {
