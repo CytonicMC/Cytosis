@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.commands.defaultMinecraft;
 
-import net.cytonic.cytosis.commands.CommandUtils;
-import net.cytonic.cytosis.commands.CytosisCommand;
+import net.cytonic.cytosis.commands.util.CommandUtils;
+import net.cytonic.cytosis.commands.util.CytosisCommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;

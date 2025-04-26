@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.commands.chatting;
 
-import net.cytonic.cytosis.commands.CytosisCommand;
+import net.cytonic.cytosis.commands.util.CytosisCommand;
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;

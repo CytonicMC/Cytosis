@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands;
 
+import net.cytonic.cytosis.commands.util.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.entity.Player;
 
