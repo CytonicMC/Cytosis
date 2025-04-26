@@ -11,6 +11,7 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A list of Cytosis supplied preferences
@@ -46,6 +47,8 @@ public class CytosisPreferences {
     public static final NamespacedPreference<Boolean> VANISHED = new NamespacedPreference<>(CytosisNamespaces.VANISHED, false);
 
     public static final JsonPreference<NicknameManager.NicknameData> NICKNAME_DATA = new JsonPreference<>(CytosisNamespaces.NICKNAME_DATA, null);
+
+    public static final NamespacedPreference<UUID> NICKED_UUID = new NamespacedPreference<>(CytosisNamespaces.NICKED_UUID, null);
 
     /**
      * A set of all the preferences that are available here.

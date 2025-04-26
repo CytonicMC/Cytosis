@@ -8,6 +8,7 @@ import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -398,7 +399,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
         if (!isNicked()) {
             super.updateNewViewer(player);
         } else {
-            Cytosis.getNicknameManager().sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, false);
+            Cytosis.getNicknameManager().sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID), false);
         }
 
     }

@@ -49,6 +49,7 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.LISTENING_SNOOPS, CytosisPreferences.LISTENING_SNOOPS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKNAME_DATA, CytosisPreferences.NICKNAME_DATA);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKED_UUID, CytosisPreferences.NICKED_UUID);
 
         PreparedStatement ps = db.prepare("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
         db.update(ps).whenComplete((unused, throwable) -> {
