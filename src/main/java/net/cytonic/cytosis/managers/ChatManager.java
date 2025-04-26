@@ -59,9 +59,11 @@ public class ChatManager {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
-        Component channelComponent = Component.empty();
+        Component channelComponent;
         if (channel != ChatChannel.ALL) {
             channelComponent = channel.getPrefix();
+        } else {
+            channelComponent = Component.empty();
         }
         if (channel == ChatChannel.PRIVATE_MESSAGE) {
             handlePrivateMessage(originalMessage, player);
@@ -71,15 +73,13 @@ public class ChatManager {
         Component message = Component.text("");
         if (channel.isShouldDeanonymize()) {
             message = message.append(channelComponent)
-                    .append(player.getTrueRank().getPrefix())
-                    .append(Component.text(player.getTrueUsername(), (player.getTrueRank().getTeamColor())))
+                    .append(player.trueFormattedName())
                     .append(Component.text(":", player.getTrueRank().getChatColor()))
                     .appendSpace()
                     .append(Component.text(originalMessage, player.getTrueRank().getChatColor()));
         } else {
             message = message.append(channelComponent)
-                    .append(player.getRank().getPrefix())
-                    .append(Component.text(player.getUsername(), (player.getRank().getTeamColor())))
+                    .append(player.formattedName())
                     .append(Component.text(":", player.getRank().getChatColor()))
                     .appendSpace()
                     .append(Component.text(originalMessage, player.getRank().getChatColor()));
@@ -90,6 +90,14 @@ public class ChatManager {
             Component finalMessage = message;
             Cytosis.getOnlinePlayers().forEach((p) -> {
                 // todo: admins see real name?
+                if (player.getUuid().equals(p.getUuid())) {
+                    p.sendMessage(channelComponent
+                            .append(player.trueFormattedName())
+                            .append(Component.text(":", player.getTrueRank().getChatColor()))
+                            .appendSpace()
+                            .append(Component.text(originalMessage, player.getTrueRank().getChatColor())));
+                    return;
+                }
                 if (!p.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel))
                     p.sendMessage(finalMessage);
             });
