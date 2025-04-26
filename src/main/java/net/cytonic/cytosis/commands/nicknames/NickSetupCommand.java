@@ -78,6 +78,10 @@ public class NickSetupCommand extends CytosisCommand {
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
+            if (player.isNicked()) {
+                player.sendMessage(Msg.whoops("You are already nicked! Use /nick reset to go back to your normal self and try again."));
+                return;
+            }
             player.openBook(WARNING_BOOK);
         });
         ArgumentWord verb = new ArgumentWord("verb").from("agree", "done", "rank", "skin", "name");
