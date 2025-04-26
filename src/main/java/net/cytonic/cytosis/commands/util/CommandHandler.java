@@ -14,7 +14,7 @@ import net.cytonic.cytosis.commands.moderation.*;
 import net.cytonic.cytosis.commands.movement.LobbyCommand;
 import net.cytonic.cytosis.commands.movement.PlayCommand;
 import net.cytonic.cytosis.commands.nicknames.NickCommand;
-import net.cytonic.cytosis.commands.nicknames.RevealCommand;
+import net.cytonic.cytosis.commands.nicknames.NickRevealCommand;
 import net.cytonic.cytosis.commands.server.*;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
@@ -90,7 +90,7 @@ public class CommandHandler {
                 new DisableCommand(),
                 new EnableCommand(),
                 new NickCommand(),
-                new RevealCommand()
+                new NickRevealCommand()
         );
     }
 

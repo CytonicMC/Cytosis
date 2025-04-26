@@ -7,8 +7,8 @@ import net.cytonic.cytosis.nicknames.NicknameGenerator;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public class RandomCommand extends CytosisCommand {
-    public RandomCommand() {
+public class NickRandomCommand extends CytosisCommand {
+    public NickRandomCommand() {
         super("random");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, ignored) -> {
