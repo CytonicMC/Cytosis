@@ -9,6 +9,7 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.kyori.adventure.key.Key;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A class holding all the Cytosis namespaces
@@ -52,6 +53,7 @@ public class CytosisNamespaces {
     public static final TypedNamespace<Boolean> VANISHED = new TypedNamespace<>(Key.key("cytosis", "vanished"), Boolean.class); // <Boolean>
 
     public static final TypedNamespace<NicknameManager.NicknameData> NICKNAME_DATA = new TypedNamespace<>(Key.key("cytosis", "nickname_data"), NicknameManager.NicknameData.class);
+    public static final TypedNamespace<UUID> NICKED_UUID = new TypedNamespace<>(Key.key("cytosis", "nicked_uuid"), UUID.class);
 
     /**
      * A convenient set of all the namespaces

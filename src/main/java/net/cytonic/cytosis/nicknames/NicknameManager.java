@@ -19,10 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NicknameManager {
     //todo: Look into masking UUIDs in outgoing packets
     private final Map<UUID, NicknameData> nicknames = new ConcurrentHashMap<>();
+    private final Map<UUID, UUID> maskedUUIDs = new ConcurrentHashMap<>();
 
     public NicknameManager() {
         // remove them from this memory cache
-        Events.onNetworkLeave(event -> nicknames.remove(event.player()));
+        Events.onNetworkLeave(event -> {
+            nicknames.remove(event.player());
+            maskedUUIDs.remove(event.player());
+        });
     }
 
     public boolean isNicked(UUID player) {
@@ -34,10 +38,13 @@ public class NicknameManager {
         if (nicknames.containsKey(playerUuid)) return;
 
         CytosisPlayer player = Cytosis.getPlayer(playerUuid).get();
+        UUID masked = maskedUUIDs.computeIfAbsent(playerUuid, uuid -> UUID.randomUUID());
 
         nicknames.put(playerUuid, data);
         Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis:nicknames", nicknames.get(playerUuid).nickname());
-        sendNicknamePacketstoAll(player, false);
+        sendNicknamePacketstoAll(player, masked, false);
+        player.updatePreference(CytosisNamespaces.NICKNAME_DATA, data);
+        player.updatePreference(CytosisNamespaces.NICKED_UUID, masked);
     }
 
     /**
@@ -46,37 +53,36 @@ public class NicknameManager {
      * @param player      the player to "nickname"
      * @param freshViewer if the player has no existing viewer
      */
-    public void sendNicknamePacketstoAll(CytosisPlayer player, boolean freshViewer) {
+    public void sendNicknamePacketstoAll(CytosisPlayer player, UUID masked, boolean freshViewer) {
         for (Player viewer : player.getViewers()) {
-            sendNicknamePacketsToPlayer(player, (CytosisPlayer) viewer, freshViewer);
+            sendNicknamePacketsToPlayer(player, (CytosisPlayer) viewer, masked, freshViewer);
         }
     }
 
-    public void sendNicknamePacketsToPlayer(CytosisPlayer player, CytosisPlayer target, boolean freshViewer) {
+    public void sendNicknamePacketsToPlayer(CytosisPlayer player, CytosisPlayer target, UUID masked, boolean freshViewer) {
         ArrayList<PlayerInfoUpdatePacket.Property> properties = new ArrayList<>();
         NicknameData data = getData(player.getUuid());
         if (data == null) return;
         if (data.signature() != null && data.value() != null) {
             properties.add(new PlayerInfoUpdatePacket.Property("textures", data.value(), data.signature()));
         }
-        PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(player.getUuid(), data.nickname(), properties, false,
+        PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(masked, data.nickname(), properties, false,
                 0, GameMode.SURVIVAL, null, null, 1);
 
         if (!freshViewer) {
             // remove the old player info and entity -- avoids nickname detection
             target.sendPackets(
-                    new PlayerInfoRemovePacket(player.getUuid()),
+                    new PlayerInfoRemovePacket(player.getUuid()), // look into this
                     new DestroyEntitiesPacket(player.getEntityId())
             );
         }
 
         target.sendPackets(
                 new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
-                new SpawnEntityPacket(player.getEntityId(), player.getUuid(), EntityType.PLAYER.id(), player.getPosition(), player.getPosition().yaw(), 0, (short) 0, (short) 0, (short) 0),
+                new SpawnEntityPacket(player.getEntityId(), masked, EntityType.PLAYER.id(), player.getPosition(), player.getPosition().yaw(), 0, (short) 0, (short) 0, (short) 0),
                 new EntityMetaDataPacket(player.getEntityId(), Map.of(17, Metadata.Byte((byte) 127)))
         );
         Cytosis.getRankManager().setupCosmetics(player, data.rank());
-        Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.NICKNAME_DATA, data);
     }
 
     public void disableNickname(UUID playerUuid) {
@@ -89,9 +95,13 @@ public class NicknameManager {
         if (data == null) return;
         Cytosis.getDatabaseManager().getRedisDatabase().removeValue("cytosis:nicknames", data.nickname());
         sendRemovePackets(player);
+        Cytosis.getRankManager().setupCosmetics(player, player.getTrueRank());
+        player.updatePreference(CytosisNamespaces.NICKNAME_DATA, null);
+        player.updatePreference(CytosisNamespaces.NICKED_UUID, null);
     }
 
     public void sendRemovePackets(CytosisPlayer player) {
+        final UUID masked = maskedUUIDs.get(player.getUuid());
         for (Player viewer : player.getViewers()) {
             ArrayList<PlayerInfoUpdatePacket.Property> properties = new ArrayList<>();
 
@@ -103,7 +113,7 @@ public class NicknameManager {
                     0, GameMode.SURVIVAL, null, null, 1);
             // remove the old player info and entity
             viewer.sendPackets(
-                    new PlayerInfoRemovePacket(player.getUuid()),
+                    new PlayerInfoRemovePacket(masked),
                     new DestroyEntitiesPacket(player.getEntityId())
             );
             viewer.sendPackets(
@@ -111,17 +121,20 @@ public class NicknameManager {
                     new SpawnEntityPacket(player.getEntityId(), player.getUuid(), EntityType.PLAYER.id(), player.getPosition(), player.getPosition().yaw(), 0, (short) 0, (short) 0, (short) 0),
                     new EntityMetaDataPacket(player.getEntityId(), Map.of(17, Metadata.Byte((byte) 127)))
             );
-            Cytosis.getRankManager().setupCosmetics(player, player.getTrueRank());
-            Cytosis.getPreferenceManager().updatePlayerPreference(player.getUuid(), CytosisNamespaces.NICKNAME_DATA, null);
         }
     }
 
     public void loadNickedPlayer(CytosisPlayer player) {
         NicknameData data = Cytosis.getPreferenceManager().getPlayerPreference(player.getUuid(), CytosisNamespaces.NICKNAME_DATA);
+        UUID maskedUuid = player.getPreference(CytosisNamespaces.NICKED_UUID);
+        if (maskedUuid == null) {
+            maskedUuid = UUID.randomUUID();
+        }
         if (data == null) return;
+        this.maskedUUIDs.put(player.getUuid(), maskedUuid);
         this.nicknames.put(player.getUuid(), data);
         Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis:nicknames", data.nickname());
-        sendNicknamePacketstoAll(player, false);
+        sendNicknamePacketstoAll(player, maskedUuid, false);
     }
 
     @Nullable
@@ -180,6 +193,7 @@ public class NicknameManager {
 
         public NicknameData(String nickname, PlayerRank rank, Tuple<String, String> skin) {
             this(nickname, rank, skin.getSecond(), skin.getFirst());
+
         }
 
         public static NicknameData parseBytes(byte[] serialized) {
