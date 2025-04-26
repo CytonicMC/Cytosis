@@ -7,6 +7,7 @@ import eu.koboo.minestom.invue.api.item.ViewItem;
 import eu.koboo.minestom.invue.api.pagination.ViewPagination;
 import eu.koboo.minestom.invue.api.slots.ViewPattern;
 import net.cytonic.cytosis.menus.MenuUtils;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,8 @@ public class PaginatedBorder extends ViewComponent {
         } else {
             ViewItem.bySlot(view, pattern.getSlot('>'))
                     .material(Material.ARROW)
-                    .name("<green>Next (" + pagination.getCurrentPage() + ")")
+                    .name(Msg.mm("<green>Next (" + pagination.getCurrentPage() + ")"))
+                    .hideTooltip(false)
                     .interaction(Interactions.toNextPage(pagination));
         }
 
@@ -40,7 +42,8 @@ public class PaginatedBorder extends ViewComponent {
         } else {
             ViewItem.bySlot(view, pattern.getSlot('<'))
                     .material(Material.ARROW)
-                    .name("<green>Previous (" + pagination.getCurrentPage() + ")")
+                    .hideTooltip(false)
+                    .name(Msg.mm("<green>Previous (" + pagination.getCurrentPage() + ")"))
                     .interaction(Interactions.toPreviousPage(pagination));
         }
     }
