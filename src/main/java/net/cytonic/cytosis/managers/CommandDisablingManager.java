@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.CytosisCommand;
+import net.cytonic.cytosis.commands.util.CytosisCommand;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.nats.NatsManager;
 import org.jetbrains.annotations.Nullable;

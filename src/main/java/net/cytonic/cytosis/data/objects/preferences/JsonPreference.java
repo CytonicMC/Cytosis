@@ -6,7 +6,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -27,7 +26,7 @@ public class JsonPreference<T> extends NamespacedPreference<T> {
         super(namespaceID, type, value);
     }
 
-    public JsonPreference(TypedNamespace<T> namespaceID, @NotNull T value) {
+    public JsonPreference(TypedNamespace<T> namespaceID, @Nullable T value) {
         super(namespaceID, value);
     }
 
@@ -37,7 +36,7 @@ public class JsonPreference<T> extends NamespacedPreference<T> {
         this.deserializer = deserializer;
     }
 
-    public JsonPreference(TypedNamespace<T> namespaceID, @NotNull T value, JsonPreferenceSerializer<T> serializer, JsonPreferenceDeserializer<T> deserializer) {
+    public JsonPreference(TypedNamespace<T> namespaceID, @Nullable T value, JsonPreferenceSerializer<T> serializer, JsonPreferenceDeserializer<T> deserializer) {
         super(namespaceID, value);
         this.serializer = serializer;
         this.deserializer = deserializer;

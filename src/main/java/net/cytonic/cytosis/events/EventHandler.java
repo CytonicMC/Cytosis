@@ -1,6 +1,8 @@
 package net.cytonic.cytosis.events;
 
 import io.github.togar2.pvp.events.*;
+import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
+import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
@@ -257,5 +259,7 @@ public class EventHandler {
 
         // Cytosis Events
         GLOBAL_HANDLER.addListener(NpcInteractEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerJoinNetworkEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerLeaveNetworkEvent.class, (this::handleEvent));
     }
 }

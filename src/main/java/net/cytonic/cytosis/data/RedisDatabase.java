@@ -122,6 +122,10 @@ public class RedisDatabase {
         jedis.set(key, value);
     }
 
+    public String getValue(String key) {
+        return jedis.get(key);
+    }
+
     /**
      * Adds a value to a set
      *

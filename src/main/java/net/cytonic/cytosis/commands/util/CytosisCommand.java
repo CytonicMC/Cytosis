@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands;
+package net.cytonic.cytosis.commands.util;
 
 import lombok.Getter;
 import lombok.Setter;

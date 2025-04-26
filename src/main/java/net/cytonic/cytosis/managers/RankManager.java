@@ -75,6 +75,7 @@ public class RankManager {
             }
             player.setRank_UNSAFE(playerRank);
             rankMap.put(player.getUuid(), playerRank);
+            if (player.isNicked()) return; // don't setup cosmetics for nicked players
             setupCosmetics(player, playerRank);
         });
     }

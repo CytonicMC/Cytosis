@@ -7,9 +7,11 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A list of Cytosis supplied preferences
@@ -43,6 +45,10 @@ public class CytosisPreferences {
      * A preference if the player is vanished, type of BOOLEAN
      */
     public static final NamespacedPreference<Boolean> VANISHED = new NamespacedPreference<>(CytosisNamespaces.VANISHED, false);
+
+    public static final JsonPreference<NicknameManager.NicknameData> NICKNAME_DATA = new JsonPreference<>(CytosisNamespaces.NICKNAME_DATA, null);
+
+    public static final NamespacedPreference<UUID> NICKED_UUID = new NamespacedPreference<>(CytosisNamespaces.NICKED_UUID, null);
 
     /**
      * A set of all the preferences that are available here.
