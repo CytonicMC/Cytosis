@@ -10,7 +10,7 @@ import io.github.togar2.pvp.feature.CombatFeatureSet;
 import io.github.togar2.pvp.feature.CombatFeatures;
 import lombok.Getter;
 import lombok.Setter;
-import net.cytonic.cytosis.commands.CommandHandler;
+import net.cytonic.cytosis.commands.util.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.DatabaseManager;

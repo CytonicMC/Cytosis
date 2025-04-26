@@ -276,7 +276,18 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return The formatted name, including their rank prefix
      */
     public Component formattedName() {
-        return rank.getPrefix().append(Component.text(getUsername()));
+        return getRank().getPrefix().append(Component.text(getUsername()));
+    }
+
+    /**
+     * Returns this player's rank prefix followed by their name in the appropriate color.
+     * <br>
+     * Example: {@code [OWNER] Foxikle}
+     *
+     * @return The formatted name, including their rank prefix
+     */
+    public Component trueFormattedName() {
+        return getTrueRank().getPrefix().append(Component.text(getTrueUsername()));
     }
 
     public boolean canUseChannel(ChatChannel channel) {

@@ -22,6 +22,8 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.Tuple;
+import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
+import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
@@ -340,6 +342,7 @@ public class NatsManager {
     public void listenForPlayerLoginLogout() {
         Thread.ofVirtual().name("NATS Player Join").start(() -> connection.createDispatcher(msg -> {
             var container = PlayerLoginLogoutContainer.deserialize(new String(msg.getData()));
+            Cytosis.getEventHandler().handleEvent(new PlayerJoinNetworkEvent(container.uuid(), container.username()));
             Cytosis.getCytonicNetwork().addPlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().loadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLoginMessage(container.uuid());
@@ -347,6 +350,7 @@ public class NatsManager {
 
         Thread.ofVirtual().name("NATS Player Leave").start(() -> connection.createDispatcher(msg -> {
             var container = PlayerLoginLogoutContainer.deserialize(new String(msg.getData()));
+            Cytosis.getEventHandler().handleEvent(new PlayerLeaveNetworkEvent(container.uuid(), container.username()));
             Cytosis.getCytonicNetwork().removePlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().unloadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLogoutMessage(container.uuid());

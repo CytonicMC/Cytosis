@@ -104,6 +104,10 @@ public class NicknameGenerator {
     }
 
     public static PlayerRank generateRank() {
-        return PlayerRank.values()[RANDOM.nextInt(PlayerRank.values().length - 4) + 4]; // No staff ranks
+        return PlayerRank.values()[RANDOM.nextInt(PlayerRank.values().length - 5) + 5]; // No staff ranks or elysian
+    }
+
+    public static NicknameManager.NicknameData generateNicknameData() {
+        return new NicknameManager.NicknameData(generateUsername(), generateRank(), generateSkin());
     }
 }
