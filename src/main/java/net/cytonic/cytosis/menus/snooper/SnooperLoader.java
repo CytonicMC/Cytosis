@@ -3,12 +3,14 @@ package net.cytonic.cytosis.menus.snooper;
 import eu.koboo.minestom.invue.api.item.PrebuiltItem;
 import eu.koboo.minestom.invue.api.pagination.ItemLoader;
 import eu.koboo.minestom.invue.api.pagination.Pagifier;
+import lombok.Setter;
 import net.minestom.server.item.Material;
 
 import java.util.List;
 
 public class SnooperLoader implements ItemLoader {
 
+    @Setter
     List<PrebuiltItem> items;
 
 
