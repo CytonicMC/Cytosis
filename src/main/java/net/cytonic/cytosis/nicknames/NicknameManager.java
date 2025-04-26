@@ -41,7 +41,7 @@ public class NicknameManager {
         UUID masked = maskedUUIDs.computeIfAbsent(playerUuid, uuid -> UUID.randomUUID());
 
         nicknames.put(playerUuid, data);
-        Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis:nicknames", nicknames.get(playerUuid).nickname());
+        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", playerUuid.toString(), nicknames.get(playerUuid).nickname());
         sendNicknamePacketstoAll(player, masked, false);
         player.updatePreference(CytosisNamespaces.NICKNAME_DATA, data);
         player.updatePreference(CytosisNamespaces.NICKED_UUID, masked);
@@ -93,7 +93,7 @@ public class NicknameManager {
 
         NicknameData data = nicknames.remove(playerUuid);
         if (data == null) return;
-        Cytosis.getDatabaseManager().getRedisDatabase().removeValue("cytosis:nicknames", data.nickname());
+        Cytosis.getDatabaseManager().getRedisDatabase().removeFromHash("cytosis:nicknames", playerUuid.toString());
         sendRemovePackets(player);
         Cytosis.getRankManager().setupCosmetics(player, player.getTrueRank());
         player.updatePreference(CytosisNamespaces.NICKNAME_DATA, null);
@@ -133,7 +133,7 @@ public class NicknameManager {
         if (data == null) return;
         this.maskedUUIDs.put(player.getUuid(), maskedUuid);
         this.nicknames.put(player.getUuid(), data);
-        Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis:nicknames", data.nickname());
+        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", player.getUuid().toString(), data.nickname());
         sendNicknamePacketstoAll(player, maskedUuid, false);
     }
 
@@ -156,11 +156,11 @@ public class NicknameManager {
     }
 
     public Set<String> getNetworkNicknames() {
-        return Cytosis.getDatabaseManager().getRedisDatabase().getKeys("cytosis:nicknames");
+        return new HashSet<>(Cytosis.getDatabaseManager().getRedisDatabase().getHash("cytosis:nicknames").values());
     }
 
     private void addToTrackedNickanems(UUID playerUuid, String nickname) {
-        Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis:nicknames", nickname);
+        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", playerUuid.toString(), nickname);
         Cytosis.getDatabaseManager().getRedisDatabase().setValue("cytosis:nicknames:" + playerUuid, nickname);
         Cytosis.getDatabaseManager().getRedisDatabase().setValue("cytosis:nicknames_reverse:" + nickname, playerUuid.toString());
     }
