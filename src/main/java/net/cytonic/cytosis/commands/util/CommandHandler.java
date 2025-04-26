@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.util;
 
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.FriendCommand;
 import net.cytonic.cytosis.commands.HelpCommand;
