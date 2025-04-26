@@ -45,7 +45,7 @@ public class TeleportCommand extends CytosisCommand {
         // entity arg
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer player) {
-//                player.teleport(context.get(CommandUtils.ONLINE_PLAYERS).getPosition());
+                player.teleport(context.get(CommandUtils.ONLINE_PLAYERS).getPosition());
                 player.sendMessage(Msg.mm("<green>Teleported!"));
             } else {
                 sender.sendMessage(Msg.mm("Only players can use this command"));
