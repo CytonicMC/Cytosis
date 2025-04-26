@@ -80,7 +80,6 @@ public class CommandHandler {
                 new DisableCommand(),
                 new EnableCommand(),
                 new UpdateInstancesCommand(),
-                new EnableCommand(),
                 new NickCommand(),
                 new NickRevealCommand()
         );
