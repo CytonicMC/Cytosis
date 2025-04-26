@@ -80,7 +80,7 @@ public class CommandHandler {
                 new WarnCommand(),
                 new CooldownCommand(Cytosis.getNetworkCooldownManager()),
                 new LoopCommand(),
-                new RecalculatePermissions(),
+                new RecalculatePermissionsCommand(),
                 new YoinkCommand(),
                 new ReplyCommand(),
                 new SnooperCommand(),
