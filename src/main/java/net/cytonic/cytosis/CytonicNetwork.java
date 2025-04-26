@@ -1,6 +1,7 @@
 package net.cytonic.cytosis;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A class that holds data about the status of the Cytonic network
  */
 @Getter
+@NoArgsConstructor
 public class CytonicNetwork {
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
     private final BiMap<UUID, String> lifetimeFlattened = new BiMap<>(); // uuid, lowercased name
@@ -33,12 +35,6 @@ public class CytonicNetwork {
     private final Map<UUID, Boolean> mutedPlayers = new ConcurrentHashMap<>();
 
     /**
-     * The default constructor
-     */
-    public CytonicNetwork() {
-    }
-
-    /**
      * Imports data from Redis and Cydian
      */
     public void importData() {
@@ -49,6 +45,14 @@ public class CytonicNetwork {
         onlineFlattened.clear();
         servers.clear();
         networkPlayersOnServers.clear();
+
+        redis.getHash("online_players").forEach((rawUUID, name) -> {
+            UUID uuid = UUID.fromString(rawUUID);
+            onlinePlayers.put(uuid, name);
+            onlineFlattened.put(uuid, name.toLowerCase());
+        });
+
+        redis.getHash("player_servers").forEach((id, server) -> networkPlayersOnServers.put(UUID.fromString(id), server));
 
 
         PreparedStatement players = db.prepare("SELECT * FROM cytonic_players");

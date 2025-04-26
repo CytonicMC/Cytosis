@@ -343,15 +343,12 @@ public final class Cytosis {
         actionbarManager = new ActionbarManager();
         actionbarManager.init();
 
-        try {
-            Logger.info("Loading PVP");
-            MinestomPvP.init();
-            CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
-            MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
-            MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
-        } catch (Exception e) {
-            Logger.error("error", e);
-        }
+        Logger.info("Loading PVP");
+        MinestomPvP.init();
+        CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
+        MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
+        MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
+
 
         //
         // PLUGIN LOADING IS ALWAYS LAST!!!!
@@ -394,7 +391,7 @@ public final class Cytosis {
      *
      * @return a set of players
      */
-    // every object the server makes is a CytosisPlayer
+    // every object the server makes is a CytosisPlayer -- or decentdant from one
     public static Set<CytosisPlayer> getOnlinePlayers() {
         HashSet<CytosisPlayer> players = new HashSet<>();
 
@@ -406,8 +403,6 @@ public final class Cytosis {
                 // ignored
             }
         }
-
-
         return players;
     }
 
