@@ -13,6 +13,12 @@ public class NickRandomCommand extends CytosisCommand {
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
+
+            if (player.isNicked()) {
+                player.sendMessage(Msg.whoops("You are already nicked!"));
+                return;
+            }
+
             Cytosis.getNicknameManager().nicknamePlayer(player.getUuid(), NicknameGenerator.generateNicknameData());
             player.sendMessage(Msg.goldSplash("DISGUISED!", "Your apparent name, rank, and skin have been randomized. To go back to your normal self, use the <#BE9025>/nick reset</#BE9025> command."));
         });
