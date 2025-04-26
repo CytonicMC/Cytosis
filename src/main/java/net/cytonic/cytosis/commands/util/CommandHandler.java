@@ -16,31 +16,20 @@ import net.cytonic.cytosis.commands.movement.PlayCommand;
 import net.cytonic.cytosis.commands.nicknames.NickCommand;
 import net.cytonic.cytosis.commands.nicknames.NickRevealCommand;
 import net.cytonic.cytosis.commands.server.*;
+import net.cytonic.cytosis.commands.server.nomad.AllocationDetailsCommand;
+import net.cytonic.cytosis.commands.server.nomad.CreateInstanceCommand;
+import net.cytonic.cytosis.commands.server.nomad.ShutdownInstancesCommand;
+import net.cytonic.cytosis.commands.server.nomad.UpdateInstancesCommand;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
-import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 /**
  * A class that handles the commands, their execution, and allegedly a console.
  */
+@NoArgsConstructor
 public class CommandHandler {
-
-    private final ScheduledExecutorService worker;
-    private final Scanner CONSOLE_IN = new Scanner(System.in);
-    private final Object consoleLock = new Object();
-
-    /**
-     * Creates a command handler and sets up the worker
-     */
-    public CommandHandler() {
-        this.worker = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().name("CytosisConsoleWorker").factory());
-    }
 
     /**
      * Registers the default Cytosis commands
@@ -56,7 +45,7 @@ public class CommandHandler {
                 new ServerCommand(),
                 new CreateInstanceCommand(),
                 new ShutdownInstancesCommand(),
-                new PodDetailsCommand(),
+                new AllocationDetailsCommand(),
                 new TeleportCommand(),
                 new FindCommand(),
                 new PreferenceCommand(),
@@ -89,6 +78,8 @@ public class CommandHandler {
                 new WhereAmiCommand(),
                 new DisableCommand(),
                 new EnableCommand(),
+                new UpdateInstancesCommand(),
+                new EnableCommand(),
                 new NickCommand(),
                 new NickRevealCommand()
         );
@@ -101,20 +92,5 @@ public class CommandHandler {
      */
     public void recalculateCommands(Player player) {
         player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
-    }
-
-    /**
-     * Sets up the console so commands can be executed from there
-     */
-    public void setupConsole() {
-        worker.scheduleAtFixedRate(() -> {
-            if (CONSOLE_IN.hasNext()) {
-                String command = CONSOLE_IN.nextLine();
-
-                synchronized (consoleLock) {
-                    Cytosis.getCommandManager().getDispatcher().execute(Cytosis.getConsoleSender(), command);
-                }
-            }
-        }, 50, 50, TimeUnit.MILLISECONDS);
     }
 }
