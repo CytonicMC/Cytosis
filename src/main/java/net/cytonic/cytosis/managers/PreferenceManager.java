@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Since preferences are pretty small, every online player has their preference data stored here, no matter
  * which server they are connected to.
  */
-@SuppressWarnings("preview")
 public class PreferenceManager {
 
     /**
@@ -49,6 +48,7 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.IGNORED_CHAT_CHANNELS, CytosisPreferences.IGNORED_CHAT_CHANNELS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.LISTENING_SNOOPS, CytosisPreferences.LISTENING_SNOOPS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKNAME_DATA, CytosisPreferences.NICKNAME_DATA);
 
         PreparedStatement ps = db.prepare("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
         db.update(ps).whenComplete((unused, throwable) -> {

@@ -115,11 +115,11 @@ public interface Msg {
     }
 
     static Component splash(String splash, TextColor color, String text, Object... args) {
-        return mm("<#" + color.asHexString() + "><b>" + splash + "</b></#" + color.asHexString() + "><gray> " + text, args);
+        return mm("<" + color.asHexString() + "><b>" + splash + "</b></" + color.asHexString() + "><gray> " + text, args);
     }
 
     static Component splash(String splash, String hex, String text, Object... args) {
-        return mm("<#" + hex + "><b>" + splash + "</b></#" + hex + "><gray> " + text, args);
+        return mm("<#" + hex.replace("#", "") + "><b>" + splash + "</b></#" + hex.replace("#", "") + "><gray> " + text, args);
     }
 
     /**

@@ -68,7 +68,7 @@ public class VanishManager {
         byteVal &= ~(0x20 | 0x40);
         entries.put(0, Metadata.Byte(byteVal));
 
-        Cytosis.getRankManager().setupCosmetics(player, Cytosis.getCytonicNetwork().getPlayerRanks().get(player.getUuid()));
+        Cytosis.getRankManager().setupCosmetics(player, player.getRank());
         PacketSendingUtils.broadcastPlayPacket(new EntityMetaDataPacket(player.getEntityId(), entries));
         player.updateViewableRule(p -> true);
     }
