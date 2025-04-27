@@ -93,7 +93,6 @@ public class SnooperProvider extends ViewProvider {
                 .applyPrebuilt(toggleOrder());
         ViewItem.bySlot(view, pattern.getSlot('D'))
                 .applyPrebuilt(dateRange());
-        Logger.debug("Snooper provider onStateUpdate");
     }
 
     @Override
@@ -188,7 +187,7 @@ public class SnooperProvider extends ViewProvider {
 
                 }).exceptionally(error -> {
                     if (error != null) {
-                        ViewItem.bySlot(view, 23).applyPrebuilt(PrebuiltItem.empty()
+                        ViewItem.bySlot(view, 22).applyPrebuilt(PrebuiltItem.empty()
                                 .material(Material.RED_STAINED_GLASS_PANE)
                                 .name("<red>Failed to load data!")
                                 .cancelClicking());
