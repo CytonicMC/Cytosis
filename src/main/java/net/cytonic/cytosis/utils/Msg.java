@@ -205,6 +205,10 @@ public interface Msg {
         return mm("<gold>" + text, args);
     }
 
+    static String stripTags(String str) {
+        return MiniMessage.miniMessage().stripTags(str);
+    }
+
     /**
      * Gets a formatted ban message
      *
