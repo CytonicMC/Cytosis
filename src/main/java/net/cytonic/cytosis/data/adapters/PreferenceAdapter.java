@@ -113,6 +113,10 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         }
 
         if (preference.preference() instanceof JsonPreference<T> json) {
+            if (value == null) {
+                // this is fine
+                return new JsonPreference<>(id, type, null);
+            }
             return new JsonPreference<>(id, type, json.deserialize(value.toString())); // should already be a string....
         }
 
