@@ -32,7 +32,7 @@ jobs:
       - name: Check Jar
         run: |
           pwd
-          ls -l */build/libs
+          tree -I 'classes|src|docs|cache|tmp' -s
 
       - name: Login to GHCR
         run: echo $GHCR_TOKEN | docker login ghcr.io -u CytonicMC --password-stdin
