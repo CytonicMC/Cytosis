@@ -15,9 +15,8 @@ public class SnooperCommand extends CytosisCommand {
     static {
         CHANNELS.setSuggestionCallback((commandSender, commandContext, suggestion) -> {
             if (!(commandSender instanceof CytosisPlayer player)) return;
-            for (String s : Cytosis.getSnooperManager().getAllChannels(player)) {
-                suggestion.addEntry(new SuggestionEntry(s));
-            }
+            CommandUtils.filterEntries(commandContext.get(CHANNELS), Cytosis.getSnooperManager().getAllChannels(player).stream().map(SuggestionEntry::new).toList())
+                    .forEach(suggestion::addEntry);
         });
     }
 

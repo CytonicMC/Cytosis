@@ -10,7 +10,10 @@ import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+
+import java.util.List;
 
 /**
  * A class representing the server command
@@ -25,12 +28,12 @@ public class ServerCommand extends CytosisCommand {
         try {
             setCondition(CommandUtils.IS_STAFF);
             setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>You must specify a server!")));
-            var serverArgument = ArgumentType.Word("server");
+            ArgumentWord serverArgument = ArgumentType.Word("server");
             serverArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text("The server " + exception.getInput() + " is invalid!", NamedTextColor.RED)));
             serverArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-                for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
-                    suggestion.addEntry(new SuggestionEntry(server.id()));
-                }
+                List<SuggestionEntry> options = Cytosis.getCytonicNetwork().getServers().values().stream()
+                        .map(cytonicServer -> new SuggestionEntry(cytonicServer.id())).toList();
+                CommandUtils.filterEntries(cmdc.get(serverArgument), options).forEach(suggestion::addEntry);
             });
             addSyntax(((sender, context) -> {
                 if (sender instanceof CytosisPlayer player) {

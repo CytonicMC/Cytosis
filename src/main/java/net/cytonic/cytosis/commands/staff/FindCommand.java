@@ -10,8 +10,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.util.UUID;
 
@@ -27,12 +25,9 @@ public class FindCommand extends CytosisCommand {
         super("find");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>You must specify a player!")));
-        var playerArgument = ArgumentType.Word("player");
-        playerArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> Cytosis.getCytonicNetwork().getOnlinePlayers().getValues().forEach(v -> suggestion.addEntry(new SuggestionEntry(v.toString()))));
-        playerArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text("The player " + exception.getInput() + " is invalid!", NamedTextColor.RED)));
         addSyntax((sender, context) -> {
             if (sender instanceof final CytosisPlayer player) {
-                String playerName = context.get(playerArgument);
+                String playerName = context.get(CommandUtils.NETWORK_PLAYERS);
                 UUID uuid = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(playerName.toLowerCase());
                 if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(uuid)) {
                     player.sendMessage(Component.text("The player " + playerName + " is not online!", NamedTextColor.RED));
@@ -48,6 +43,6 @@ public class FindCommand extends CytosisCommand {
                 player.sendMessage(message);
             }
 
-        }, playerArgument);
+        }, CommandUtils.NETWORK_PLAYERS);
     }
 }
