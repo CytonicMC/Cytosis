@@ -16,7 +16,7 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.util.Locale;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A command that allows players to change another player's rank
@@ -38,73 +38,58 @@ public class RankCommand extends CytosisCommand {
             }
         });
 
-        var playerArg = ArgumentType.Word("player");
-        playerArg.setSuggestionCallback((sender, cmdc, suggestion) -> {
-            if (sender instanceof CytosisPlayer player) {
-                player.sendActionBar(Msg.mm("<green>Fetching online players..."));
-            }
-            Cytosis.getCytonicNetwork().getOnlinePlayers().forEach(player ->
-                    suggestion.addEntry(new SuggestionEntry(player.getValue())));
-        });
-
-
         addSyntax((sender, context) -> {
-            String name = context.get(playerArg);
-            if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsValue(name)) {
-                sender.sendMessage(Msg.mm("<red>The player " + context.get("player") + " doesn't exist!"));
-                return;
-            }
-            Optional<CytosisPlayer> optionalPlayer = Cytosis.getPlayer(name);
-            if (optionalPlayer.isEmpty()) {
-                sender.sendMessage(Msg.mm("<red>You must be on the same server to set someone's rank! Use the /find command to find and go to their server."));
+            if (!(sender instanceof CytosisPlayer player)) return;
+            String name = context.get(CommandUtils.LIFETIME_PLAYERS).toLowerCase(Locale.ROOT);
+            PlayerRank newRank = context.get(rankArg);
+            UUID target = CommandUtils.resolveUuid(name);
+            if (target == null) {
+                sender.sendMessage(Msg.mm("<red>The player " + context.get(CommandUtils.LIFETIME_PLAYERS) + " doesn't exist!"));
                 return;
             }
 
-            final CytosisPlayer player = optionalPlayer.get();
-            final PlayerRank newRank = context.get(rankArg);
-
-            if (player == sender) {
+            if (player.getUuid().equals(target)) {
                 sender.sendMessage(Msg.mm("<red>You cannot change your own rank!"));
                 return;
             }
-            Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((rank, throwable) -> {
-                if (throwable != null) {
-                    sender.sendMessage("An error occurred whilst fetching the old rank!");
-                    return;
-                }
 
-                // if it's a console we don't care (There isn't a console impl)
-                if (sender instanceof CytosisPlayer s) {
-                    PlayerRank senderRank = Cytosis.getRankManager().getPlayerRank(s.getUuid()).orElseThrow();
-                    if (!PlayerRank.canChangeRank(senderRank, rank, newRank)) {
-                        sender.sendMessage(Msg.mm("<red>You cannot do this!"));
-                        return;
-                    }
-                }
-
-                setRank(player, newRank, sender);
-            });
-        }, playerArg, rankArg);
+            Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(target)
+                    .thenAccept(rank -> {
+                        if (!PlayerRank.canChangeRank(player.getRank(), rank, newRank)) {
+                            sender.sendMessage(Msg.whoops("You cannot do this!"));
+                            return;
+                        }
+                        setRank(target, rank, newRank, sender);
+                    }).exceptionally(throwable -> {
+                        sender.sendMessage("An error occurred whilst fetching the old rank!");
+                        return null;
+                    });
+        }, CommandUtils.LIFETIME_PLAYERS, rankArg);
     }
 
-    private void setRank(CytosisPlayer player, PlayerRank rank, CommandSender sender) {
+    private void setRank(UUID uuid, PlayerRank oldRank, PlayerRank rank, CommandSender sender) {
         Component actor;
-        if (sender instanceof CytosisPlayer p) {
-            actor = p.formattedName();
-        } else {
-            actor = Msg.mm("<red>UNKNOWN");
-        }
-        Component snoop = actor.append(Msg.mm("<gray> changed ")).append(player.formattedName()).append(Msg.mm("<gray>'s rank to ")
-                .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))).append(Msg.mm("<gray>."));
+        if (!(sender instanceof CytosisPlayer player)) return;
+        actor = player.trueFormattedName();
+
+        String usr = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid);
+        Component usrComp = oldRank.getPrefix().append(Component.text(usr, oldRank.getTeamColor()));
+
+        Component snoop = actor.append(Msg.mm("<gray> changed "))
+                .append(usrComp)
+                .append(Msg.mm("<gray>'s rank to "))
+                .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))
+                .append(Msg.mm("<gray>."));
+
         Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHANGE_RANK, SnoopUtils.toSnoop(snoop));
-        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(player.getUuid(), rank).whenComplete((v, t) -> {
-            if (t != null) {
-                sender.sendMessage(Msg.mm("<red>An error occurred whilst setting " + player.getUsername() + "'s rank! Check the console for more details."));
-                Logger.error("An error occurred whilst setting " + player.getUsername() + "'s rank! Check the console for more details.", t);
-                return;
-            }
-            Cytosis.getRankManager().changeRank(player, rank);
-            sender.sendMessage(Msg.mm("<green>Successfully updated " + player.getUsername() + "'s rank!"));
-        });
+        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(uuid, rank)
+                .thenAccept(unused -> {
+                    Cytosis.getNatsManager().sendPlayerRankUpdate(uuid, rank);
+                    sender.sendMessage(Msg.mm("<green>Successfully updated " + usr + "'s rank!"));
+                }).exceptionally(throwable -> {
+                    sender.sendMessage(Msg.mm("<red>An error occurred whilst setting " + uuid + "'s rank! Check the console for more details."));
+                    Logger.error("An error occurred whilst setting " + uuid + "'s rank! Check the console for more details.", throwable);
+                    return null;
+                });
     }
 }

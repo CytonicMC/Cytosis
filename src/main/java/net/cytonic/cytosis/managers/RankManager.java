@@ -89,14 +89,22 @@ public class RankManager {
     public void changeRank(CytosisPlayer player, PlayerRank rank) {
         if (!rankMap.containsKey(player.getUuid()))
             throw new IllegalStateException("The player " + player.getUsername() + " is not yet initialized! Call addPlayer(Player) first!");
-        PlayerRank old = rankMap.get(player.getUuid());
 
         rankMap.put(player.getUuid(), rank);
         player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
-        if (Cytosis.getCytonicNetwork() != null)
-            Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
+        Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
         player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
+    }
+
+    /**
+     * Simply changes a player's rank without sending any packets or doing any other checks. -- The set value isn't persisted
+     *
+     * @param player The UUID of the player to change the rank of
+     * @param rank   the new rank
+     */
+    public void changeRankSilently(UUID player, PlayerRank rank) {
+        rankMap.put(player, rank);
     }
 
     /**

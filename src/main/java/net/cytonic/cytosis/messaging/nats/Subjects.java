@@ -18,6 +18,7 @@ public class Subjects {
     public static final String PLAYER_SEND = "players.send";
     public static final String PLAYER_SEND_GENERIC = "players.send.generic";
     public static final String PLAYER_SERVER_CHANGE = "players.server_change.notify";
+    public static final String PLAYER_RANK_UPDATE = "players.rank.update";
 
 
     public static final String HEALTH_CHECK = "health.check." + Cytosis.getRawID();

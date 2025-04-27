@@ -7,6 +7,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
 import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
+import net.cytonic.cytosis.data.containers.PlayerRankUpdateContainer;
 import net.cytonic.cytosis.data.containers.ServerStatusContainer;
 import net.cytonic.cytosis.data.containers.friends.FriendApiResponse;
 import net.cytonic.cytosis.data.containers.friends.FriendRequest;
@@ -50,13 +51,12 @@ import static io.nats.client.ConnectionListener.Events.*;
 public class NatsManager {
 
 
-    Connection connection;
-    Subscription healthCheck;
-    private boolean started = false;
-
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
+    Connection connection;
+    Subscription healthCheck;
+    private boolean started = false;
 
     @SneakyThrows
     public void setup() {
@@ -91,6 +91,7 @@ public class NatsManager {
                     listenForServerStatus();
                     listenForPlayerServerChange();
                     listenForChatMessage();
+                    listenForPlayerRankUpdates();
                 }
             } else {
                 Logger.info("Disconnected from NATS server! ({})", type.name());
@@ -471,6 +472,31 @@ public class NatsManager {
                 }));
     }
 
+    public void listenForPlayerRankUpdates() {
+        Thread.ofVirtual().name("NATS Rank Update Subscriber").start(() -> connection.createDispatcher(msg -> {
+            PlayerRankUpdateContainer container = PlayerRankUpdateContainer.deserialize(msg.getData());
+            Cytosis.getPlayer(container.player()).ifPresentOrElse(player -> {
+                // they are on this server, so we need to update their cosmeticss
+                Cytosis.getRankManager().changeRank(player, container.rank());
+                Component badge;
+                if (container.rank() != PlayerRank.DEFAULT) {
+                    badge = container.rank().getPrefix().replaceText(builder -> builder.match(" ").replacement(""));
+                } else {
+                    badge = Component.text(PlayerRank.DEFAULT.name(), PlayerRank.DEFAULT.getTeamColor());
+                }
+                player.sendMessage(
+                        Msg.network("Your rank has been updated to ")
+                                .append(badge)
+                                .append(Msg.grey("."))
+                );
+
+            }, () -> {
+                Cytosis.getRankManager().changeRankSilently(container.player(), container.rank());
+                Cytosis.getCytonicNetwork().updatePlayerRank(container.player(), container.rank());
+            });
+        }).subscribe(Subjects.PLAYER_RANK_UPDATE));
+    }
+
 
     /**
      * Sends a message to Redis to kick a player.
@@ -537,6 +563,10 @@ public class NatsManager {
                 p.sendMessage(Msg.network("Sending you to %s!", serverID));
             }
         }));
+    }
+
+    public void sendPlayerRankUpdate(UUID uuid, PlayerRank rank) {
+        Thread.ofVirtual().name("NATS Player Rank Update").start(() -> publish(Subjects.PLAYER_RANK_UPDATE, new PlayerRankUpdateContainer(uuid, rank).serialize()));
     }
 
     public void sendPlayerToGenericServer(UUID player, String group, String id, @Nullable String displayname) {
