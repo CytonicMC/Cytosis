@@ -202,12 +202,6 @@ public class NickSetupCommand extends CytosisCommand {
         };
     }
 
-    private static String translateSkin(CytosisPlayer player, String skin) {
-        if (skin == null) return "<#BE9025>Steve/Alex skin</#BE9025>";
-        if (skin.equals(player.getSkin().textures())) return "<#BE9025>My normal skin</#BE9025>";
-        return "<#BE9025>Random Skin</#BE9025>";
-    }
-
     private static Book getConfirmBook(CytosisPlayer player, NicknameManager.NicknameData data) {
         return Book.builder()
                 .author(Msg.aqua("CytonicMC Team"))
@@ -223,7 +217,7 @@ public class NickSetupCommand extends CytosisCommand {
                         <click:run_command:'/nick setup'>» Start Over</click>
                         
                         <click:run_command:'/nick setup done'>» <b><dark_green>CONFIRM</dark_green></b></click>
-                        """, data.nickname(), translateRank(data.rank()), translateSkin(player, data.value())))
+                        """, data.nickname(), translateRank(data.rank()), NicknameManager.translateSkin(player, data.value())))
                 .build();
     }
 }
