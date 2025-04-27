@@ -29,10 +29,6 @@ jobs:
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-      - name: Check Jar
-        run: |
-          pwd
-          tree -I 'classes|src|docs|cache|tmp' -s
 
       - name: Login to GHCR
         run: echo $GHCR_TOKEN | docker login ghcr.io -u CytonicMC --password-stdin
