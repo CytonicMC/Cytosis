@@ -28,6 +28,8 @@ public class CytosisSnoops {
     public static final SnooperChannel PLAYER_SERVER_CHANGE = new SnooperChannel("cytosis.snooper.player.server.change", Key.key("cytosis:switch_server"), ALL_STAFF);
     public static final SnooperChannel CHANGE_RANK = new SnooperChannel("cytosis.snooper.change_rank", Key.key("cytosis:change_rank"), ALL_STAFF);
 
+    public static final SnooperChannel PLAYER_NICKNAME = new SnooperChannel("cytosis.snooper.player.nickname", Key.key("cytosis:nickname"), ALL_STAFF);
+
     public static final SnooperChannel SERVER_ERROR = new SnooperChannel("cytosis.snooper.server_error", Key.key("cytosis:server_error"), ADMIN);
     /**
      * Used whenever a moderator bans a player
