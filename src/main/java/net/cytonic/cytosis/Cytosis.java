@@ -248,9 +248,10 @@ public final class Cytosis {
         snooperManager.registerChannel(CytosisSnoops.PLAYER_WARN);
         snooperManager.registerChannel(CytosisSnoops.SERVER_ERROR);
         snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_NICKNAME);
+        snooperManager.registerChannel(CytosisSnoops.PLAYER_SERVER_CHANGE);
 
-
-        Logger.info("Enabling velocity!");
+        Logger.info("Enabling proxy authentication!");
         VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
 
         Logger.info("Starting server instancing manager");

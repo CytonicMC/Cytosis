@@ -10,7 +10,14 @@ public class NickRevealCommand extends CytosisCommand {
         super("reveal");
         setCondition(CommandUtils.IS_STAFF);
 
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.whoops("Usage: /nick reveal (player)")));
+        setDefaultExecutor((sender, ignored) -> {
+            if (!(sender instanceof CytosisPlayer player)) return;
+            if (!player.isNicked()) {
+                player.sendMessage(Msg.whoops("You are not currently nicked!"));
+                return;
+            }
+            sender.sendMessage(Msg.goldSplash("REVEALED!", "Your nickname is currently ").append(player.formattedName()));
+        });
 
         addSyntax((sender, context) -> {
             CytosisPlayer player = context.get(CommandUtils.ONLINE_PLAYERS);

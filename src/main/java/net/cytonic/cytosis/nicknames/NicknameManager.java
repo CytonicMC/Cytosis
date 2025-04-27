@@ -1,11 +1,15 @@
 package net.cytonic.cytosis.nicknames;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.SnoopUtils;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Metadata;
@@ -33,6 +37,12 @@ public class NicknameManager {
         return nicknames.containsKey(player);
     }
 
+    public static String translateSkin(CytosisPlayer player, String skin) {
+        if (skin == null) return "<#BE9025>Steve/Alex skin</#BE9025>";
+        if (skin.equals(player.getSkin().textures())) return "<#BE9025>My normal skin</#BE9025>";
+        return "<#BE9025>Random Skin</#BE9025>";
+    }
+
     public void nicknamePlayer(UUID playerUuid, NicknameData data) {
         if (Cytosis.getPlayer(playerUuid).isEmpty()) return;
         if (nicknames.containsKey(playerUuid)) return;
@@ -41,10 +51,18 @@ public class NicknameManager {
         UUID masked = maskedUUIDs.computeIfAbsent(playerUuid, uuid -> UUID.randomUUID());
 
         nicknames.put(playerUuid, data);
-        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", playerUuid.toString(), nicknames.get(playerUuid).nickname());
+        addToTrackedNicknames(playerUuid, data.nickname());
         sendNicknamePacketstoAll(player, masked, false);
         player.updatePreference(CytosisNamespaces.NICKNAME_DATA, data);
         player.updatePreference(CytosisNamespaces.NICKED_UUID, masked);
+
+        Component msg = player.trueFormattedName()
+                .append(Msg.aqua(" has been nicked to "))
+                .append(player.formattedName()).
+                append(Msg.aqua(" (Skin: %s)!", Msg.stripTags(translateSkin(player, data.value())
+                        .replace("My", "Their"))));
+
+        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_NICKNAME, SnoopUtils.toSnoop(msg));
     }
 
     /**
@@ -133,7 +151,7 @@ public class NicknameManager {
         if (data == null) return;
         this.maskedUUIDs.put(player.getUuid(), maskedUuid);
         this.nicknames.put(player.getUuid(), data);
-        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", player.getUuid().toString(), data.nickname());
+        addToTrackedNicknames(player.getUuid(), data.nickname());
         sendNicknamePacketstoAll(player, maskedUuid, false);
     }
 
@@ -159,21 +177,20 @@ public class NicknameManager {
         return new HashSet<>(Cytosis.getDatabaseManager().getRedisDatabase().getHash("cytosis:nicknames").values());
     }
 
-    private void addToTrackedNickanems(UUID playerUuid, String nickname) {
+    private void addToTrackedNicknames(UUID playerUuid, String nickname) {
         Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", playerUuid.toString(), nickname);
-        Cytosis.getDatabaseManager().getRedisDatabase().setValue("cytosis:nicknames:" + playerUuid, nickname);
-        Cytosis.getDatabaseManager().getRedisDatabase().setValue("cytosis:nicknames_reverse:" + nickname, playerUuid.toString());
+        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames_reverse", nickname, playerUuid.toString());
     }
 
     public @Nullable UUID deanonymizePlayer(String nickname) {
         // on this server
         for (Map.Entry<UUID, NicknameData> entry : nicknames.entrySet()) {
             if (entry.getValue().nickname().equalsIgnoreCase(nickname)) {
-                addToTrackedNickanems(entry.getKey(), entry.getValue().nickname());
                 return entry.getKey();
             }
         }
-        String raw = Cytosis.getDatabaseManager().getRedisDatabase().getValue("cytosis:nicknames_reverse:" + nickname);
+
+        String raw = Cytosis.getDatabaseManager().getRedisDatabase().getFromHash("cytosis:nicknames_reverse", nickname);
         if (raw == null) return null;
         try {
             return UUID.fromString(raw);

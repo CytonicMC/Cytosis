@@ -10,8 +10,12 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.condition.CommandCondition;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+import net.minestom.server.utils.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @UtilityClass
@@ -42,17 +46,31 @@ public class CommandUtils {
     public static final ArgumentPlayer ONLINE_PLAYERS = new ArgumentPlayer();
 
     static {
-        LIFETIME_PLAYERS.setSuggestionCallback((sender, ignored, suggestion) -> {
-            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((uuid, name) -> suggestion.addEntry(new SuggestionEntry(name)));
-            Cytosis.getNicknameManager().getNetworkNicknames().forEach(s -> suggestion.addEntry(new SuggestionEntry(s)));
+        LIFETIME_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
+            List<SuggestionEntry> options = new ArrayList<>();
+            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
+            Cytosis.getNicknameManager().getNetworkNicknames().forEach(s -> options.add(new SuggestionEntry(s)));
+            filterEntries(ctx.get(LIFETIME_PLAYERS), options).forEach(suggestion::addEntry);
+        });
+
+        NETWORK_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
+            List<SuggestionEntry> options = new ArrayList<>();
+            Cytosis.getCytonicNetwork().getOnlinePlayers().forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
+            Cytosis.getNicknameManager().getNetworkNicknames().forEach(s -> options.add(new SuggestionEntry(s)));
+            filterEntries(ctx.get(NETWORK_PLAYERS), options).forEach(suggestion::addEntry);
         });
     }
 
-    static {
-        NETWORK_PLAYERS.setSuggestionCallback((sender, ignored, suggestion) -> {
-            Cytosis.getCytonicNetwork().getOnlinePlayers().forEach((uuid, name) -> suggestion.addEntry(new SuggestionEntry(name)));
-            Cytosis.getNicknameManager().getNetworkNicknames().forEach(s -> suggestion.addEntry(new SuggestionEntry(s)));
-        });
+    public static List<SuggestionEntry> filterEntries(String input, Collection<SuggestionEntry> entries) {
+        return entries.stream().filter(s -> {
+            if (input.equals("\u0000")) {
+                return true;
+            }
+
+            return s.getEntry().toLowerCase().startsWith(input.toLowerCase()) ||
+                    s.getEntry().toLowerCase().contains(input.toLowerCase()) ||
+                    StringUtils.jaroWinklerScore(s.getEntry().toLowerCase(), input.toLowerCase()) > 0.75D;
+        }).toList();
     }
 
     public static CommandCondition withRank(PlayerRank rank) {
@@ -63,7 +81,7 @@ public class CommandUtils {
     }
 
     public static @Nullable UUID resolveUuid(String input) {
-        UUID cached = Cytosis.getCytonicNetwork().getLifetimePlayers().getByValue(input);
+        UUID cached = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(input.toLowerCase());
         if (cached != null) {
             return cached;
         }

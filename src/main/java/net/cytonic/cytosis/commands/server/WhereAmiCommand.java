@@ -9,7 +9,7 @@ import net.cytonic.cytosis.utils.Msg;
 public class WhereAmiCommand extends CytosisCommand {
 
     public WhereAmiCommand() {
-        super("whereami");
+        super("whereami", "version");
         setDefaultExecutor((sender, context) -> {
             sender.sendMessage(
                     Msg.yellowSplash("SERVER INFO!", "Here is some basic server information:").appendNewline()

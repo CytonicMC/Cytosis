@@ -134,11 +134,11 @@ public interface Msg {
     }
 
     static Component badge(String splash, String hex) {
-        return mm("<#" + hex + "><b>" + splash + "</b></#" + hex + ">");
+        return mm("<#" + hex.replace("#", "") + "><b>" + splash + "</b></#" + hex.replace("#", "") + ">");
     }
 
     static Component badge(String splash, TextColor color) {
-        return mm("<#" + color.asHexString() + "><b>" + splash + "</b></#" + color.asHexString() + ">");
+        return mm("<" + color.asHexString() + "><b>" + splash + "</b></" + color.asHexString() + ">");
     }
 
     static Component aqua(String text, Object... args) {
@@ -203,6 +203,10 @@ public interface Msg {
 
     static Component gold(String text, Object... args) {
         return mm("<gold>" + text, args);
+    }
+
+    static String stripTags(String str) {
+        return MiniMessage.miniMessage().stripTags(str);
     }
 
     /**

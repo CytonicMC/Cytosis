@@ -56,7 +56,6 @@ public class CommandHandler {
                 new HelpCommand(),
                 new AllChatCommand(),
                 new TimeCommand(),
-                new VersionCommand(),
                 new PingCommand(),
                 new FriendCommand(),
                 new ClearchatCommand(),

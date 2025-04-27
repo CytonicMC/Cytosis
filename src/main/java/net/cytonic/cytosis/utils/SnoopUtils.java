@@ -18,7 +18,7 @@ public class SnoopUtils {
      * @return The snoopified component
      */
     public static Component toSnoop(Component component) {
-        return Msg.badge("SNOOP ", "F873F9").append(component);
+        return Msg.badge("SNOOP! ", "F873F9").append(Msg.mm("<!i><!b>").append(component));
     }
 
     public static Component toTarget(UUID uuid) {
