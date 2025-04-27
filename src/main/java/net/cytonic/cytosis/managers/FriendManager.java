@@ -176,7 +176,7 @@ public class FriendManager {
     public void listFriends(Player player) {
         if (getFriends(player.getUuid()).isEmpty()) {
             player.sendMessage(Msg.whoops("You have no friends :("));
-            player.sendMessage(Msg.tip("Perhaps you should invite some with /friend add <player>"));
+            player.sendMessage(Msg.tip("Perhaps you should make some with /friend add <player>"));
             return;
         }
 
