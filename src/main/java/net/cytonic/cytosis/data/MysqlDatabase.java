@@ -8,13 +8,13 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.PosSerializer;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.SocketAddress;
@@ -442,7 +442,7 @@ public class MysqlDatabase {
         worker.submit(() -> {
             PreparedStatement ps;
             try {
-                ps = connection.prepareStatement("INSERT INTO cytonicchat (timestamp, uuid, message) VALUES (CURRENT_TIMESTAMP,?,?)");
+                ps = connection.prepareStatement("INSERT INTO cytonic_chat (timestamp, uuid, message) VALUES (CURRENT_TIMESTAMP,?,?)");
                 ps.setString(1, uuid.toString());
                 ps.setString(2, message);
                 ps.executeUpdate();
@@ -553,19 +553,19 @@ public class MysqlDatabase {
      * @param player The player to update
      * @return a future that completes when the update is complete
      */
-    public CompletableFuture<Void> addPlayer(Player player) {
+    public CompletableFuture<Void> addPlayer(CytosisPlayer player) {
         if (!isConnected()) throw new IllegalStateException("The database must be connected.");
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
                 PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_players (name, uuid) VALUES (?,?) ON DUPLICATE KEY UPDATE name = ?");
-                ps.setString(1, player.getUsername());
+                ps.setString(1, player.getTrueUsername());
                 ps.setString(2, player.getUuid().toString());
-                ps.setString(3, player.getUsername());
+                ps.setString(3, player.getTrueUsername());
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {
-                Logger.error("An error occurred whilst setting the name of " + player.getUuid().toString() + ".", e);
+                Logger.error("An error occurred whilst setting the name of " + player.getUuid() + ".", e);
                 future.completeExceptionally(e);
             }
         });
