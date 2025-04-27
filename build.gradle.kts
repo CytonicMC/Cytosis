@@ -125,7 +125,12 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     mergeServiceFiles()
     archiveFileName.set("cytosis.jar")
     archiveClassifier.set("")
-    destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())))
+    destinationDirectory.set(
+        file(
+            providers.gradleProperty("server_dir")
+                .orElse(layout.buildDirectory.dir("libs").get().toString())
+        )
+    )
     from(sourceSets.main.get().output)
 
     configurations = listOf(project.configurations.runtimeClasspath.get())
@@ -142,7 +147,12 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     mergeServiceFiles()
     archiveFileName.set("cytosis.jar")
     archiveClassifier.set("")
-    destinationDirectory.set(file(providers.gradleProperty("server_dir").orElse(destinationDirectory.get().toString())))
+    destinationDirectory.set(
+        file(
+            providers.gradleProperty("server_dir")
+                .orElse(layout.buildDirectory.dir("libs").get().toString())
+        )
+    )
 
     exclude("META-INF/*.SF")
     exclude("META-INF/*.DSA")
