@@ -37,7 +37,7 @@ public interface Logger {
      */
     static void debug(String message, Object... args) {
         // shut, that causes it to call a differnt method
-        LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log("\u001B[0;95m" + message, args);
+        LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log("\u001B[0;95m" + message.formatted(args));
         if (Cytosis.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder()
