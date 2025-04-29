@@ -32,7 +32,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
 
     runtimeDownload("net.kyori:adventure-text-minimessage:4.20.0")// better components
-    runtimeDownload("com.mysql:mysql-connector-j:9.2.0") //mysql connector
+    runtimeDownload("com.mysql:mysql-connector-j:9.3.0") //mysql connector
     runtimeDownload("org.tomlj:tomlj:1.1.1") // Config lang
     runtimeDownload("org.reflections:reflections:0.10.2") // reflection utils
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
