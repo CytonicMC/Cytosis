@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.commands.nicknames;
 
 
-import net.cytonic.cytosis.commands.util.CommandUtils;
+import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.command.builder.Command;
 

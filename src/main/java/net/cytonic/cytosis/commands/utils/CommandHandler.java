@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands.util;
+package net.cytonic.cytosis.commands.utils;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;

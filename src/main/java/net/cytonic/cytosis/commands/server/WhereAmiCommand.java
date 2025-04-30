@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.util.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.BuildInfo;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;

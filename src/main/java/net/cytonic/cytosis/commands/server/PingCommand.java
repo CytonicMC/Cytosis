@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.commands.server;
 
-import net.cytonic.cytosis.commands.util.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 

@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.commands.chatting;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.util.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;

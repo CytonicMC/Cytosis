@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.commands.nicknames;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.util.CommandUtils;
-import net.cytonic.cytosis.commands.util.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.CommandUtils;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.nicknames.NicknameEntryMenu;
 import net.cytonic.cytosis.nicknames.NicknameGenerator;

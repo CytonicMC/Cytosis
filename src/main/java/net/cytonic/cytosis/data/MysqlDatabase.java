@@ -10,12 +10,15 @@ import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.PosSerializer;
+import net.cytonic.cytosis.utils.WorldUtils;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.SocketAddress;
 import java.sql.*;
@@ -181,7 +184,7 @@ public class MysqlDatabase {
         if (isConnected()) {
             PreparedStatement ps;
             try {
-                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT)");
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT, UUID VARCHAR(36), PRIMARY KEY(world_name))");
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
@@ -606,10 +609,16 @@ public class MysqlDatabase {
      * @deprecated Use {@link MysqlDatabase#addWorld(String, String, PolarWorld, Pos, UUID)}
      */
     @Deprecated
-    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint) {
-        world.setCompression(PolarWorld.CompressionType.ZSTD);
-        if (!isConnected())
+    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, @Nullable Instance instance) {
+        if (!isConnected()) {
             throw new IllegalStateException("The database must have an open connection to add a world!");
+        }
+        if (instance != null) {
+            // save entities (only item frames and paintings)
+            world.userData(WorldUtils.serializeEntities(instance));
+        }
+        world.setCompression(PolarWorld.CompressionType.ZSTD);
+
         worker.submit(() -> {
             try {
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
@@ -625,10 +634,17 @@ public class MysqlDatabase {
         });
     }
 
-    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID) {
-        world.setCompression(PolarWorld.CompressionType.ZSTD);
-        if (!isConnected())
+    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID, @Nullable Instance instance) {
+        if (!isConnected()) {
             throw new IllegalStateException("The database must have an open connection to add a world!");
+        }
+
+        if (instance != null) {
+            // save entities (only item frames and paintings)
+            world.userData(WorldUtils.serializeEntities(instance));
+        }
+        world.setCompression(PolarWorld.CompressionType.ZSTD);
+
         worker.submit(() -> {
             try {
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");

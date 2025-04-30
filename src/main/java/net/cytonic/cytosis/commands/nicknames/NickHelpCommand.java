@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.commands.nicknames;
 
-import net.cytonic.cytosis.commands.util.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 
 public class NickHelpCommand extends CytosisCommand {
