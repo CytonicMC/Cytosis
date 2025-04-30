@@ -24,7 +24,7 @@ dependencies {
     compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
-    compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
+    compileOnlyApi("redis.clients:jedis:6.0.0") // redis client
     compileOnlyApi("com.google.guava:guava:33.4.8-jre")
     compileOnlyApi("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
@@ -55,7 +55,7 @@ dependencies {
     runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
     runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
-    runtimeDownloadOnly("redis.clients:jedis:5.2.0")
+    runtimeDownloadOnly("redis.clients:jedis:6.0.0")
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
 
