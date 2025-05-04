@@ -70,6 +70,8 @@ tasks.withType<Javadoc> {
 
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "21")
+    javadocOptions.encoding = "UTF-8"
+    classpath += configurations.api.get()
 }
 
 var bundled = false
