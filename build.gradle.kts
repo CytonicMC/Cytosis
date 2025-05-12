@@ -35,7 +35,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
 
-    runtimeDownload("net.kyori:adventure-text-minimessage:4.20.0")// better components
+    runtimeDownload("net.kyori:adventure-text-minimessage:4.21.0")// better components
     runtimeDownload("com.mysql:mysql-connector-j:9.3.0") //mysql connector
     runtimeDownload("org.tomlj:tomlj:1.1.1") // Config lang
     runtimeDownload("org.reflections:reflections:0.10.2") // reflection utils
@@ -43,11 +43,11 @@ dependencies {
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
     runtimeDownload("io.nats:jnats:2.21.1")
-    runtimeDownload("org.jooq:jooq:3.20.3") // database queries
+    runtimeDownload("org.jooq:jooq:3.20.4") // database queries
     runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
-    runtimeDownload("io.opentelemetry:opentelemetry-api:1.49.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.49.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.49.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-api:1.50.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.50.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.50.0")
     runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
