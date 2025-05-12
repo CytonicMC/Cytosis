@@ -5,7 +5,9 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.kyori.adventure.key.Key;
 
 /**
- * @param channel
+ * Represents a channel or pathway a message can be sent to.
+ *
+ * @param channel    The string representation of the channel.
  * @param id         The id of this snooper channel.
  * @param recipients The intended recipients of this snoop. Since there are 4 staff roles, 4 bits are unused.
  *                   <br>
