@@ -18,11 +18,10 @@ import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
+import net.minestom.server.inventory.click.Click;
 import net.minestom.server.inventory.click.ClickType;
-import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.utils.Unit;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -102,19 +101,21 @@ public class SnooperProvider extends ViewProvider {
     }
 
     public PrebuiltItem toggleOrder() {
-        return PrebuiltItem.empty()
-                .material(Material.EYE_ARMOR_TRIM_SMITHING_TEMPLATE)
-                .displayName(Msg.mm("<yellow>Change Order"))
-                .addComponent(ItemComponent.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE)
-                .loreComponents(List.of(
-                        Msg.mm("<b>" + (ascending ? "<green>Ascending" : "<red>Descending")),
-                        Component.empty(),
-                        Msg.mm("<yellow>Click to toggle")
-                )).interaction(action -> {
+        return PrebuiltItem.of(
+                ItemStack.builder(Material.EYE_ARMOR_TRIM_SMITHING_TEMPLATE)
+                        .customName(Msg.mm("<yellow>Change Order"))
+                        .lore(
+                                Msg.mm("<b>" + (ascending ? "<green>Ascending" : "<red>Descending")),
+                                Component.empty(),
+                                Msg.mm("<yellow>Click to toggle")
+                        ).hideExtraTooltip()
+                        .build(),
+                action -> {
                     ascending = !ascending;
                     action.getEvent().setCancelled(true);
                     fetchData(action.getView());
-                });
+                }
+        );
     }
 
     public PrebuiltItem dateRange() {
@@ -131,18 +132,19 @@ public class SnooperProvider extends ViewProvider {
         lore.add(Msg.mm(""));
         lore.add(Msg.mm("<yellow>Click to cycle!"));
 
-        return PrebuiltItem.empty()
-                .material(Material.CLOCK)
-                .name(Msg.mm("<yellow>Change Date Range"))
-                .loreComponents(lore)
-                .addComponent(ItemComponent.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE)
-                .interaction(action -> {
+        return PrebuiltItem.of(ItemStack.builder(Material.CLOCK)
+                        .lore(lore)
+                        .customName(Msg.mm("<yellow>Change Date Range"))
+                        .hideExtraTooltip()
+                        .build(),
+                action -> {
                     action.getEvent().setCancelled(true);
 
-                    if (action.getEvent().getClickType() == ClickType.RIGHT_CLICK) {
-                        date = date.previous();
-                    } else if (action.getEvent().getClickType() == ClickType.LEFT_CLICK) {
+                    Click c = action.getEvent().getClick();
+                    if (c instanceof Click.Left) {
                         date = date.next();
+                    } else if (c instanceof Click.Right) {
+                        date = date.previous();
                     }
                     fetchData(action.getView());
                 });

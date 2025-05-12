@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.plugins.loader;
 
-import org.slf4j.LoggerFactory;
+import net.cytonic.cytosis.Cytosis;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -49,7 +49,6 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     private Class<?> loadClass0(String name, boolean resolve, boolean checkOther) throws ClassNotFoundException {
-        LoggerFactory.getLogger(PluginClassLoader.class).debug("Attempting to load class {}", name);
         try {
             return super.loadClass(name, resolve);
         } catch (ClassNotFoundException ignored) {
@@ -66,6 +65,11 @@ public class PluginClassLoader extends URLClassLoader {
                     }
                 }
             }
+        }
+
+        // last resort, try the parent class loader
+        if (getParent() != null) {
+            return Cytosis.class.getClassLoader().loadClass(name);
         }
 
         throw new ClassNotFoundException(name);

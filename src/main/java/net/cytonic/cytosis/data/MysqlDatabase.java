@@ -10,15 +10,12 @@ import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.PosSerializer;
-import net.cytonic.cytosis.utils.WorldUtils;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.net.SocketAddress;
 import java.sql.*;
@@ -598,15 +595,12 @@ public class MysqlDatabase {
         return future;
     }
 
-    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID, @Nullable Instance instance) {
+    public CompletableFuture<Void> addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         if (!isConnected()) {
             throw new IllegalStateException("The database must have an open connection to add a world!");
         }
 
-        if (instance != null) {
-            // save entities (only item frames and paintings)
-            world.userData(WorldUtils.serializeEntities(instance));
-        }
         world.setCompression(PolarWorld.CompressionType.ZSTD);
 
         worker.submit(() -> {
@@ -621,7 +615,9 @@ public class MysqlDatabase {
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }
+            future.complete(null);
         });
+        return future;
     }
 
     /**

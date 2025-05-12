@@ -6,10 +6,7 @@ import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.utils.events.PlayerJoinEventResponse;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerPacketEvent;
-import net.minestom.server.event.player.PlayerPacketOutEvent;
+import net.minestom.server.event.player.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +23,9 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unused", "unchecked"})
 @UtilityClass
 public final class Events {
-    private static final List<Consumer<AsyncPlayerConfigurationEvent>> spawnConsumers = new ArrayList<>();
-    private static final List<Consumer<PlayerDisconnectEvent>> disconnectConsumers = new ArrayList<>();
+    private static final List<Consumer<AsyncPlayerConfigurationEvent>> config = new ArrayList<>();
+    private static final List<Consumer<PlayerLoadedEvent>> join = new ArrayList<>();
+    private static final List<Consumer<PlayerDisconnectEvent>> disconnect = new ArrayList<>();
     private static final List<Consumer<PlayerPacketOutEvent>> packetOut = new ArrayList<>();
     private static final List<Consumer<PlayerPacketEvent>> packetIn = new ArrayList<>();
     private static final List<Consumer<PlayerPacketOutEvent>> packetOutHigh = new ArrayList<>();
@@ -40,10 +38,10 @@ public final class Events {
     static {
         Cytosis.getEventHandler().registerListeners(
                 new EventListener<>(AsyncPlayerConfigurationEvent.class,
-                        event -> spawnConsumers.forEach(consumer -> consumer.accept(event)),
+                        event -> config.forEach(consumer -> consumer.accept(event)),
                         false, 50, "cytosis:events_util_join", true),
                 new EventListener<>(PlayerDisconnectEvent.class,
-                        event -> disconnectConsumers.forEach(consumer -> consumer.accept(event)),
+                        event -> disconnect.forEach(consumer -> consumer.accept(event)),
                         false, 50, "cytosis:events_util_leave", true),
                 // medium prio
                 new EventListener<>(PlayerPacketEvent.class,
@@ -71,28 +69,54 @@ public final class Events {
                         false, 0, "cytosis:events_util_network_join", true),
                 new EventListener<>(PlayerLeaveNetworkEvent.class,
                         event -> networkLeave.forEach(consumer -> consumer.accept(event)),
-                        false, 0, "cytosis:events_util_network_leave", true)
+                        false, 0, "cytosis:events_util_network_leave", true),
+                new EventListener<>(PlayerLoadedEvent.class,
+                        event -> join.forEach(consumer -> consumer.accept(event)),
+                        false, 50, "cytosis:events_util_player_loaded", true)
         );
     }
 
     /**
-     * A simplified wrapper around {@link #onJoinRaw(Consumer)} providing the
+     * A simplified wrapper around {@link #onConfigRaw(Consumer)} providing the
      * player object when a player joins. The player has not yet spawned into an instance at the time of calling this event.
      *
      * @param eventConsumer the consumer consuming the player joining
      */
-    public static void onJoin(Consumer<Player> eventConsumer) {
-        spawnConsumers.add(event -> eventConsumer.accept(event.getPlayer()));
+    public static void onConfig(Consumer<Player> eventConsumer) {
+        config.add(event -> eventConsumer.accept(event.getPlayer()));
     }
 
     /**
-     * A simplified wrapper around {@link #onJoinRaw(Consumer)} providing more
-     * flexibility than {@link #onJoin(Consumer)} with a functional interface providing more than just a player --an intance.
+     * Registers a consumer to be executed when a player joins.
+     * This method adds the specified consumer to handle the event, providing the
+     * {@link Player} object associated with the joining player. This is called
+     * on the {@link PlayerLoadedEvent}, and this method is a wrapper around the
+     * {@link #onJoinRaw(Consumer)}.
+     *
+     * @param eventConsumer the consumer that processes the {@link Player} object when a player joins
+     */
+    public static void onJoin(Consumer<Player> eventConsumer) {
+        join.add(event -> eventConsumer.accept(event.getPlayer()));
+    }
+
+    /**
+     * Registers a consumer to be executed when a player has fully loaded and joined.
+     * This method adds the given consumer to handle the {@link PlayerLoadedEvent}.
+     *
+     * @param eventConsumer the consumer that processes the event fired when a player has completed loading and joined
+     */
+    public static void onJoinRaw(Consumer<PlayerLoadedEvent> eventConsumer) {
+        join.add(eventConsumer);
+    }
+
+    /**
+     * A simplified wrapper around {@link #onConfigRaw(Consumer)} providing more
+     * flexibility than {@link #onConfig(Consumer)} with a functional interface providing more than just a player --an intance.
      *
      * @param response The functional interface to be called on the execution of the event
      */
-    public static void onJoin(PlayerJoinEventResponse response) {
-        spawnConsumers.add(event -> response.accept(event.getPlayer(), event.getSpawningInstance()));
+    public static void onConfig(PlayerJoinEventResponse response) {
+        config.add(event -> response.accept(event.getPlayer(), event.getSpawningInstance()));
     }
 
     /**
@@ -101,8 +125,8 @@ public final class Events {
      *
      * @param event The consumer, consuming the entire event object.
      */
-    public static void onJoinRaw(Consumer<AsyncPlayerConfigurationEvent> event) {
-        spawnConsumers.add(event);
+    public static void onConfigRaw(Consumer<AsyncPlayerConfigurationEvent> event) {
+        config.add(event);
     }
 
     /**
@@ -113,7 +137,7 @@ public final class Events {
      * @param eventConsumer The consumer consuming the player leaving.
      */
     public static void onLeave(Consumer<Player> eventConsumer) {
-        disconnectConsumers.add(event -> eventConsumer.accept(event.getPlayer()));
+        disconnect.add(event -> eventConsumer.accept(event.getPlayer()));
     }
 
     /**
@@ -123,7 +147,7 @@ public final class Events {
      * @param event The consumer, consuming the entire event object.
      */
     public static void onLeaveRaw(Consumer<PlayerDisconnectEvent> event) {
-        disconnectConsumers.add(event);
+        disconnect.add(event);
     }
 
     /**

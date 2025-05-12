@@ -10,15 +10,13 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.network.packet.server.play.ActionBarPacket;
 import net.minestom.server.timer.TaskSchedule;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class ActionbarManager {
     private final Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
+    private final Set<UUID> cooldowns = new HashSet<>();
     @Setter
     private ActionbarSupplier defaultSupplier = ActionbarSupplier.DEFAULT;
 
@@ -26,19 +24,33 @@ public class ActionbarManager {
      * Sets up the manager, registering event listeners, and starting the loop.
      */
     public void init() {
-        Events.onJoin((player) -> messageQueues.put(player.getUuid(), new LinkedList<>()));
-        Events.onLeave((player) -> messageQueues.remove(player.getUuid()));
+        Events.onConfig((player) -> {
+            messageQueues.put(player.getUuid(), new LinkedList<>());
+            cooldowns.add(player.getUuid());
+            // prevent sending packets too early
+            MinecraftServer.getSchedulerManager().buildTask(() -> cooldowns.remove(player.getUuid())).delay(TaskSchedule.tick(5)).schedule();
+        });
+        Events.onLeave((player) -> {
+            messageQueues.remove(player.getUuid());
+            cooldowns.remove(player.getUuid());
+        });
 
-        MinecraftServer.getSchedulerManager().scheduleTask(() -> messageQueues.forEach((uuid, queue) ->
-                Cytosis.getPlayer(uuid).ifPresentOrElse(p -> {
-                    if (queue.isEmpty()) {
-                        // we have to use a packet here to avoid an endless recursion
-                        p.sendPacket(new ActionBarPacket(defaultSupplier.getActionbar(p)));
-                        return;
-                    }
+        MinecraftServer.getSchedulerManager().scheduleTask(() -> messageQueues.forEach((uuid, queue) -> {
+            if (cooldowns.contains(uuid)) return;
+            Cytosis.getPlayer(uuid).ifPresentOrElse(p -> {
+                if (queue.isEmpty()) {
                     // we have to use a packet here to avoid an endless recursion
-                    p.sendPacket(new ActionBarPacket(queue.poll()));
-                }, () -> messageQueues.remove(uuid))), TaskSchedule.tick(20), TaskSchedule.tick(20));
+                    p.sendPacket(new ActionBarPacket(defaultSupplier.getActionbar(p)));
+                    return;
+                }
+                // we have to use a packet here to avoid an endless recursion
+                p.sendPacket(new ActionBarPacket(queue.poll()));
+
+            }, () -> {
+                messageQueues.remove(uuid);
+                cooldowns.remove(uuid);
+            });
+        }), TaskSchedule.tick(20), TaskSchedule.tick(20));
 
     }
 

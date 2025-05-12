@@ -3,7 +3,7 @@ package net.cytonic.cytosis.managers;
 import com.google.gson.JsonObject;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.polar.PolarExtension;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
@@ -25,7 +25,8 @@ public class InstanceManager {
             }
 
             InstanceContainer container = new InstanceContainer(uuid == null ? UUID.randomUUID() : uuid, DimensionType.OVERWORLD);
-            container.setChunkLoader(new PolarLoader(world));
+            container.setChunkLoader(new PolarLoader(world).setWorldAccess(new PolarExtension()));
+            Cytosis.getMinestomInstanceManager().registerInstance(container);
             future.complete(container);
         });
         return future;
@@ -40,7 +41,7 @@ public class InstanceManager {
             }
 
             InstanceContainer container = new InstanceContainer(UUID.randomUUID(), DimensionType.OVERWORLD);
-            container.setChunkLoader(new PolarLoader(world));
+            container.setChunkLoader(new PolarLoader(world).setWorldAccess(new PolarExtension()));
             Cytosis.getMinestomInstanceManager().registerInstance(container);
             future.complete(container);
         });
