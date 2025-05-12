@@ -20,13 +20,17 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("net.minestom:minestom-snapshots:0366b58bfe")
+    compileOnlyApi("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
     compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:5.2.0") // redis client
     compileOnlyApi("com.google.guava:guava:33.4.8-jre")
     compileOnlyApi("com.github.TogAr2:MinestomPvP:1b2f862baa")
+    compileOnlyApi("eu.koboo:minestom-invue:2025.1.1") {
+        // we want to use our own, thank you :)
+        exclude(group = "net.minestom", module = "minestom-snapshots")
+    }
 
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
@@ -45,7 +49,6 @@ dependencies {
     runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.50.0")
     runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.50.0")
     runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
-
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
@@ -58,6 +61,8 @@ dependencies {
     runtimeDownloadOnly("redis.clients:jedis:5.2.0")
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
+    runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
+
 
 
     // Dependency loading
@@ -70,6 +75,7 @@ tasks.withType<Javadoc> {
 
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "21")
+    javadocOptions.encoding = "UTF-8"
 }
 
 var bundled = false

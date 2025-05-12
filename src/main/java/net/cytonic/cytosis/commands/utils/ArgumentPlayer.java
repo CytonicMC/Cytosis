@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands.util;
+package net.cytonic.cytosis.commands.utils;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;

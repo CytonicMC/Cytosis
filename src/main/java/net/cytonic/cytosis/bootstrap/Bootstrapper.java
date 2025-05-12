@@ -58,8 +58,6 @@ public class Bootstrapper {
                         return null;
                     });
         } else {
-            BootstrapLogger.info("Skipping bootstraping of dependencies. Starting Cytosis!");
-            // start cytosis
             Cytosis.main(args);
         }
     }

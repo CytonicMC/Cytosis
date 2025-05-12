@@ -181,7 +181,7 @@ public class MysqlDatabase {
         if (isConnected()) {
             PreparedStatement ps;
             try {
-                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT)");
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_worlds (world_name TEXT, world_type TEXT, last_modified TIMESTAMP, world_data MEDIUMBLOB, spawn_point TEXT, extra_data TEXT, UUID VARCHAR(36), PRIMARY KEY(world_name))");
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
@@ -595,40 +595,14 @@ public class MysqlDatabase {
         return future;
     }
 
-    /**
-     * Adds a new world to the database.
-     *
-     * @param worldName  The name of the world to be added.
-     * @param worldType  The type of the world.
-     * @param world      The PolarWorld object representing the world.
-     * @param spawnPoint The spawn point of the world.
-     * @throws IllegalStateException If the database connection is not open.
-     * @deprecated Use {@link MysqlDatabase#addWorld(String, String, PolarWorld, Pos, UUID)}
-     */
-    @Deprecated
-    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint) {
-        world.setCompression(PolarWorld.CompressionType.ZSTD);
-        if (!isConnected())
+    public CompletableFuture<Void> addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        if (!isConnected()) {
             throw new IllegalStateException("The database must have an open connection to add a world!");
-        worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ps.setBytes(3, PolarWriter.write(world));
-                ps.setString(4, PosSerializer.serialize(spawnPoint));
-                ps.setString(5, UUID.randomUUID().toString());
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a world!", e);
-            }
-        });
-    }
+        }
 
-    public void addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint, UUID worldUUID) {
         world.setCompression(PolarWorld.CompressionType.ZSTD);
-        if (!isConnected())
-            throw new IllegalStateException("The database must have an open connection to add a world!");
+
         worker.submit(() -> {
             try {
                 PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid) VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)");
@@ -641,7 +615,9 @@ public class MysqlDatabase {
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
             }
+            future.complete(null);
         });
+        return future;
     }
 
     /**

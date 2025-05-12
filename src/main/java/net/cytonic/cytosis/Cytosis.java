@@ -10,7 +10,7 @@ import io.github.togar2.pvp.feature.CombatFeatureSet;
 import io.github.togar2.pvp.feature.CombatFeatures;
 import lombok.Getter;
 import lombok.Setter;
-import net.cytonic.cytosis.commands.util.CommandHandler;
+import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.DatabaseManager;
@@ -38,6 +38,7 @@ import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.cytosis.utils.polar.PolarExtension;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
@@ -442,7 +443,7 @@ public final class Cytosis {
                 defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
                 defaultInstance.setChunkSupplier(LightingChunk::new);
             } else {
-                defaultInstance.setChunkLoader(new PolarLoader(polarWorld));
+                defaultInstance.setChunkLoader(new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
                 defaultInstance.setChunkSupplier(LightingChunk::new);
                 defaultInstance.enableAutoChunkLoad(true);
                 Logger.info("World loaded!");

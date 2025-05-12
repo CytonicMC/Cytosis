@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.utils;
 
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.coordinate.Pos;
 
 /**
@@ -43,5 +44,25 @@ public final class PosSerializer {
         } else {
             return new Pos(0, 0, 0, 180, 0);
         }
+    }
+
+    public static CompoundBinaryTag serializeAsTag(Pos pos) {
+        return CompoundBinaryTag.builder()
+                .putDouble("x", pos.x())
+                .putDouble("y", pos.y())
+                .putDouble("z", pos.z())
+                .putFloat("yaw", pos.yaw())
+                .putFloat("pitch", pos.pitch())
+                .build();
+    }
+
+    public static Pos deserializeFromTag(CompoundBinaryTag tag) {
+        return new Pos(
+                tag.getDouble("x"),
+                tag.getDouble("y"),
+                tag.getDouble("z"),
+                tag.getFloat("yaw"),
+                tag.getFloat("pitch")
+        );
     }
 }

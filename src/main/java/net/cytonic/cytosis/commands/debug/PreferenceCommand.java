@@ -2,8 +2,8 @@ package net.cytonic.cytosis.commands.debug;
 
 import lombok.Getter;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.util.CommandUtils;
-import net.cytonic.cytosis.commands.util.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.CommandUtils;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.managers.PreferenceManager;

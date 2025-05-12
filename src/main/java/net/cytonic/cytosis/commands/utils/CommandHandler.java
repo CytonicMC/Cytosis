@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.commands.util;
+package net.cytonic.cytosis.commands.utils;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
@@ -21,6 +21,7 @@ import net.cytonic.cytosis.commands.server.nomad.AllocationDetailsCommand;
 import net.cytonic.cytosis.commands.server.nomad.CreateInstanceCommand;
 import net.cytonic.cytosis.commands.server.nomad.ShutdownInstancesCommand;
 import net.cytonic.cytosis.commands.server.nomad.UpdateInstancesCommand;
+import net.cytonic.cytosis.commands.server.worlds.ImportWorld;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
 import net.minestom.server.command.CommandManager;
@@ -80,7 +81,8 @@ public class CommandHandler {
                 new EnableCommand(),
                 new UpdateInstancesCommand(),
                 new NickCommand(),
-                new NickRevealCommand()
+                new NickRevealCommand(),
+                new ImportWorld()
         );
     }
 

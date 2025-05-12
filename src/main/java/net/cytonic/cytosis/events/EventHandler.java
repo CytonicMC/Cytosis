@@ -174,6 +174,7 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(InstanceTickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InstanceUnregisterEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(RemoveEntityFromInstanceEvent.class, (this::handleEvent));
+        GLOBAL_HANDLER.addListener(PlayerLoadedEvent.class, (this::handleEvent));
         // Inventory Events
         GLOBAL_HANDLER.addListener(InventoryClickEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(InventoryCloseEvent.class, (this::handleEvent));
