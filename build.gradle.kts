@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
+    compileOnlyApi("net.minestom:minestom-snapshots:1_21-9219e96f76")
     compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
