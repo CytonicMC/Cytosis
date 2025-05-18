@@ -63,8 +63,6 @@ dependencies {
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
     runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
     runtimeDownloadOnly("org.spongepowered:configurate-gson:4.2.0")
-
-
     // Dependency loading
     implementation("dev.vankka:dependencydownload-runtime:1.3.1")
 }
