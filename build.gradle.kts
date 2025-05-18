@@ -31,7 +31,6 @@ dependencies {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
-    compileOnlyApi("me.lucko.configurate:configurate-toml:4.1")
     compileOnlyApi("org.spongepowered:configurate-gson:4.2.0")
 
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
@@ -63,7 +62,6 @@ dependencies {
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
     runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
-    runtimeDownloadOnly("me.lucko.configurate:configurate-toml:4.1")
     runtimeDownloadOnly("org.spongepowered:configurate-gson:4.2.0")
 
 

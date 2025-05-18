@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.files;
 
 import lombok.NoArgsConstructor;
-import me.lucko.configurate.toml.TOMLConfigurationLoader;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -9,7 +8,6 @@ import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -18,7 +16,6 @@ import java.nio.file.Path;
 @NoArgsConstructor
 public class FileManager {
 
-    private static final Path TOML_CONFIG_PATH = Path.of("config.toml");
     private static final Path CONFIG_PATH = Path.of("config.json");
 
     /**
@@ -27,13 +24,6 @@ public class FileManager {
     public void init() {
         try {
             createConfigFile();
-            if (Files.exists(TOML_CONFIG_PATH)) {
-                TOMLConfigurationLoader loader = TOMLConfigurationLoader.builder()
-                        .file(TOML_CONFIG_PATH.toFile()).build();
-                ConfigurationNode node = loader.load();
-                GsonConfigurationLoader.builder().file(CONFIG_PATH.toFile()).build().save(node);
-                Files.delete(TOML_CONFIG_PATH);
-            }
             GsonConfigurationLoader loader = GsonConfigurationLoader.builder().file(CONFIG_PATH.toFile()).build();
             ConfigurationNode node = loader.load();
             ConfigurationTransformation transformation = ConfigurationTransformation.builder()
