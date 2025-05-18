@@ -14,7 +14,7 @@ ARG OTEL_HOST
 ADD ../../build/libs/cytosis.jar .
 
 # For development, inject config inl
-ADD ../../config.toml .
+ADD ../../config.json .
 
 # Expose the port
 EXPOSE 25567

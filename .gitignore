@@ -45,4 +45,4 @@ bin/
 
 # runtime dependencies
 /cache/
-/config.toml
+/config.json
