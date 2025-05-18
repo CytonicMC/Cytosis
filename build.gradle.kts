@@ -31,13 +31,14 @@ dependencies {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
+    compileOnlyApi("me.lucko.configurate:configurate-toml:4.1")
+    compileOnlyApi("org.spongepowered:configurate-gson:4.2.0")
 
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
 
     runtimeDownload("net.kyori:adventure-text-minimessage:4.21.0")// better components
     runtimeDownload("com.mysql:mysql-connector-j:9.3.0") //mysql connector
-    runtimeDownload("org.tomlj:tomlj:1.1.1") // Config lang
     runtimeDownload("org.reflections:reflections:0.10.2") // reflection utils
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
@@ -54,7 +55,7 @@ dependencies {
     }
 
     // the compileonlyapis need to be downloaded at runtime, too.
-    runtimeDownloadOnly("net.minestom:minestom-snapshots:0366b58bfe")
+    runtimeDownloadOnly("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
     runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
     runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
@@ -62,7 +63,8 @@ dependencies {
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
     runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
     runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
-
+    runtimeDownloadOnly("me.lucko.configurate:configurate-toml:4.1")
+    runtimeDownloadOnly("org.spongepowered:configurate-gson:4.2.0")
 
 
     // Dependency loading

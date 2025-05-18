@@ -1,0 +1,26 @@
+{
+  "database": {
+    "user": "",
+    "password": "",
+    "host": "",
+    "port": 3306,
+    "name": ""
+  },
+  "server": {
+    "secret": "",
+    "port": 25565,
+    "world_name": "",
+    "spawn_point": ""
+  },
+  "redis": {
+    "port": 6379,
+    "host": "",
+    "password": ""
+  },
+  "nats": {
+    "host": "",
+    "port": 4222,
+    "username": "",
+    "password": ""
+  }
+}
