@@ -1,16 +1,16 @@
 package net.cytonic.cytosis.files;
 
 import lombok.NoArgsConstructor;
+import me.lucko.configurate.toml.TOMLConfigurationLoader;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
-import org.tomlj.Toml;
-import org.tomlj.TomlParseResult;
-import org.tomlj.TomlTable;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A class handling IO and files
@@ -18,31 +18,42 @@ import java.util.Map;
 @NoArgsConstructor
 public class FileManager {
 
-    private static final Path CONFIG_PATH = Path.of("config.toml");
+    private static final Path TOML_CONFIG_PATH = Path.of("config.toml");
+    private static final Path CONFIG_PATH = Path.of("config.json");
 
     /**
      * Initializes the necessary files and configurations.
      */
     public void init() {
-        createConfigFile();
         try {
-            parseToml(Toml.parse(CONFIG_PATH));
-        } catch (IOException e) {
-            Logger.error("Failed to parse config file: " + CONFIG_PATH, e);
+            createConfigFile();
+            if (Files.exists(TOML_CONFIG_PATH)) {
+                TOMLConfigurationLoader loader = TOMLConfigurationLoader.builder()
+                        .file(TOML_CONFIG_PATH.toFile()).build();
+                ConfigurationNode node = loader.load();
+                GsonConfigurationLoader.builder().file(CONFIG_PATH.toFile()).build().save(node);
+                Files.delete(TOML_CONFIG_PATH);
+            }
+            GsonConfigurationLoader loader = GsonConfigurationLoader.builder().file(CONFIG_PATH.toFile()).build();
+            ConfigurationNode node = loader.load();
+            ConfigurationTransformation transformation = ConfigurationTransformation.builder()
+                    .build();
+            transformation.apply(node);
+            loader.save(node);
+            CytosisSettings.importConfig(node);
+        } catch (Exception exception) {
+            Logger.error("Failed to parse config file!", exception);
         }
     }
 
     /**
      * Creates the config file if it doesn't exist.
-     *
-     * @return A CompletableFuture representing the completion of the file creation process.
      */
-    public File createConfigFile() {
+    public void createConfigFile() {
         if (!CONFIG_PATH.toFile().exists()) {
             Logger.info("No config file found, creating...");
-            return extractResource("config.toml", CONFIG_PATH);
+            extractResource("config.json", CONFIG_PATH);
         }
-        return CONFIG_PATH.toFile();
     }
 
     /**
@@ -65,41 +76,8 @@ public class FileManager {
             outputStream.close();
             stream.close();
         } catch (IOException e) {
-            Logger.error("An error occured whilst extracting the resource \"" + resource + "\"!", e);
+            Logger.error("An error occurred whilst extracting the resource \"" + resource + "\"!", e);
         }
         return path.toFile();
-    }
-
-    private void parseToml(TomlParseResult toml) {
-        if (!toml.errors().isEmpty()) {
-            Logger.error("An error occurred whilst parsing the config.toml file!", toml.errors().getFirst());
-            return;
-        }
-        Map<String, Object> config = recursiveParse(toml.toMap(), "");
-        CytosisSettings.inportConfig(config);
-    }
-
-    private Map<String, Object> recursiveParse(Map<String, Object> map, String parentKey) {
-        if (!parentKey.equalsIgnoreCase("")) {
-            parentKey = parentKey + ".";
-        }
-        Map<String, Object> resultMap = new HashMap<>();
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = parentKey + entry.getKey();
-            Object value = entry.getValue();
-            // If the value is a nested table (another map), recurse
-            if (value instanceof TomlTable toml) {
-                resultMap.putAll(recursiveParse(toml.toMap(), key));
-            }
-            // If it's a list, check for nested tables within the list
-            else if (value instanceof Iterable<?> iterable) {
-                for (Object item : iterable) {
-                    if (item instanceof TomlTable toml) resultMap.putAll(recursiveParse(toml.toMap(), key));
-                }
-            } else {
-                resultMap.put(key, value);
-            }
-        }
-        return resultMap;
     }
 }
