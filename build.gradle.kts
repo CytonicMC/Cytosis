@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
+    compileOnlyApi("net.minestom:minestom-snapshots:982233141e")
     compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
@@ -54,7 +54,7 @@ dependencies {
     }
 
     // the compileonlyapis need to be downloaded at runtime, too.
-    runtimeDownloadOnly("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
+    runtimeDownloadOnly("net.minestom:minestom-snapshots:982233141e")
     runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
     runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
