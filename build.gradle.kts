@@ -26,7 +26,7 @@ dependencies {
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:6.0.0") // redis client
     compileOnlyApi("com.google.guava:guava:33.4.8-jre")
-    compileOnlyApi("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
+//    compileOnlyApi("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
     compileOnlyApi("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
     compileOnlyApi("eu.koboo:minestom-invue:2025.1.1") {
         // we want to use our own, thank you :)
