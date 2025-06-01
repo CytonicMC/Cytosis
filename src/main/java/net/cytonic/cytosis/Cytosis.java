@@ -57,6 +57,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -161,6 +162,7 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         flags = List.of(args);
         if (!flags.contains("--no-metrics")) {
             CytosisOpenTelemetry.setup();
@@ -183,12 +185,13 @@ public final class Cytosis {
             }
         });
 
-        long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting Cytosis server...");
         minecraftServer = MinecraftServer.init();
         MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
+
+        MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
 
         Logger.info("Starting instance managers.");
         minestomInstanceManager = MinecraftServer.getInstanceManager();

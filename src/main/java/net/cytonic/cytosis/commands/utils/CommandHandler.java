@@ -24,6 +24,8 @@ import net.cytonic.cytosis.commands.server.nomad.UpdateInstancesCommand;
 import net.cytonic.cytosis.commands.server.worlds.ImportWorld;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 
@@ -38,6 +40,11 @@ public class CommandHandler {
      */
     public void registerCytosisCommands() {
         CommandManager cm = Cytosis.getCommandManager();
+        cm.setUnknownCommandCallback((commandSender, s) -> {
+            if (!(commandSender instanceof CytosisPlayer player)) return;
+            player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
+        });
+
         cm.register(
                 new GamemodeCommand(),
                 new RankCommand(),
