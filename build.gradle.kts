@@ -62,7 +62,9 @@ dependencies {
     runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
     runtimeDownloadOnly("redis.clients:jedis:6.0.0")
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
-    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
+//    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
+    runtimeDownloadOnly("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT")
+
     runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
     runtimeDownloadOnly("org.spongepowered:configurate-gson:4.2.0")
     // Dependency loading
