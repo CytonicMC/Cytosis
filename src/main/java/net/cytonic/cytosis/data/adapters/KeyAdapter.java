@@ -20,6 +20,9 @@ public class KeyAdapter extends TypeAdapter<Key> implements TypeAdapterFactory {
      */
     @Override
     public void write(JsonWriter out, Key value) throws IOException {
+        if (value == null) {
+            throw new IllegalArgumentException("Null keys cannot be serialized");
+        }
         out.beginObject();
         out.name("key");
         out.value(value.asString());

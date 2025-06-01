@@ -18,7 +18,7 @@ public class TeleportCommand extends CytosisCommand {
      */
     public TeleportCommand() {
         super("teleport", "tp");
-        setCondition(CommandUtils.IS_ADMIN);
+        setCondition(CommandUtils.IS_STAFF);
 
         var positionArgument = ArgumentType.RelativeBlockPosition("position");
 
@@ -45,7 +45,12 @@ public class TeleportCommand extends CytosisCommand {
         // entity arg
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer player) {
-                player.teleport(context.get(CommandUtils.ONLINE_PLAYERS).getPosition());
+                CytosisPlayer target = context.get(CommandUtils.ONLINE_PLAYERS);
+                if (target == null) {
+                    player.sendMessage(Msg.whoops("Player not found!"));
+                    return;
+                }
+                player.teleport(target.getPosition());
                 player.sendMessage(Msg.mm("<green>Teleported!"));
             } else {
                 sender.sendMessage(Msg.mm("Only players can use this command"));

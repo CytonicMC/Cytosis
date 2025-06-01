@@ -8,6 +8,7 @@ import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -34,7 +35,7 @@ public class KickCommand extends CytosisCommand {
                 final String player = context.get(CommandUtils.NETWORK_PLAYERS);
                 final String reason = String.join(" ", context.get(reasonArg));
 
-                UUID uuid = CommandUtils.resolveUuid(player);
+                UUID uuid = PlayerUtils.resolveUuid(player);
                 if (uuid == null) {
                     sender.sendMessage(Msg.whoops("The player '%s' either doesn't exist or is not online!", player));
                     return;
@@ -56,6 +57,6 @@ public class KickCommand extends CytosisCommand {
                 Cytosis.getNatsManager().kickPlayer(uuid, KickReason.COMMAND, Msg.mm("\n<red>You have been kicked. \n<aqua>Reason: " + reason));
 
             }
-        }, CommandUtils.ONLINE_PLAYERS, reasonArg);
+        }, CommandUtils.NETWORK_PLAYERS, reasonArg);
     }
 }

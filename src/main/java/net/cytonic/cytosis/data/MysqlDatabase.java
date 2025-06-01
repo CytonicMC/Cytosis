@@ -760,7 +760,7 @@ public class MysqlDatabase {
      * @param sql The SQL query
      * @return The {@link ResultSet} of the query
      */
-    CompletableFuture<ResultSet> query(String sql) {
+    public CompletableFuture<ResultSet> query(String sql) {
         CompletableFuture<ResultSet> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -771,6 +771,28 @@ public class MysqlDatabase {
             }
         });
         return future;
+    }
+
+    /**
+     * Queries the database with the specified SQL, SYNCHRONOUSLY
+     *
+     * @param sql The SQL query
+     * @return The {@link ResultSet} of the query
+     */
+    public ResultSet querySync(String sql) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResultSet querySync(PreparedStatement ps) {
+        try {
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

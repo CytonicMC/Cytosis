@@ -248,7 +248,6 @@ public class EventHandler {
         GLOBAL_HANDLER.addListener(FinalAttackEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(FinalDamageEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(FishingBobberRetrieveEvent.class, (this::handleEvent));
-        GLOBAL_HANDLER.addListener(LegacyKnockbackEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(EntityKnockbackEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PrepareAttackEvent.class, (this::handleEvent));
         GLOBAL_HANDLER.addListener(PickupEntityEvent.class, (this::handleEvent));
