@@ -57,6 +57,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -189,6 +190,8 @@ public final class Cytosis {
         minecraftServer = MinecraftServer.init();
         MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
+
+        MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
 
         Logger.info("Starting instance managers.");
         minestomInstanceManager = MinecraftServer.getInstanceManager();
