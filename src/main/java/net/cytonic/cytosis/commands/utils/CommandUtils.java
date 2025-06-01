@@ -11,12 +11,10 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.condition.CommandCondition;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.utils.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @UtilityClass
 public class CommandUtils {
@@ -79,13 +77,4 @@ public class CommandUtils {
             return player.getTrueRank() == rank;
         };
     }
-
-    public static @Nullable UUID resolveUuid(String input) {
-        UUID cached = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(input.toLowerCase());
-        if (cached != null) {
-            return cached;
-        }
-        return Cytosis.getNicknameManager().deanonymizePlayer(input);
-    }
-
 }

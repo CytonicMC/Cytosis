@@ -11,6 +11,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -44,7 +45,7 @@ public class BanCommand extends CytosisCommand {
                 final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parse(rawDur);
 
-                UUID uuid = CommandUtils.resolveUuid(player);
+                UUID uuid = PlayerUtils.resolveUuid(player);
                 if (uuid == null) {
                     sender.sendMessage(Msg.mm("<red>The player %s doesn't exist!", player));
                     return;

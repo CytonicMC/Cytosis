@@ -8,6 +8,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
@@ -42,7 +43,7 @@ public class RankCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             String name = context.get(CommandUtils.LIFETIME_PLAYERS).toLowerCase(Locale.ROOT);
             PlayerRank newRank = context.get(rankArg);
-            UUID target = CommandUtils.resolveUuid(name);
+            UUID target = PlayerUtils.resolveUuid(name);
             if (target == null) {
                 sender.sendMessage(Msg.mm("<red>The player " + context.get(CommandUtils.LIFETIME_PLAYERS) + " doesn't exist!"));
                 return;
