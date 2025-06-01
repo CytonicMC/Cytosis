@@ -20,13 +20,14 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
+    compileOnlyApi("net.minestom:minestom-snapshots:1_21_5-aa17002536")
     compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
     compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
     compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
     compileOnlyApi("redis.clients:jedis:6.0.0") // redis client
     compileOnlyApi("com.google.guava:guava:33.4.8-jre")
-    compileOnlyApi("com.github.TogAr2:MinestomPvP:1b2f862baa")
+    compileOnlyApi("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
+    compileOnlyApi("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
     compileOnlyApi("eu.koboo:minestom-invue:2025.1.1") {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
@@ -44,7 +45,8 @@ dependencies {
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
     runtimeDownload("io.nats:jnats:2.21.1")
     runtimeDownload("org.jooq:jooq:3.20.4") // database queries
-    runtimeDownload("com.github.TogAr2:MinestomPvP:1b2f862baa") // pvp
+//    runtimeDownload("com.github.TogAr2:MinestomPvP:-SNAPSHOT") // pvp
+    runtimeDownload("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
     runtimeDownload("io.opentelemetry:opentelemetry-api:1.50.0")
     runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.50.0")
     runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.50.0")
