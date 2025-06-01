@@ -161,6 +161,7 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         flags = List.of(args);
         if (!flags.contains("--no-metrics")) {
             CytosisOpenTelemetry.setup();
@@ -183,7 +184,6 @@ public final class Cytosis {
             }
         });
 
-        long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting Cytosis server...");
         minecraftServer = MinecraftServer.init();
