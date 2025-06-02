@@ -44,7 +44,7 @@ public class PluginManager {
         checkArgument(directory.toFile().isDirectory(), "provided path isn't a directory");
 
         Map<String, PluginDescription> foundCandidates = new LinkedHashMap<>();
-        JavaPluginLoader loader = new JavaPluginLoader(directory);
+        JavaPluginLoader loader = new JavaPluginLoader();
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, p -> p.toFile().isFile() && p.toString().endsWith(".jar"))) {
             for (Path path : stream) {
