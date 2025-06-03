@@ -23,6 +23,8 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.serializers.KeySerializer;
+import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.EventListener;
 import net.cytonic.cytosis.events.ServerEventListeners;
@@ -50,6 +52,7 @@ import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
 import net.minestom.server.extras.velocity.VelocityProxy;
@@ -61,6 +64,8 @@ import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -86,6 +91,16 @@ public final class Cytosis {
      * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
      */
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter()).registerTypeAdapter(Preference.class, new PreferenceAdapter<>()).registerTypeAdapter(Key.class, new KeyAdapter()).registerTypeAdapter(Instant.class, new InstantAdapter()).registerTypeAdapterFactory(new TypedNamespaceAdapter()).registerTypeAdapterFactory(new PreferenceAdapter<>()).registerTypeAdapterFactory(new KeyAdapter()).enableComplexMapKeySerialization().setStrictness(Strictness.LENIENT).serializeNulls().create();
+    public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()
+            .indent(0)
+            .defaultOptions(opts -> opts
+                    .shouldCopyDefaults(true)
+                    .serializers(builder -> {
+                        builder.registerAnnotatedObjects(ObjectMapper.factory());
+                        builder.register(Key.class, new KeySerializer());
+                        builder.register(Pos.class, new PosSerializer());
+                    })
+            );
     /**
      * The version of Cytosis
      */
