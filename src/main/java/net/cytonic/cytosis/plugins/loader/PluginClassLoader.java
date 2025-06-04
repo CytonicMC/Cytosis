@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class PluginClassLoader extends URLClassLoader {
 
-    public static final Set<PluginClassLoader> loaders = new CopyOnWriteArraySet<>();
+    private static final Set<PluginClassLoader> loaders = new CopyOnWriteArraySet<>();
 
     static {
         ClassLoader.registerAsParallelCapable();
