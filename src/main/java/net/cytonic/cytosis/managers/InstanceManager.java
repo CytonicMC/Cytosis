@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import com.google.gson.JsonObject;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
@@ -48,8 +47,8 @@ public class InstanceManager {
         return future;
     }
 
-    public CompletableFuture<JsonObject> getExtraData(String worldName, String worldType) {
-        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+    public CompletableFuture<String> getExtraData(String worldName, String worldType) {
+        CompletableFuture<String> future = new CompletableFuture<>();
         Cytosis.getDatabaseManager().getMysqlDatabase().getWorldExtraData(worldName, worldType).whenComplete((extraData, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
