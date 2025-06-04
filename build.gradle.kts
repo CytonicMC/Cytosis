@@ -44,7 +44,7 @@ dependencies {
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    runtimeDownload("io.nats:jnats:2.21.1")
+    runtimeDownload("io.nats:jnats:2.21.2")
     runtimeDownload("org.jooq:jooq:3.20.4") // database queries
 //    runtimeDownload("com.github.TogAr2:MinestomPvP:-SNAPSHOT") // pvp
     runtimeDownload("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
