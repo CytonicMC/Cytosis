@@ -67,6 +67,7 @@ import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -416,7 +417,9 @@ public final class Cytosis {
 
                             Object instance;
                             try {
-                                instance = clazz.getDeclaredConstructor().newInstance();
+                                Constructor<?> constructor = clazz.getDeclaredConstructor();
+                                constructor.setAccessible(true);
+                                instance = constructor.newInstance();
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                                      NoSuchMethodException e) {
                                 Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
