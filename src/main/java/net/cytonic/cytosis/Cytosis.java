@@ -410,6 +410,7 @@ public final class Cytosis {
 
                     for (Method method : clazz.getDeclaredMethods()) {
                         if (method.isAnnotationPresent(Listener.class)) {
+                            method.setAccessible(true); // make the method accessible so we can call it later on
                             int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
                             boolean async = method.isAnnotationPresent(Async.class);
 
