@@ -25,7 +25,6 @@ import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.EventListener;
-import net.cytonic.cytosis.events.ServerEventListeners;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
@@ -63,6 +62,7 @@ import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -306,9 +306,6 @@ public final class Cytosis {
         Logger.info("Loading player preferences");
         preferenceManager = new PreferenceManager();
 
-        Logger.info("Initializing server events");
-        ServerEventListeners.initServerEvents();
-
         Logger.info("Loading vanish manager!");
         vanishManager = new VanishManager();
         Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
@@ -386,25 +383,28 @@ public final class Cytosis {
         loaders.add(Cytosis.class.getClassLoader());
         loaders.addAll(PluginClassLoader.loaders);
 
-        ClassGraph graph = new ClassGraph()
+        final ClassGraph CLASS_GRAPH = new ClassGraph()
                 .acceptPackages("net.cytonic") // skip dependencies
                 .enableAllInfo()
                 .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         AtomicInteger counter = new AtomicInteger(0);
-        graph.scan()
+        CLASS_GRAPH.scan()
                 .getClassesWithMethodAnnotation(Listener.class.getName())
                 .forEach(classInfo -> {
                     Class<?> clazz = classInfo.loadClass();
 
                     for (Method method : clazz.getDeclaredMethods()) {
                         if (method.isAnnotationPresent(Listener.class)) {
+                            method.setAccessible(true);
                             int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
                             boolean async = method.isAnnotationPresent(Async.class);
 
                             Object instance;
                             try {
-                                instance = clazz.getDeclaredConstructor().newInstance();
+                                Constructor<?> constructor = clazz.getDeclaredConstructor();
+                                constructor.setAccessible(true);
+                                instance = constructor.newInstance();
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                                      NoSuchMethodException e) {
                                 Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
