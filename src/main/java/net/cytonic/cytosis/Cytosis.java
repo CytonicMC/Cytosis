@@ -23,6 +23,8 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.serializers.KeySerializer;
+import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.EventListener;
 import net.cytonic.cytosis.events.api.Async;
@@ -60,9 +62,10 @@ import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -86,6 +89,16 @@ public final class Cytosis {
      * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
      */
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter()).registerTypeAdapter(Preference.class, new PreferenceAdapter<>()).registerTypeAdapter(Key.class, new KeyAdapter()).registerTypeAdapter(Instant.class, new InstantAdapter()).registerTypeAdapterFactory(new TypedNamespaceAdapter()).registerTypeAdapterFactory(new PreferenceAdapter<>()).registerTypeAdapterFactory(new KeyAdapter()).enableComplexMapKeySerialization().setStrictness(Strictness.LENIENT).serializeNulls().create();
+    public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()
+            .indent(0)
+            .defaultOptions(opts -> opts
+                    .shouldCopyDefaults(true)
+                    .serializers(builder -> {
+                        builder.registerAnnotatedObjects(ObjectMapper.factory());
+                        builder.register(Key.class, new KeySerializer());
+                        builder.register(Pos.class, new PosSerializer());
+                    })
+            );
     /**
      * The version of Cytosis
      */
@@ -383,28 +396,25 @@ public final class Cytosis {
         loaders.add(Cytosis.class.getClassLoader());
         loaders.addAll(PluginClassLoader.loaders);
 
-        final ClassGraph CLASS_GRAPH = new ClassGraph()
+        ClassGraph graph = new ClassGraph()
                 .acceptPackages("net.cytonic") // skip dependencies
                 .enableAllInfo()
                 .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         AtomicInteger counter = new AtomicInteger(0);
-        CLASS_GRAPH.scan()
+        graph.scan()
                 .getClassesWithMethodAnnotation(Listener.class.getName())
                 .forEach(classInfo -> {
                     Class<?> clazz = classInfo.loadClass();
 
                     for (Method method : clazz.getDeclaredMethods()) {
                         if (method.isAnnotationPresent(Listener.class)) {
-                            method.setAccessible(true);
                             int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
                             boolean async = method.isAnnotationPresent(Async.class);
 
                             Object instance;
                             try {
-                                Constructor<?> constructor = clazz.getDeclaredConstructor();
-                                constructor.setAccessible(true);
-                                instance = constructor.newInstance();
+                                instance = clazz.getDeclaredConstructor().newInstance();
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                                      NoSuchMethodException e) {
                                 Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
