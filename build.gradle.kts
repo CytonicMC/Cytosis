@@ -33,7 +33,6 @@ dependencies {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
     compileOnlyApi("org.spongepowered:configurate-gson:4.2.0")
-    compileOnlyApi("io.github.classgraph:classgraph:4.8.179")
 
     compileOnly("org.projectlombok:lombok:1.18.38") // lombok
     annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
@@ -44,7 +43,7 @@ dependencies {
     runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
     runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
     runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    runtimeDownload("io.nats:jnats:2.21.1")
+    runtimeDownload("io.nats:jnats:2.21.2")
     runtimeDownload("org.jooq:jooq:3.20.4") // database queries
 //    runtimeDownload("com.github.TogAr2:MinestomPvP:-SNAPSHOT") // pvp
     runtimeDownload("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
@@ -57,7 +56,7 @@ dependencies {
     }
 
     // the compileonlyapis need to be downloaded at runtime, too.
-    runtimeDownloadOnly("net.minestom:minestom-snapshots:1_21_5-aa17002536")
+    runtimeDownloadOnly("net.minestom:minestom-snapshots:1_21_5-69b9a5d844")
     runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
     runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
@@ -65,10 +64,9 @@ dependencies {
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
 //    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
     runtimeDownloadOnly("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT")
+
     runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
     runtimeDownloadOnly("org.spongepowered:configurate-gson:4.2.0")
-    runtimeDownloadOnly("io.github.classgraph:classgraph:4.8.179")
-
     // Dependency loading
     implementation("dev.vankka:dependencydownload-runtime:1.3.1")
 }
