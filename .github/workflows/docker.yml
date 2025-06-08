@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'cytonicmc/cytosis'
     runs-on: ubuntu-latest
     env:
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
