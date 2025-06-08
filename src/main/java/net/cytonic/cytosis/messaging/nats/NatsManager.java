@@ -35,6 +35,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.sound.SoundEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -343,7 +344,7 @@ public class NatsManager {
     public void listenForPlayerLoginLogout() {
         Thread.ofVirtual().name("NATS Player Join").start(() -> connection.createDispatcher(msg -> {
             var container = PlayerLoginLogoutContainer.deserialize(new String(msg.getData()));
-            Cytosis.getEventHandler().handleEvent(new PlayerJoinNetworkEvent(container.uuid(), container.username()));
+            EventDispatcher.call(new PlayerJoinNetworkEvent(container.uuid(), container.username()));
             Cytosis.getCytonicNetwork().addPlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().loadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLoginMessage(container.uuid());
@@ -351,7 +352,7 @@ public class NatsManager {
 
         Thread.ofVirtual().name("NATS Player Leave").start(() -> connection.createDispatcher(msg -> {
             var container = PlayerLoginLogoutContainer.deserialize(new String(msg.getData()));
-            Cytosis.getEventHandler().handleEvent(new PlayerLeaveNetworkEvent(container.uuid(), container.username()));
+            EventDispatcher.call(new PlayerLeaveNetworkEvent(container.uuid(), container.username()));
             Cytosis.getCytonicNetwork().removePlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().unloadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLogoutMessage(container.uuid());

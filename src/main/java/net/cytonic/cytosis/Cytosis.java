@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import eu.koboo.minestom.invue.api.ViewRegistry;
 import eu.koboo.minestom.invue.core.MinestomInvue;
+import io.github.classgraph.ClassGraph;
 import io.github.togar2.pvp.MinestomPvP;
 import io.github.togar2.pvp.feature.CombatFeatureSet;
 import io.github.togar2.pvp.feature.CombatFeatures;
@@ -22,8 +23,13 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.serializers.KeySerializer;
+import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.events.EventHandler;
-import net.cytonic.cytosis.events.ServerEventListeners;
+import net.cytonic.cytosis.events.EventListener;
+import net.cytonic.cytosis.events.api.Async;
+import net.cytonic.cytosis.events.api.Listener;
+import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
@@ -35,6 +41,7 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
+import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
@@ -44,7 +51,9 @@ import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.Event;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
@@ -54,11 +63,18 @@ import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The main class for Cytosis
@@ -75,6 +91,16 @@ public final class Cytosis {
      * The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
      */
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter()).registerTypeAdapter(Preference.class, new PreferenceAdapter<>()).registerTypeAdapter(Key.class, new KeyAdapter()).registerTypeAdapter(Instant.class, new InstantAdapter()).registerTypeAdapterFactory(new TypedNamespaceAdapter()).registerTypeAdapterFactory(new PreferenceAdapter<>()).registerTypeAdapterFactory(new KeyAdapter()).enableComplexMapKeySerialization().setStrictness(Strictness.LENIENT).serializeNulls().create();
+    public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()
+            .indent(0)
+            .defaultOptions(opts -> opts
+                    .shouldCopyDefaults(true)
+                    .serializers(builder -> {
+                        builder.registerAnnotatedObjects(ObjectMapper.factory());
+                        builder.register(Key.class, new KeySerializer());
+                        builder.register(Pos.class, new PosSerializer());
+                    })
+            );
     /**
      * The version of Cytosis
      */
@@ -161,6 +187,7 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         flags = List.of(args);
         if (!flags.contains("--no-metrics")) {
             CytosisOpenTelemetry.setup();
@@ -183,12 +210,13 @@ public final class Cytosis {
             }
         });
 
-        long start = System.currentTimeMillis();
         // Initialize the server
         Logger.info("Starting Cytosis server...");
         minecraftServer = MinecraftServer.init();
         MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
         MinecraftServer.setBrandName("Cytosis");
+
+        MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
 
         Logger.info("Starting instance managers.");
         minestomInstanceManager = MinecraftServer.getInstanceManager();
@@ -293,9 +321,6 @@ public final class Cytosis {
         Logger.info("Loading player preferences");
         preferenceManager = new PreferenceManager();
 
-        Logger.info("Initializing server events");
-        ServerEventListeners.initServerEvents();
-
         Logger.info("Loading vanish manager!");
         vanishManager = new VanishManager();
         Runtime.getRuntime().addShutdownHook(new Thread(Cytosis::shutdownHandler));
@@ -365,6 +390,68 @@ public final class Cytosis {
             Logger.error("An error occurred whilst loading plugins!", e);
             throw new RuntimeException("An error occurred whilst loading plugins!", e);
         }
+
+        long start2 = System.currentTimeMillis();
+        Logger.info("Scanning for listeners in plugins!");
+
+        List<ClassLoader> loaders = new ArrayList<>();
+        loaders.add(Cytosis.class.getClassLoader());
+        loaders.addAll(PluginClassLoader.loaders);
+
+        ClassGraph graph = new ClassGraph()
+                .acceptPackages("net.cytonic") // skip dependencies
+                .enableAllInfo()
+                .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+
+        AtomicInteger counter = new AtomicInteger(0);
+        graph.scan()
+                .getClassesWithMethodAnnotation(Listener.class.getName())
+                .forEach(classInfo -> {
+                    Class<?> clazz = classInfo.loadClass();
+
+                    for (Method method : clazz.getDeclaredMethods()) {
+                        if (method.isAnnotationPresent(Listener.class)) {
+                            method.setAccessible(true); // make the method accessible so we can call it later on
+                            int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
+                            boolean async = method.isAnnotationPresent(Async.class);
+
+                            Object instance;
+                            try {
+                                Constructor<?> constructor = clazz.getDeclaredConstructor();
+                                constructor.setAccessible(true);
+                                instance = constructor.newInstance();
+                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                                     NoSuchMethodException e) {
+                                Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
+                                return;
+                            }
+
+
+                            Class<? extends Event> eventClass;
+                            try {
+                                eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
+                            } catch (ClassCastException e) {
+                                Logger.error("The parameter of a method annotated with @Listener must be a valid event!", e);
+                                return;
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                Logger.error("Methods annotated with @Listener must have a valid event as a parameter!", e);
+                                return;
+                            }
+
+                            eventHandler.registerListener(new EventListener<>(
+                                    "cytosis:annotation-listener-" + counter.getAndIncrement(),
+                                    async, priority, (Class<Event>) eventClass, event -> {
+                                try {
+                                    method.invoke(instance, event);
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    Logger.error("Failed to call @Listener!", e);
+                                }
+                            }
+                            ));
+                        }
+                    }
+                });
+        Logger.info("Finished scanning for listeners in plugins in " + (System.currentTimeMillis() - start2) + "ms!");
 
         // Start the server
         Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);

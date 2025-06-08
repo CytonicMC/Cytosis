@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.data;
 
-import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.cytonic.cytosis.Cytosis;
@@ -687,8 +686,8 @@ public class MysqlDatabase {
         return future;
     }
 
-    public CompletableFuture<JsonObject> getWorldExtraData(String worldName, String worldType) {
-        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+    public CompletableFuture<String> getWorldExtraData(String worldName, String worldType) {
+        CompletableFuture<String> future = new CompletableFuture<>();
         if (!isConnected())
             throw new IllegalStateException("The database must have an open connection to fetch the extra data from a world!");
         worker.submit(() -> {
@@ -697,8 +696,7 @@ public class MysqlDatabase {
                 ps.setString(2, worldType);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    JsonObject extraData = Cytosis.GSON.fromJson(rs.getString("extra_data"), JsonObject.class);
-                    future.complete(extraData);
+                    future.complete(rs.getString("extra_data"));
                 } else {
                     Logger.error("The result set is empty!");
                     throw new RuntimeException("World data not found: " + worldName);

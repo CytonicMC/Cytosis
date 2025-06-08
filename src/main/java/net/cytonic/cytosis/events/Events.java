@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.events;
 
-import lombok.experimental.UtilityClass;
-import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.events.api.Listener;
+import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.utils.events.PlayerJoinEventResponse;
@@ -20,9 +20,10 @@ import java.util.function.Consumer;
  * then the event will be run off of ticking threads. Otherwise, the even will be run
  * on ticking threads. These handlers ignore if the event has already been cancelled.
  */
-@SuppressWarnings({"unused", "unchecked"})
-@UtilityClass
-public final class Events {
+@SuppressWarnings({"unused"})
+public class Events {
+    public static final List<Consumer<PlayerLeaveNetworkEvent>> networkLeave = new ArrayList<>();
+    public static final List<Consumer<PlayerJoinNetworkEvent>> networkJoin = new ArrayList<>();
     private static final List<Consumer<AsyncPlayerConfigurationEvent>> config = new ArrayList<>();
     private static final List<Consumer<PlayerLoadedEvent>> join = new ArrayList<>();
     private static final List<Consumer<PlayerDisconnectEvent>> disconnect = new ArrayList<>();
@@ -32,48 +33,68 @@ public final class Events {
     private static final List<Consumer<PlayerPacketEvent>> packetInHigh = new ArrayList<>();
     private static final List<Consumer<PlayerPacketOutEvent>> packetOutLow = new ArrayList<>();
     private static final List<Consumer<PlayerPacketEvent>> packetInLow = new ArrayList<>();
-    public static final List<Consumer<PlayerLeaveNetworkEvent>> networkLeave = new ArrayList<>();
-    public static final List<Consumer<PlayerJoinNetworkEvent>> networkJoin = new ArrayList<>();
 
-    static {
-        Cytosis.getEventHandler().registerListeners(
-                new EventListener<>(AsyncPlayerConfigurationEvent.class,
-                        event -> config.forEach(consumer -> consumer.accept(event)),
-                        false, 50, "cytosis:events_util_join", true),
-                new EventListener<>(PlayerDisconnectEvent.class,
-                        event -> disconnect.forEach(consumer -> consumer.accept(event)),
-                        false, 50, "cytosis:events_util_leave", true),
-                // medium prio
-                new EventListener<>(PlayerPacketEvent.class,
-                        event -> packetIn.forEach(consumer -> consumer.accept(event)),
-                        false, 50, "cytosis:events_util_packet_in", true),
-                new EventListener<>(PlayerPacketOutEvent.class,
-                        event -> packetOut.forEach(consumer -> consumer.accept(event)),
-                        false, 50, "cytosis:events_util_packet_out", true),
-                // low prio
-                new EventListener<>(PlayerPacketEvent.class,
-                        event -> packetInLow.forEach(consumer -> consumer.accept(event)),
-                        false, 100, "cytosis:events_util_packet_in_low", true),
-                new EventListener<>(PlayerPacketOutEvent.class,
-                        event -> packetOutLow.forEach(consumer -> consumer.accept(event)),
-                        false, 100, "cytosis:events_util_packet_out_low", true),
-                // high prio
-                new EventListener<>(PlayerPacketEvent.class,
-                        event -> packetInHigh.forEach(consumer -> consumer.accept(event)),
-                        false, 0, "cytosis:events_util_packet_in_high", true),
-                new EventListener<>(PlayerPacketOutEvent.class,
-                        event -> packetOutHigh.forEach(consumer -> consumer.accept(event)),
-                        false, 0, "cytosis:events_util_packet_out_high", true),
-                new EventListener<>(PlayerJoinNetworkEvent.class,
-                        event -> networkJoin.forEach(consumer -> consumer.accept(event)),
-                        false, 0, "cytosis:events_util_network_join", true),
-                new EventListener<>(PlayerLeaveNetworkEvent.class,
-                        event -> networkLeave.forEach(consumer -> consumer.accept(event)),
-                        false, 0, "cytosis:events_util_network_leave", true),
-                new EventListener<>(PlayerLoadedEvent.class,
-                        event -> join.forEach(consumer -> consumer.accept(event)),
-                        false, 50, "cytosis:events_util_player_loaded", true)
-        );
+    private Events() {
+
+    }
+
+    @Listener
+    public void onEvent(final PlayerJoinNetworkEvent event) {
+        networkJoin.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    public void onEvent(final PlayerLeaveNetworkEvent event) {
+        networkLeave.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    public void onEvent(final PlayerLoadedEvent event) {
+        join.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final AsyncPlayerConfigurationEvent event) {
+        config.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerDisconnectEvent event) {
+        disconnect.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerPacketEvent event) {
+        packetIn.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerPacketOutEvent event) {
+        packetOut.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(100)
+    private void onEventLow(final PlayerPacketEvent event) {
+        packetInLow.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(100)
+    private void onEventLow(final PlayerPacketOutEvent event) {
+        packetOutLow.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(0)
+    private void onEventHigh(final PlayerPacketEvent event) {
+        packetInHigh.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(0)
+    private void onEventHigh(final PlayerPacketOutEvent event) {
+        packetOutHigh.forEach(consumer -> consumer.accept(event));
     }
 
     /**

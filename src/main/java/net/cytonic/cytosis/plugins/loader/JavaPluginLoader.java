@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.plugins.loader;
 
 import com.google.gson.Gson;
+import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.plugins.CytosisPlugin;
 import net.cytonic.cytosis.plugins.PluginContainer;
 import net.cytonic.cytosis.plugins.PluginDescription;
@@ -27,14 +28,8 @@ import java.util.jar.JarInputStream;
 /**
  * Implements loading a Java plugin.
  */
+@NoArgsConstructor
 public class JavaPluginLoader {
-
-
-    private final Path baseDirectory;
-
-    public JavaPluginLoader(Path baseDirectory) {
-        this.baseDirectory = baseDirectory;
-    }
 
     private static PluginDependency toDependencyMeta(SerializedDescription.Dependency dependency) {
         return new PluginDependency(dependency.id(), null, dependency.optional());
