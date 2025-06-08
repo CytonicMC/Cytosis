@@ -1,13 +1,15 @@
 package net.cytonic.cytosis.menus.snooper;
 
-import eu.koboo.minestom.invue.api.PlayerView;
-import eu.koboo.minestom.invue.api.ViewBuilder;
-import eu.koboo.minestom.invue.api.ViewType;
-import eu.koboo.minestom.invue.api.component.ViewProvider;
-import eu.koboo.minestom.invue.api.item.PrebuiltItem;
-import eu.koboo.minestom.invue.api.item.ViewItem;
-import eu.koboo.minestom.invue.api.pagination.ViewPagination;
-import eu.koboo.minestom.invue.api.slots.ViewPattern;
+
+import eu.koboo.minestom.stomui.api.PlayerView;
+import eu.koboo.minestom.stomui.api.ViewBuilder;
+import eu.koboo.minestom.stomui.api.ViewType;
+import eu.koboo.minestom.stomui.api.component.ViewProvider;
+import eu.koboo.minestom.stomui.api.item.PrebuiltItem;
+import eu.koboo.minestom.stomui.api.item.ViewItem;
+import eu.koboo.minestom.stomui.api.pagination.ItemRenderer;
+import eu.koboo.minestom.stomui.api.pagination.ViewPagination;
+import eu.koboo.minestom.stomui.api.slots.ViewPattern;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.containers.snooper.QueriedSnoop;
 import net.cytonic.cytosis.logging.Logger;
@@ -19,7 +21,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.click.Click;
-import net.minestom.server.inventory.click.ClickType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
@@ -34,15 +35,15 @@ public class SnooperProvider extends ViewProvider {
     public final byte permission;
     private final String id;
     private final ViewPattern pattern;
-    SnooperLoader loader = new SnooperLoader(new ArrayList<>());
-    private ViewPagination pagination;
+    private final ViewPagination<QueriedSnoop> pagination;
     private boolean ascending;
     private DateRange date = DateRange.SEVEN_DAYS;
-    private String search;
+    private final String search;
+    private PaginatedBorder border;
 
     public SnooperProvider(@NotNull final String id, String search, boolean ascending) {
         super(Cytosis.VIEW_REGISTRY, ViewBuilder.of(ViewType.SIZE_6_X_9)
-                .disableClickTypes(ClickType.DOUBLE_CLICK, ClickType.START_DOUBLE_CLICK)
+                .disableClickTypes(Click.Double.class)
                 .title(id));
 
         this.id = id;
@@ -61,33 +62,19 @@ public class SnooperProvider extends ViewProvider {
         );
 
         pagination = registry.pageable(
-                loader,
+                new SnooperRenderer(),
+                ItemStack.AIR,
                 pattern.getSlots('1')
         );
 
-        addChild(new PaginatedBorder(pagination, pattern));
-    }
 
-    private static PrebuiltItem generateItem(QueriedSnoop snoop) {
+        border = new PaginatedBorder<>(pagination, pattern);
 
-        List<Component> lore = new ArrayList<>();
-        lore.add(Msg.mm("<yellow>Channel: '<light_purple>" + snoop.channel() + "</light_purple>'"));
-        lore.add(Msg.mm("<yellow>Content:</yellow>"));
-        lore.addAll(Msg.wrap(snoop.rawContent()));
-        lore.add(Msg.mm(""));
-        lore.add(Msg.mm("<yellow>Sent: <light_purple>" + DurationParser.unparseFull(snoop.timestamp().toInstant()) + "</light_purple> ago."));
-
-        ItemStack item = ItemStack.builder(Material.PAPER)
-                .hideExtraTooltip()
-                .customName(Msg.mm("Snoop #" + snoop.id()))
-                .lore(lore)
-                .build();
-
-        return PrebuiltItem.of(item).cancelClicking();
+        addChild(border);
     }
 
     @Override
-    public void onStateUpdate(@NotNull PlayerView view, @NotNull Player player) {
+    public void onRebuild(@NotNull PlayerView view, @NotNull Player player) {
         ViewItem.bySlot(view, pattern.getSlot('O'))
                 .applyPrebuilt(toggleOrder());
         ViewItem.bySlot(view, pattern.getSlot('D'))
@@ -171,22 +158,10 @@ public class SnooperProvider extends ViewProvider {
 
         Cytosis.getSnooperManager().getPersistenceManager()
                 .query(id, permission, date.instantValue(), Instant.now(), this.ascending, this.search)
-                .thenAccept((result) -> {
-                    List<PrebuiltItem> list = new ArrayList<>();
-
-                    if (result.isEmpty()) {
-                        list.add(PrebuiltItem.empty()
-                                .material(Material.GRAY_STAINED_GLASS_PANE)
-                                .name("No data found!")
-                                .cancelClicking());
-                    } else {
-                        for (QueriedSnoop snoop : result) {
-                            list.add(generateItem(snoop));
-                        }
-                    }
-                    loader.setItems(list);
-                    pagination.reloadItems(view);
-
+                .thenAccept(queriedSnoops -> {
+                    pagination.clearItems();
+                    pagination.addItems(queriedSnoops);
+                    view.executeRebuild();
                 }).exceptionally(error -> {
                     if (error != null) {
                         ViewItem.bySlot(view, 22).applyPrebuilt(PrebuiltItem.empty()
@@ -197,5 +172,26 @@ public class SnooperProvider extends ViewProvider {
                     }
                     return null;
                 });
+    }
+
+    private static class SnooperRenderer implements ItemRenderer<QueriedSnoop> {
+
+        @Override
+        public PrebuiltItem render(QueriedSnoop snoop) {
+            List<Component> lore = new ArrayList<>();
+            lore.add(Msg.mm("<yellow>Channel: '<light_purple>" + snoop.channel() + "</light_purple>'"));
+            lore.add(Msg.mm("<yellow>Content:</yellow>"));
+            lore.addAll(Msg.wrap(snoop.rawContent()));
+            lore.add(Msg.mm(""));
+            lore.add(Msg.mm("<yellow>Sent: <light_purple>" + DurationParser.unparseFull(snoop.timestamp().toInstant()) + "</light_purple> ago."));
+
+            ItemStack item = ItemStack.builder(Material.PAPER)
+                    .hideExtraTooltip()
+                    .customName(Msg.mm("Snoop #" + snoop.id()))
+                    .lore(lore)
+                    .build();
+
+            return PrebuiltItem.of(item).cancelClicking();
+        }
     }
 }

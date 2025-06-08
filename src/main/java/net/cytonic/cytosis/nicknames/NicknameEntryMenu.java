@@ -1,16 +1,17 @@
 package net.cytonic.cytosis.nicknames;
 
-import eu.koboo.minestom.invue.api.PlayerView;
-import eu.koboo.minestom.invue.api.ViewBuilder;
-import eu.koboo.minestom.invue.api.ViewType;
-import eu.koboo.minestom.invue.api.component.ViewProvider;
-import eu.koboo.minestom.invue.api.interaction.AnvilInputInteraction;
-import eu.koboo.minestom.invue.api.item.ViewItem;
+
+import eu.koboo.minestom.stomui.api.PlayerView;
+import eu.koboo.minestom.stomui.api.ViewBuilder;
+import eu.koboo.minestom.stomui.api.ViewType;
+import eu.koboo.minestom.stomui.api.component.ViewProvider;
+import eu.koboo.minestom.stomui.api.interaction.AnvilInputInteraction;
+import eu.koboo.minestom.stomui.api.item.ViewItem;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.entity.Player;
-import net.minestom.server.inventory.click.ClickType;
+import net.minestom.server.inventory.click.Click;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +22,7 @@ public class NicknameEntryMenu extends ViewProvider implements AnvilInputInterac
 
     public NicknameEntryMenu() {
         super(Cytosis.VIEW_REGISTRY, ViewBuilder.of(ViewType.ANVIL).
-                disableClickTypes(ClickType.DOUBLE_CLICK, ClickType.START_DOUBLE_CLICK)
+                disableClickTypes(Click.Double.class)
                 .title("<black>Enter a nickname")
         );
     }
