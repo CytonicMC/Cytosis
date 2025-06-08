@@ -7,6 +7,7 @@ plugins {
     id("com.gradleup.shadow") version "8.3.6"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "1.3.1"
+    id("io.freefair.lombok") version "8.13.1"
 }
 
 group = "net.cytonic"
@@ -20,23 +21,21 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("net.minestom:minestom-snapshots:1_21_5-aa17002536")
-    compileOnlyApi("com.google.code.gson:gson:2.13.1") // serializing
-    compileOnlyApi("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
-    compileOnlyApi("dev.hollowcube:polar:1.14.0") // Polar
-    compileOnlyApi("redis.clients:jedis:6.0.0") // redis client
-    compileOnlyApi("com.google.guava:guava:33.4.8-jre")
-//    compileOnlyApi("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
-    compileOnlyApi("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
-    compileOnlyApi("eu.koboo:minestom-invue:2025.1.1") {
+    api("net.minestom:minestom-snapshots:1_21_5-aa17002536")
+    api("com.google.code.gson:gson:2.13.1") // serializing
+    api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
+    api("dev.hollowcube:polar:1.14.0") // Polar
+    api("redis.clients:jedis:6.0.0") // redis client
+    api("com.google.guava:guava:33.4.8-jre")
+//    api("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
+    api("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
+    api("eu.koboo:stomui:1.0.3-b1") {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
-    compileOnlyApi("org.spongepowered:configurate-gson:4.2.0")
-    compileOnlyApi("io.github.classgraph:classgraph:4.8.179")
+    api("org.spongepowered:configurate-gson:4.2.0")
+    api("io.github.classgraph:classgraph:4.8.179")
 
-    compileOnly("org.projectlombok:lombok:1.18.38") // lombok
-    annotationProcessor("org.projectlombok:lombok:1.18.38") // lombok
 
     runtimeDownload("net.kyori:adventure-text-minimessage:4.21.0")// better components
     runtimeDownload("com.mysql:mysql-connector-j:9.3.0") //mysql connector
@@ -51,7 +50,7 @@ dependencies {
     runtimeDownload("io.opentelemetry:opentelemetry-api:1.50.0")
     runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.50.0")
     runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.50.0")
-    runtimeDownload("eu.koboo:minestom-invue:2025.1.1") {
+    runtimeDownload("eu.koboo:stomui:1.0.2") {
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
@@ -142,10 +141,29 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     )
     from(sourceSets.main.get().output)
 
-    configurations = listOf(project.configurations.runtimeClasspath.get())
-
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
+    }
+}
+
+val apiArtifacts by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    extendsFrom(configurations.getByName("api"))
+}
+
+val apiJars = apiArtifacts
+    .resolvedConfiguration
+    .resolvedArtifacts
+    .map { it.file }
+
+thinShadow.configure {
+    configurations = listOf(project.configurations.runtimeClasspath.get())
+
+    doFirst {
+        apiJars.forEach { jar ->
+            exclude { it.file == jar }
+        }
     }
 }
 
@@ -198,6 +216,11 @@ tasks.jar {
     }
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+}
+
+tasks.shadowJar {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
 }
 
 tasks.register<Copy>("copyJarForDocker") {
@@ -286,5 +309,10 @@ fun String.runCommand(): String {
     }.start()
 
     return process.inputStream.bufferedReader().readText().trim()
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
