@@ -30,6 +30,7 @@ dependencies {
 //    api("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
     api("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
     api("eu.koboo:stomui:1.0.3-b1") {
+
         // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
@@ -47,19 +48,20 @@ dependencies {
     runtimeDownload("org.jooq:jooq:3.20.4") // database queries
 //    runtimeDownload("com.github.TogAr2:MinestomPvP:-SNAPSHOT") // pvp
     runtimeDownload("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
-    runtimeDownload("io.opentelemetry:opentelemetry-api:1.50.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.50.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.50.0")
     runtimeDownload("eu.koboo:stomui:1.0.2") {
-        // we want to use our own, thank you :)
+            // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
+    runtimeDownload("io.opentelemetry:opentelemetry-api:1.51.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.51.0")
+    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.51.0")
+   
 
     // the compileonlyapis need to be downloaded at runtime, too.
     runtimeDownloadOnly("net.minestom:minestom-snapshots:1_21_5-aa17002536")
     runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
     runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
-    runtimeDownloadOnly("dev.hollowcube:polar:1.14.0")
+    runtimeDownloadOnly("dev.hollowcube:polar:1.14.1")
     runtimeDownloadOnly("redis.clients:jedis:6.0.0")
     runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
 //    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")

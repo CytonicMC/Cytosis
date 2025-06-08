@@ -22,7 +22,6 @@ import net.minestom.server.entity.*;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.item.ItemDropEvent;
-import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.item.ItemStack;
@@ -58,17 +57,6 @@ public final class ServerEventListeners {
             //todo: add a preference to disable block updates
             event.setDoBlockUpdates(true);
         } else throw new IllegalStateException("Invalid player object");
-    }
-
-    @Listener
-    @Priority(1)
-    private void onPickup(PickupItemEvent event) {
-        final Entity entity = event.getLivingEntity();
-        if (entity instanceof Player) {
-            // Cancel event if player does not have enough inventory space
-            final ItemStack itemStack = event.getItemEntity().getItemStack();
-            event.setCancelled(!((Player) entity).getInventory().addItemStack(itemStack));
-        }
     }
 
     @Listener
