@@ -20,7 +20,7 @@ repositories {
     maven("https://repo.foxikle.dev/cytonic")
 }
 
-
+dependencies {
     api("net.minestom:minestom-snapshots:1_21_5-aa17002536")
     api("com.google.code.gson:gson:2.13.1") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
