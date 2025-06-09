@@ -41,6 +41,8 @@ public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;
 
+    @Listener
+    @Priority(1)
     private void onInteract(PlayerEntityInteractEvent event) {
         Optional<NPC> optional = Cytosis.getNpcManager().findNPC(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
