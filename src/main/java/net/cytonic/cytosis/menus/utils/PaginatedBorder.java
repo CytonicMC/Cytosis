@@ -1,48 +1,53 @@
 package net.cytonic.cytosis.menus.utils;
 
-import eu.koboo.minestom.invue.api.PlayerView;
-import eu.koboo.minestom.invue.api.component.ViewComponent;
-import eu.koboo.minestom.invue.api.interaction.Interactions;
-import eu.koboo.minestom.invue.api.item.ViewItem;
-import eu.koboo.minestom.invue.api.pagination.ViewPagination;
-import eu.koboo.minestom.invue.api.slots.ViewPattern;
+
+import eu.koboo.minestom.stomui.api.PlayerView;
+import eu.koboo.minestom.stomui.api.component.ViewComponent;
+import eu.koboo.minestom.stomui.api.interaction.Interactions;
+import eu.koboo.minestom.stomui.api.item.ViewItem;
+import eu.koboo.minestom.stomui.api.pagination.ViewPagination;
+import eu.koboo.minestom.stomui.api.slots.ViewPattern;
 import net.cytonic.cytosis.menus.MenuUtils;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
-public class PaginatedBorder extends ViewComponent {
-    ViewPagination pagination;
+public class PaginatedBorder<T> extends ViewComponent {
+    ViewPagination<T> pagination;
     ViewPattern pattern;
 
 
-    public PaginatedBorder(ViewPagination pagination, ViewPattern pattern) {
+    public PaginatedBorder(ViewPagination<T> pagination, ViewPattern pattern) {
         this.pagination = pagination;
         this.pattern = pattern;
         addChild(pagination);
     }
 
     @Override
-    public void onStateUpdate(@NotNull PlayerView view, @NotNull Player player) {
+    public void onRebuild(@NotNull PlayerView view, @NotNull Player player) {
         if (!pagination.hasNextPage()) {
             ViewItem.bySlot(view, pattern.getSlot('>'))
                     .applyPrebuilt(MenuUtils.BORDER);
+            player.sendMessage("No Next");
         } else {
             ViewItem.bySlot(view, pattern.getSlot('>'))
                     .material(Material.ARROW)
                     .name(Msg.mm("<green>Next (" + pagination.getCurrentPage() + ")"))
-                    .hideTooltip(false)
+                    .hideTooltip(true)
                     .interaction(Interactions.toNextPage(pagination));
+            player.sendMessage("Yes Next");
         }
 
         if (!pagination.hasPreviousPage()) {
             ViewItem.bySlot(view, pattern.getSlot('<'))
                     .applyPrebuilt(MenuUtils.BORDER);
+            player.sendMessage("No previous");
         } else {
+            player.sendMessage("Yes previous");
             ViewItem.bySlot(view, pattern.getSlot('<'))
                     .material(Material.ARROW)
-                    .hideTooltip(false)
+                    .hideTooltip(true)
                     .name(Msg.mm("<green>Previous (" + pagination.getCurrentPage() + ")"))
                     .interaction(Interactions.toPreviousPage(pagination));
         }
