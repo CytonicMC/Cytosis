@@ -12,6 +12,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'cytonicmc/cytosis'
     runs-on: ubuntu-latest
     env:
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
