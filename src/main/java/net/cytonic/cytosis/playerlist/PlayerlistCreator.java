@@ -6,7 +6,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 
@@ -38,9 +37,11 @@ public interface PlayerlistCreator {
                 }
 
                 if (player.isStaff()) {
-                    players.add(new PlayerListEntry(p.getTrueRank().getPrefix().color(TextColor.fromHexString("#BEFEFE"))
-                            .decorate(TextDecoration.UNDERLINED, TextDecoration.ITALIC)
-                            .append(p.getTrueName()), p.getRank().ordinal(),
+                    players.add(new PlayerListEntry(
+                            p.getTrueRank().getPrefix()
+                                    .append(p.getTrueName())
+                                    .append(Msg.darkAqua(" \uD83C\uDFAD"))
+                            , p.getRank().ordinal(),
                             new PlayerInfoUpdatePacket.Property("textures", p.getTrueSkin().textures(), p.getTrueSkin().signature())));
                     continue;
                 }
