@@ -47,7 +47,7 @@ dependencies {
     runtimeDownload("org.jooq:jooq:3.20.4") // database queries
 //    runtimeDownload("com.github.TogAr2:MinestomPvP:-SNAPSHOT") // pvp
     runtimeDownload("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
-    runtimeDownload("eu.koboo:stomui:1.0.2") {
+    runtimeDownload("eu.koboo:stomui:1.0.3-b1") {
             // we want to use our own, thank you :)
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
