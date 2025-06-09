@@ -21,56 +21,48 @@ repositories {
 }
 
 dependencies {
-    api("net.minestom:minestom-snapshots:1_21_5-aa17002536")
-    api("com.google.code.gson:gson:2.13.1") // serializing
-    api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
-    api("dev.hollowcube:polar:1.14.0") // Polar
-    api("redis.clients:jedis:6.0.0") // redis client
-    api("com.google.guava:guava:33.4.8-jre")
-//    api("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
-    api("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
-    api("eu.koboo:stomui:1.0.3-b1") {
-        // we want to use our own, thank you :)
+    api(libs.minestom)
+    api(libs.gson)
+    api(libs.okhttp)
+    api(libs.polar)
+    api(libs.jedis)
+    api(libs.guava)
+    api(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
-    api("org.spongepowered:configurate-gson:4.2.0")
-    api("io.github.classgraph:classgraph:4.8.179")
-
-
-    runtimeDownload("net.kyori:adventure-text-minimessage:4.21.0")// better components
-    runtimeDownload("com.mysql:mysql-connector-j:9.3.0") //mysql connector
-    runtimeDownload("org.reflections:reflections:0.10.2") // reflection utils
-    runtimeDownload("org.slf4j:slf4j-api:2.0.17")  // SLF4J API
-    runtimeDownload("org.apache.logging.log4j:log4j-core:2.24.3")  // Log4j core
-    runtimeDownload("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    runtimeDownload("io.nats:jnats:2.21.2")
-    runtimeDownload("org.jooq:jooq:3.20.4") // database queries
-//    runtimeDownload("com.github.TogAr2:MinestomPvP:-SNAPSHOT") // pvp
-    runtimeDownload("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT") // pvp
-    runtimeDownload("eu.koboo:stomui:1.0.3-b1") {
-            // we want to use our own, thank you :)
+    api(libs.stomui) {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
-    runtimeDownload("io.opentelemetry:opentelemetry-api:1.51.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-sdk:1.51.0")
-    runtimeDownload("io.opentelemetry:opentelemetry-exporter-otlp:1.51.0")
-   
+    api(libs.configurate)
+    api(libs.classgraph)
+
+
+    runtimeDownload(libs.minimessage)
+    runtimeDownload(libs.mysql)
+    runtimeDownload(libs.reflections)
+    runtimeDownload(libs.bundles.log4j)
+    runtimeDownload(libs.jnats)
+    runtimeDownload(libs.jooq)
+    runtimeDownload(libs.bundles.otel)
 
     // the compileonlyapis need to be downloaded at runtime, too.
-    runtimeDownloadOnly("net.minestom:minestom-snapshots:1_21_5-aa17002536")
-    runtimeDownloadOnly("com.google.code.gson:gson:2.13.1")
-    runtimeDownloadOnly("com.squareup.okhttp3:okhttp:4.12.0")
-    runtimeDownloadOnly("dev.hollowcube:polar:1.14.2")
-    runtimeDownloadOnly("redis.clients:jedis:6.0.0")
-    runtimeDownloadOnly("com.google.guava:guava:33.4.8-jre")
-//    runtimeDownloadOnly("com.github.TogAr2:MinestomPvP:1b2f862baa")
-    runtimeDownloadOnly("com.github.CodeDoctorDE:MinestomPvP:1_21_5-SNAPSHOT")
-    runtimeDownloadOnly("eu.koboo:minestom-invue:2025.1.1")
-    runtimeDownloadOnly("org.spongepowered:configurate-gson:4.2.0")
-    runtimeDownloadOnly("io.github.classgraph:classgraph:4.8.179")
+    runtimeDownloadOnly(libs.minestom)
+    runtimeDownloadOnly(libs.gson)
+    runtimeDownloadOnly(libs.okhttp)
+    runtimeDownloadOnly(libs.polar)
+    runtimeDownloadOnly(libs.jedis)
+    runtimeDownloadOnly(libs.guava)
+    runtimeDownloadOnly(libs.stomui) {
+        exclude(group = "net.minestom", module = "minestom-snapshots")
+    }
+    runtimeDownloadOnly(libs.configurate)
+    runtimeDownloadOnly(libs.classgraph)
+    runtimeDownloadOnly(libs.minestompvp) {
+        exclude(group = "net.minestom", module = "minestom-snapshots")
+    }
 
     // Dependency loading
-    implementation("dev.vankka:dependencydownload-runtime:1.3.1")
+    implementation(libs.dependencydownload)
 }
 
 tasks.withType<Javadoc> {
