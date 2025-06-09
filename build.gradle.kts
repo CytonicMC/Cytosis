@@ -24,7 +24,7 @@ dependencies {
     api("net.minestom:minestom-snapshots:1_21_5-aa17002536")
     api("com.google.code.gson:gson:2.13.1") // serializing
     api("com.squareup.okhttp3:okhttp:4.12.0") // http api requests
-    api("dev.hollowcube:polar:1.14.0") // Polar
+    api("dev.hollowcube:polar:1.14.2") // Polar
     api("redis.clients:jedis:6.0.0") // redis client
     api("com.google.guava:guava:33.4.8-jre")
 //    api("com.github.TogAr2:MinestomPvP:-SNAPSHOT")
