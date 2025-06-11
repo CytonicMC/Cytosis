@@ -404,28 +404,27 @@ public final class Cytosis {
                 .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         AtomicInteger counter = new AtomicInteger(0);
+        Map<Class<?>, Object> instances = new HashMap<>();
         graph.scan()
                 .getClassesWithMethodAnnotation(Listener.class.getName())
                 .forEach(classInfo -> {
                     Class<?> clazz = classInfo.loadClass();
+                    Object instance;
+                    try {
+                        Constructor<?> constructor = clazz.getDeclaredConstructor();
+                        constructor.setAccessible(true);
+                        instance = constructor.newInstance();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException e) {
+                        Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
+                        return;
+                    }
 
                     for (Method method : clazz.getDeclaredMethods()) {
                         if (method.isAnnotationPresent(Listener.class)) {
                             method.setAccessible(true); // make the method accessible so we can call it later on
                             int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
                             boolean async = method.isAnnotationPresent(Async.class);
-
-                            Object instance;
-                            try {
-                                Constructor<?> constructor = clazz.getDeclaredConstructor();
-                                constructor.setAccessible(true);
-                                instance = constructor.newInstance();
-                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                                     NoSuchMethodException e) {
-                                Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
-                                return;
-                            }
-
 
                             Class<? extends Event> eventClass;
                             try {
