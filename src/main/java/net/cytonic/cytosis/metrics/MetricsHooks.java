@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.metrics;
 
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.ServerEventListeners;
@@ -40,7 +41,8 @@ public class MetricsHooks {
 
         mm.createDoubleGauge("cpu.usage",
                 "Percent usage of the server cpu",
-                "%", unused -> ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(), Attributes.empty());
+                "%", unused -> ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(),
+                Attributes.of(AttributeKey.stringKey("service"), "cytosis"));
 
 
         mm.createLongCounter("players.unique", "The number of unique players that have played",
