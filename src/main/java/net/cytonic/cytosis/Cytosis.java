@@ -568,10 +568,10 @@ public final class Cytosis {
     }
 
     private static void shutdownHandler() {
+        pluginManager.unloadPlugins();
         natsManager.shutdown();
         databaseManager.shutdown();
         sideboardManager.cancelUpdates();
-        pluginManager.unloadPlugins();
         getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
     }
 
