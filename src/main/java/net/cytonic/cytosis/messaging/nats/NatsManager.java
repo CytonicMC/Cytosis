@@ -348,6 +348,7 @@ public class NatsManager {
             Cytosis.getCytonicNetwork().addPlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().loadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLoginMessage(container.uuid());
+            Cytosis.getRankManager().loadPlayer(container.uuid());
         }).subscribe(Subjects.PLAYER_JOIN));
 
         Thread.ofVirtual().name("NATS Player Leave").start(() -> connection.createDispatcher(msg -> {

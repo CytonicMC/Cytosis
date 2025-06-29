@@ -125,6 +125,31 @@ public class RankManager {
     }
 
     /**
+     * Removes a player from the manager.
+     *
+     * @param player The player
+     */
+    public void removePlayer(UUID player) {
+        rankMap.remove(player);
+    }
+
+    /**
+     * Loads this player's rank from the database
+     *
+     * @param player the player whose rank to load
+     */
+    public void loadPlayer(UUID player) {
+        Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player)
+                .thenAccept(playerRank -> {
+                    rankMap.put(player, playerRank);
+                }).exceptionally(throwable -> {
+                    Logger.error("An error occured whilst fetching " + player + "'s rank!", throwable);
+                    return null;
+                });
+    }
+
+
+    /**
      * Gets a player's rank
      *
      * @param uuid The uuid of the player
