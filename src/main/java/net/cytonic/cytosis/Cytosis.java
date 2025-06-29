@@ -351,7 +351,7 @@ public final class Cytosis {
             Logger.info("Loading network setup!");
             cytonicNetwork = new CytonicNetwork();
             cytonicNetwork.importData();
-            cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, serverGroup.type(), serverGroup.group(), Instant.now()));
+            cytonicNetwork.getServers().put(SERVER_ID, new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, serverGroup.type(), serverGroup.group()));
         } catch (Exception e) {
             Logger.error("An error occurred whilst loading network setup!", e);
         }
@@ -618,6 +618,6 @@ public final class Cytosis {
     }
 
     public static CytonicServer currentServer() {
-        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, serverGroup.type(), serverGroup.group(), Instant.now());
+        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, serverGroup.type(), serverGroup.group());
     }
 }

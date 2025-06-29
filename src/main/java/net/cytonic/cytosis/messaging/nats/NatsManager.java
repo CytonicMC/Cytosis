@@ -424,7 +424,7 @@ public class NatsManager {
     public void listenForServerStatus() {
         Thread.ofVirtual().name("NATS Server Start").start(() -> connection.createDispatcher(msg -> {
             var container = ServerStatusContainer.deserialize(new String(msg.getData()));
-            Cytosis.getCytonicNetwork().getServers().put(container.id(), new CytonicServer(container.ip(), container.id(), container.port(), container.type(), container.group(), container.last_seen()));
+            Cytosis.getCytonicNetwork().getServers().put(container.id(), container.server());
             Logger.info("Registered server: " + container.id());
 
             Cytosis.getOnlinePlayers().forEach(player -> {
