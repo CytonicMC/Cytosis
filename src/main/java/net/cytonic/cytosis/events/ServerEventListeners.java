@@ -16,19 +16,16 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.*;
+import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Metadata;
+import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
-import net.minestom.server.utils.time.TimeUnit;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -59,20 +56,6 @@ public final class ServerEventListeners {
             //todo: add a preference to disable block updates
             event.setDoBlockUpdates(true);
         } else throw new IllegalStateException("Invalid player object");
-    }
-
-    @Listener
-    @Priority(1)
-    private void onDrop(ItemDropEvent event) {
-        final Player player = event.getPlayer();
-        ItemStack droppedItem = event.getItemStack();
-
-        Pos playerPos = player.getPosition();
-        ItemEntity itemEntity = new ItemEntity(droppedItem);
-        itemEntity.setPickupDelay(Duration.of(2000, TimeUnit.MILLISECOND));
-        itemEntity.setInstance(player.getInstance(), playerPos.withY(y -> y + 1.5));
-        Vec velocity = playerPos.direction().mul(6);
-        itemEntity.setVelocity(velocity);
     }
 
     @Listener
