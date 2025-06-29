@@ -424,7 +424,7 @@ public class NatsManager {
     public void listenForServerStatus() {
         Thread.ofVirtual().name("NATS Server Start").start(() -> connection.createDispatcher(msg -> {
             var container = ServerStatusContainer.deserialize(new String(msg.getData()));
-            Cytosis.getCytonicNetwork().getServers().put(container.id(), new CytonicServer(container.ip(), container.id(), container.port()));
+            Cytosis.getCytonicNetwork().getServers().put(container.id(), container.server());
             Logger.info("Registered server: " + container.id());
 
             Cytosis.getOnlinePlayers().forEach(player -> {
@@ -437,7 +437,7 @@ public class NatsManager {
 
         Thread.ofVirtual().name("NATS Server Stop").start(() -> connection.createDispatcher(msg -> {
             var container = ServerStatusContainer.deserialize(new String(msg.getData()));
-            Cytosis.getCytonicNetwork().getServers().remove(container.id(), new CytonicServer(container.ip(), container.id(), container.port()));
+            Cytosis.getCytonicNetwork().getServers().remove(container.id(), container.server());
             Cytosis.getOnlinePlayers().forEach(player -> {
                 if (!player.isAdmin()) return;
                 if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
@@ -448,7 +448,7 @@ public class NatsManager {
 
         Thread.ofVirtual().name("NATS Server Proxy Shutdown").start(() -> connection.createDispatcher(msg -> {
             var container = ServerStatusContainer.deserialize(new String(msg.getData()));
-            Cytosis.getCytonicNetwork().getServers().remove(container.id(), new CytonicServer(container.ip(), container.id(), container.port()));
+            Cytosis.getCytonicNetwork().getServers().remove(container.id(), container.server());
         }).subscribe(Subjects.SERVER_SHUTDOWN_NOTIFY));
     }
 
