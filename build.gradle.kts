@@ -275,9 +275,7 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-            artifact(fatShadow.get().archiveFile)
-            artifact(javadocJar)
-            artifact(sourcesJar)
+            from(components["java"])
         }
     }
 }
@@ -304,8 +302,14 @@ fun String.runCommand(): String {
     return process.inputStream.bufferedReader().readText().trim()
 }
 
+tasks.withType<Zip> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 java {
     withSourcesJar()
     withJavadocJar()
+
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
