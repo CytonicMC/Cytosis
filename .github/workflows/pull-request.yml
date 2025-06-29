@@ -2,14 +2,9 @@ name: Build Pull Request
 
 on: [ pull_request ]
 
-env:
-  REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-  REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
 
     steps:
       - uses: actions/checkout@v4
@@ -18,13 +13,8 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      #      - run: chmod +x gradlew
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Assemble
-        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview assemble
-        env:
-          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-          REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+      - name: Assemble Jar
+        run: gradle --no-daemon fatJar

@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'cytonicmc/cytosis'
+    if: github.repository == 'CytonicMC/Cytosis'
     runs-on: ubuntu-latest
     env:
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
@@ -25,13 +25,11 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      #      - run: chmod +x gradlew
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish
-        run: ./gradlew -Dorg.gradle.jvmargs=--enable-preview publish
+      - name: Publish Jar
+        run: gradle --no-daemon publish
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
