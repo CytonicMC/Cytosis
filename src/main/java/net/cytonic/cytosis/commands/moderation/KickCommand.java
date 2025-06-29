@@ -41,7 +41,7 @@ public class KickCommand extends CytosisCommand {
                     return;
                 }
 
-                PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
+                PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
                 if (rank == null) {
                     sender.sendMessage(Msg.whoops("Failed to fine %s's rank!", player));
                     return;

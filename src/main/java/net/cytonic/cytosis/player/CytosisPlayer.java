@@ -6,6 +6,7 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
@@ -42,11 +43,18 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
+        rank = Cytosis.getRankManager().getPlayerRank(uuid).orElseGet(() -> {
+            Logger.debug("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
+            return PlayerRank.DEFAULT;
+        });
     }
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
-        rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElse(PlayerRank.DEFAULT);
+        rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
+            Logger.debug("The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
+            return PlayerRank.DEFAULT;
+        });
     }
 
     public PlayerRank getTrueRank() {

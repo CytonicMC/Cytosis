@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CytonicNetwork {
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
     private final BiMap<UUID, String> lifetimeFlattened = new BiMap<>(); // uuid, lowercased name
-    private final Map<UUID, PlayerRank> playerRanks = new ConcurrentHashMap<>(); // <player, rank> ** This is for reference and should not be used to set data **
+    private final Map<UUID, PlayerRank> cachedPlayerRanks = new ConcurrentHashMap<>(); // <player, rank> ** This is for reference and should not be used to set data **
     private final BiMap<UUID, String> onlinePlayers = new BiMap<>();
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
@@ -79,7 +79,7 @@ public class CytonicNetwork {
             }
             try {
                 while (rs.next()) {
-                    playerRanks.put(UUID.fromString(rs.getString("uuid")), PlayerRank.valueOf(rs.getString("rank_id")));
+                    cachedPlayerRanks.put(UUID.fromString(rs.getString("uuid")), PlayerRank.valueOf(rs.getString("rank_id")));
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading ranks!", e);
@@ -138,7 +138,7 @@ public class CytonicNetwork {
         lifetimePlayers.put(uuid, name);
         lifetimeFlattened.put(uuid, name.toLowerCase());
         // the player has not played before
-        playerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
+        cachedPlayerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
 
         MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
@@ -159,7 +159,7 @@ public class CytonicNetwork {
             }
             try {
                 while (rs.next()) {
-                    playerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank_id")));
+                    cachedPlayerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank_id")));
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading ranks!", e);
@@ -215,8 +215,8 @@ public class CytonicNetwork {
      * @param uuid The player's UUID
      * @param rank The player's new rank
      */
-    public void updatePlayerRank(UUID uuid, PlayerRank rank) {
-        playerRanks.put(uuid, rank);
+    public void updateCachedPlayerRank(UUID uuid, PlayerRank rank) {
+        cachedPlayerRanks.put(uuid, rank);
     }
 
     /**
@@ -245,7 +245,7 @@ public class CytonicNetwork {
     /**
      * Processes a player server change.
      *
-     * @param container The container recived over NATS or some message broker
+     * @param container The container received over NATS or some message broker
      */
     public void processPlayerServerChange(PlayerChangeServerContainer container) {
         networkPlayersOnServers.remove(container.player());

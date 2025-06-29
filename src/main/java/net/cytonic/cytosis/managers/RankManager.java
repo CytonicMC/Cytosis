@@ -11,8 +11,6 @@ import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,25 +38,6 @@ public class RankManager {
                     .build();
             teamMap.put(value, team);
         }
-
-        PreparedStatement ps = db.prepare("SELECT * FROM cytonic_ranks");
-        db.query(ps).whenComplete((resultSet, throwable) -> {
-            if (throwable != null) {
-                Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
-                MinecraftServer.stopCleanly();
-                return;
-            }
-
-            try {
-                while (resultSet.next()) {
-                    rankMap.put(UUID.fromString(resultSet.getString("uuid")), PlayerRank.valueOf(resultSet.getString("rank_id")));
-                }
-            } catch (SQLException ex) {
-                Logger.error(" ===== FATAL: Failed to load player ranks =====", ex);
-                MinecraftServer.stopCleanly();
-                return;
-            }
-        });
     }
 
     /**
@@ -68,7 +47,7 @@ public class RankManager {
      */
     public void addPlayer(CytosisPlayer player) {
         // cache the rank
-        Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
+        db.getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occured whilst fetching " + player.getUsername() + "'s rank!", throwable);
                 return;
@@ -93,8 +72,8 @@ public class RankManager {
         rankMap.put(player.getUuid(), rank);
         player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
-        Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
-        player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
+        Cytosis.getCytonicNetwork().updateCachedPlayerRank(player.getUuid(), rank);
+        player.refreshCommands();
     }
 
     /**
@@ -129,6 +108,19 @@ public class RankManager {
      */
     public void removePlayer(UUID player) {
         rankMap.remove(player);
+    }
+
+    /**
+     * Loads this player's rank from the database
+     *
+     * @param player the player whose rank to load
+     */
+    public void loadPlayer(UUID player) {
+        db.getPlayerRank(player)
+                .thenAccept(playerRank -> rankMap.put(player, playerRank)).exceptionally(throwable -> {
+                    Logger.error("An error occured whilst fetching " + player + "'s rank!", throwable);
+                    return null;
+                });
     }
 
 

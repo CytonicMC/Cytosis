@@ -160,8 +160,8 @@ public class NatsManager {
 
                 String targetName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.recipient());
                 String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.sender());
-                PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.recipient());
-                PlayerRank senderRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.sender());
+                PlayerRank targetRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.recipient());
+                PlayerRank senderRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.sender());
 
 
                 Component target = targetRank.getPrefix().append(Component.text(targetName));
@@ -189,8 +189,8 @@ public class NatsManager {
 
                 String targetName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.recipient());
                 String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.sender());
-                PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.recipient());
-                PlayerRank senderRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.sender());
+                PlayerRank targetRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.recipient());
+                PlayerRank senderRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.sender());
 
 
                 Component target = targetRank.getPrefix().append(Component.text(targetName));
@@ -221,8 +221,8 @@ public class NatsManager {
 
                 String targetName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.recipient());
                 String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.sender());
-                PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.recipient());
-                PlayerRank senderRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.sender());
+                PlayerRank targetRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.recipient());
+                PlayerRank senderRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.sender());
 
 
                 Component target = targetRank.getPrefix().append(Component.text(targetName));
@@ -256,7 +256,7 @@ public class NatsManager {
             if (response.success()) return; // it was successful, no need to tell anyone
 
             String recipientName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.recipient());
-            PlayerRank recipientRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.recipient());
+            PlayerRank recipientRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.recipient());
             Component recipient = recipientRank.getPrefix().append(Component.text(recipientName));
 
             if (response.code().equalsIgnoreCase("ALREADY_SENT")) {
@@ -303,7 +303,7 @@ public class NatsManager {
         if (api.success()) return;
 
         String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(sender);
-        PlayerRank recipientRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(sender);
+        PlayerRank recipientRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(sender);
         Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
@@ -326,7 +326,7 @@ public class NatsManager {
         FriendApiResponse api = FriendApiResponse.deserialize(response);
 
         String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(sender);
-        PlayerRank recipientRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(sender);
+        PlayerRank recipientRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(sender);
         Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
@@ -348,6 +348,7 @@ public class NatsManager {
             Cytosis.getCytonicNetwork().addPlayer(container.username(), container.uuid());
             Cytosis.getPreferenceManager().loadPlayerPreferences(container.uuid());
             Cytosis.getFriendManager().sendLoginMessage(container.uuid());
+            Cytosis.getRankManager().loadPlayer(container.uuid());
         }).subscribe(Subjects.PLAYER_JOIN));
 
         Thread.ofVirtual().name("NATS Player Leave").start(() -> connection.createDispatcher(msg -> {
@@ -368,8 +369,8 @@ public class NatsManager {
 
             String targetName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.recipient());
             String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(request.sender());
-            PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.recipient());
-            PlayerRank senderRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(request.sender());
+            PlayerRank targetRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.recipient());
+            PlayerRank senderRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(request.sender());
             Component target = targetRank.getPrefix().append(Component.text(targetName));
             Component sender = senderRank.getPrefix().append(Component.text(senderName));
 
@@ -398,8 +399,8 @@ public class NatsManager {
 
             String targetName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(tuple.getSecond());
             String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(tuple.getFirst());
-            PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(tuple.getSecond());
-            PlayerRank senderRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(tuple.getFirst());
+            PlayerRank targetRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(tuple.getSecond());
+            PlayerRank senderRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(tuple.getFirst());
 
 
             Component target = targetRank.getPrefix().append(Component.text(targetName));
@@ -493,7 +494,7 @@ public class NatsManager {
 
             }, () -> {
                 Cytosis.getRankManager().changeRankSilently(container.player(), container.rank());
-                Cytosis.getCytonicNetwork().updatePlayerRank(container.player(), container.rank());
+                Cytosis.getCytonicNetwork().updateCachedPlayerRank(container.player(), container.rank());
             });
         }).subscribe(Subjects.PLAYER_RANK_UPDATE));
     }

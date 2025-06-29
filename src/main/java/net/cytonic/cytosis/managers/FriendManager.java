@@ -183,7 +183,7 @@ public class FriendManager {
         player.sendMessage(Msg.aquaSplash("Friends List", "(" + getFriends(player.getUuid()).size() + ") <dark_gray>»</dark_gray>"));
 
         for (UUID friend : getFriends(player.getUuid())) {
-            PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(friend);
+            PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(friend);
             boolean online = Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(friend);
             String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(friend);
             player.sendMessage(Msg.mm("<dark_gray>  > </dark_gray>").append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - ")).append(online ? Msg.coloredBadge("ONLINE!", "green") : Msg.coloredBadge("OFFLINE :(", "red"))));
@@ -196,7 +196,7 @@ public class FriendManager {
      * @param uuid the player who logged out
      */
     public void sendLogoutMessage(UUID uuid) {
-        PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
+        PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
         Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> left."));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
@@ -211,7 +211,7 @@ public class FriendManager {
      * @param uuid the player who logged in
      */
     public void sendLoginMessage(UUID uuid) {
-        PlayerRank rank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
+        PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
         Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> joined."));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
