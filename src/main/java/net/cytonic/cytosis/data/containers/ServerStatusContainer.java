@@ -49,6 +49,6 @@ public record ServerStatusContainer(String type, String ip, String id, int port,
      * @see CytonicServer
      */
     public CytonicServer server() {
-        return new CytonicServer(ip, id, port);
+        return new CytonicServer(ip, id, port, type, group, last_seen);
     }
 }

@@ -8,9 +8,8 @@ import com.google.gson.Gson;
  *
  * @param group          the group of the server group
  * @param type     the map name of the server group
- * @param canFallback whether you can fall back to this server group
  */
-public record ServerGroup(String group, String type, boolean canFallback) {
+public record ServerGroup(String group, String type) {
 
     /**
      * Deserializes the given json into a {@link ServerGroup}
