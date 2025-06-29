@@ -13,10 +13,9 @@ import java.time.Instant;
  * @param port     The port of the server, usually 25565
  * @param type     The server type of the server
  * @param group    The server group of the server
- * @param lastSeen The last time cydian received a keepalive
  */
 @SuppressWarnings("unused")
-public record CytonicServer(String ip, String id, int port, String type, String group, Instant lastSeen) {
+public record CytonicServer(String ip, String id, int port, String type, String group) {
 
     /**
      * Converts a serialized string into a CytonicServer
