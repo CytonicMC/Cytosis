@@ -22,7 +22,7 @@ public class SnoopUtils {
     }
 
     public static Component toTarget(UUID uuid) {
-        return Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid).getPrefix()
+        return Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid).getPrefix()
                 .append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)));
     }
 }

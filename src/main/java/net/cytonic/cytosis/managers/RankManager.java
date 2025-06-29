@@ -42,22 +42,24 @@ public class RankManager {
         }
 
         PreparedStatement ps = db.prepare("SELECT * FROM cytonic_ranks");
-        db.query(ps).whenComplete((resultSet, throwable) -> {
-            if (throwable != null) {
-                Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
-                MinecraftServer.stopCleanly();
-                return;
-            }
-
+        db.query(ps).thenAccept(resultSet -> {
             try {
                 while (resultSet.next()) {
-                    rankMap.put(UUID.fromString(resultSet.getString("uuid")), PlayerRank.valueOf(resultSet.getString("rank_id")));
+                    rankMap.put(
+                            UUID.fromString(resultSet.getString("uuid")),
+                            PlayerRank.valueOf(resultSet.getString("rank_id"))
+                    );
                 }
             } catch (SQLException ex) {
                 Logger.error(" ===== FATAL: Failed to load player ranks =====", ex);
                 MinecraftServer.stopCleanly();
                 return;
             }
+            Logger.info("Loaded %d players' rank data!", rankMap.size());
+        }).exceptionally(throwable -> {
+            Logger.error(" ===== FATAL: Failed to load player ranks =====", throwable);
+            MinecraftServer.stopCleanly();
+            return null;
         });
     }
 
@@ -93,8 +95,8 @@ public class RankManager {
         rankMap.put(player.getUuid(), rank);
         player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
-        Cytosis.getCytonicNetwork().updatePlayerRank(player.getUuid(), rank);
-        player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
+        Cytosis.getCytonicNetwork().updateCachedPlayerRank(player.getUuid(), rank);
+        player.refreshCommands();
     }
 
     /**
@@ -121,16 +123,6 @@ public class RankManager {
             player.setVanished(true); // ranks can mess up the visuals sometimes
         }
     }
-
-    /**
-     * Removes a player from the manager.
-     *
-     * @param player The player
-     */
-    public void removePlayer(UUID player) {
-        rankMap.remove(player);
-    }
-
 
     /**
      * Gets a player's rank

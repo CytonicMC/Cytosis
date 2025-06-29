@@ -91,7 +91,7 @@ public class FriendCommand extends CytosisCommand {
                 return;
             }
 
-            Component targetComp = Cytosis.getCytonicNetwork().getPlayerRanks().get(target).getPrefix().append(Component.text(name));
+            Component targetComp = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(target).getPrefix().append(Component.text(name));
 
             switch (context.get(action).toLowerCase(Locale.ROOT)) {
                 case "add" -> {

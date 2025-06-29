@@ -42,7 +42,7 @@ public class MsgCommand extends CytosisCommand {
                 }
 
                 UUID uuid = Cytosis.getCytonicNetwork().getOnlineFlattened().getByValue(player.toLowerCase());
-                PlayerRank targetRank = Cytosis.getCytonicNetwork().getPlayerRanks().get(uuid);
+                PlayerRank targetRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
 
                 if (msg.isEmpty()) {
                     Component recipient = targetRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getOnlinePlayers().getByKey(uuid), targetRank.getTeamColor()));
