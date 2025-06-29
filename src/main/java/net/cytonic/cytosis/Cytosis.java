@@ -491,6 +491,48 @@ public final class Cytosis {
     }
 
     /**
+     * Returns the online players as the specified player implementation
+     *
+     * @param clazz the player implementation class
+     * @param <T>   the type
+     * @return the players, potentially empty.
+     */
+    public static <T extends CytosisPlayer> Set<T> getOnlinePlayersAs(Class<T> clazz) {
+        HashSet<T> players = new HashSet<>();
+
+        for (@NotNull Player onlinePlayer : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
+            if (clazz.isAssignableFrom(onlinePlayer.getClass())) {
+                players.add(clazz.cast(onlinePlayer));
+            }
+        }
+        return players;
+    }
+
+    /**
+     * Gets the player if they are on THIS instance, by USERNAME
+     *
+     * @param username The name to fetch the player by
+     * @param clazz    The type to cast the player to
+     * @param <T>      The new type of the player
+     * @return The optional holding the player if they exist
+     */
+    public static <T extends CytosisPlayer> Optional<T> getPlayerAs(String username, Class<T> clazz) {
+        return getPlayer(username).map(clazz::cast);
+    }
+
+    /**
+     * Gets the player if they are on THIS instance, by UNIQUE ID
+     *
+     * @param player The name to fetch the player by
+     * @param clazz  The type to cast the player to
+     * @param <T>    The new type of the player
+     * @return The optional holding the player if they exist
+     */
+    public static <T extends CytosisPlayer> Optional<T> getPlayerAs(UUID player, Class<T> clazz) {
+        return getPlayer(player).map(clazz::cast);
+    }
+
+    /**
      * Gets the player if they are on THIS instance, by USERNAME
      *
      * @param username The name to fetch the player by
