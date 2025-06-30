@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.plugins.loader;
 
-import com.google.gson.Gson;
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.plugins.CytosisPlugin;
 import net.cytonic.cytosis.plugins.PluginContainer;
 import net.cytonic.cytosis.plugins.PluginDescription;
@@ -110,7 +110,7 @@ public class JavaPluginLoader {
             while ((entry = in.getNextJarEntry()) != null) {
                 if (entry.getName().equals("cytosis-plugin.json")) {
                     try (Reader pluginInfoReader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
-                        return Optional.of(new Gson().fromJson(pluginInfoReader, SerializedDescription.class));
+                        return Optional.of(Cytosis.GSON.fromJson(pluginInfoReader, SerializedDescription.class));
                     }
                 }
 

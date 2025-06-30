@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.containers.friends;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -16,7 +16,7 @@ public record OrganicFriendResponse(UUID sender, UUID recipient) {
      * @return the deserailized object
      */
     public static OrganicFriendResponse deserialize(String json) {
-        return new Gson().fromJson(json, OrganicFriendResponse.class);
+        return Cytosis.GSON.fromJson(json, OrganicFriendResponse.class);
     }
 
     public static byte[] create(UUID sender, UUID recipient) {
@@ -29,7 +29,7 @@ public record OrganicFriendResponse(UUID sender, UUID recipient) {
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

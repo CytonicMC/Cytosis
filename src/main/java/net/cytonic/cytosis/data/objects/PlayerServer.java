@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.objects;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public record PlayerServer(UUID uuid, CytonicServer server) {
      * @return the playerServer object
      */
     public static PlayerServer deserialize(String json) {
-        return new Gson().fromJson(json, PlayerServer.class);
+        return Cytosis.GSON.fromJson(json, PlayerServer.class);
     }
 
     /**
@@ -28,7 +28,7 @@ public record PlayerServer(UUID uuid, CytonicServer server) {
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

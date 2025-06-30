@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.data.containers;
 
-import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.cytonic.cytosis.Cytosis;
 import net.kyori.adventure.key.Key;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class CooldownUpdateContainer implements Container {
      */
     @Override
     public String serialize() {
-        return id + "-" + new Gson().toJson(this);
+        return id + "-" + Cytosis.GSON.toJson(this);
     }
 
     /**
@@ -56,7 +56,7 @@ public class CooldownUpdateContainer implements Container {
      */
     @Override
     public CooldownUpdateContainer parse(String json) {
-        return new Gson().fromJson(json, CooldownUpdateContainer.class);
+        return Cytosis.GSON.fromJson(json, CooldownUpdateContainer.class);
     }
 
     /**

@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.containers;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public record PlayerWarnContainer(UUID target, String warnMessage) {
      * @return the container object
      */
     public static PlayerWarnContainer deserialize(String json) {
-        return new Gson().fromJson(json, PlayerWarnContainer.class);
+        return Cytosis.GSON.fromJson(json, PlayerWarnContainer.class);
     }
 
     /**
@@ -28,7 +28,7 @@ public record PlayerWarnContainer(UUID target, String warnMessage) {
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

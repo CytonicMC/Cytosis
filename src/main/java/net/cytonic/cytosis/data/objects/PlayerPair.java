@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.objects;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import java.util.UUID;
 
@@ -20,7 +20,7 @@ public record PlayerPair(UUID uuid, String name) {
      * @return the player pair
      */
     public static PlayerPair deserialize(String json) {
-        return new Gson().fromJson(json, PlayerPair.class);
+        return Cytosis.GSON.fromJson(json, PlayerPair.class);
     }
 
     /**
@@ -30,7 +30,7 @@ public record PlayerPair(UUID uuid, String name) {
      */
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**
