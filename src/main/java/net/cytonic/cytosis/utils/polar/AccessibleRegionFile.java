@@ -42,6 +42,7 @@ final class AccessibleRegionFile implements AutoCloseable {
     private final int[] locations = new int[MAX_ENTRY_COUNT];
     private final int[] timestamps = new int[MAX_ENTRY_COUNT];
     private final BooleanList freeSectors = new BooleanArrayList(2);
+
     public AccessibleRegionFile(@NotNull Path path) throws IOException {
         this.file = new RandomAccessFile(path.toFile(), "rw");
 
@@ -82,7 +83,9 @@ final class AccessibleRegionFile implements AutoCloseable {
             file.read(data);
 
             // Parse it as a compound tag
-            return TAG_READER.read(new ByteArrayInputStream(data), compression);
+            CompoundBinaryTag result = TAG_READER.read(new ByteArrayInputStream(data), compression);
+//            Logger.debug("(%d,%d) %s%n%n", chunkX, chunkZ, TagStringIO.tagStringIO().asString(result));
+            return result;
         } finally {
             lock.unlock();
         }

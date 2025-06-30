@@ -45,6 +45,7 @@ import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.cytosis.utils.polar.BlockHandlerUtils;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.key.Key;
@@ -186,6 +187,7 @@ public final class Cytosis {
      *
      * @param args Runtime flags
      */
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
         flags = List.of(args);
@@ -288,6 +290,7 @@ public final class Cytosis {
 
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
+        BlockHandlerUtils.initHandlers();
 
         Logger.info("Initializing view registry");
         VIEW_REGISTRY.enable();
