@@ -50,6 +50,8 @@ public class CytosisPreferences {
 
     public static final NamespacedPreference<UUID> NICKED_UUID = new NamespacedPreference<>(CytosisNamespaces.NICKED_UUID, null);
 
+    public static final NamespacedPreference<Boolean> CHAT_MESSAGE_PING = new NamespacedPreference<>(CytosisNamespaces.CHAT_MESSAGE_PING, false);
+
     /**
      * A set of all the preferences that are available here.
      */
