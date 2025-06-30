@@ -54,6 +54,8 @@ public class RankManager {
             }
             player.setRank_UNSAFE(playerRank);
             rankMap.put(player.getUuid(), playerRank);
+            Cytosis.getCytonicNetwork().updateCachedPlayerRank(player.getUuid(), playerRank);
+            Thread.ofVirtual().start(() -> Cytosis.getDatabaseManager().getRedisDatabase().addToHash("player_ranks", player.getUuid().toString(), playerRank.name()));
             if (player.isNicked()) return; // don't setup cosmetics for nicked players
             setupCosmetics(player, playerRank);
         });
@@ -74,6 +76,7 @@ public class RankManager {
         setupCosmetics(player, rank);
         Cytosis.getCytonicNetwork().updateCachedPlayerRank(player.getUuid(), rank);
         player.refreshCommands();
+        Thread.ofVirtual().start(() -> Cytosis.getDatabaseManager().getRedisDatabase().addToHash("player_ranks", player.getUuid().toString(), rank.name()));
     }
 
     /**
@@ -111,16 +114,26 @@ public class RankManager {
     }
 
     /**
-     * Loads this player's rank from the database
+     * Loads this player's rank from the redis cache
      *
      * @param player the player whose rank to load
      */
     public void loadPlayer(UUID player) {
-        db.getPlayerRank(player)
-                .thenAccept(playerRank -> rankMap.put(player, playerRank)).exceptionally(throwable -> {
-                    Logger.error("An error occured whilst fetching " + player + "'s rank!", throwable);
-                    return null;
+        Thread.ofVirtual().start(() -> {
+            PlayerRank rank = PlayerRank.DEFAULT;
+            String cachedRank = Cytosis.getDatabaseManager().getRedisDatabase().getFromHash("player_ranks", player.toString());
+            if (cachedRank != null) {
+                rank = PlayerRank.valueOf(cachedRank);
+            } else {
+                // we need to load it for next time!
+                db.getPlayerRank(player).thenAccept(playerRank -> {
+                    rankMap.put(player, playerRank);
+                    Cytosis.getCytonicNetwork().updateCachedPlayerRank(player, playerRank);
+                    Cytosis.getDatabaseManager().getRedisDatabase().addToHash("player_ranks", player.toString(), playerRank.name());
                 });
+            }
+            rankMap.put(player, rank);
+        });
     }
 
 

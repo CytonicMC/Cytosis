@@ -44,7 +44,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
         rank = Cytosis.getRankManager().getPlayerRank(uuid).orElseGet(() -> {
-            Logger.debug("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
+            Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
     }
@@ -52,7 +52,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
         rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
-            Logger.debug("The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
+            Logger.warn("The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
     }
