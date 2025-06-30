@@ -39,6 +39,8 @@ dependencies {
     api(libs.jooq)
 
 
+    // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
+    compileOnly(libs.lombokwarningfix)
 
 
     runtimeDownload(libs.minimessage)
