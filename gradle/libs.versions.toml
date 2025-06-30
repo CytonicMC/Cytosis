@@ -19,6 +19,7 @@ opentelemetry = "1.51.0"
 polar = "1.14.2"
 stomui = "1.0.3-b2"
 reflections = "0.10.2"
+lombokwarningfix = "4.0.2"
 
 [libraries]
 minestom = { module = "net.minestom:minestom-snapshots", version.ref = "minestom" }
@@ -38,6 +39,7 @@ log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "lo
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 jnats = { module = "io.nats:jnats", version.ref = "jnats" }
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
+lombokwarningfix = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "lombokwarningfix" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
