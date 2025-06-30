@@ -21,10 +21,8 @@ public class CooldownCommand extends CytosisCommand {
 
     /**
      * A command to debug cooldowns
-     *
-     * @param network the network manager
      */
-    public CooldownCommand(NetworkCooldownManager network) {
+    public CooldownCommand() {
         super("cooldown");
 
         setCondition(CommandUtils.IS_ADMIN);
@@ -34,7 +32,7 @@ public class CooldownCommand extends CytosisCommand {
 
         var nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : network.getAllKeys()) {
+            for (Key preference : Cytosis.getNetworkCooldownManager().getAllKeys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -68,7 +66,7 @@ public class CooldownCommand extends CytosisCommand {
             }
 
             Key node = Key.key(context.get(nodeArg));
-
+            NetworkCooldownManager network = Cytosis.getNetworkCooldownManager();
             if (ac == CooldownAction.CLEAR_GLOBAL) {
                 network.resetGlobalCooldown(node);
                 player.sendMessage(Msg.success("Reset the global cooldown '<yellow>" + node.asString() + "</yellow>'."));
