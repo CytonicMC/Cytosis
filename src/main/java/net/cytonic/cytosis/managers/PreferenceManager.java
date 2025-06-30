@@ -50,6 +50,7 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKNAME_DATA, CytosisPreferences.NICKNAME_DATA);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKED_UUID, CytosisPreferences.NICKED_UUID);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_MESSAGE_PING, CytosisPreferences.CHAT_MESSAGE_PING);
 
         PreparedStatement ps = db.prepare("CREATE TABLE IF NOT EXISTS cytonic_preferences (uuid VARCHAR(36) PRIMARY KEY, preferences TEXT)");
         db.update(ps).whenComplete((unused, throwable) -> {
@@ -181,9 +182,9 @@ public class PreferenceManager {
     /**
      * Gets the preference of a player
      *
-     * @param uuid        The player
+     * @param uuid      The player
      * @param namespace the namespace
-     * @param <T>         the type of the preference
+     * @param <T>       the type of the preference
      * @return the player's preference
      */
     @SuppressWarnings("unchecked")

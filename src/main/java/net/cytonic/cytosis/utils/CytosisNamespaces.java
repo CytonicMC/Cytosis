@@ -54,6 +54,7 @@ public class CytosisNamespaces {
 
     public static final TypedNamespace<NicknameManager.NicknameData> NICKNAME_DATA = new TypedNamespace<>(Key.key("cytosis", "nickname_data"), NicknameManager.NicknameData.class);
     public static final TypedNamespace<UUID> NICKED_UUID = new TypedNamespace<>(Key.key("cytosis", "nicked_uuid"), UUID.class);
+    public static final TypedNamespace<Boolean> CHAT_MESSAGE_PING = new TypedNamespace<>(Key.key("cytosis", "chat_message_ping"), Boolean.class);
 
     /**
      * A convenient set of all the namespaces

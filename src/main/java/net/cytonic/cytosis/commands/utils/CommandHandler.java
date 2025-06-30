@@ -89,7 +89,8 @@ public class CommandHandler {
                 new UpdateInstancesCommand(),
                 new NickCommand(),
                 new NickRevealCommand(),
-                new ImportWorld()
+                new ImportWorld(),
+                new ToggleChatPingCommand()
         );
     }
 
