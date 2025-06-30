@@ -127,6 +127,9 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         } else if (type.isEnum() && value != null) {
             assert value instanceof String;
             value = Enum.valueOf((Class<Enum>) type, (String) value);
+        } else if (type == Boolean.class) {
+            assert value instanceof String;
+            value = Boolean.valueOf((String) value);
         }
         TypedNamespace<T> tn = new TypedNamespace<>(id, type);
         return new NamespacedPreference<>(tn, type.cast(value));
