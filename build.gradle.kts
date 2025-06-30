@@ -36,6 +36,8 @@ dependencies {
     api(libs.configurate)
     api(libs.classgraph)
     api(libs.jnats)
+    api(libs.jooq)
+
 
 
 
@@ -43,12 +45,12 @@ dependencies {
     runtimeDownload(libs.mysql)
     runtimeDownload(libs.reflections)
     runtimeDownload(libs.bundles.log4j)
-    runtimeDownload(libs.jooq)
     runtimeDownload(libs.bundles.otel)
 
     // the compileonlyapis need to be downloaded at runtime, too.
     runtimeDownloadOnly(libs.minestom)
     runtimeDownloadOnly(libs.jnats)
+    runtimeDownloadOnly(libs.jooq)
     runtimeDownloadOnly(libs.gson)
     runtimeDownloadOnly(libs.okhttp)
     runtimeDownloadOnly(libs.polar)
