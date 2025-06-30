@@ -2,11 +2,10 @@ package net.cytonic.cytosis.data;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.containers.Container;
+import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.containers.PlayerWarnContainer;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.pubsub.Broadcasts;
-import net.cytonic.cytosis.messaging.pubsub.Cooldowns;
-import net.cytonic.cytosis.messaging.pubsub.PlayerWarn;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import redis.clients.jedis.*;
@@ -61,9 +60,39 @@ public class RedisDatabase {
         this.jedisSub = new JedisPooled(hostAndPort, config);
         Logger.info("Connected to Redis!");
 
-        worker.submit(() -> jedisSub.subscribe(new Broadcasts(), BROADCAST_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new Cooldowns(), COOLDOWN_UPDATE_CHANNEL));
-        worker.submit(() -> jedisSub.subscribe(new PlayerWarn(), PLAYER_WARN));
+        worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
+            @Override
+            public void onMessage(String channel, String message) {
+                if (!channel.equals(RedisDatabase.BROADCAST_CHANNEL)) return;
+                Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(JSONComponentSerializer.json().deserialize(message)));
+            }
+        }, BROADCAST_CHANNEL));
+
+        worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
+            @Override
+            public void onMessage(String channel, String message) {
+                if (!channel.equals(RedisDatabase.COOLDOWN_UPDATE_CHANNEL)) return;
+                CooldownUpdateContainer container = (CooldownUpdateContainer) Container.deserialize(message);
+                if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.PERSONAL) {
+                    Cytosis.getNetworkCooldownManager().setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
+                } else if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.GLOBAL) {
+                    Cytosis.getNetworkCooldownManager().setGlobal(container.getNamespace(), container.getExpiry());
+                } else throw new IllegalArgumentException("Unsupported target: " + container.getTarget());
+            }
+        }, COOLDOWN_UPDATE_CHANNEL));
+
+        worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
+            @Override
+            public void onMessage(String channel, String message) {
+                if (!channel.equals(RedisDatabase.PLAYER_WARN)) return;
+                PlayerWarnContainer container = PlayerWarnContainer.deserialize(message);
+                UUID uuid = container.target();
+                Component warnMessage = JSONComponentSerializer.json().deserialize(container.warnMessage());
+                if (Cytosis.getPlayer(uuid).isPresent()) {
+                    Cytosis.getPlayer(uuid).get().sendMessage(warnMessage);
+                }
+            }
+        }, PLAYER_WARN));
     }
 
     /**
