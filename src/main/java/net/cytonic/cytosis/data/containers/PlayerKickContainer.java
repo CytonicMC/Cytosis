@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.containers;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.KickReason;
 
 import java.util.UUID;
@@ -21,7 +21,7 @@ public record PlayerKickContainer(UUID uuid, KickReason reason, String kickMessa
      * @return the container object
      */
     public static PlayerKickContainer deserialize(String json) {
-        return new Gson().fromJson(json, PlayerKickContainer.class);
+        return Cytosis.GSON.fromJson(json, PlayerKickContainer.class);
     }
 
     /**
@@ -30,7 +30,7 @@ public record PlayerKickContainer(UUID uuid, KickReason reason, String kickMessa
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

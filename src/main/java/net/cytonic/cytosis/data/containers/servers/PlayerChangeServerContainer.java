@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.containers.servers;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ public record PlayerChangeServerContainer(UUID player, String oldServer, String 
      * @return the deserailized object
      */
     public static PlayerChangeServerContainer deserialize(String json) {
-        return new Gson().fromJson(json, PlayerChangeServerContainer.class);
+        return Cytosis.GSON.fromJson(json, PlayerChangeServerContainer.class);
     }
 
     /**
@@ -31,6 +31,6 @@ public record PlayerChangeServerContainer(UUID player, String oldServer, String 
      */
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 }

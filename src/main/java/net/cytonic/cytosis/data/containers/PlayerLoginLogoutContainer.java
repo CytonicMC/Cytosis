@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.containers;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public record PlayerLoginLogoutContainer(String username, UUID uuid) {
      * @return the container object
      */
     public static PlayerLoginLogoutContainer deserialize(String json) {
-        return new Gson().fromJson(json, PlayerLoginLogoutContainer.class);
+        return Cytosis.GSON.fromJson(json, PlayerLoginLogoutContainer.class);
     }
 
     /**
@@ -28,7 +28,7 @@ public record PlayerLoginLogoutContainer(String username, UUID uuid) {
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

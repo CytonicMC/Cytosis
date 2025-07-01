@@ -23,7 +23,7 @@ public class SkinParser {
             throw new RuntimeException(e);
         }
 
-        Gson gson = new Gson();
+        Gson gson = Cytosis.GSON;
         List<Skin> skins = gson.fromJson(reader, SkinFile.class).skins;
 
         return skins.stream().map(skin -> Tuple.of(skin.signature, skin.value)).toArray(Tuple[]::new);
