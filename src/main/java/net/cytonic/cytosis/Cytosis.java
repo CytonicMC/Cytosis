@@ -33,7 +33,7 @@ import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
-import net.cytonic.cytosis.messaging.nats.NatsManager;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.metrics.MetricsManager;
