@@ -75,7 +75,7 @@ public class CommandHandler {
                 new KickCommand(),
                 new MsgCommand(),
                 new WarnCommand(),
-                new CooldownCommand(Cytosis.getNetworkCooldownManager()),
+                new CooldownCommand(),
                 new LoopCommand(),
                 new RecalculatePermissionsCommand(),
                 new YoinkCommand(),

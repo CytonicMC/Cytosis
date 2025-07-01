@@ -31,7 +31,6 @@ public class NetworkCooldownManager {
      * @param uuid the player in question
      * @return the string representing the key
      */
-    @SuppressWarnings("preview")
     public static String toPersonalKey(UUID uuid) {
         return "COOLDOWN_PERSONAL_KEY:" + uuid;
     }
@@ -157,7 +156,6 @@ public class NetworkCooldownManager {
     /**
      * Imports the current cooldowns from redis
      */
-    @SuppressWarnings("preview")
     public void importFromRedis() {
         long start = System.currentTimeMillis();
         Set<String> personalKeys = redis.getKeys("COOLDOWN_PERSONAL_KEY:*");

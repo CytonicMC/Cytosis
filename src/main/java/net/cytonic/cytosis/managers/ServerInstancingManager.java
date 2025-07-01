@@ -3,7 +3,7 @@ package net.cytonic.cytosis.managers;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.containers.servers.*;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.nats.Subjects;
+import net.cytonic.cytosis.messaging.Subjects;
 
 public class ServerInstancingManager {
 

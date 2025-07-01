@@ -13,7 +13,6 @@ import java.util.UUID;
 /**
  * A class that represents a redis container for updating cooldowns
  */
-@SuppressWarnings("preview")
 @Getter
 @Setter
 @AllArgsConstructor
