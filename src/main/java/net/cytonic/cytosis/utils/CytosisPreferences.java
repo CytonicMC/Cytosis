@@ -46,9 +46,16 @@ public class CytosisPreferences {
      */
     public static final NamespacedPreference<Boolean> VANISHED = new NamespacedPreference<>(CytosisNamespaces.VANISHED, false);
 
+    /**
+     * A preference if the player has other players hidden in lobby's, type of BOOLEAN
+     */
+    public static final NamespacedPreference<Boolean> LOBBY_PLAYER_VISIBILITY = new NamespacedPreference<>(CytosisNamespaces.LOBBY_PLAYER_VISIBILITY, true);
+
     public static final JsonPreference<NicknameManager.NicknameData> NICKNAME_DATA = new JsonPreference<>(CytosisNamespaces.NICKNAME_DATA, null);
 
     public static final NamespacedPreference<UUID> NICKED_UUID = new NamespacedPreference<>(CytosisNamespaces.NICKED_UUID, null);
+
+    public static final NamespacedPreference<Boolean> CHAT_MESSAGE_PING = new NamespacedPreference<>(CytosisNamespaces.CHAT_MESSAGE_PING, false);
 
     /**
      * A set of all the preferences that are available here.

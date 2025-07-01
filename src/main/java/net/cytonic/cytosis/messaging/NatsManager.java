@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.messaging.nats;
+package net.cytonic.cytosis.messaging;
 
 
 import io.nats.client.*;
@@ -623,7 +623,9 @@ public class NatsManager {
                         Cytosis.getOnlinePlayers().forEach(player -> {
                             if (message.recipients().contains(player.getUuid())) {
                                 //todo: add permission to message people
-                                player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                }
                                 player.sendMessage(component);
                                 Cytosis.getChatManager().openPrivateMessage(player, message.sender());
                             }
@@ -642,7 +644,9 @@ public class NatsManager {
                     if (chatChannel == ChatChannel.ADMIN || chatChannel == ChatChannel.MOD || chatChannel == ChatChannel.STAFF) {
                         Cytosis.getOnlinePlayers().forEach(player -> {
                             if (player.canUseChannel(chatChannel) && !player.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(chatChannel)) {
-                                player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
+                                    player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                }
                                 player.sendMessage(component);
                             }
                         });

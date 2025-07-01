@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.objects;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * A class that holds data about a Cytosis server
@@ -22,7 +22,7 @@ public record CytonicServer(String ip, String id, int port, String type, String 
      * @return the server object
      */
     public static CytonicServer deserialize(String json) {
-        return new Gson().fromJson(json, CytonicServer.class);
+        return Cytosis.GSON.fromJson(json, CytonicServer.class);
     }
 
     /**
@@ -31,7 +31,7 @@ public record CytonicServer(String ip, String id, int port, String type, String 
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

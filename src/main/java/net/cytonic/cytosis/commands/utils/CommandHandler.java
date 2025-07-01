@@ -75,7 +75,7 @@ public class CommandHandler {
                 new KickCommand(),
                 new MsgCommand(),
                 new WarnCommand(),
-                new CooldownCommand(Cytosis.getNetworkCooldownManager()),
+                new CooldownCommand(),
                 new LoopCommand(),
                 new RecalculatePermissionsCommand(),
                 new YoinkCommand(),
@@ -89,7 +89,8 @@ public class CommandHandler {
                 new UpdateInstancesCommand(),
                 new NickCommand(),
                 new NickRevealCommand(),
-                new ImportWorld()
+                new ImportWorld(),
+                new ToggleChatPingCommand()
         );
     }
 

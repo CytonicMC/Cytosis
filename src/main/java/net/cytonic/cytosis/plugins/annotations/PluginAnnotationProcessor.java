@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.plugins.annotations;
 
 import com.google.auto.service.AutoService;
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -33,7 +33,6 @@ public class PluginAnnotationProcessor implements Processor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Cytosis plugin annotation processor version " + PluginAnnotationProcessor.class.getPackage().getImplementationVersion());
         this.environment = processingEnv;
-        new Gson();
         checkNotNull(processingEnv, "processingEnv");
         initialized = true;
     }
@@ -79,7 +78,7 @@ public class PluginAnnotationProcessor implements Processor {
             try {
                 FileObject object = environment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", "cytosis-plugin.json");
                 try (Writer writer = new BufferedWriter(object.openWriter())) {
-                    new Gson().toJson(description, writer);
+                    Cytosis.GSON.toJson(description, writer);
                 }
                 pluginClassFound = qualifiedName.toString();
             } catch (IOException e) {

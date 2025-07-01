@@ -3,7 +3,7 @@ package net.cytonic.cytosis.managers;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.nats.NatsManager;
+import net.cytonic.cytosis.messaging.NatsManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;

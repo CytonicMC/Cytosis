@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.data.objects;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.cytonic.cytosis.Cytosis;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +68,7 @@ public class Tuple<F, S> {
      * @return the deserialized {@link Tuple}
      */
     public static <F, S> Tuple<F, S> deserialize(@NotNull String json, TypeToken<Tuple<F, S>> tupleTypeToken) {
-        return new Gson().fromJson(json, tupleTypeToken);
+        return Cytosis.GSON.fromJson(json, tupleTypeToken);
     }
 
     /**
@@ -114,7 +114,7 @@ public class Tuple<F, S> {
      */
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

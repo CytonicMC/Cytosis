@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.messaging.nats;
+package net.cytonic.cytosis.messaging;
 
 import net.cytonic.cytosis.Cytosis;
 
