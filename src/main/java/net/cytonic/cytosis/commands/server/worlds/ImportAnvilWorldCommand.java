@@ -9,9 +9,12 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.polar.EntityAnvilLoader;
 import net.hollowcube.polar.AnvilPolar;
 import net.hollowcube.polar.PolarWorld;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.anvil.AnvilLoader;
+import net.minestom.server.timer.TaskSchedule;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,19 +60,17 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
 
             Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name).replace("_", ""));
 
-            player.setInstance(c);
-
             UUID uuid = UUID.randomUUID();
-//            Cytosis.getDatabaseManager().getMysqlDatabase().addWorld(
-//                    context.get(name),
-//                    context.get(type),
-//                    world,
-//                    Pos.ZERO,
-//                    uuid
-//            ).whenComplete((result, error) -> {
-//                MinecraftServer.getSchedulerManager().buildTask(() -> Cytosis.getMinestomInstanceManager().unregisterInstance(c)).delay(TaskSchedule.seconds(1)).schedule();
-//                sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name).replace("_", ""), uuid.toString()));
-//            });
+            Cytosis.getDatabaseManager().getMysqlDatabase().addWorld(
+                    context.get(name),
+                    context.get(type),
+                    world,
+                    Pos.ZERO,
+                    uuid
+            ).whenComplete((result, error) -> {
+                MinecraftServer.getSchedulerManager().buildTask(() -> Cytosis.getMinestomInstanceManager().unregisterInstance(c)).delay(TaskSchedule.seconds(1)).schedule();
+                sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name).replace("_", ""), uuid.toString()));
+            });
 
         }, path, name, type);
     }
