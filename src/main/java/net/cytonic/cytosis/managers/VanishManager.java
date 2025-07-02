@@ -3,11 +3,12 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.events.VanishToggleEvent;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Metadata;
-import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.utils.PacketSendingUtils;
@@ -31,7 +32,7 @@ public class VanishManager {
      *
      * @param player the player to vanish
      */
-    public void enableVanish(Player player) {
+    public void enableVanish(CytosisPlayer player) {
         vanished.put(player.getUuid(), player.getEntityId());
         EntityMetaDataPacket invis = new EntityMetaDataPacket(player.getEntityId(), Map.of(0, Metadata.Byte((byte) (0x20 | 0x40))));
         TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""),
@@ -49,7 +50,7 @@ public class VanishManager {
             }
             return false;
         });
-        //todo events?
+        EventDispatcher.call(new VanishToggleEvent(true, player));
     }
 
     /**
@@ -71,6 +72,7 @@ public class VanishManager {
         Cytosis.getRankManager().setupCosmetics(player, player.getRank());
         PacketSendingUtils.broadcastPlayPacket(new EntityMetaDataPacket(player.getEntityId(), entries));
         player.updateViewableRule(p -> true);
+        EventDispatcher.call(new VanishToggleEvent(true, player));
     }
 
     public boolean isVanished(UUID uuid) {
