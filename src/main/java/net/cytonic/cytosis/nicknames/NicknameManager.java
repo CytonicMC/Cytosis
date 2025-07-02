@@ -8,7 +8,6 @@ import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
@@ -62,7 +61,7 @@ public class NicknameManager {
                 append(Msg.aqua(" (Skin: %s)!", Msg.stripTags(translateSkin(player, data.value())
                         .replace("My", "Their"))));
 
-        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_NICKNAME, SnoopUtils.toSnoop(msg));
+        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_NICKNAME, Msg.snoop(msg));
     }
 
     /**

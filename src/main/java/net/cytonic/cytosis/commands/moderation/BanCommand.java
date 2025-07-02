@@ -81,7 +81,7 @@ public class BanCommand extends CytosisCommand {
                             actor.sendMessage(Msg.mm("<green>" + player + " was successfully banned for " + DurationParser.unparseFull(dur) + "."));
 
                             Component snoop = actor.formattedName().append(Msg.mm("<gray> banned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for " + DurationParser.unparseFull(dur) + " with the reason " + reason));
-                            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_BAN, SnoopUtils.toSnoop(snoop));
+                            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_BAN, Msg.snoop(snoop));
                         });
                     });
                 });

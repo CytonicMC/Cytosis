@@ -176,7 +176,7 @@ public class PreferenceManager {
         TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(preference)).findFirst().orElse(null);
         if (typed == null) throw new IllegalArgumentException("The preference " + preference + " does not exist!");
         if (value != null && typed.type() != value.getClass())
-            throw new IllegalArgumentException("Cannot set a preference " + preference.asString() + " of type " + value.getClass().getSimpleName() + " with a preference of type " + typed.type().getSimpleName() + "");
+            throw new IllegalArgumentException("Cannot set a preference " + preference.asString() + " of type " + value.getClass().getSimpleName() + " with a preference of type " + typed.type().getSimpleName());
         updatePlayerPreference(uuid, (TypedNamespace<T>) typed, value);
     }
 
