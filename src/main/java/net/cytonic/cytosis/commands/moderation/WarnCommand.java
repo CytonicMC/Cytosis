@@ -58,7 +58,7 @@ public class WarnCommand extends CytosisCommand {
                     }
                     Component string = Component.empty();
                     if (!reason.isEmpty()) {
-                        string = Msg.mm("\n<aqua>Reason: " + reason + "");
+                        string = Msg.mm("\n<aqua>Reason: " + reason);
                     }
                     actor.sendMessage(Msg.mm("<green>Warned " + player + ".").append(string));
 
