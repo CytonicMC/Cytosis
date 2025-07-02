@@ -12,7 +12,6 @@ import io.opentelemetry.api.trace.Span;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
@@ -102,7 +101,7 @@ public interface Logger {
         LOGGER.error(message.formatted(args));
         Component component = Msg.mm("<red><b>Error Logged on server '" + Cytosis.SERVER_ID + "'</b></red><newline><gray> Message: " + message);
         try {
-            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
         } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
             Logger.warn("Failed to log error via snooper!");
         }
@@ -127,7 +126,7 @@ public interface Logger {
     static void error(String message, Throwable ex) {
         Component component = Msg.mm("<red><b>Error Logged on server '" + Cytosis.SERVER_ID + "'</b></red><newline><gray> Message: " + message + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
         try {
-            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, SnoopUtils.toSnoop(component));
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
         } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
             Logger.warn("Failed to log error via snooper!");
         }

@@ -83,7 +83,7 @@ public class MuteCommand extends CytosisCommand {
                             Component snoop = actor.formattedName().append(Msg.mm("<gray> muted ")).append(SnoopUtils.toTarget(uuid))
                                     .append(Msg.mm("<gray> for " + DurationParser.unparseFull(dur) + "."));
 
-                            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_MUTE, SnoopUtils.toSnoop(snoop));
+                            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
                             Cytosis.getDatabaseManager().getMysqlDatabase().mutePlayer(uuid, dur).whenComplete((ignored, throwable3) -> {
                                 if (throwable3 != null) {
                                     actor.sendMessage(Msg.serverError("An error occured whilst muting %s!", target));

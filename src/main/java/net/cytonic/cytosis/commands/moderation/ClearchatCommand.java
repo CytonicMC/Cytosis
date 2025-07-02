@@ -6,7 +6,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 
 /**
@@ -34,7 +33,7 @@ public class ClearchatCommand extends CytosisCommand {
                     }
                 }
                 Component snoop = player.formattedName().append(Msg.mm("<gray> cleared the chat in server " + Cytosis.SERVER_ID + "."));
-                Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHAT_CLEAR, SnoopUtils.toSnoop(snoop));
+                Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHAT_CLEAR, Msg.snoop(snoop));
             } else {
                 sender.sendMessage(Msg.mm("<red>Only players may execute this command :("));
             }
