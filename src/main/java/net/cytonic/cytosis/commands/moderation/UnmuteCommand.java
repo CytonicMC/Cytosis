@@ -45,7 +45,7 @@ public class UnmuteCommand extends CytosisCommand {
 
             Component snoop = actor.formattedName().append(Msg.mm("<gray> unmuted ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray>."));
 
-            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNMUTE, SnoopUtils.toSnoop(snoop));
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNMUTE, Msg.snoop(snoop));
 
             Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(uuid);
             sender.sendMessage(Msg.greenSplash("UNMUTED", "%s was successfully unmuted!", player));

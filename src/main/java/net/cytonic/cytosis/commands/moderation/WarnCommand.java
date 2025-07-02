@@ -64,7 +64,7 @@ public class WarnCommand extends CytosisCommand {
 
                     Component component = Msg.mm("<red>You have been warned.").append(string);
                     Component snoop = actor.formattedName().append(Msg.mm("<gray> warned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
-                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_WARN, SnoopUtils.toSnoop(snoop));
+                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
                 });
             }
         }, playerArg, reasonArg);

@@ -15,6 +15,11 @@ import java.util.List;
 public interface Msg {
 
     /**
+     * The overridable provider, for messages to be changed
+     */
+    SplashProvider provider = SplashProvider.DEFAULT;
+
+    /**
      * Parses MiniMessage into a Component
      */
     static Component mm(String message, Object... args) {
@@ -30,25 +35,28 @@ public interface Msg {
     }
 
     static Component whoops(String str, Object... args) {
-        return mm("<red><b>WHOOPS!</b></red><gray> " + str, args);
+        return mm(provider.whoops() + "<gray> " + str, args);
     }
 
     static Component serverError(String str, Object... args) {
-        return mm("<red><b>SERVER ERROR!</b></red><gray> " + str, args);
+        return mm(provider.serverError() + "<gray> " + str, args);
     }
 
     static Component success(String str, Object... args) {
-        return mm("<green><b>SUCCESS!</b></green><gray> " + str, args);
+        return mm(provider.success() + "<gray> " + str, args);
     }
 
     static Component network(String str, Object... args) {
-        return mm("<yellow><b>NETWORK!</b></yellow><gray> " + str, args);
+        return mm(provider.network() + "<gray> " + str, args);
     }
 
     static Component tip(String str, Object... args) {
-        return mm("<green><b>TIP!</b></green><gray> " + str, args);
+        return mm(provider.tip() + "<gray> " + str, args);
     }
 
+    static Component snoop(Component component) {
+        return mm(provider.snoop()).append(Msg.mm("<!i><!b>").append(component));
+    }
 
     static Component aquaSplash(String splash, String text, Object... args) {
         return mm("<aqua><b>" + splash + "</b></aqua><gray> " + text, args);

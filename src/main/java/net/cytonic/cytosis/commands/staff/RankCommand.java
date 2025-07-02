@@ -9,7 +9,6 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
-import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -82,7 +81,7 @@ public class RankCommand extends CytosisCommand {
                 .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))
                 .append(Msg.mm("<gray>."));
 
-        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHANGE_RANK, SnoopUtils.toSnoop(snoop));
+        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
         Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(uuid, rank)
                 .thenAccept(unused -> {
                     Cytosis.getNatsManager().sendPlayerRankUpdate(uuid, rank);
