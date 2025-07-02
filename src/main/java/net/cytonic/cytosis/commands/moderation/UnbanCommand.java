@@ -45,7 +45,7 @@ public class UnbanCommand extends CytosisCommand {
 
             Component snoop = actor.formattedName().append(Msg.mm("<gray> unbanned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray>."));
 
-            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNBAN, SnoopUtils.toSnoop(snoop));
+            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNBAN, Msg.snoop(snoop));
 
             Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid);
             sender.sendMessage(Msg.greenSplash("UNBANNED!", "%s was successfully unbanned!", player));

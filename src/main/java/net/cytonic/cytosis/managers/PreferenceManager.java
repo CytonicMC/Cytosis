@@ -45,6 +45,7 @@ public class PreferenceManager {
         PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_CHANNEL, CytosisPreferences.CHAT_CHANNEL);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.VANISHED, CytosisPreferences.VANISHED);
+        PREFERENCE_REGISTRY.write(CytosisNamespaces.LOBBY_PLAYER_VISIBILITY, CytosisPreferences.LOBBY_PLAYER_VISIBILITY);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.IGNORED_CHAT_CHANNELS, CytosisPreferences.IGNORED_CHAT_CHANNELS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.LISTENING_SNOOPS, CytosisPreferences.LISTENING_SNOOPS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
@@ -175,7 +176,7 @@ public class PreferenceManager {
         TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream().filter(t -> t.namespaceID().equals(preference)).findFirst().orElse(null);
         if (typed == null) throw new IllegalArgumentException("The preference " + preference + " does not exist!");
         if (value != null && typed.type() != value.getClass())
-            throw new IllegalArgumentException("Cannot set a preference " + preference.asString() + " of type " + value.getClass().getSimpleName() + " with a preference of type " + typed.type().getSimpleName() + "");
+            throw new IllegalArgumentException("Cannot set a preference " + preference.asString() + " of type " + value.getClass().getSimpleName() + " with a preference of type " + typed.type().getSimpleName());
         updatePlayerPreference(uuid, (TypedNamespace<T>) typed, value);
     }
 

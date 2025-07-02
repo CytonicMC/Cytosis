@@ -6,7 +6,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.SnoopUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -34,7 +33,7 @@ public class SnooperTestCommand extends CytosisCommand {
 
             String rawMessage = ctx.getRaw(message);
             Component component = MiniMessage.miniMessage().deserialize("<reset>" + rawMessage).appendNewline().append(Msg.mm("<reset><dark_gray><i>Sent by " + player.getUsername() + " via /snooper test"));
-            Cytosis.getSnooperManager().sendSnoop(realChannel, SnoopUtils.toSnoop(component));
+            Cytosis.getSnooperManager().sendSnoop(realChannel, Msg.snoop(component));
             player.sendMessage(Msg.mm("<green>Sent snoop!"));
         }, SnooperCommand.CHANNELS, message);
 

@@ -20,6 +20,7 @@ public interface Msg {
      */
     Holder<SplashProvider> provider = new Holder<>(SplashProvider.DEFAULT);
 
+
     /**
      * Parses MiniMessage into a Component
      */

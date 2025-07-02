@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.containers.friends;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 public record FriendApiResponse(boolean success, String code, String message) {
     /**
@@ -10,7 +10,7 @@ public record FriendApiResponse(boolean success, String code, String message) {
      * @return the deserailized object
      */
     public static FriendApiResponse deserialize(String json) {
-        return new Gson().fromJson(json, FriendApiResponse.class);
+        return Cytosis.GSON.fromJson(json, FriendApiResponse.class);
     }
 
     /**
@@ -29,6 +29,6 @@ public record FriendApiResponse(boolean success, String code, String message) {
      */
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 }

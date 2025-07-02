@@ -53,7 +53,7 @@ public class KickCommand extends CytosisCommand {
                 }
 
                 Component snoop = actor.formattedName().append(Msg.mm("<gray> kicked ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
-                Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_KICK, SnoopUtils.toSnoop(snoop));
+                Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
                 Cytosis.getNatsManager().kickPlayer(uuid, KickReason.COMMAND, Msg.mm("\n<red>You have been kicked. \n<aqua>Reason: " + reason));
 
             }

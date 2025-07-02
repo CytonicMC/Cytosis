@@ -58,13 +58,13 @@ public class WarnCommand extends CytosisCommand {
                     }
                     Component string = Component.empty();
                     if (!reason.isEmpty()) {
-                        string = Msg.mm("\n<aqua>Reason: " + reason + "");
+                        string = Msg.mm("\n<aqua>Reason: " + reason);
                     }
                     actor.sendMessage(Msg.mm("<green>Warned " + player + ".").append(string));
 
                     Component component = Msg.mm("<red>You have been warned.").append(string);
                     Component snoop = actor.formattedName().append(Msg.mm("<gray> warned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
-                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_WARN, SnoopUtils.toSnoop(snoop));
+                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
                 });
             }
         }, playerArg, reasonArg);

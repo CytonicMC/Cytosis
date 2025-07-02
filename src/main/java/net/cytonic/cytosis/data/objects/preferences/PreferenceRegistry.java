@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * A class that acts a registry holding the registered preferences
  */
-@SuppressWarnings({"preview", "unused"})
+@SuppressWarnings({"unused"})
 @NoArgsConstructor
 public class PreferenceRegistry {
     private final Map<TypedNamespace<?>, Entry<?>> preferences = new ConcurrentHashMap<>();

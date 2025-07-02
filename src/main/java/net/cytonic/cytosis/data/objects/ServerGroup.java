@@ -1,13 +1,13 @@
 package net.cytonic.cytosis.data.objects;
 
-import com.google.gson.Gson;
+import net.cytonic.cytosis.Cytosis;
 
 
 /**
  * A record representing a server group
  *
- * @param group          the group of the server group
- * @param type     the map name of the server group
+ * @param group the group of the server group
+ * @param type  the map name of the server group
  */
 public record ServerGroup(String group, String type) {
 
@@ -18,7 +18,7 @@ public record ServerGroup(String group, String type) {
      * @return the deserialized {@link ServerGroup}
      **/
     public static ServerGroup deserialize(String json) {
-        return new Gson().fromJson(json, ServerGroup.class);
+        return Cytosis.GSON.fromJson(json, ServerGroup.class);
     }
 
     /**
@@ -27,7 +27,7 @@ public record ServerGroup(String group, String type) {
      * @return the serialized string
      */
     public String serialize() {
-        return new Gson().toJson(this);
+        return Cytosis.GSON.toJson(this);
     }
 
     /**

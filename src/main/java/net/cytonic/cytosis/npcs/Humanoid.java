@@ -56,7 +56,7 @@ public class Humanoid extends EntityCreature implements NPC {
      */
     public Humanoid(UUID uuid) {
         super(EntityType.PLAYER, uuid);
-        this.username = "npc-" + uuid.toString().substring(0, 12) + "";
+        this.username = "npc-" + uuid.toString().substring(0, 12);
         this.skin = null;
     }
 
