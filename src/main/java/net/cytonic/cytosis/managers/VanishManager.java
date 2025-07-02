@@ -72,7 +72,7 @@ public class VanishManager {
         Cytosis.getRankManager().setupCosmetics(player, player.getRank());
         PacketSendingUtils.broadcastPlayPacket(new EntityMetaDataPacket(player.getEntityId(), entries));
         player.updateViewableRule(p -> true);
-        EventDispatcher.call(new VanishToggleEvent(true, player));
+        EventDispatcher.call(new VanishToggleEvent(false, player));
     }
 
     public boolean isVanished(UUID uuid) {
