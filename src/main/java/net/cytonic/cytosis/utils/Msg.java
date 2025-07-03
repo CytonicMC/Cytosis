@@ -15,9 +15,11 @@ import java.util.List;
 public interface Msg {
 
     /**
-     * The overridable provider, for messages to be changed
+     * The overridable provider, for messages to be changed. To change it,
+     * use {@link Holder#set(Object)} to set the new value.
      */
-    SplashProvider provider = SplashProvider.DEFAULT;
+    Holder<SplashProvider> provider = new Holder<>(SplashProvider.DEFAULT);
+
 
     /**
      * Parses MiniMessage into a Component
@@ -35,27 +37,27 @@ public interface Msg {
     }
 
     static Component whoops(String str, Object... args) {
-        return mm(provider.whoops() + "<gray> " + str, args);
+        return mm(provider.get().whoops() + "<gray> " + str, args);
     }
 
     static Component serverError(String str, Object... args) {
-        return mm(provider.serverError() + "<gray> " + str, args);
+        return mm(provider.get().serverError() + "<gray> " + str, args);
     }
 
     static Component success(String str, Object... args) {
-        return mm(provider.success() + "<gray> " + str, args);
+        return mm(provider.get().success() + "<gray> " + str, args);
     }
 
     static Component network(String str, Object... args) {
-        return mm(provider.network() + "<gray> " + str, args);
+        return mm(provider.get().network() + "<gray> " + str, args);
     }
 
     static Component tip(String str, Object... args) {
-        return mm(provider.tip() + "<gray> " + str, args);
+        return mm(provider.get().tip() + "<gray> " + str, args);
     }
 
     static Component snoop(Component component) {
-        return mm(provider.snoop()).append(Msg.mm("<!i><!b>").append(component));
+        return mm(provider.get().snoop()).append(Msg.mm("<!i><!b>").append(component));
     }
 
     static Component aquaSplash(String splash, String text, Object... args) {
