@@ -66,7 +66,7 @@ jobs:
 
   build-plugins:
     if: github.repository == 'CytonicMC/Cytosis'
-    needs: [publish, docker]
+    needs: [ publish, docker ]
     runs-on: ubuntu-latest
     steps:
       - name: Build bedwars
@@ -74,4 +74,16 @@ jobs:
         with:
           token: '${{ secrets.ACTIONS_TOKEN }}'
           repository: 'CytonicMC/CytonicBedwars'
+          event-type: 'trigger-workflow'
+      - name: Build Lobby
+        uses: peter-evans/repository-dispatch@v3.0.0
+        with:
+          token: '${{ secrets.ACTIONS_TOKEN }}'
+          repository: 'CytonicMC/CytonicLobby'
+          event-type: 'trigger-workflow'
+      - name: Build GG
+        uses: peter-evans/repository-dispatch@v3.0.0
+        with:
+          token: '${{ secrets.ACTIONS_TOKEN }}'
+          repository: 'CytonicMC/GildedGorgeBase'
           event-type: 'trigger-workflow'
