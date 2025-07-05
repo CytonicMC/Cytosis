@@ -7,6 +7,7 @@ import net.cytonic.cytosis.commands.HelpCommand;
 import net.cytonic.cytosis.commands.chatting.*;
 import net.cytonic.cytosis.commands.debug.CooldownCommand;
 import net.cytonic.cytosis.commands.debug.PreferenceCommand;
+import net.cytonic.cytosis.commands.debug.particles.ParticleCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
 import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
 import net.cytonic.cytosis.commands.disabling.DisableCommand;
@@ -90,7 +91,8 @@ public class CommandHandler {
                 new NickCommand(),
                 new NickRevealCommand(),
                 new ImportWorld(),
-                new ToggleChatPingCommand()
+                new ToggleChatPingCommand(),
+                new ParticleCommand()
         );
     }
 
