@@ -2,9 +2,9 @@ package net.cytonic.cytosis.particles.effects.looping;
 
 /**
  * A utility class holding commonly offset angles.
- *
- * @apiNote This class only supports angles between 0 and 180. To get an offset greater than that (or less than),
- * use the opposite phase. ({@link Phase#ONE} <-> {@link Phase#THREE} and {@link Phase#TWO} <-> {@link Phase#FOUR})
+ * <p></p>
+ * NOTE: This class only supports angles between 0 and 180. To get an offset greater than that (or less than),
+ * use the opposite phase. ({@link Phase#ONE} -> {@link Phase#THREE} and {@link Phase#TWO} -> {@link Phase#FOUR})
  * @see <a href="https://www.mathsisfun.com/geometry/images/circle-unit-304560.svg">Unit Circle Diagram</a>
  */
 public interface Angles {

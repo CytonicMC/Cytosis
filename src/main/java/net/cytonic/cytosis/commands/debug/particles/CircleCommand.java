@@ -17,16 +17,16 @@ public class CircleCommand extends CytosisCommand {
         super("circle");
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer p)) return;
-            CircularLoopingEffect c1 = new CircularLoopingEffect(p, 16, Phase.TWO,
+            CircularLoopingEffect c1 = new CircularLoopingEffect(p::getPosition, 16, Phase.TWO,
                     angle -> new Vec(0, 2.5, 0),
                     rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING), BridgingStrategy.midpoint(), 0);
-            CircularLoopingEffect c2 = new CircularLoopingEffect(p, 16, Phase.FOUR,
+            CircularLoopingEffect c2 = new CircularLoopingEffect(p::getPosition, 16, Phase.FOUR,
                     angle -> new Vec(0, 2.5, 0),
                     rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING), BridgingStrategy.midpoint(), Angles.NINETY);
-            CircularLoopingEffect c3 = new CircularLoopingEffect(p, 16, Phase.TWO,
+            CircularLoopingEffect c3 = new CircularLoopingEffect(p::getPosition, 16, Phase.TWO,
                     angle -> new Vec(0, 2.5, 0),
                     rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING), BridgingStrategy.midpoint(), Angles.NINETY);
-            CircularLoopingEffect c4 = new CircularLoopingEffect(p, 16, Phase.FOUR,
+            CircularLoopingEffect c4 = new CircularLoopingEffect(p::getPosition, 16, Phase.FOUR,
                     angle -> new Vec(0, 2.5, 0),
                     rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING), BridgingStrategy.midpoint(), 0);
             ParticleEngine.playLooping(c1, TaskSchedule.tick(3));

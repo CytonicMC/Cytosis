@@ -5,6 +5,7 @@ import net.cytonic.cytosis.particles.effects.fixed.SingleParticleEffect;
 import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
 import net.cytonic.cytosis.particles.util.ParticleSupplier;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -67,12 +68,12 @@ public interface BridgingStrategy {
     }
 
     @ApiStatus.Internal
-    StaticEffect render(ParticleSupplier supplier, Pos start, Pos end);
+    StaticEffect render(ParticleSupplier supplier, Point start, Point end);
 
     @ApiStatus.Internal
     record Line(int density) implements BridgingStrategy {
         @Override
-        public StaticEffect render(ParticleSupplier supplier, Pos start, Pos end) {
+        public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new LineEffect(supplier, start, end, density);
         }
     }
@@ -80,7 +81,7 @@ public interface BridgingStrategy {
     @ApiStatus.Internal
     record Start() implements BridgingStrategy {
         @Override
-        public StaticEffect render(ParticleSupplier supplier, Pos start, Pos end) {
+        public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new SingleParticleEffect(supplier, start);
         }
     }
@@ -88,7 +89,7 @@ public interface BridgingStrategy {
     @ApiStatus.Internal
     record End() implements BridgingStrategy {
         @Override
-        public StaticEffect render(ParticleSupplier supplier, Pos start, Pos end) {
+        public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new SingleParticleEffect(supplier, end);
         }
     }
@@ -96,7 +97,7 @@ public interface BridgingStrategy {
     @ApiStatus.Internal
     record Midpoint() implements BridgingStrategy {
         @Override
-        public StaticEffect render(ParticleSupplier supplier, Pos start, Pos end) {
+        public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             double x, y, z;
             x = (start.x() + end.x()) / 2;
             y = (start.y() + end.y()) / 2;
@@ -108,7 +109,7 @@ public interface BridgingStrategy {
     @ApiStatus.Internal
     record None() implements BridgingStrategy {
         @Override
-        public StaticEffect render(ParticleSupplier supplier, Pos start, Pos end) {
+        public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new StaticEffect() {
                 @Override
                 public void play(PacketGroupingAudience audience) {

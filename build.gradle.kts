@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "net.cytonic"
-version = "1.0-SNAPSHOT"
+version = "1.0-SNAPSHOT-particles"
 
 repositories {
     mavenCentral()

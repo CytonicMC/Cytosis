@@ -18,18 +18,18 @@ public class CircularLoopingEffect extends LoopingEffect {
     private final Function<Double, Point> offsetFunc;
     private final Phase phase;
     private final BridgingStrategy bridge;
-    private final Pos[] cachedPositions;
+    private final Point[] cachedPositions;
     private final double phaseShift;
     private double radius;
     private Point offset;
     private int currentTick = 0;
     private double currentAngle = 0;
-    private Pos last;
+    private Point last;
 
     /**
      * Creates a looping effect which results in a circle
      *
-     * @param entity           The entity this effect revolves around. todo: Make it also work with a pos
+     * @param posSupplier           The entity this effect revolves around. todo: Make it also work with a pos
      * @param resolution       The number of segments in the circle should be broken into. 16 typically works well
      * @param phase            The phase this effect should play in. For more info, see the {@link Phase} class
      * @param offsetFunc       The function to supply the offset of the particle. The double parameter is an angle from
@@ -48,7 +48,7 @@ public class CircularLoopingEffect extends LoopingEffect {
      * @see Phase
      */
     @ApiStatus.Internal
-    public CircularLoopingEffect(Supplier<Pos> posSupplier, int resolution, Phase phase, Function<Double, Point> offsetFunc,
+    public CircularLoopingEffect(Supplier<Point> posSupplier, int resolution, Phase phase, Function<Double, Point> offsetFunc,
                                  Function<Double, Double> radiusFunc, ParticleSupplier particleSupplier, BridgingStrategy bridge,
                                  double phaseOffset) {
         super(posSupplier);
@@ -109,19 +109,19 @@ public class CircularLoopingEffect extends LoopingEffect {
         this.radius = radiusFunc.apply(currentAngle);
         this.offset = offsetFunc.apply(currentAngle);
 
-        Pos center = getPosSupplier().get().add(offset);
-        Pos loc = getPos(center);
+        Point center = getPosSupplier().get().add(offset);
+        Point loc = getPos(center);
         if (last != null) {
             bridge.render(particleSupplier, loc, last).play(audience);
         }
         last = loc;
     }
 
-    private Pos getPos(Pos center) {
+    private Point getPos(Point center) {
         return center.add(cachedPositions[currentTick - 1]);
     }
 
-    private Pos calculatePos(double angle) {
+    private Point calculatePos(double angle) {
         return switch (phase) {
             case ONE -> new Pos(Math.sin(angle + phaseShift) * radius, 0, Math.cos(angle + phaseShift) * radius);
             case TWO -> new Pos(Math.cos(angle + phaseShift) * radius, 0, Math.sin(angle + phaseShift) * radius);

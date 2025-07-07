@@ -39,7 +39,7 @@ public class ParticleData {
         return new ParticleData(p, overrideLimiter, longDistance, offset, maxSpeed, particleCount);
     }
 
-    public ParticlePacket getPacket(Pos pos) {
+    public ParticlePacket getPacket(Point pos) {
         return new ParticlePacket(particle, overrideLimiter, longDistance, pos, offset, maxSpeed, particleCount);
     }
 }
