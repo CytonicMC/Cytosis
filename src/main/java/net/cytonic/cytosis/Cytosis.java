@@ -318,7 +318,6 @@ public final class Cytosis {
 
         Logger.info("Setting up event handlers");
         eventHandler = new EventHandler(MinecraftServer.getGlobalEventHandler());
-        eventHandler.init();
 
         Logger.info("Loading player preferences");
         preferenceManager = new PreferenceManager();
@@ -455,6 +454,9 @@ public final class Cytosis {
                     }
                 });
         Logger.info("Finished scanning for listeners in plugins in " + (System.currentTimeMillis() - start2) + "ms!");
+
+// scan for custom events in plugins
+        eventHandler.init();
 
         // Start the server
         Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
