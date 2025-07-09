@@ -18,6 +18,12 @@ repositories {
     mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
+    maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
+        content { // This filtering is optional, but recommended
+            includeModule("net.minestom", "minestom")
+            includeModule("net.minestom", "testing")
+        }
+    }
 }
 
 dependencies {
