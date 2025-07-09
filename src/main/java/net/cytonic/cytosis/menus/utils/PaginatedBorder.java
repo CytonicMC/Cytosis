@@ -29,26 +29,22 @@ public class PaginatedBorder<T> extends ViewComponent {
         if (!pagination.hasNextPage()) {
             ViewItem.bySlot(view, pattern.getSlot('>'))
                     .applyPrebuilt(MenuUtils.BORDER);
-            player.sendMessage("No Next");
         } else {
             ViewItem.bySlot(view, pattern.getSlot('>'))
                     .material(Material.ARROW)
-                    .name(Msg.mm("<green>Next (" + pagination.getCurrentPage() + ")"))
+                    .name(Msg.mm("<green>Next (" + pagination.getNextPage() + ")"))
                     .hideTooltip(true)
                     .interaction(Interactions.toNextPage(pagination));
-            player.sendMessage("Yes Next");
         }
 
         if (!pagination.hasPreviousPage()) {
             ViewItem.bySlot(view, pattern.getSlot('<'))
                     .applyPrebuilt(MenuUtils.BORDER);
-            player.sendMessage("No previous");
         } else {
-            player.sendMessage("Yes previous");
             ViewItem.bySlot(view, pattern.getSlot('<'))
                     .material(Material.ARROW)
                     .hideTooltip(true)
-                    .name(Msg.mm("<green>Previous (" + pagination.getCurrentPage() + ")"))
+                    .name(Msg.mm("<green>Previous (" + pagination.getPreviousPage() + ")"))
                     .interaction(Interactions.toPreviousPage(pagination));
         }
     }
