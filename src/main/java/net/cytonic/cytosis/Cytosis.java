@@ -434,8 +434,15 @@ public final class Cytosis {
                                     async, priority, (Class<Event>) eventClass, event -> {
                                 try {
                                     method.invoke(instance, event);
-                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                } catch (IllegalAccessException e) {
                                     Logger.error("Failed to call @Listener!", e);
+                                } catch (InvocationTargetException e) {
+                                    Throwable cause = e.getCause();
+                                    if (cause != null) {
+                                        Logger.error("Exception in @Listener method: ", cause);
+                                    } else {
+                                        Logger.error("Unknown error in @Listener method.", e);
+                                    }
                                 }
                             }
                             ));
