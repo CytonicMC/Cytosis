@@ -149,6 +149,16 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     /**
+     * Determines if the specified cooldown is active for the player, on this server
+     *
+     * @param namespace the namespace of the local cooldown
+     * @return the boolean true if the player is on cooldown on this server
+     */
+    public boolean onLocalCooldown(Key namespace) {
+        return Cytosis.getLocalCooldownManager().isOnPersonalCooldown(getUuid(), namespace);
+    }
+
+    /**
      * Sets the player's personal cooldown
      *
      * @param namespace the namespace of the cooldown
@@ -156,6 +166,16 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public void setNetworkCooldown(Key namespace, Instant expiry) {
         Cytosis.getNetworkCooldownManager().setPersonal(getUuid(), namespace, expiry);
+    }
+
+    /**
+     * Sets the player's personal local cooldown
+     *
+     * @param namespace the namespace of the local cooldown
+     * @param expiry    the instant the cooldown is to expire
+     */
+    public void setLocalCooldown(Key namespace, Instant expiry) {
+        Cytosis.getLocalCooldownManager().setPersonalCooldown(getUuid(), namespace, expiry);
     }
 
     /**
@@ -167,6 +187,17 @@ public class CytosisPlayer extends CombatPlayerImpl {
     @Nullable
     public Instant getNetworkCooldown(Key namespace) {
         return Cytosis.getNetworkCooldownManager().getPersonalExpiry(getUuid(), namespace);
+    }
+
+    /**
+     * Gets the expiry of this player's local cooldown
+     *
+     * @param namespace the namespace of the cooldown
+     * @return the instant the specified cooldown expires. May be null if the player isn't on cooldown
+     */
+    @Nullable
+    public Instant getLocalCooldown(Key namespace) {
+        return Cytosis.getLocalCooldownManager().getPersonalExpiry(getUuid(), namespace);
     }
 
     /**

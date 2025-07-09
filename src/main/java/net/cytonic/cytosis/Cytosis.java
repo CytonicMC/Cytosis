@@ -174,6 +174,8 @@ public final class Cytosis {
     @Getter
     private static NicknameManager nicknameManager;
     @Getter
+    private static LocalCooldownManager localCooldownManager;
+    @Getter
     @Setter
     private static boolean metricsEnabled = false;
 
@@ -357,9 +359,11 @@ public final class Cytosis {
         }
 
         Logger.info("Starting cooldown managers");
+        localCooldownManager = new LocalCooldownManager();
+        localCooldownManager.startExpiryTask();
+
         networkCooldownManager = new NetworkCooldownManager(databaseManager.getRedisDatabase());
         networkCooldownManager.importFromRedis();
-        Logger.info("Started network cooldown manager");
 
         Logger.info("starting actionbar manager");
         actionbarManager = new ActionbarManager();

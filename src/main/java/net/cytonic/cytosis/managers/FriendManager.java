@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @NoArgsConstructor
 public class FriendManager {
-    private final ConcurrentHashMap<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
+    private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
     private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
     /**
@@ -72,6 +73,8 @@ public class FriendManager {
             try {
                 if (resultSet.next()) {
                     List<UUID> list = Cytosis.GSON.fromJson(resultSet.getString("friends"), Utils.UUID_LIST);
+                    if (list == null) list = new ArrayList<>();
+                    list.remove(uuid); // remove them if they are already their own friend
                     friends.put(uuid, list);
                 }
             } catch (SQLException e) {
@@ -96,6 +99,11 @@ public class FriendManager {
      * @param friend The friend
      */
     public void addFriend(UUID uuid, UUID friend) {
+        if (uuid.equals(friend)) return; // you can't do that!
+        addFriendRecursive(uuid, friend, true);
+    }
+
+    private void addFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
         List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
         list.add(friend);
         friends.put(uuid, list);
@@ -111,21 +119,9 @@ public class FriendManager {
         }
         db.update(f1).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst adding a friend!", throwable));
 
-        // add the friend to the other player too
-        List<UUID> list2 = friends.getOrDefault(friend, new ArrayList<>());
-        list2.add(uuid);
-        friends.put(friend, list2);
-
-        PreparedStatement f2 = db.prepare("INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
-        try {
-            f2.setString(1, friend.toString());
-            f2.setString(2, Cytosis.GSON.toJson(list));
-            f2.setString(3, Cytosis.GSON.toJson(list));
-        } catch (SQLException e) {
-            // big problem
-            throw new RuntimeException(e);
+        if (recursive) { // add the other player to their friends' list
+            addFriendRecursive(friend, uuid, false);
         }
-        db.update(f2).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst adding a friend!", throwable));
     }
 
     /**
@@ -135,6 +131,12 @@ public class FriendManager {
      * @param friend The friend
      */
     public void removeFriend(UUID uuid, UUID friend) {
+        if (uuid.equals(friend)) return;
+        removeFriendRecursive(uuid, friend, true);
+        Cytosis.getNatsManager().broadcastFriendRemoval(uuid, friend);
+    }
+
+    private void removeFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
         List<UUID> list1 = friends.getOrDefault(uuid, new ArrayList<>());
         list1.remove(friend);
         friends.put(uuid, list1);
@@ -150,22 +152,9 @@ public class FriendManager {
         }
         db.update(f1).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst removing a friend!", throwable));
 
-        List<UUID> list2 = friends.getOrDefault(friend, new ArrayList<>());
-        list2.remove(uuid);
-        friends.put(friend, list2);
-
-        PreparedStatement f2 = db.prepare("INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
-        try {
-            f2.setString(1, friend.toString());
-            f2.setString(2, Cytosis.GSON.toJson(list2));
-            f2.setString(3, Cytosis.GSON.toJson(list2));
-        } catch (SQLException e) {
-            // big problem
-            throw new RuntimeException(e);
+        if (recursive) {
+            removeFriendRecursive(friend, uuid, false);
         }
-        db.update(f2).whenComplete((unused, throwable) -> Logger.error("An error occurred whilst removing a friend!", throwable));
-
-        Cytosis.getNatsManager().broadcastFriendRemoval(uuid, friend);
     }
 
     /**

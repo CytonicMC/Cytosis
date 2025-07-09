@@ -106,6 +106,7 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onSpawn(PlayerSpawnEvent event) {
+        if (!event.isFirstSpawn()) return;
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         Logger.info(player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection().getRemoteAddress());
         Cytosis.getDatabaseManager().getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
