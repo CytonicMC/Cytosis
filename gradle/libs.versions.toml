@@ -9,10 +9,10 @@ gson = "2.13.1"
 guava = "33.4.8-jre"
 jedis = "6.0.0"
 jnats = "2.21.3"
-minestom = "4fe2993057"
+minestom = "2025.07.08-1.21.5"
 jooq = "3.20.5"
 log4j = "2.25.0"
-minestompvp = "1_21_5-SNAPSHOT"
+minestompvp = "-SNAPSHOT"
 mysql = "9.3.0"
 okhttp = "4.12.0"
 opentelemetry = "1.51.0"
@@ -22,13 +22,13 @@ reflections = "0.10.2"
 lombokwarningfix = "4.0.2"
 
 [libraries]
-minestom = { module = "net.minestom:minestom-snapshots", version.ref = "minestom" }
+minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 polar = { module = "dev.hollowcube:polar", version.ref = "polar" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-minestompvp = { module = "com.github.CodeDoctorDE:MinestomPvP", version.ref = "minestompvp" }
+minestompvp = { module = "com.github.TogAr2:MinestomPvP", version.ref = "minestompvp" }
 stomui = { module = "eu.koboo:stomui", version.ref = "stomui" }
 configurate = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
