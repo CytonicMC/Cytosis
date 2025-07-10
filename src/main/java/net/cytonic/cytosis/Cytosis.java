@@ -6,9 +6,6 @@ import com.google.gson.Strictness;
 import eu.koboo.minestom.stomui.api.ViewRegistry;
 import eu.koboo.minestom.stomui.core.MinestomUI;
 import io.github.classgraph.ClassGraph;
-import io.github.togar2.pvp.MinestomPvP;
-import io.github.togar2.pvp.feature.CombatFeatureSet;
-import io.github.togar2.pvp.feature.CombatFeatures;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
@@ -39,7 +36,6 @@ import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.player.CytosisPlayerProvider;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
@@ -215,7 +211,7 @@ public final class Cytosis {
         // Initialize the server
         Logger.info("Starting Cytosis server...");
         minecraftServer = MinecraftServer.init();
-        MinecraftServer.getConnectionManager().setPlayerProvider(new CytosisPlayerProvider());
+        MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
         MinecraftServer.setBrandName("Cytosis");
 
         MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
@@ -368,13 +364,6 @@ public final class Cytosis {
         actionbarManager = new ActionbarManager();
         actionbarManager.init();
 
-        Logger.info("Loading PVP");
-        MinestomPvP.init();
-        CombatFeatureSet modernVanilla = CombatFeatures.modernVanilla();
-        MinecraftServer.getGlobalEventHandler().addChild(modernVanilla.createNode());
-        MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
-
-
         //
         // PLUGIN LOADING IS ALWAYS LAST!!!!
         // (This is so any apis it depends on are guarenteed to already by loaded!)
@@ -445,8 +434,15 @@ public final class Cytosis {
                                     async, priority, (Class<Event>) eventClass, event -> {
                                 try {
                                     method.invoke(instance, event);
-                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                } catch (IllegalAccessException e) {
                                     Logger.error("Failed to call @Listener!", e);
+                                } catch (InvocationTargetException e) {
+                                    Throwable cause = e.getCause();
+                                    if (cause != null) {
+                                        Logger.error("Exception in @Listener method: ", cause);
+                                    } else {
+                                        Logger.error("Unknown error in @Listener method.", e);
+                                    }
                                 }
                             }
                             ));
