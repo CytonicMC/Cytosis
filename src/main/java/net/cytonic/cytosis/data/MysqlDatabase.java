@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 /**
  * A class handling Cytosis database transactions
  */
+@SuppressWarnings("UnusedReturnValue")
 public class MysqlDatabase {
 
     private final ExecutorService worker;
@@ -100,7 +101,6 @@ public class MysqlDatabase {
      */
     public void createTables() {
         createChatTable();
-        createRanksTable();
         createBansTable();
         createPlayersTable();
         createWorldTable();
@@ -121,22 +121,6 @@ public class MysqlDatabase {
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
-            }
-        }
-
-    }
-
-    /**
-     * Creates the ranks table
-     */
-    private void createRanksTable() {
-        if (isConnected()) {
-            PreparedStatement ps;
-            try {
-                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_ranks (uuid VARCHAR(36), rank_id VARCHAR(16), PRIMARY KEY(uuid))");
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst creating the `cytonic_ranks` table.", e);
             }
         }
 
@@ -165,7 +149,7 @@ public class MysqlDatabase {
         if (isConnected()) {
             PreparedStatement ps;
             try {
-                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (uuid VARCHAR(36), name VARCHAR(16), PRIMARY KEY(uuid))");
+                ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS cytonic_players (uuid VARCHAR(36), `rank` VARCHAR(16), name VARCHAR(16), PRIMARY KEY(uuid))");
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst creating the `cytonic_players` table.", e);
@@ -389,11 +373,11 @@ public class MysqlDatabase {
             throw new IllegalStateException("The database must have an open connection to fetch a player's rank!");
         worker.submit(() -> {
             try {
-                PreparedStatement ps = connection.prepareStatement("SELECT rank_id FROM cytonic_ranks WHERE uuid = ?");
+                PreparedStatement ps = connection.prepareStatement("SELECT `rank` FROM cytonic_players WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    future.complete(PlayerRank.valueOf(rs.getString("rank_id")));
+                    future.complete(PlayerRank.valueOf(rs.getString("rank")));
                 } else {
                     future.complete(PlayerRank.DEFAULT);
                     setPlayerRank(uuid, PlayerRank.DEFAULT);
@@ -419,7 +403,7 @@ public class MysqlDatabase {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
-                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_ranks (uuid, rank_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE rank_id = VALUES(rank_id)");
+                PreparedStatement ps = connection.prepareStatement("INSERT INTO cytonic_players (uuid, `rank`) VALUES (?,?) ON DUPLICATE KEY UPDATE `rank` = VALUES(rank)");
                 ps.setString(1, uuid.toString());
                 ps.setString(2, rank.name());
                 ps.executeUpdate();
@@ -557,10 +541,11 @@ public class MysqlDatabase {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
-                PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_players (name, uuid) VALUES (?,?) ON DUPLICATE KEY UPDATE name = ?");
+                PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_players (name, uuid, `rank`) VALUES (?,?,?) ON DUPLICATE KEY UPDATE name = ?");
                 ps.setString(1, player.getTrueUsername());
                 ps.setString(2, player.getUuid().toString());
-                ps.setString(3, player.getTrueUsername());
+                ps.setString(3, player.getRank().name());
+                ps.setString(4, player.getTrueUsername());
                 ps.executeUpdate();
                 future.complete(null);
             } catch (SQLException e) {

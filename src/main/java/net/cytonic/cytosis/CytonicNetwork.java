@@ -63,26 +63,13 @@ public class CytonicNetwork {
             }
             try {
                 while (rs.next()) {
-                    lifetimePlayers.put(UUID.fromString(rs.getString("uuid")), rs.getString("name"));
-                    lifetimeFlattened.put(UUID.fromString(rs.getString("uuid")), rs.getString("name").toLowerCase());
+                    UUID uuid = UUID.fromString(rs.getString("uuid"));
+                    lifetimePlayers.put(uuid, rs.getString("name"));
+                    lifetimeFlattened.put(uuid, rs.getString("name").toLowerCase());
+                    cachedPlayerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank")));
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading players!", e);
-            }
-        });
-
-        PreparedStatement ranks = db.prepare("SELECT * FROM cytonic_ranks");
-        db.query(ranks).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading ranks!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    cachedPlayerRanks.put(UUID.fromString(rs.getString("uuid")), PlayerRank.valueOf(rs.getString("rank_id")));
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading ranks!", e);
             }
         });
 
@@ -142,7 +129,7 @@ public class CytonicNetwork {
 
         MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
 
-        PreparedStatement rank = db.prepare("SELECT * FROM cytonic_ranks WHERE uuid = ?");
+        PreparedStatement rank = db.prepare("SELECT `rank` FROM cytonic_players WHERE uuid = ?");
         try {
             rank.setString(1, uuid.toString());
         } catch (SQLException e) {
@@ -159,7 +146,7 @@ public class CytonicNetwork {
             }
             try {
                 while (rs.next()) {
-                    cachedPlayerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank_id")));
+                    cachedPlayerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank")));
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading ranks!", e);
