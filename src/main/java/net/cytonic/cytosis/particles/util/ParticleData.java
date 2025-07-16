@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.particles.util;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
@@ -24,19 +25,32 @@ public class ParticleData {
     }
 
     public static ParticleData simple(Particle p) {
-        return new ParticleData(p, false, false, Pos.ZERO, 0, 1);
+        return simple(p, 1);
     }
 
     public static ParticleData simple(Particle p, int particleCount) {
-        return new ParticleData(p, false, false, Pos.ZERO, 0, particleCount);
+        return of(p, false, false, Pos.ZERO, 0, particleCount);
     }
 
     public static ParticleData of(Particle p, Point offset, float maxSpeed, int particleCount) {
-        return new ParticleData(p, false, false, offset, maxSpeed, particleCount);
+        return of(p, false, false, offset, maxSpeed, particleCount);
     }
 
     public static ParticleData of(Particle p, boolean overrideLimiter, boolean longDistance, Point offset, float maxSpeed, int particleCount) {
         return new ParticleData(p, overrideLimiter, longDistance, offset, maxSpeed, particleCount);
+    }
+
+    public static ParticleData dust(String hexColor) {
+        return dust(hexColor, 1);
+    }
+
+    public static ParticleData dust(String hexColor, float scale) {
+        return dust(hexColor, scale, 1);
+    }
+
+    public static ParticleData dust(String hexColor, float scale, int particleCount) {
+        Particle p = Particle.DUST.withProperties(TextColor.fromHexString(hexColor), scale);
+        return new ParticleData(p, false, false, Pos.ZERO, 0, particleCount);
     }
 
     public ParticlePacket getPacket(Point pos) {
