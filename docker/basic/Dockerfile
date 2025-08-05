@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.7_6-jre-jammy
+FROM eclipse-temurin:21.0.8_9-jre-jammy
 LABEL authors="CytonicMC"
 
 # Set the working directory
