@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.npcs;
 
 import lombok.Setter;
+import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -10,7 +11,6 @@ import net.minestom.server.entity.*;
 import net.minestom.server.entity.metadata.PlayerMeta;
 import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -71,7 +70,7 @@ public class Humanoid extends EntityCreature implements NPC {
                 0, GameMode.SURVIVAL, null, null, 0);
         player.sendPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
         super.updateNewViewer(player);
-        player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
+        player.sendPackets(MetadataPacketBuilder.empty(getEntityId()).setByte(17, (byte) 127).build());
 
         var team = new TeamsPacket("NPC-" + getUuid(),
                 new TeamsPacket.CreateTeamAction(Component.empty(),
