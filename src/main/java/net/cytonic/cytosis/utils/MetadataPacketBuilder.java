@@ -77,6 +77,34 @@ public class MetadataPacketBuilder {
         return setBitmask(enable, (byte) 0x01);
     }
 
+    public boolean isOnFire() {
+        return getBitmask((byte) 0x01);
+    }
+
+    public boolean isSneaking() {
+        return getBitmask((byte) 0x02);
+    }
+
+    public boolean isSprinting() {
+        return getBitmask((byte) 0x08);
+    }
+
+    public boolean isSwimming() {
+        return getBitmask((byte) 0x10);
+    }
+
+    public boolean isInvisible() {
+        return getBitmask((byte) 0x20);
+    }
+
+    public boolean isGlowing() {
+        return getBitmask((byte) 0x40);
+    }
+
+    public boolean isFlyingWithElytra() {
+        return getBitmask((byte) 0x01);
+    }
+
     public MetadataPacketBuilder setByte(int index, byte value) {
         entries.put(index, Metadata.Byte(value));
         return this;
@@ -288,6 +316,15 @@ public class MetadataPacketBuilder {
             flags &= (byte) ~bit;
         }
         return setByte(0, flags);
+    }
+
+    private boolean getBitmask(byte bit) {
+        Metadata.Entry<@NotNull Byte> entry = (Metadata.Entry<@NotNull Byte>) entries.get(0);
+        if (entry == null) {
+            return false;
+        }
+
+        return (entry.value() & (1 << bit)) != 0;
     }
 
     public EntityMetaDataPacket build() {
