@@ -258,7 +258,7 @@ public class MetadataPacketBuilder {
     }
 
     /**
-     * Used for things like Scale & Translation for display entities
+     * Used for things like Scale and Translation for display entities
      */
     public MetadataPacketBuilder setVector3(int index, Vec value) {
         entries.put(index, Metadata.Vector3(value));
