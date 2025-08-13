@@ -34,7 +34,7 @@ public class Humanoid extends EntityCreature implements NPC {
     private PlayerSkin skin;
     private boolean glowing = false;
     private NamedTextColor glowingColor = NamedTextColor.WHITE;
-    private boolean damagable = false;
+    private final boolean damagable = false;
 
     /**
      * Creates a new Humanoid from uuid, username, and skin

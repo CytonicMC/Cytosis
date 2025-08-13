@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "net.cytonic"
-version = "1.0-SNAPSHOT"
+version = "1.0-SNAPSHOT-raytracing"
 
 repositories {
     mavenCentral()
@@ -316,6 +316,12 @@ fun String.runCommand(): String {
 
 tasks.withType<Zip> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType<ShadowJar> {
+    exclude("META-INF/**/*.SF")
+    exclude("META-INF/**/*.DSA")
+    exclude("META-INF/**/*.RSA")
 }
 
 java {

@@ -33,7 +33,6 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             Path readPath = Path.of(context.get(path));
-            ;
             if (!(Files.exists(readPath) && Files.isReadable(readPath))) {
                 sender.sendMessage(Msg.whoops("The path you specified does not exist!"));
                 return;

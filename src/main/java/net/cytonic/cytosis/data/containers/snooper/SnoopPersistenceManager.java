@@ -92,7 +92,6 @@ public class SnoopPersistenceManager {
     }
 
 
-
     private List<QueriedSnoop> processSnoops(Result<org.jooq.Record> result) {
         return result.stream().map(record -> {
             return new QueriedSnoop(

@@ -132,7 +132,7 @@ public class Tuple<F, S> {
      * @return the first object
      */
     public F getFirst() {
-        return (F) first;
+        return first;
     }
 
     /**
@@ -141,6 +141,6 @@ public class Tuple<F, S> {
      * @return the second object
      */
     public S getSecond() {
-        return (S) second;
+        return second;
     }
 }

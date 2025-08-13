@@ -38,65 +38,6 @@ public class Events {
 
     }
 
-    @Listener
-    public void onEvent(final PlayerJoinNetworkEvent event) {
-        networkJoin.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    public void onEvent(final PlayerLeaveNetworkEvent event) {
-        networkLeave.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    public void onEvent(final PlayerLoadedEvent event) {
-        join.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    private void onEvent(final AsyncPlayerConfigurationEvent event) {
-        config.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    private void onEvent(final PlayerDisconnectEvent event) {
-        disconnect.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    private void onEvent(final PlayerPacketEvent event) {
-        packetIn.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    private void onEvent(final PlayerPacketOutEvent event) {
-        packetOut.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    @Priority(100)
-    private void onEventLow(final PlayerPacketEvent event) {
-        packetInLow.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    @Priority(100)
-    private void onEventLow(final PlayerPacketOutEvent event) {
-        packetOutLow.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    @Priority(0)
-    private void onEventHigh(final PlayerPacketEvent event) {
-        packetInHigh.forEach(consumer -> consumer.accept(event));
-    }
-
-    @Listener
-    @Priority(0)
-    private void onEventHigh(final PlayerPacketOutEvent event) {
-        packetOutHigh.forEach(consumer -> consumer.accept(event));
-    }
-
     /**
      * A simplified wrapper around {@link #onConfigRaw(Consumer)} providing the
      * player object when a player joins. The player has not yet spawned into an instance at the time of calling this event.
@@ -233,7 +174,6 @@ public class Events {
         packetOutLow.add(event);
     }
 
-
     /**
      * Registers a consumer that will be executed when a player joins the network.
      * This method adds the given consumer to the internal handler for network join events.
@@ -244,7 +184,6 @@ public class Events {
         networkJoin.add(event);
     }
 
-
     /**
      * Registers a consumer that will be executed when a player leaves the network.
      * This method adds the given consumer to the internal handler for network leave events.
@@ -253,6 +192,65 @@ public class Events {
      */
     public static void onNetworkLeave(Consumer<PlayerLeaveNetworkEvent> event) {
         networkLeave.add(event);
+    }
+
+    @Listener
+    public void onEvent(final PlayerJoinNetworkEvent event) {
+        networkJoin.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    public void onEvent(final PlayerLeaveNetworkEvent event) {
+        networkLeave.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    public void onEvent(final PlayerLoadedEvent event) {
+        join.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final AsyncPlayerConfigurationEvent event) {
+        config.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerDisconnectEvent event) {
+        disconnect.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerPacketEvent event) {
+        packetIn.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerPacketOutEvent event) {
+        packetOut.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(100)
+    private void onEventLow(final PlayerPacketEvent event) {
+        packetInLow.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(100)
+    private void onEventLow(final PlayerPacketOutEvent event) {
+        packetOutLow.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(0)
+    private void onEventHigh(final PlayerPacketEvent event) {
+        packetInHigh.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    @Priority(0)
+    private void onEventHigh(final PlayerPacketOutEvent event) {
+        packetOutHigh.forEach(consumer -> consumer.accept(event));
     }
 
 

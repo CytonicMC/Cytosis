@@ -32,14 +32,14 @@ public class NicknameManager {
         });
     }
 
-    public boolean isNicked(UUID player) {
-        return nicknames.containsKey(player);
-    }
-
     public static String translateSkin(CytosisPlayer player, String skin) {
         if (skin == null) return "<#BE9025>Steve/Alex skin</#BE9025>";
         if (skin.equals(player.getSkin().textures())) return "<#BE9025>My normal skin</#BE9025>";
         return "<#BE9025>Random Skin</#BE9025>";
+    }
+
+    public boolean isNicked(UUID player) {
+        return nicknames.containsKey(player);
     }
 
     public void nicknamePlayer(UUID playerUuid, NicknameData data) {

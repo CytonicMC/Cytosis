@@ -45,9 +45,9 @@ public class Sideboard {
     private final String id;
     private final List<Component> scores = new ArrayList<>();
     private final List<Component> lines = new ArrayList<>();
+    String[] objective = new String[]{"\u00A70", "\u00A71", "\u00A72", "\u00A73", "\u00A74", "\u00A75", "\u00A76", "\u00A77", "\u00A78", "\u00A79", "\u00A7a", "\u00A7b", "\u00A7c", "\u00A7d", "\u00A7e", "\u00A7f"};
     private Component title = emptyLine();
     private boolean deleted = false;
-    String[] objective = new String[]{"\u00A70", "\u00A71", "\u00A72", "\u00A73", "\u00A74", "\u00A75", "\u00A76", "\u00A77", "\u00A78", "\u00A79", "\u00A7a", "\u00A7b", "\u00A7c", "\u00A7d", "\u00A7e", "\u00A7f"};
 
     /**
      * Creates a new Sideboard.

@@ -32,6 +32,7 @@ public class HumanoidBuilder {
 
     /**
      * The constructor for creating a  builder from an existing NPC
+     *
      * @param NPC THe NPC to import data from
      */
     protected HumanoidBuilder(Humanoid NPC) {
@@ -42,6 +43,7 @@ public class HumanoidBuilder {
 
     /**
      * Sets the skin
+     *
      * @param skin The skin data
      * @return The builder with updated data
      */
@@ -52,8 +54,9 @@ public class HumanoidBuilder {
 
     /**
      * Sets the skin
+     *
      * @param signature The signature of the skin
-     * @param value The value of the skin
+     * @param value     The value of the skin
      * @return The builder with updated data
      */
     public HumanoidBuilder skin(String value, String signature) {
@@ -114,6 +117,7 @@ public class HumanoidBuilder {
 
     /**
      * Sets the NPC's multi-line hologram contents
+     *
      * @param lines The lines of the hologram
      * @return The builder with updated data
      */
@@ -124,6 +128,7 @@ public class HumanoidBuilder {
 
     /**
      * Adds an interaction trigger to run an action on interact
+     *
      * @param action The action to run
      * @return The builder with updated data
      */
@@ -134,6 +139,7 @@ public class HumanoidBuilder {
 
     /**
      * Makes the NPC glow
+     *
      * @param color The color to glow
      * @return The builder with updated data
      */
@@ -144,6 +150,7 @@ public class HumanoidBuilder {
 
     /**
      * Builds the NPC and creates the holograms
+     *
      * @return The Humanoid NPC
      */
     public Humanoid build() {

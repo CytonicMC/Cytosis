@@ -30,14 +30,16 @@ public final class Utils {
     /**
      * A type token for a list of UUIDs
      */
-    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {}.getType();
+    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
+    }.getType();
 
     public static final Type SERVER_LIST = new TypeToken<List<ServerStatusContainer>>() {
     }.getType();
     /**
      * A type token for a map of namespaced preferences keyed by NamespaceID
      */
-    public final static TypeToken<Map<TypedNamespace<?>, Preference<?>>> PREFERENCE_MAP = new TypeToken<>() {};
+    public final static TypeToken<Map<TypedNamespace<?>, Preference<?>>> PREFERENCE_MAP = new TypeToken<>() {
+    };
 
     /**
      * Creates a MUTABLE list from a vararg, for immutable lists, use {@link List#of(Object...)}

@@ -19,6 +19,7 @@ public interface SideboardCreator {
 
     /**
      * A method to create the lines for the sideboard
+     *
      * @param player The player
      * @return The list of components
      */
@@ -26,6 +27,7 @@ public interface SideboardCreator {
 
     /**
      * Creates the title for the sideboard
+     *
      * @param player The player
      * @return The title in Component form
      */

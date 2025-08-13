@@ -16,12 +16,12 @@ import java.util.function.Consumer;
 @AllArgsConstructor
 public class EventListener<T extends Event> {
     private final Class<T> eventClass;
-    @Setter
-    private Consumer<T> consumer = null;
     private final boolean async;
     private final int priority;
     private final String namespace;
     private final boolean ignoreCancelled;
+    @Setter
+    private Consumer<T> consumer = null;
 
     /**
      * Constructs a new instance of {@link EventListener} with the specified namespace, priority, and consumer.
