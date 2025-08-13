@@ -7,12 +7,6 @@ public class CytosisSnoops {
 
 
     private static final byte ALL_STAFF = (byte) (0x01 | 0x02 | 0x04 | 0x08); // owner, admin, mod, helper
-    private static final byte NOT_HELPER = (byte) (0x01 | 0x02 | 0x04); // owner, admin, mod
-    private static final byte ADMIN = (byte) (0x01 | 0x02); // owner, admin
-    private static final byte MODERATOR = (byte) (0x01 | 0x04); // owner, moderator
-
-
-
     /**
      * Used whenever a moderator unmutes a player
      */
@@ -27,10 +21,11 @@ public class CytosisSnoops {
     public static final SnooperChannel CHAT_CLEAR = new SnooperChannel("cytosis.snooper.chat.clear", Key.key("cytosis:clear"), ALL_STAFF);
     public static final SnooperChannel PLAYER_SERVER_CHANGE = new SnooperChannel("cytosis.snooper.player.server.change", Key.key("cytosis:switch_server"), ALL_STAFF);
     public static final SnooperChannel CHANGE_RANK = new SnooperChannel("cytosis.snooper.change_rank", Key.key("cytosis:change_rank"), ALL_STAFF);
-
     public static final SnooperChannel PLAYER_NICKNAME = new SnooperChannel("cytosis.snooper.player.nickname", Key.key("cytosis:nickname"), ALL_STAFF);
-
+    private static final byte NOT_HELPER = (byte) (0x01 | 0x02 | 0x04); // owner, admin, mod
+    private static final byte ADMIN = (byte) (0x01 | 0x02); // owner, admin
     public static final SnooperChannel SERVER_ERROR = new SnooperChannel("cytosis.snooper.server_error", Key.key("cytosis:server_error"), ADMIN);
+    private static final byte MODERATOR = (byte) (0x01 | 0x04); // owner, moderator
     /**
      * Used whenever a moderator bans a player
      */

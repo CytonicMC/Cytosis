@@ -318,6 +318,12 @@ tasks.withType<Zip> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.withType<ShadowJar> {
+    exclude("META-INF/**/*.SF")
+    exclude("META-INF/**/*.DSA")
+    exclude("META-INF/**/*.RSA")
+}
+
 java {
     withSourcesJar()
     withJavadocJar()

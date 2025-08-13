@@ -42,6 +42,7 @@ final class AccessibleRegionFile implements AutoCloseable {
     private final int[] locations = new int[MAX_ENTRY_COUNT];
     private final int[] timestamps = new int[MAX_ENTRY_COUNT];
     private final BooleanList freeSectors = new BooleanArrayList(2);
+
     public AccessibleRegionFile(@NotNull Path path) throws IOException {
         this.file = new RandomAccessFile(path.toFile(), "rw");
 

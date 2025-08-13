@@ -36,10 +36,10 @@ public class SnooperProvider extends ViewProvider {
     private final String id;
     private final ViewPattern pattern;
     private final ViewPagination<QueriedSnoop> pagination;
+    private final String search;
     private boolean ascending;
     private DateRange date = DateRange.SEVEN_DAYS;
-    private final String search;
-    private PaginatedBorder border;
+    private final PaginatedBorder border;
 
     public SnooperProvider(@NotNull final String id, String search, boolean ascending) {
         super(Cytosis.VIEW_REGISTRY, ViewBuilder.of(ViewType.SIZE_6_X_9)

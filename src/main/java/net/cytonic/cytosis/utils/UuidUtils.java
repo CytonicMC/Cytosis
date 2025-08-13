@@ -67,6 +67,7 @@ public final class UuidUtils {
 
     /**
      * Converts a UUID to a mojang UUID by removing the dashes
+     *
      * @param uuid the UUID
      * @return the mojang UUID
      */

@@ -30,6 +30,7 @@ public interface NPC {
 
     /**
      * Creates a new builder out of an existing NPC
+     *
      * @param NPC The npc to import data from
      * @return the created builder
      */
@@ -38,51 +39,59 @@ public interface NPC {
     }
 
     /**
-     * Sets the mutli line hologram contents
-     * @param lines The lines of the hologram
-     */
-    void setLines(Component... lines);
-
-    /**
      * Adds an interaction to the NPC
+     *
      * @param action the exection action
      */
     void addAction(NPCAction action);
 
     /**
-     * Sets the NPC to be glowing
-     * @param color the color to glow
-     */
-    void setGlowing(NamedTextColor color);
-
-    /**
      * Lists the NPCs actions
+     *
      * @return the NPC's actions
      */
     List<NPCAction> getActions();
 
     /**
      * Gets the hologram lines
+     *
      * @return The NPC's hologram lines
      */
     List<Component> getLines();
 
     /**
+     * Sets the mutli line hologram contents
+     *
+     * @param lines The lines of the hologram
+     */
+    void setLines(Component... lines);
+
+    /**
      * If the NPC is glowing
+     *
      * @return The NPC's glowing state
      */
     boolean isGlowing();
 
     /**
+     * Sets the NPC to be glowing
+     *
+     * @param color the color to glow
+     */
+    void setGlowing(NamedTextColor color);
+
+    /**
      * The color the NPC glows.
      * <p>
      * Returns {@link NamedTextColor#WHITE} if the NPC is not glowing
+     *
      * @return the NPC's glowing color
      */
     NamedTextColor getGlowingColor();
 
     /**
      * Gets the NPC's UUID
+     *
      * @return the uuid
      */
     UUID getUUID();

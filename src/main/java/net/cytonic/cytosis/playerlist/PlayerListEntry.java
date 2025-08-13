@@ -30,7 +30,8 @@ public class PlayerListEntry {
 
     /**
      * Creates a new player list entry with the favicon set to {@link PlayerListFavicon#GREY}
-     * @param name The name of the entry
+     *
+     * @param name     The name of the entry
      * @param priority The ordering of the entry
      */
     public PlayerListEntry(Component name, int priority) {
@@ -54,7 +55,8 @@ public class PlayerListEntry {
 
     /**
      * Creates a new player list entry with the favicon set to {@link PlayerListFavicon#GREY}
-     * @param name The name of the entry
+     *
+     * @param name     The name of the entry
      * @param priority The ordering of the entry
      */
     public PlayerListEntry(String name, int priority) {
@@ -65,8 +67,9 @@ public class PlayerListEntry {
 
     /**
      * Creates a new player list entry
-     * @param name The name of the entry
-     * @param favicon The {@link PlayerListFavicon} of the entry
+     *
+     * @param name     The name of the entry
+     * @param favicon  The {@link PlayerListFavicon} of the entry
      * @param priority The ordering of the entry
      */
     public PlayerListEntry(String name, PlayerListFavicon favicon, int priority) {

@@ -68,25 +68,26 @@ public final class ServerEventListeners {
     @Priority(0)
     @Async
     private void onPacketOut(PlayerPacketOutEvent e) {
-        if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
+        if (!(e.getPacket() instanceof EntityMetaDataPacket(int entityId, Map<Integer, Metadata.Entry<?>> entries)))
+            return;
         if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
-        if (!Cytosis.getVanishManager().getVanished().containsValue(packet.entityId())) return;
+        if (!Cytosis.getVanishManager().getVanished().containsValue(entityId)) return;
 
-        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(packet.entries());
+        Map<Integer, Metadata.Entry<?>> modifiedEntries = new HashMap<>(entries);
 
         byte bitmask = 0;
-        if (entries.containsKey(0)) {
-            bitmask = ((Metadata.Entry<Byte>) entries.get(0)).value();
+        if (modifiedEntries.containsKey(0)) {
+            bitmask = ((Metadata.Entry<Byte>) modifiedEntries.get(0)).value();
         }
         if ((bitmask & 0x40) == 0x40 && (bitmask & 0x20) == 0x20) {
             return; // don't need to modify (also prevents a stackoverflow)
         }
         e.setCancelled(true);
         bitmask |= 0x20 | 0x40;
-        entries.put(0, Metadata.Byte(bitmask));
+        modifiedEntries.put(0, Metadata.Byte(bitmask));
         Cytosis.getOnlinePlayers().forEach(p -> {
             if (!p.isStaff()) return;
-            p.sendPacket(new EntityMetaDataPacket(packet.entityId(), entries));
+            p.sendPacket(new EntityMetaDataPacket(entityId, modifiedEntries));
         });
     }
 

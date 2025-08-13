@@ -28,6 +28,7 @@ public class NPCManager {
 
     /**
      * Removes an NPC from the manager
+     *
      * @param npc the NPC to remove
      */
     public void removeNPC(NPC npc) {
@@ -37,6 +38,7 @@ public class NPCManager {
 
     /**
      * Finds an NPC by UUID
+     *
      * @param id the uuid to find the NPC by
      * @return An optional of the NPC
      */
