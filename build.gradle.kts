@@ -7,7 +7,7 @@ plugins {
     id("com.gradleup.shadow") version "9.0.2"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "1.3.1"
-    id("io.freefair.lombok") version "8.14"
+    id("io.freefair.lombok") version "8.14.2"
 }
 
 group = "net.cytonic"
