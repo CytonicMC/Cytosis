@@ -29,7 +29,7 @@ public class CircularLoopingEffect extends LoopingEffect {
     /**
      * Creates a looping effect which results in a circle
      *
-     * @param posSupplier           The entity this effect revolves around. todo: Make it also work with a pos
+     * @param posSupplier      The entity this effect revolves around. todo: Make it also work with a pos
      * @param resolution       The number of segments in the circle should be broken into. 16 typically works well
      * @param phase            The phase this effect should play in. For more info, see the {@link Phase} class
      * @param offsetFunc       The function to supply the offset of the particle. The double parameter is an angle from

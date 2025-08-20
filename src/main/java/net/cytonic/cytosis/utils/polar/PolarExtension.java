@@ -11,7 +11,8 @@ public class PolarExtension implements PolarWorldAccess {
 
     @Override
     public void loadWorldData(@NotNull Instance instance, @Nullable NetworkBuffer userData) {
-        if (userData == null) return;
+        if (userData == null) {
+        }
 
     }
 

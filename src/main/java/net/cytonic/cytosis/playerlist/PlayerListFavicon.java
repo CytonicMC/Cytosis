@@ -60,6 +60,7 @@ public enum PlayerListFavicon {
 
     /**
      * Gets the property in list form
+     *
      * @return the property in list form
      */
     public List<PlayerInfoUpdatePacket.Property> property() {

@@ -35,7 +35,7 @@ public abstract class KeyframedEffect extends ParticleEffect implements Keyframe
 
         // Handle single keyframe case
         if (keyframes.size() == 1) {
-            addEffectToTick(result, 0, keyframes.getFirst().effect);
+            addEffectToTick(result, 0, keyframes.getFirst().effect());
             return result;
         }
 
@@ -45,7 +45,7 @@ public abstract class KeyframedEffect extends ParticleEffect implements Keyframe
             double easedProgress = applyEasing(linearProgress, easingFunction);
             int tick = (int) Math.round(easedProgress * (duration - 1));
 
-            addEffectToTick(result, tick, keyframes.get(i).effect);
+            addEffectToTick(result, tick, keyframes.get(i).effect());
         }
 
         return result;

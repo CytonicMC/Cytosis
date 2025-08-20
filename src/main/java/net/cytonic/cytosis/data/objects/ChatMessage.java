@@ -12,6 +12,7 @@ import java.util.UUID;
  * A class that represents a message sent to the specified recipients.
  * <br><br>
  * <strong>Api Note:</strong> The {@code recipients} field may be null, indicating the message should be broadcast out on the channel, rather than sent only to the recipients.
+ *
  * @param recipients        The intended recipients of the message, may be null. See note above.
  * @param channel           The channel the message is sent out upon.
  * @param serializedMessage The serialized message in MiniMessage form.

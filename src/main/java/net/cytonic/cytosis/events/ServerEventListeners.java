@@ -14,20 +14,19 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.npcs.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -67,26 +66,29 @@ public final class ServerEventListeners {
     @Listener
     @Priority(0)
     @Async
+    @SuppressWarnings({"unchecked", "UnstableApiUsage"})
     private void onPacketOut(PlayerPacketOutEvent e) {
-        if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
+        if (!(e.getPacket() instanceof EntityMetaDataPacket packet))
+            return;
         if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
         if (!Cytosis.getVanishManager().getVanished().containsValue(packet.entityId())) return;
 
-        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(packet.entries());
+        MetadataPacketBuilder builder = MetadataPacketBuilder.builder(packet);
 
-        byte bitmask = 0;
-        if (entries.containsKey(0)) {
-            bitmask = ((Metadata.Entry<Byte>) entries.get(0)).value();
-        }
-        if ((bitmask & 0x40) == 0x40 && (bitmask & 0x20) == 0x20) {
+
+        if (builder.isGlowing() && builder.isInvisible()) {
             return; // don't need to modify (also prevents a stackoverflow)
         }
         e.setCancelled(true);
-        bitmask |= 0x20 | 0x40;
-        entries.put(0, Metadata.Byte(bitmask));
+
+        SendablePacket toSend = builder.setGlowing(true)
+                .setInvisible(true)
+                .build();
+
+
         Cytosis.getOnlinePlayers().forEach(p -> {
             if (!p.isStaff()) return;
-            p.sendPacket(new EntityMetaDataPacket(packet.entityId(), entries));
+            p.sendPacket(toSend);
         });
     }
 

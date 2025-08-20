@@ -30,19 +30,32 @@ public class ParticleEngine {
     }
 
     /**
-     * Plays this keyframed effect for every Cytosis player. To play this for everyone,
+     * Plays this keyframed effect for every player in the audience. To play this for everyone,
      * use {@link #playKeyframed(KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
      */
     public static void playKeyframed(PacketGroupingAudience audience, KeyframedEffect effect) {
-        effect.getKeyframeEffects().forEach((time, effectsToPlay) -> {
-            if (time <= 0) {
-                effectsToPlay.forEach(eff -> eff.play(audience));
-                return;
-            }
-            SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience))).delay(TaskSchedule.tick(time)).schedule();
-        });
+        playKeyframed(audience, effect, 0);
+    }
+
+    /**
+     * Plays this keyframed effect for every player in the audience. To play this for everyone,
+     * use {@link #playKeyframed(KeyframedEffect)}
+     *
+     * @param effect the keyframed effect to play
+     * @param delay  the delay in ticks before the effect starts playing
+     */
+    public static void playKeyframed(PacketGroupingAudience audience, KeyframedEffect effect, int delay) {
+        SCHEDULER.buildTask(() -> {
+            effect.getKeyframeEffects().forEach((time, effectsToPlay) -> {
+                if (time <= 0) {
+                    effectsToPlay.forEach(eff -> eff.play(audience));
+                    return;
+                }
+                SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience))).delay(TaskSchedule.tick(time)).schedule();
+            });
+        }).delay(TaskSchedule.tick(delay)).schedule();
     }
 
     public static Task playLooping(LoopingEffect effect, TaskSchedule period) {
@@ -50,7 +63,11 @@ public class ParticleEngine {
     }
 
     public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience) {
-        return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).schedule();
+        return playLooping(effect, period, audience, 0);
+    }
+
+    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience, int delay) {
+        return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay)).schedule();
     }
 
     public static void playStatic(StaticEffect effect) {
@@ -58,6 +75,10 @@ public class ParticleEngine {
     }
 
     public static void playStatic(StaticEffect effect, PacketGroupingAudience audience) {
-        effect.play(audience);
+        playStatic(effect, audience, 0);
+    }
+
+    public static void playStatic(StaticEffect effect, PacketGroupingAudience audience, int delay) {
+        SCHEDULER.buildTask(() -> effect.play(audience)).delay(TaskSchedule.tick(delay)).schedule();
     }
 }

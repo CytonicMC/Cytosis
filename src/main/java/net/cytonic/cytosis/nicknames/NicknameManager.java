@@ -7,13 +7,16 @@ import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
-import net.minestom.server.network.packet.server.play.*;
+import net.minestom.server.network.packet.server.play.DestroyEntitiesPacket;
+import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
+import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
+import net.minestom.server.network.packet.server.play.SpawnEntityPacket;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -32,14 +35,14 @@ public class NicknameManager {
         });
     }
 
-    public boolean isNicked(UUID player) {
-        return nicknames.containsKey(player);
-    }
-
     public static String translateSkin(CytosisPlayer player, String skin) {
         if (skin == null) return "<#BE9025>Steve/Alex skin</#BE9025>";
         if (skin.equals(player.getSkin().textures())) return "<#BE9025>My normal skin</#BE9025>";
         return "<#BE9025>Random Skin</#BE9025>";
+    }
+
+    public boolean isNicked(UUID player) {
+        return nicknames.containsKey(player);
     }
 
     public void nicknamePlayer(UUID playerUuid, NicknameData data) {
@@ -97,7 +100,7 @@ public class NicknameManager {
         target.sendPackets(
                 new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
                 new SpawnEntityPacket(player.getEntityId(), masked, EntityType.PLAYER.id(), player.getPosition(), player.getPosition().yaw(), 0, (short) 0, (short) 0, (short) 0),
-                new EntityMetaDataPacket(player.getEntityId(), Map.of(17, Metadata.Byte((byte) 127)))
+                MetadataPacketBuilder.builder(player.getMetadataPacket()).setByte(17, (byte) 127).build()
         );
         Cytosis.getRankManager().setupCosmetics(player, data.rank());
     }
@@ -136,7 +139,7 @@ public class NicknameManager {
             viewer.sendPackets(
                     new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
                     new SpawnEntityPacket(player.getEntityId(), player.getUuid(), EntityType.PLAYER.id(), player.getPosition(), player.getPosition().yaw(), 0, (short) 0, (short) 0, (short) 0),
-                    new EntityMetaDataPacket(player.getEntityId(), Map.of(17, Metadata.Byte((byte) 127)))
+                    MetadataPacketBuilder.builder(player.getMetadataPacket()).setByte(17, (byte) 127).build()
             );
         }
     }

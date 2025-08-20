@@ -44,13 +44,13 @@ import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.key.Key;
+import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.ConsoleSender;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
-import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
@@ -210,7 +210,19 @@ public final class Cytosis {
 
         // Initialize the server
         Logger.info("Starting Cytosis server...");
-        minecraftServer = MinecraftServer.init();
+
+        Logger.info("Creating file manager");
+        fileManager = new FileManager();
+
+        // Everything after this point depends on config contents
+        Logger.info("Initializing file manager");
+        fileManager.init();
+
+        Logger.info("Loading Cytosis Settings");
+        CytosisSettings.loadEnvironmentVariables();
+        CytosisSettings.loadCommandArgs();
+
+        minecraftServer = MinecraftServer.init(new Auth.Velocity(CytosisSettings.SERVER_SECRET));
         MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
         MinecraftServer.setBrandName("Cytosis");
 
@@ -237,17 +249,6 @@ public final class Cytosis {
         // instances
         Logger.info("Creating instance container");
         defaultInstance = minestomInstanceManager.createInstanceContainer();
-
-        Logger.info("Creating file manager");
-        fileManager = new FileManager();
-
-        // Everything after this point depends on config contents
-        Logger.info("Initializing file manager");
-        fileManager.init();
-
-        Logger.info("Loading Cytosis Settings");
-        CytosisSettings.loadEnvironmentVariables();
-        CytosisSettings.loadCommandArgs();
 
         Logger.info("Initializing database");
         databaseManager = new DatabaseManager();
@@ -277,9 +278,6 @@ public final class Cytosis {
         snooperManager.registerChannel(CytosisSnoops.CHANGE_RANK);
         snooperManager.registerChannel(CytosisSnoops.PLAYER_NICKNAME);
         snooperManager.registerChannel(CytosisSnoops.PLAYER_SERVER_CHANGE);
-
-        Logger.info("Enabling proxy authentication!");
-        VelocityProxy.enable(CytosisSettings.SERVER_SECRET);
 
         Logger.info("Starting server instancing manager");
         serverInstancingManager = new ServerInstancingManager();

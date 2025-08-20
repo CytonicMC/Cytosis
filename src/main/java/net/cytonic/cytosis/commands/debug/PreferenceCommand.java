@@ -84,10 +84,10 @@ public class PreferenceCommand extends CytosisCommand {
                     return;
                 }
                 manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
-                player.sendMessage(Msg.mm("<green>Successfully updated preference node <yellow>" + node.asString() + "</yellow> to '<light_purple>" + value +"</light_purple>'"));
+                player.sendMessage(Msg.mm("<green>Successfully updated preference node <yellow>" + node.asString() + "</yellow> to '<light_purple>" + value + "</light_purple>'"));
             } else if (context.get(opperationArg).equals(Operation.GET)) {
                 Object pref = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
-                sender.sendMessage(Msg.mm("<gray>The value of preference node <yellow> " + node.asString() + " </yellow> is '<light_purple>" + pref+ "</light_purple>'"));
+                sender.sendMessage(Msg.mm("<gray>The value of preference node <yellow> " + node.asString() + " </yellow> is '<light_purple>" + pref + "</light_purple>'"));
             }
         }), opperationArg, nodeArg, valueArg);
     }
