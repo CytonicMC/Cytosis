@@ -135,6 +135,10 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+
     mergeServiceFiles()
     archiveFileName.set("cytosis.jar")
     archiveClassifier.set("")
