@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.Events;
@@ -13,11 +14,15 @@ import net.minestom.server.timer.TaskSchedule;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Getter
+/**
+ * The class that handles actionbar sending to players
+ */
+@NoArgsConstructor
 public class ActionbarManager {
     private final Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
     private final Set<UUID> cooldowns = new HashSet<>();
     @Setter
+    @Getter
     private ActionbarSupplier defaultSupplier = ActionbarSupplier.DEFAULT;
 
     /**

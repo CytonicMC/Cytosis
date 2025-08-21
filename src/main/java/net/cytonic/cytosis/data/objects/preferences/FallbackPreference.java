@@ -6,7 +6,7 @@ import net.cytonic.cytosis.data.objects.TypedNamespace;
 /**
  * A class that represents a preference that is created by something else.
  *
- * @param <T>
+ * @param <T> the type of this fallback
  */
 @Getter
 public class FallbackPreference<T> extends NamespacedPreference<T> {

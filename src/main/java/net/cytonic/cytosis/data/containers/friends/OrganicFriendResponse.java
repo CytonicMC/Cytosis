@@ -7,13 +7,15 @@ import java.util.UUID;
 
 /**
  * A record class that is a json "packet", representing accepting a friend request with 2 UUIDs.
+ * @param sender The player who accepted/denied the request
+ * @param recipient the original player who sent the friend request
  */
 public record OrganicFriendResponse(UUID sender, UUID recipient) {
     /**
      * Deserializes this object from a string
      *
      * @param json the serialized data
-     * @return the deserailized object
+     * @return the deserialized object
      */
     public static OrganicFriendResponse deserialize(String json) {
         return Cytosis.GSON.fromJson(json, OrganicFriendResponse.class);
