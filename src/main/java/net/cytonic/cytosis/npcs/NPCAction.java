@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.npcs;
 
 import net.cytonic.cytosis.data.enums.NPCInteractType;
-import net.minestom.server.entity.Player;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 /**
  * A functional interface for NPC actions
@@ -15,5 +15,5 @@ public interface NPCAction {
      * @param type   the type of interaction
      * @param player the player who interacted
      */
-    void execute(NPC NPC, NPCInteractType type, Player player);
+    void execute(NPC NPC, NPCInteractType type, CytosisPlayer player);
 }
