@@ -1,7 +1,8 @@
 package net.cytonic.cytosis.bootstrap;
 
 import dev.vankka.dependencydownload.DependencyManager;
-import dev.vankka.dependencydownload.repository.StandardRepository;
+import dev.vankka.dependencydownload.path.DependencyPathProvider;
+import dev.vankka.dependencydownload.repository.MavenRepository;
 import dev.vankka.dependencydownload.resource.DependencyDownloadResource;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.BootstrapLogger;
@@ -9,28 +10,28 @@ import net.cytonic.cytosis.utils.BuildInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class Bootstrapper {
-    public static void main(String[] args) throws URISyntaxException, IOException {
+    public static void main(String[] args) throws IOException {
         if (!BuildInfo.DEPENDENCIES_BUNDLED) {
             long start = System.currentTimeMillis();
             BootstrapLogger.info("Loading dependencies");
-            DependencyManager manager = new DependencyManager(Paths.get("cache"));
+            DependencyManager manager = new DependencyManager(DependencyPathProvider.directory(Paths.get("cache")));
 
             Executor executor = Executors.newFixedThreadPool(3);
 
-            manager.loadFromResource(new DependencyDownloadResource(Bootstrapper.class.getResource("/runtimeDownloadOnly.txt").toURI().toURL()));
-            manager.loadFromResource(new DependencyDownloadResource(Bootstrapper.class.getResource("/runtimeDownload.txt").toURI().toURL()));
+            manager.loadResource(DependencyDownloadResource.parse(Objects.requireNonNull(Bootstrapper.class.getResource("/runtimeDownloadOnly.txt"))));
+            manager.loadResource(DependencyDownloadResource.parse(Objects.requireNonNull(Bootstrapper.class.getResource("/runtimeDownload.txt"))));
             manager.downloadAll(executor, List.of(
-                            new StandardRepository("https://repo1.maven.org/maven2/"),
-                            new StandardRepository("https://repo.foxikle.dev/cytonic/"),
-                            new StandardRepository("https://jitpack.io/")
+                            new MavenRepository("https://repo1.maven.org/maven2/"),
+                            new MavenRepository("https://repo.foxikle.dev/cytonic/"),
+                            new MavenRepository("https://jitpack.io/")
                     ))
                     .thenAccept(unused -> {
                         manager.loadAll(executor, new BootstrapClasspathAppender()).join(); // ClasspathAppender is a interface that you need to implement to append a Path to the classpath
