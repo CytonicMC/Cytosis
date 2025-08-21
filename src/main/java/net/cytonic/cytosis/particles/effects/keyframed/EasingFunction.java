@@ -3,7 +3,7 @@ package net.cytonic.cytosis.particles.effects.keyframed;
 /**
  * Represents different types of easing functions that can be applied to create smooth transitions
  * or visual motion effects. These easing types determine how keyframes transition with regard to time.
- * <p></p>
+ * <p>
  * Api Note: All effects take the same amount of time to play regardless of easing function
  */
 public enum EasingFunction {

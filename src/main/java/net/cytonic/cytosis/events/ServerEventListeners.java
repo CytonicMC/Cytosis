@@ -44,7 +44,7 @@ public final class ServerEventListeners {
         if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
             NPC npc = optional.get();
             EventDispatcher.call(new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()));
-            npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, event.getPlayer()));
+            npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, (CytosisPlayer) event.getPlayer()));
         }
     }
 

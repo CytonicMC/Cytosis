@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * A simple registry superclass
  * @param <K> The registry key type.
  * @param <V> The registry value type.
  */

@@ -16,6 +16,7 @@ import java.util.UUID;
  * @param recipients        The intended recipients of the message, may be null. See note above.
  * @param channel           The channel the message is sent out upon.
  * @param serializedMessage The serialized message in MiniMessage form.
+ * @param sender            The player who sent the message
  */
 @SuppressWarnings("unused")
 public record ChatMessage(@Nullable List<UUID> recipients, ChatChannel channel, String serializedMessage,
