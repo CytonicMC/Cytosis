@@ -474,7 +474,7 @@ public final class Cytosis {
      *
      * @return a set of players
      */
-    // every object the server makes is a CytosisPlayer -- or decentdant from one
+    // every object the server makes is a CytosisPlayer -- or descendant from one
     public static Set<CytosisPlayer> getOnlinePlayers() {
         HashSet<CytosisPlayer> players = new HashSet<>();
 
