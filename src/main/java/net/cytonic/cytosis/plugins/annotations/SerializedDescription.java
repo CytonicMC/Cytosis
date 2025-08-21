@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -76,11 +77,13 @@ public class SerializedDescription {
 
     /**
      * Represents a dependency.
+     * @param optional If the plugin can be loaded without this dependency
+     * @param id the ID of the plugin that is depended on
      */
     public record Dependency(String id, boolean optional) {
 
         @Override
-        public String toString() {
+        public @NotNull String toString() {
             return "Dependency{"
                     + "id='" + id + '\''
                     + ", optional=" + optional
