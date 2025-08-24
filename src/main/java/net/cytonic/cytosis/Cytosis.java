@@ -211,6 +211,9 @@ public final class Cytosis {
         // Initialize the server
         Logger.info("Starting Cytosis server...");
 
+        System.setProperty("org.jooq.no-logo", "true");
+        System.setProperty("org.jooq.no-tips", "true");
+
         Logger.info("Creating file manager");
         fileManager = new FileManager();
 

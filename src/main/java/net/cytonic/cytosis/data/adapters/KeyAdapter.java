@@ -23,31 +23,17 @@ public class KeyAdapter extends TypeAdapter<Key> implements TypeAdapterFactory {
         if (value == null) {
             throw new IllegalArgumentException("Null keys cannot be serialized");
         }
-        out.beginObject();
-        out.name("key");
+
         out.value(value.asString());
-        out.endObject();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public Key read(JsonReader in) throws IOException {
-        in.beginObject();
 
-        String key = null;
-
-        while (in.hasNext()) {
-            String name = in.nextName();
-            if (name.equals("key")) {
-                key = in.nextString();
-            }
-        }
-
-        in.endObject();
-
+        String key = in.nextString();
         if (key == null) throw new JsonParseException("Preference deserialization failed: No group found");
 
         return Key.key(key);
