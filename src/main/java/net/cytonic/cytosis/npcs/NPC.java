@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
+import net.minestom.server.tag.Taggable;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +13,7 @@ import java.util.UUID;
 /**
  * The blueprint for an NPC
  */
-public interface NPC {
+public interface NPC extends Taggable {
 
     Tag<String> DATA_TAG = Tag.String("npc_data");
 
