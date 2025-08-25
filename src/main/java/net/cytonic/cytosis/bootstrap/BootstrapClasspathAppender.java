@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.bootstrap;
 
 import dev.vankka.dependencydownload.classpath.ClasspathAppender;
+import net.cytonic.cytosis.bootstrap.mixins.CytosisRootClassLoader;
 import net.cytonic.cytosis.logging.BootstrapLogger;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +9,7 @@ import java.nio.file.Path;
 
 public class BootstrapClasspathAppender implements ClasspathAppender {
 
-    public static final BootstrapClassLoader CLASSLOADER = new BootstrapClassLoader();
+    public static final CytosisRootClassLoader CLASSLOADER = CytosisRootClassLoader.getInstance();
 
     @Override
     public void appendFileToClasspath(@NotNull Path path) {

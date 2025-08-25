@@ -20,6 +20,7 @@ polar = "1.14.7"
 stomui = "1.0.3"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.2"
+mixin = "0.16.3+mixin.0.8.7"
 
 [libraries]
 minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
@@ -44,6 +45,7 @@ opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
 dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
+mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]
