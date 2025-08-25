@@ -43,6 +43,7 @@ dependencies {
     api(libs.classgraph)
     api(libs.jnats)
     api(libs.jooq)
+    api(libs.mixin)
 
 
     // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
@@ -72,6 +73,7 @@ dependencies {
     runtimeDownloadOnly(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
+    runtimeDownloadOnly(libs.mixin)
 
     // Dependency loading
     implementation(libs.dependencydownload)
