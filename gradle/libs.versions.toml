@@ -19,7 +19,7 @@ opentelemetry = "1.54.0"
 polar = "1.14.7"
 stomui = "1.0.3"
 reflections = "0.10.2"
-lombokwarningfix = "4.0.2"
+lombokwarningfix = "4.0.4"
 mixin = "0.16.4+mixin.0.8.7"
 
 [libraries]
