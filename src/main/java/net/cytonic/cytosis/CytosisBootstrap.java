@@ -28,7 +28,6 @@ import net.minestom.server.event.Event;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -61,7 +60,9 @@ public class CytosisBootstrap {
         setupMetricsEarly();
         initFilesAndConfig();
         initMinestom();
+        initDatabase();
         initCoreManagers();
+        loadNetworkTopology();
         initMessagingAndSnooper();
         initServerInstancingAndBlocks();
         initViewAndPacketsAndMetricsHooks();
@@ -69,10 +70,8 @@ public class CytosisBootstrap {
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
 
         initCommandsAndDisabling();
-        initEventsAndPreferencesAndVanish();
         wireShutdownHandlers();
         initPlayerFacingManagers();
-        loadNetworkTopology();
         initCooldowns();
         initActionbar();
         loadPluginsAndScanListeners();
@@ -86,6 +85,11 @@ public class CytosisBootstrap {
             Logger.info("Stopping server due to '--ci-test' flag.");
             MinecraftServer.stopCleanly();
         }
+    }
+
+    private void initDatabase() {
+        Logger.info("Initializing database");
+        cytosisContext.registerComponent(new DatabaseManager());
     }
 
     private void setupLoggingAndCrashHandling() {
@@ -124,6 +128,15 @@ public class CytosisBootstrap {
     }
 
     private void initCoreManagers() {
+        Logger.info("Setting up event handlers");
+        cytosisContext.registerComponent(new EventHandler(MinecraftServer.getGlobalEventHandler()));
+
+        Logger.info("Loading player preferences");
+        cytosisContext.registerComponent(new PreferenceManager());
+
+        Logger.info("Loading vanish manager!");
+        cytosisContext.registerComponent(new VanishManager());
+
         Logger.info("Starting instance managers.");
         net.minestom.server.instance.InstanceManager minestomInstanceManager = cytosisContext.registerComponent(MinecraftServer.getInstanceManager());
         cytosisContext.registerComponent(new InstanceManager());
@@ -142,9 +155,6 @@ public class CytosisBootstrap {
 
         Logger.info("Creating instance container");
         cytosisContext.registerComponent(minestomInstanceManager.createInstanceContainer());
-
-        Logger.info("Initializing database");
-        cytosisContext.registerComponent(new DatabaseManager());
     }
 
     private void initMessagingAndSnooper() {
@@ -152,6 +162,8 @@ public class CytosisBootstrap {
         NatsManager natsManager = cytosisContext.registerComponent(new NatsManager());
         if (!cytosisContext.getFlags().contains("--ci-test")) {
             natsManager.setup();
+            // Ensure servers are fetched early during bootstrap once NATS is initialized
+            natsManager.fetchServers();
         } else {
             Logger.warn("Skipping NATS manager setup for CI test!");
         }
@@ -253,13 +265,12 @@ public class CytosisBootstrap {
         Logger.info("Loading plugins!");
         try {
             Path pluginsDirPath = Path.of("plugins");
-            File pluginsDir = Files.createDirectory(pluginsDirPath).toFile();
-            if (pluginsDir.exists() && pluginsDir.isDirectory()) {
-                pluginManager.loadPlugins(pluginsDirPath);
-            } else {
-                pluginsDir.mkdir();
+            if (!Files.exists(pluginsDirPath)) {
+                Files.createDirectories(pluginsDirPath);
                 Logger.info("Created plugins directory!");
             }
+
+            pluginManager.loadPlugins(pluginsDirPath);
         } catch (Exception e) {
             Logger.error("An error occurred whilst loading plugins!", e);
             throw new RuntimeException("An error occurred whilst loading plugins!", e);

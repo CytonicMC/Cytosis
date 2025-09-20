@@ -41,12 +41,6 @@ public class PreferenceManager implements Bootstrappable {
     @Override
     public void init() {
         this.db = Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase();
-    }
-
-    /**
-     * Default constructor
-     */
-    public PreferenceManager() {
 
         PREFERENCE_REGISTRY.write(CytosisNamespaces.ACCEPT_FRIEND_REQUESTS, CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
@@ -64,6 +58,12 @@ public class PreferenceManager implements Bootstrappable {
         db.update(ps).whenComplete((unused, throwable) -> {
             if (throwable != null) Logger.error("An error occurred whilst creating the preferences table!", throwable);
         });
+    }
+
+    /**
+     * Default constructor
+     */
+    public PreferenceManager() {
     }
 
     /**

@@ -137,7 +137,7 @@ public class NatsManager implements Bootstrappable {
     }
 
     public void sendStartup() {
-        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(), CytosisContext.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
+        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(), CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
                     try {
                         Logger.info("Registering server with Cydian!");
@@ -150,7 +150,7 @@ public class NatsManager implements Bootstrappable {
     }
 
     public void sendShutdown() {
-        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(), CytosisContext.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
+        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(), CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
         // send it sync, so the connection doesn't get closed
         publish(Subjects.SERVER_SHUTDOWN, data);
     }

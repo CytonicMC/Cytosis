@@ -12,7 +12,6 @@ import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.utils.Utils;
 
 import java.sql.PreparedStatement;
@@ -61,7 +60,6 @@ public class CytonicNetwork implements Bootstrappable {
      * Imports data from Redis and Cydian
      */
     public void importData() {
-        cytosisContext.getComponent(NatsManager.class).fetchServers();
         RedisDatabase redis = databaseManager.getRedisDatabase();
         MysqlDatabase db = databaseManager.getMysqlDatabase();
         onlinePlayers.clear();

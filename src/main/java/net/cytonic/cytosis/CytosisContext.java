@@ -83,17 +83,6 @@ public class CytosisContext {
         return "%c%05d%c".formatted(first, mid, last); // e.g., a01234b
     }
 
-    /**
-     * Gets the Raw ID of the server
-     * <p>
-     * For example, Cytosis-a1234b would return a1234b
-     *
-     * @return The raw ID
-     */
-    public static String getRawID() {
-        return SERVER_ID.substring("Cytosis-".length());
-    }
-
     public void shutdownHandler() {
         PluginManager pluginManager = getComponent(PluginManager.class, false);
         if (pluginManager != null)

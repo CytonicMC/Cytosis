@@ -38,7 +38,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
                         new PlayerListEntry(Component.empty(), 1),
                         new PlayerListEntry(Msg.mm("<dark_aqua>Players: " + Cytosis.getOnlinePlayers().size()), 2),
                         new PlayerListEntry(Msg.mm("<dark_aqua>Version: " + Cytosis.VERSION), 3),
-                        new PlayerListEntry(Msg.mm("<dark_aqua>ID: " + CytosisContext.getRawID()), 4),
+                        new PlayerListEntry(Msg.mm("<dark_aqua>ID: " + CytosisContext.SERVER_ID), 4),
                         new PlayerListEntry(Msg.mm("<darK_aqua>Network Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers().size()), 5)
                 )));
         columns.add(new Column(Msg.mm("<yellow><b>     Player Info"), PlayerListFavicon.YELLOW, Utils.list(
