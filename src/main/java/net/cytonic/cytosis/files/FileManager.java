@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.files;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -14,13 +15,14 @@ import java.nio.file.Path;
  * A class handling IO and files
  */
 @NoArgsConstructor
-public class FileManager {
+public class FileManager implements Bootstrappable {
 
     private static final Path CONFIG_PATH = Path.of("config.json");
 
     /**
      * Initializes the necessary files and configurations.
      */
+    @Override
     public void init() {
         try {
             createConfigFile();

@@ -1,10 +1,13 @@
 package net.cytonic.cytosis.commands.moderation;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
@@ -26,7 +29,7 @@ public class WarnCommand extends CytosisCommand {
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching players..."));
-                Cytosis.getCytonicNetwork().getOnlinePlayers().forEach((ignored1, name) -> suggestion.addEntry(new SuggestionEntry(name)));
+                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers().forEach((ignored1, name) -> suggestion.addEntry(new SuggestionEntry(name)));
             }
         });
 
@@ -38,33 +41,35 @@ public class WarnCommand extends CytosisCommand {
                 }
                 final String player = context.get(playerArg);
                 final String reason = String.join(" ", context.get(reasonArg));
-                if (!Cytosis.getCytonicNetwork().getOnlineFlattened().containsValue(player.toLowerCase())) {
+                CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+                if (!network.getOnlineFlattened().containsValue(player.toLowerCase())) {
                     sender.sendMessage(Msg.mm("<red>The player " + context.get(playerArg) + " doesn't exist or is not online!"));
                     return;
                 }
-                UUID uuid = Cytosis.getCytonicNetwork().getOnlineFlattened().getByValue(player.toLowerCase());
+                UUID uuid = network.getOnlineFlattened().getByValue(player.toLowerCase());
 
-                Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
+                Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
                     if (throwable2 != null) {
                         sender.sendMessage(Msg.mm("<red>An error occured whilst finding " + player + "'s rank!"));
                         Logger.error("error", throwable2);
                         return;
                     }
 
-
                     if (playerRank.isStaff()) {
                         sender.sendMessage(Msg.mm("<red>" + player + " cannot be warned!"));
                         return;
                     }
+
                     Component string = Component.empty();
                     if (!reason.isEmpty()) {
                         string = Msg.mm("\n<aqua>Reason: " + reason);
                     }
+
                     actor.sendMessage(Msg.mm("<green>Warned " + player + ".").append(string));
 
                     Component component = Msg.mm("<red>You have been warned.").append(string);
                     Component snoop = actor.formattedName().append(Msg.mm("<gray> warned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
-                    Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
+                    Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
                 });
             }
         }, playerArg, reasonArg);

@@ -1,9 +1,12 @@
 package net.cytonic.cytosis.commands.moderation;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
@@ -23,7 +26,7 @@ public class UnbanCommand extends CytosisCommand {
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching banned players..."));
-                Cytosis.getCytonicNetwork().getBannedPlayers().forEach((uuid, ignored1) -> suggestion.addEntry(new SuggestionEntry(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid))));
+                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getBannedPlayers().forEach((uuid, ignored1) -> suggestion.addEntry(new SuggestionEntry(Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid))));
             }
         });
         addSyntax((sender, context) -> {
@@ -32,22 +35,21 @@ public class UnbanCommand extends CytosisCommand {
             }
 
             final String player = context.get(playerArg);
-            if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(player)) {
+            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            if (!network.getLifetimePlayers().containsValue(player)) {
                 sender.sendMessage(Msg.whoops("The player %s doesn't exist!", player));
                 return;
             }
-            UUID uuid = Cytosis.getCytonicNetwork().getLifetimePlayers().getByValue(player);
-            if (!Cytosis.getCytonicNetwork().getBannedPlayers().containsKey(uuid)) {
+            UUID uuid = network.getLifetimePlayers().getByValue(player);
+            if (!network.getBannedPlayers().containsKey(uuid)) {
                 sender.sendMessage(Msg.whoops("%s is not banned!", player));
                 return;
             }
 
-
             Component snoop = actor.formattedName().append(Msg.mm("<gray> unbanned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray>."));
 
-            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_UNBAN, Msg.snoop(snoop));
-
-            Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(uuid);
+            Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNBAN, Msg.snoop(snoop));
+            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().unbanPlayer(uuid);
             sender.sendMessage(Msg.greenSplash("UNBANNED!", "%s was successfully unbanned!", player));
         }, playerArg);
     }

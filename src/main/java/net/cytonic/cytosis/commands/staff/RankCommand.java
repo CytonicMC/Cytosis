@@ -1,11 +1,15 @@
 package net.cytonic.cytosis.commands.staff;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
@@ -53,7 +57,7 @@ public class RankCommand extends CytosisCommand {
                 return;
             }
 
-            Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(target)
+            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().getPlayerRank(target)
                     .thenAccept(rank -> {
                         if (!PlayerRank.canChangeRank(player.getRank(), rank, newRank)) {
                             sender.sendMessage(Msg.whoops("You cannot do this!"));
@@ -72,7 +76,7 @@ public class RankCommand extends CytosisCommand {
         if (!(sender instanceof CytosisPlayer player)) return;
         actor = player.trueFormattedName();
 
-        String usr = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid);
+        String usr = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
         Component usrComp = oldRank.getPrefix().append(Component.text(usr, oldRank.getTeamColor()));
 
         Component snoop = actor.append(Msg.mm("<gray> changed "))
@@ -81,10 +85,10 @@ public class RankCommand extends CytosisCommand {
                 .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))
                 .append(Msg.mm("<gray>."));
 
-        Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
-        Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(uuid, rank)
+        Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
+        Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().setPlayerRank(uuid, rank)
                 .thenAccept(unused -> {
-                    Cytosis.getNatsManager().sendPlayerRankUpdate(uuid, rank);
+                    Cytosis.CONTEXT.getComponent(NatsManager.class).sendPlayerRankUpdate(uuid, rank);
                     sender.sendMessage(Msg.mm("<green>Successfully updated " + usr + "'s rank!"));
                 }).exceptionally(throwable -> {
                     sender.sendMessage(Msg.mm("<red>An error occurred whilst setting " + uuid + "'s rank! Check the console for more details."));

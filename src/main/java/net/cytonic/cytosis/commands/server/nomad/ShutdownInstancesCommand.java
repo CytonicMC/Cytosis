@@ -36,10 +36,10 @@ public class ShutdownInstancesCommand extends CytosisCommand {
                 sender.sendMessage(Msg.whoops("Invalid instance type!"));
                 return;
             }
-            String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
-            Cytosis.getServerInstancingManager().deleteAllServerInstances(type);
-            sender.sendMessage(Msg.success("Dispatched the deletion of all %s instances!", niceName));
 
+            String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
+            Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).deleteAllServerInstances(type);
+            sender.sendMessage(Msg.success("Dispatched the deletion of all %s instances!", niceName));
         }, typeArg);
     }
 }

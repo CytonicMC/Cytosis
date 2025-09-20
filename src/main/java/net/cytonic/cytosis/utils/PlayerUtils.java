@@ -1,6 +1,8 @@
 package net.cytonic.cytosis.utils;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -15,11 +17,11 @@ public class PlayerUtils {
      */
     public static @Nullable UUID resolveUuid(String input) {
         if (input == null) return null;
-        UUID cached = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(input.toLowerCase());
+        UUID cached = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimeFlattened().getByValue(input.toLowerCase());
         if (cached != null) {
             return cached;
         }
-        return Cytosis.getNicknameManager().deanonymizePlayer(input);
+        return Cytosis.CONTEXT.getComponent(NicknameManager.class).deanonymizePlayer(input);
     }
 
     /**
@@ -29,7 +31,6 @@ public class PlayerUtils {
      * @return the player's name, or null if the player could not be resolved.
      */
     public static @Nullable String resolveName(UUID uuid) {
-        return Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid);
+        return Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
     }
-
 }

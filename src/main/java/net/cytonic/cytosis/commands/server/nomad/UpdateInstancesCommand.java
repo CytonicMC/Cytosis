@@ -23,7 +23,7 @@ public class UpdateInstancesCommand extends CytosisCommand {
             }
 
             String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
-            Cytosis.getServerInstancingManager().updateServers(type);
+            Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).updateServers(type);
             sender.sendMessage(Msg.success("Dispatched the update of every %s instance! It may take a while until every instance has been updated!", niceName));
         }, typeArg);
     }

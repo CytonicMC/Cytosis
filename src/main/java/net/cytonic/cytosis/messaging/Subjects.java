@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.messaging;
 
-import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisContext;
 
 /**
  * A list of every subject used by the NATS server
@@ -20,8 +20,7 @@ public class Subjects {
     public static final String PLAYER_SERVER_CHANGE = "players.server_change.notify";
     public static final String PLAYER_RANK_UPDATE = "players.rank.update";
 
-
-    public static final String HEALTH_CHECK = "health.check." + Cytosis.getRawID();
+    public static final String HEALTH_CHECK = "health.check." + CytosisContext.SERVER_ID;
 
     // friends
     public static final String FRIEND_REQUEST = "friends.request";

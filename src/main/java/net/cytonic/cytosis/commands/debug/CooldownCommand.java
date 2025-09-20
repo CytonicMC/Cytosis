@@ -8,6 +8,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.key.Key;
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
@@ -32,7 +33,7 @@ public class CooldownCommand extends CytosisCommand {
 
         var nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : Cytosis.getNetworkCooldownManager().getAllKeys()) {
+            for (Key preference : Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class).getAllKeys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -61,12 +62,12 @@ public class CooldownCommand extends CytosisCommand {
             CooldownAction ac = context.get(action);
 
             if (ac == CooldownAction.HELP) {
-                Cytosis.getCommandManager().getDispatcher().execute(player, "cooldown help");
+                Cytosis.CONTEXT.getComponent(CommandManager.class).getDispatcher().execute(player, "cooldown help");
                 return;
             }
 
             Key node = Key.key(context.get(nodeArg));
-            NetworkCooldownManager network = Cytosis.getNetworkCooldownManager();
+            NetworkCooldownManager network = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
             if (ac == CooldownAction.CLEAR_GLOBAL) {
                 network.resetGlobalCooldown(node);
                 player.sendMessage(Msg.success("Reset the global cooldown '<yellow>" + node.asString() + "</yellow>'."));

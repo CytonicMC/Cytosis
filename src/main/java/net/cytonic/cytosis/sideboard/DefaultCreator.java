@@ -1,6 +1,8 @@
 package net.cytonic.cytosis.sideboard;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -30,8 +32,8 @@ public class DefaultCreator implements SideboardCreator {
     public List<Component> lines(CytosisPlayer player) {
         try {
             return List.of(
-                    Msg.mm("<gray>" + Cytosis.SERVER_ID),
-                    Msg.mm("<green>Players: " + Cytosis.getCytonicNetwork().getOnlinePlayers().size()),
+                    Msg.mm("<gray>" + CytosisContext.SERVER_ID),
+                    Msg.mm("<green>Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers().size()),
                     Msg.mm(""),
                     Msg.mm("Cytosis v" + Cytosis.VERSION),
                     Msg.mm(""),

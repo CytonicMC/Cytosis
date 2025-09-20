@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sideboard.DefaultCreator;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A manager class for sideboards
  */
 @NoArgsConstructor
-public class SideboardManager {
+public class SideboardManager implements Bootstrappable {
     private final Map<UUID, Sideboard> sideboards = new ConcurrentHashMap<>();
     @Getter
     @Nullable
@@ -31,6 +32,16 @@ public class SideboardManager {
     @Getter
     @Setter
     private SideboardCreator sideboardCreator = new DefaultCreator();
+
+    @Override
+    public void init() {
+        autoUpdateBoards(TaskSchedule.seconds(1));
+    }
+
+    @Override
+    public void shutdown() {
+        cancelUpdates();
+    }
 
     /**
      * Adds a player to the sideboard manager

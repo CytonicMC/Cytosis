@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.staff.snooper;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.menus.snooper.SnooperProvider;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -26,7 +27,7 @@ public class SnooperAuditCommand extends CytosisCommand {
         addSyntax((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = c.get(SnooperCommand.CHANNELS);
-            if (!Cytosis.getSnooperManager().getAllChannels(player).contains(rawChannel)) {
+            if (!Cytosis.CONTEXT.getComponent(SnooperManager.class).getAllChannels(player).contains(rawChannel)) {
                 player.sendMessage(Msg.whoops("The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;
             }

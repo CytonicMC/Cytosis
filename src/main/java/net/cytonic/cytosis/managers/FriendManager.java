@@ -1,11 +1,15 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.friends.FriendRequest;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
@@ -25,9 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * A class to manage friends
  */
 @NoArgsConstructor
-public class FriendManager {
+public class FriendManager implements Bootstrappable {
     private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
-    private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
+
+    private CytonicNetwork network;
+    private NatsManager natsManager;
+    private MysqlDatabase db;
 
     /**
      * Gets a player's friends
@@ -42,7 +49,12 @@ public class FriendManager {
     /**
      * Initializes the friends table and loads the online players friends
      */
+    @Override
     public void init() {
+        this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+        this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
+        this.db = Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase();
+
         PreparedStatement ps = db.prepare("CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))");
         db.update(ps).whenComplete((r, t) -> {
             if (t != null) Logger.error("An error occurred whilst creating the friends table!", t);
@@ -133,7 +145,7 @@ public class FriendManager {
     public void removeFriend(UUID uuid, UUID friend) {
         if (uuid.equals(friend)) return;
         removeFriendRecursive(uuid, friend, true);
-        Cytosis.getNatsManager().broadcastFriendRemoval(uuid, friend);
+        natsManager.broadcastFriendRemoval(uuid, friend);
     }
 
     private void removeFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
@@ -172,9 +184,9 @@ public class FriendManager {
         player.sendMessage(Msg.aquaSplash("Friends List", "(" + getFriends(player.getUuid()).size() + ") <dark_gray>»</dark_gray>"));
 
         for (UUID friend : getFriends(player.getUuid())) {
-            PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(friend);
-            boolean online = Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(friend);
-            String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(friend);
+            PlayerRank rank = network.getCachedPlayerRanks().get(friend);
+            boolean online = network.getOnlinePlayers().containsKey(friend);
+            String name = network.getLifetimePlayers().getByKey(friend);
             player.sendMessage(Msg.mm("<dark_gray>  > </dark_gray>").append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - ")).append(online ? Msg.coloredBadge("ONLINE!", "green") : Msg.coloredBadge("OFFLINE :(", "red"))));
         }
     }
@@ -185,8 +197,8 @@ public class FriendManager {
      * @param uuid the player who logged out
      */
     public void sendLogoutMessage(UUID uuid) {
-        PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
-        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> left."));
+        PlayerRank rank = network.getCachedPlayerRanks().get(uuid);
+        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(network.getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> left."));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
                 player.sendMessage(message);
@@ -200,8 +212,8 @@ public class FriendManager {
      * @param uuid the player who logged in
      */
     public void sendLoginMessage(UUID uuid) {
-        PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
-        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> joined."));
+        PlayerRank rank = network.getCachedPlayerRanks().get(uuid);
+        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix().append(Component.text(network.getLifetimePlayers().getByKey(uuid)))).append(Msg.mm("<gray> joined."));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
                 player.sendMessage(message);
@@ -216,6 +228,6 @@ public class FriendManager {
      * @param recipient The recipient
      */
     public void sendRequest(UUID sender, UUID recipient) {
-        Cytosis.getNatsManager().sendFriendRequest(new FriendRequest(sender, recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
+        natsManager.sendFriendRequest(new FriendRequest(sender, recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 }
