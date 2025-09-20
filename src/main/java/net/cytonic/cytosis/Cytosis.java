@@ -87,7 +87,6 @@ public final class Cytosis {
 
     /**
      * Gets the players currently on THIS instance
-     * </p>
      * every object the server makes is a CytosisPlayer -- or descendant from one
      *
      * @return a set of players
