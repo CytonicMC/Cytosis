@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.data;
 
 import lombok.Getter;
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class managing databases
  */
 @Getter
-public class DatabaseManager {
+public class DatabaseManager implements Bootstrappable {
 
     private MysqlDatabase mysqlDatabase;
     private RedisDatabase redisDatabase;
@@ -16,6 +17,11 @@ public class DatabaseManager {
      * The default constructor
      */
     public DatabaseManager() {
+    }
+
+    @Override
+    public void init() {
+        setupDatabases();
     }
 
     /**

@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.staff.snooper;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -15,11 +16,12 @@ public class SnooperBlindCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             String rawChannel = context.get(SnooperCommand.CHANNELS);
-            if (!Cytosis.getSnooperManager().getAllChannels(player).contains(rawChannel)) {
+            SnooperManager snooperManager = Cytosis.CONTEXT.getComponent(SnooperManager.class);
+            if (!snooperManager.getAllChannels(player).contains(rawChannel)) {
                 player.sendMessage(Msg.whoops("The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;
             }
-            Cytosis.getSnooperManager().blind(player, rawChannel);
+            snooperManager.blind(player, rawChannel);
         }, SnooperCommand.CHANNELS);
     }
 }

@@ -10,6 +10,7 @@ import eu.koboo.minestom.stomui.api.item.ViewItem;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
 import net.cytonic.cytosis.utils.Msg;
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.click.Click;
 import net.minestom.server.item.Material;
@@ -47,7 +48,7 @@ public class NicknameEntryMenu extends ViewProvider implements AnvilInputInterac
                     intentionallyClosed = true;
                     player.closeInventory();
                     player.sendMessage(Msg.redSplash("CANCELLED!", "You cancelled the nickname setup!"));
-                    Cytosis.getCommandManager().execute(player, "nick setup skin SKIP");
+                    Cytosis.CONTEXT.getComponent(CommandManager.class).execute(player, "nick setup skin SKIP");
                 });
 
         ViewItem.bySlot(view, 2)
@@ -61,7 +62,7 @@ public class NicknameEntryMenu extends ViewProvider implements AnvilInputInterac
                     intentionallyClosed = true;
                     NickSetupCommand.NICKNAME_DATA.computeIfPresent(player.getUuid(), (uuid, data) -> data.withNickname(input));
                     player.sendMessage(Msg.goldSplash("UPDATED!", "Updated your nickname to: <gold>" + input + "<gray>!"));
-                    Cytosis.getCommandManager().execute(player, "nick setup name SKIP");
+                    Cytosis.CONTEXT.getComponent(CommandManager.class).execute(player, "nick setup name SKIP");
                     player.closeInventory();
                 });
     }

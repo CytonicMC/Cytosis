@@ -1,10 +1,13 @@
 package net.cytonic.cytosis.commands.server;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
@@ -31,19 +34,19 @@ public class ServerCommand extends CytosisCommand {
             ArgumentWord serverArgument = ArgumentType.Word("server");
             serverArgument.setCallback((sender, exception) -> sender.sendMessage(Component.text("The server " + exception.getInput() + " is invalid!", NamedTextColor.RED)));
             serverArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-                List<SuggestionEntry> options = Cytosis.getCytonicNetwork().getServers().values().stream()
+                List<SuggestionEntry> options = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getServers().values().stream()
                         .map(cytonicServer -> new SuggestionEntry(cytonicServer.id())).toList();
                 CommandUtils.filterEntries(cmdc.get(serverArgument), options).forEach(suggestion::addEntry);
             });
             addSyntax(((sender, context) -> {
                 if (sender instanceof CytosisPlayer player) {
                     if (!player.isStaff()) return;
-                    if (!context.get(serverArgument).equalsIgnoreCase(Cytosis.SERVER_ID)) {
-                        for (CytonicServer server : Cytosis.getCytonicNetwork().getServers().values()) {
+                    if (!context.get(serverArgument).equalsIgnoreCase(CytosisContext.SERVER_ID)) {
+                        for (CytonicServer server : Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getServers().values()) {
                             if (server.id().equals(context.get(serverArgument))) {
                                 player.sendMessage(Component.text("Connecting to " + server.id(), NamedTextColor.GREEN));
                                 //todo: instance?
-                                Cytosis.getNatsManager().sendPlayerToServer(player.getUuid(), server, null);
+                                Cytosis.CONTEXT.getComponent(NatsManager.class).sendPlayerToServer(player.getUuid(), server, null);
                             }
                         }
                     } else player.sendMessage(Msg.mm("<RED>You are already connected to the server!"));
@@ -53,5 +56,4 @@ public class ServerCommand extends CytosisCommand {
             Logger.error("error", e);
         }
     }
-
 }

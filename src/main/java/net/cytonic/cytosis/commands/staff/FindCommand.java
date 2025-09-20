@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.staff;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -28,13 +29,14 @@ public class FindCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (sender instanceof final CytosisPlayer player) {
                 String playerName = context.get(CommandUtils.NETWORK_PLAYERS);
-                UUID uuid = Cytosis.getCytonicNetwork().getLifetimeFlattened().getByValue(playerName.toLowerCase());
-                if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(uuid)) {
+                CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+                UUID uuid = network.getLifetimeFlattened().getByValue(playerName.toLowerCase());
+                if (!network.getOnlinePlayers().containsKey(uuid)) {
                     player.sendMessage(Component.text("The player " + playerName + " is not online!", NamedTextColor.RED));
                     return;
                 }
 
-                String server = Cytosis.getCytonicNetwork().getNetworkPlayersOnServers().get(uuid);
+                String server = network.getNetworkPlayersOnServers().get(uuid);
 
                 Component message = Component.text("The player " + playerName + " is online on server " + server + " ", NamedTextColor.YELLOW)
                         .append(Component.text("[GO THERE]", NamedTextColor.GREEN, TextDecoration.BOLD)

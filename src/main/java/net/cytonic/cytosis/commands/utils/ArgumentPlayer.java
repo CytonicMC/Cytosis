@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands.utils;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.ArgumentParserType;
@@ -27,7 +28,7 @@ public class ArgumentPlayer extends Argument<CytosisPlayer> {
         CytosisPlayer player = Cytosis.getPlayer(input).orElse(null);
         if (player == null) {
             // not known by this name
-            player = Cytosis.getNicknameManager().getPlayerByNickname(input);
+            player = Cytosis.CONTEXT.getComponent(NicknameManager.class).getPlayerByNickname(input);
         }
         return player;
     }

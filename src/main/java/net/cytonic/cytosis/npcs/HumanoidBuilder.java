@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.npcs;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.managers.NPCManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
@@ -156,7 +157,7 @@ public class HumanoidBuilder {
     public Humanoid build() {
         NPC.setInstance(instanceContainer, pos);
         NPC.createHolograms();
-        Cytosis.getNpcManager().addNPC(NPC);
+        Cytosis.CONTEXT.getComponent(NPCManager.class).addNPC(NPC);
         return NPC;
     }
 }

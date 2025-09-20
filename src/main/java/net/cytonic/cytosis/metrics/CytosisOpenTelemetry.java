@@ -25,7 +25,11 @@ public class CytosisOpenTelemetry {
         try {
             url = getUrl();
         } catch (Exception e) {
-            Cytosis.setMetricsEnabled(false);
+
+
+
+
+            Cytosis.CONTEXT.setMetricsEnabled(false);
             return;
         }
 
@@ -68,7 +72,7 @@ public class CytosisOpenTelemetry {
                 .setLoggerProvider(loggerProvider)
                 .buildAndRegisterGlobal();
 
-        Cytosis.setMetricsEnabled(true);
+        Cytosis.CONTEXT.setMetricsEnabled(true);
     }
 
     private static String getUrl() {

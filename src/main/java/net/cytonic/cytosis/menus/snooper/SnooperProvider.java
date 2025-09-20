@@ -13,6 +13,7 @@ import eu.koboo.minestom.stomui.api.slots.ViewPattern;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.containers.snooper.QueriedSnoop;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.menus.utils.PaginatedBorder;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
@@ -50,7 +51,7 @@ public class SnooperProvider extends ViewProvider {
         this.search = search;
         this.ascending = ascending;
 
-        permission = Objects.requireNonNull(Cytosis.getSnooperManager().getChannel(Key.key(id))).recipients();
+        permission = Objects.requireNonNull(Cytosis.CONTEXT.getComponent(SnooperManager.class).getChannel(Key.key(id))).recipients();
 
         pattern = registry.pattern(
                 "#########",
@@ -156,7 +157,7 @@ public class SnooperProvider extends ViewProvider {
                 .name("<gray>Loading data!")
                 .cancelClicking()));
 
-        Cytosis.getSnooperManager().getPersistenceManager()
+        Cytosis.CONTEXT.getComponent(SnooperManager.class).getPersistenceManager()
                 .query(id, permission, date.instantValue(), Instant.now(), this.ascending, this.search)
                 .thenAccept(queriedSnoops -> {
                     pagination.clearItems();

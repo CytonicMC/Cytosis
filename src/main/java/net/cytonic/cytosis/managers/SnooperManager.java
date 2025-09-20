@@ -1,9 +1,13 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.Getter;
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.containers.snooper.*;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
@@ -19,19 +23,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class SnooperManager {
+public class SnooperManager implements Bootstrappable {
     private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();
     @Getter
-    private final SnoopPersistenceManager persistenceManager;
+    private SnoopPersistenceManager persistenceManager;
     private final SnooperRegistry registry = new SnooperRegistry();
     private Set<String> stored = new HashSet<>();
 
+    private DatabaseManager databaseManager;
+    private NatsManager natsManager;
+
+    @Override
+    public void init() {
+        this.databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+        this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
+        this.persistenceManager = new SnoopPersistenceManager(databaseManager.getMysqlDatabase());
+
+        Logger.info("Loading snooper channels from redis");
+        loadChannelsFromRedis();
+        Logger.info("Loading Cytosis snoops");
+        registerChannel(CytosisSnoops.PLAYER_BAN);
+        registerChannel(CytosisSnoops.PLAYER_UNBAN);
+        registerChannel(CytosisSnoops.PLAYER_KICK);
+        registerChannel(CytosisSnoops.PLAYER_UNMUTE);
+        registerChannel(CytosisSnoops.PLAYER_MUTE);
+        registerChannel(CytosisSnoops.PLAYER_WARN);
+        registerChannel(CytosisSnoops.SERVER_ERROR);
+        registerChannel(CytosisSnoops.CHANGE_RANK);
+        registerChannel(CytosisSnoops.PLAYER_NICKNAME);
+        registerChannel(CytosisSnoops.PLAYER_SERVER_CHANGE);
+    }
+
     public SnooperManager() {
-        persistenceManager = new SnoopPersistenceManager(Cytosis.getDatabaseManager().getMysqlDatabase());
     }
 
     public void loadChannelsFromRedis() {
-        stored = Cytosis.getDatabaseManager().getRedisDatabase().getSet("cytosis:snooper_channels");
+        stored = databaseManager.getRedisDatabase().getSet("cytosis:snooper_channels");
         for (String channel : stored) {
             try {
                 registerChannel(SnooperChannel.deserialize(channel));
@@ -51,11 +78,11 @@ public class SnooperManager {
         registry.registerChannel(channel);
         if (!stored.contains(channel.serialize())) {
             // we should put it in redis!
-            Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis:snooper_channels", channel.serialize());
+            databaseManager.getRedisDatabase().addValue("cytosis:snooper_channels", channel.serialize());
             stored.add(channel.serialize());
         }
 
-        Cytosis.getNatsManager().subscribe(channel.channel(), message -> {
+        natsManager.subscribe(channel.channel(), message -> {
             SnooperContainer container = SnooperContainer.deserialize(message.getData());
 
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
@@ -112,7 +139,7 @@ public class SnooperManager {
                 Logger.error("error persisting snoop!: ", throwable);
             }
         });
-        Cytosis.getNatsManager().publish(channel.channel(), SnooperContainer.pipeline(message));
+        natsManager.publish(channel.channel(), SnooperContainer.pipeline(message));
     }
 
     public void snoop(CytosisPlayer player, @NotNull String channel) {

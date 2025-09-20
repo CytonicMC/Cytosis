@@ -1,7 +1,9 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.SneakyThrows;
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
@@ -22,11 +24,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A manager class holding perference data for users. An example is if they are accepting friend requests.
+ * A manager class holding preference data for users. An example is if they are accepting friend requests.
  * Since preferences are pretty small, every online player has their preference data stored here, no matter
  * which server they are connected to.
  */
-public class PreferenceManager {
+public class PreferenceManager implements Bootstrappable {
+    private MysqlDatabase db;
 
     /**
      * The registry of preferences currently registered. The held preference of the {@link NamespacedPreference} is
@@ -34,7 +37,11 @@ public class PreferenceManager {
      */
     public static final PreferenceRegistry PREFERENCE_REGISTRY = new PreferenceRegistry();
     private final Map<UUID, PreferenceData> preferenceData = new ConcurrentHashMap<>();
-    private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
+
+    @Override
+    public void init() {
+        this.db = Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase();
+    }
 
     /**
      * Default constructor
@@ -88,7 +95,7 @@ public class PreferenceManager {
                     }
                     preferenceData.put(uuid, data);
                     data.get(CytosisPreferences.LISTENING_SNOOPS).snoops().forEach(s -> {
-                        if (Cytosis.getSnooperManager().getChannel(Key.key(s)) == null) {
+                        if (Cytosis.CONTEXT.getComponent(SnooperManager.class).getChannel(Key.key(s)) == null) {
                             // big problem if null
                             Logger.warn("Player " + uuid + " is listening to the channel '" + s + "', but it isnt registered!");
                             Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(Msg.mm("<red><b>ERROR!</b></red><gray> Failed to start listening on snooper channel '" + s + "'")));
@@ -237,7 +244,6 @@ public class PreferenceManager {
 
     @SneakyThrows
     public void persistPreferences(UUID uuid, PreferenceData preferenceData) {
-        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
         PreparedStatement ps = db.prepare("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?;");
         ps.setString(2, uuid.toString());
         ps.setString(1, preferenceData.serialize());
@@ -249,8 +255,6 @@ public class PreferenceManager {
 
     @SneakyThrows
     public void addNewPlayerPreference(UUID uuid, PreferenceData data) {
-
-        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
         PreparedStatement ps = db.prepare("INSERT INTO cytonic_preferences VALUES(?,?);");
         ps.setString(1, uuid.toString());
         ps.setString(2, data.serialize());

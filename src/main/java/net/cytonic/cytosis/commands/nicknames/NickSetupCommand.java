@@ -106,7 +106,7 @@ public class NickSetupCommand extends CytosisCommand {
                         sender.sendMessage(Msg.whoops("Invalid nickname!"));
                         return;
                     }
-                    Cytosis.getNicknameManager().nicknamePlayer(player.getUuid(), data);
+                    Cytosis.CONTEXT.getComponent(NicknameManager.class).nicknamePlayer(player.getUuid(), data);
                     player.sendMessage(Msg.goldSplash("DISGUISED!", "Your apparent name, rank, and skin have been changed. To go back to your normal self, use the <#BE9025>/nick reset</#BE9025> command."));
 
                 }

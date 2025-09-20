@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands.utils;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.FriendCommand;
 import net.cytonic.cytosis.commands.HelpCommand;
@@ -34,19 +35,26 @@ import net.minestom.server.entity.Player;
  * A class that handles the commands, their execution, and allegedly a console.
  */
 @NoArgsConstructor
-public class CommandHandler {
+public class CommandHandler implements Bootstrappable {
+
+    private CommandManager commandManager;
+
+    @Override
+    public void init() {
+        this.commandManager = Cytosis.CONTEXT.getComponent(CommandManager.class);
+        registerCytosisCommands();
+    }
 
     /**
      * Registers the default Cytosis commands
      */
     public void registerCytosisCommands() {
-        CommandManager cm = Cytosis.getCommandManager();
-        cm.setUnknownCommandCallback((commandSender, s) -> {
+        commandManager.setUnknownCommandCallback((commandSender, s) -> {
             if (!(commandSender instanceof CytosisPlayer player)) return;
             player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
         });
 
-        cm.register(
+        commandManager.register(
                 new GamemodeCommand(),
                 new RankCommand(),
                 new BanCommand(),
@@ -102,6 +110,6 @@ public class CommandHandler {
      * @param player The player to send the packet to
      */
     public void recalculateCommands(Player player) {
-        player.sendPacket(Cytosis.getCommandManager().createDeclareCommandsPacket(player));
+        player.sendPacket(commandManager.createDeclareCommandsPacket(player));
     }
 }

@@ -1,11 +1,13 @@
 package net.cytonic.cytosis.managers;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.containers.servers.*;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
 
-public class ServerInstancingManager {
+public class ServerInstancingManager implements Bootstrappable {
 
     public static final String CYTOSIS = "cytosis";
     public static final String CYNDER = "cynder";
@@ -20,6 +22,12 @@ public class ServerInstancingManager {
 
     public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY, BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
 
+    private NatsManager nats;
+
+    @Override
+    public void init() {
+        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
+    }
 
     public static boolean isServerType(String type) {
         for (String t : TYPES) {
@@ -33,7 +41,7 @@ public class ServerInstancingManager {
     public void createServerInstances(String type, int amount) {
         if (!isServerType(type)) return;
         CreateInstanceContainer container = new CreateInstanceContainer(type, amount);
-        Cytosis.getNatsManager().request(Subjects.CREATE_SERVER, container.serialize(), (message, throwable) -> {
+        nats.request(Subjects.CREATE_SERVER, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to create server instance: " + type, throwable);
                 return;
@@ -48,7 +56,7 @@ public class ServerInstancingManager {
     public void deleteAllServerInstances(String type) {
         if (!isServerType(type)) return;
         DeleteAllInstancesContainer container = new DeleteAllInstancesContainer(type);
-        Cytosis.getNatsManager().request(Subjects.DELETE_ALL_SERVERS, container.serialize(), (message, throwable) -> {
+        nats.request(Subjects.DELETE_ALL_SERVERS, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete all server instances: " + type, throwable);
                 return;
@@ -68,7 +76,7 @@ public class ServerInstancingManager {
     public void deleteServerInstance(String type, String allocId) {
         if (!isServerType(type)) return;
         DeleteInstanceContainer container = new DeleteInstanceContainer(type, allocId);
-        Cytosis.getNatsManager().request(Subjects.DELETE_SERVER, container.serialize(), (message, throwable) -> {
+        nats.request(Subjects.DELETE_SERVER, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete server instance: " + allocId, throwable);
                 return;
@@ -83,7 +91,7 @@ public class ServerInstancingManager {
     public void updateServers(String type) {
         if (!isServerType(type)) return;
         UpdateInstancesContainer container = new UpdateInstancesContainer(type);
-        Cytosis.getNatsManager().request(Subjects.UPDATE_SERVER, container.serialize(), (message, throwable) -> {
+        nats.request(Subjects.UPDATE_SERVER, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to update server instance type: " + type, throwable);
                 return;

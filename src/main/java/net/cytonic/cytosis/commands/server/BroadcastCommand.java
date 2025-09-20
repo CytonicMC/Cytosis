@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.server;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -32,7 +33,7 @@ public class BroadcastCommand extends CytosisCommand {
                 if (context.get(serverArgument).equalsIgnoreCase("this")) {
                     Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
                 } else if (context.get(serverArgument).equalsIgnoreCase("all")) {
-                    Cytosis.getDatabaseManager().getRedisDatabase().sendBroadcast(broadcast);
+                    Cytosis.CONTEXT.getComponent(DatabaseManager.class).getRedisDatabase().sendBroadcast(broadcast);
                 }
             }
         }, serverArgument, broadcastArgument);

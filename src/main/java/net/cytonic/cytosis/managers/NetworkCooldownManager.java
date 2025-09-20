@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.managers;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.logging.Logger;
@@ -13,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * A class that handles network-wide cooldowns that sync across servers
  */
-public class NetworkCooldownManager {
+public class NetworkCooldownManager implements Bootstrappable {
     private final RedisDatabase redis;
     private final Map<Key, Instant> global = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
@@ -23,6 +24,11 @@ public class NetworkCooldownManager {
      */
     public NetworkCooldownManager(RedisDatabase redis) {
         this.redis = redis;
+    }
+
+    @Override
+    public void init() {
+        importFromRedis();
     }
 
     /**
