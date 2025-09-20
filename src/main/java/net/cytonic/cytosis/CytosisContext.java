@@ -3,12 +3,8 @@ package net.cytonic.cytosis;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
-import net.cytonic.cytosis.managers.SideboardManager;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
@@ -84,22 +80,12 @@ public class CytosisContext {
     }
 
     public void shutdownHandler() {
-        PluginManager pluginManager = getComponent(PluginManager.class, false);
-        if (pluginManager != null)
-            pluginManager.unloadPlugins();
-
-        NatsManager natsManager = getComponent(NatsManager.class, false);
-        if (natsManager != null)
-            natsManager.shutdown();
-
-        SideboardManager sideboardManager = getComponent(SideboardManager.class, false);
-        if (sideboardManager != null)
-            sideboardManager.cancelUpdates();
-
         Cytosis.getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
 
-        DatabaseManager databaseManager = getComponent(DatabaseManager.class, false);
-        if (databaseManager != null)
-            databaseManager.shutdown();
+        // shutdown bootstrappable components
+        components.values().stream()
+                .filter(component -> component instanceof Bootstrappable bootstrappableComponent)
+                .map(Bootstrappable.class::cast)
+                .forEach(Bootstrappable::shutdown);
     }
 }

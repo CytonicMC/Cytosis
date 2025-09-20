@@ -6,4 +6,5 @@ package net.cytonic.cytosis;
  */
 public interface Bootstrappable {
     void init();
+    default void shutdown() { }
 }

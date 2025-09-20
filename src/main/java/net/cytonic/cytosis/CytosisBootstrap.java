@@ -263,18 +263,6 @@ public class CytosisBootstrap {
         Logger.info("Initializing Plugin Manager!");
         PluginManager pluginManager = cytosisContext.registerComponent(new PluginManager());
         Logger.info("Loading plugins!");
-        try {
-            Path pluginsDirPath = Path.of("plugins");
-            if (!Files.exists(pluginsDirPath)) {
-                Files.createDirectories(pluginsDirPath);
-                Logger.info("Created plugins directory!");
-            }
-
-            pluginManager.loadPlugins(pluginsDirPath);
-        } catch (Exception e) {
-            Logger.error("An error occurred whilst loading plugins!", e);
-            throw new RuntimeException("An error occurred whilst loading plugins!", e);
-        }
 
         long start2 = System.currentTimeMillis();
         Logger.info("Scanning for listeners in plugins!");

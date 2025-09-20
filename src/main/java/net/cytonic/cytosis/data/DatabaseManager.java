@@ -27,6 +27,7 @@ public class DatabaseManager implements Bootstrappable {
     /**
      * Disconnects from the databases
      */
+    @Override
     public void shutdown() {
         mysqlDatabase.disconnect();
         redisDatabase.disconnect();

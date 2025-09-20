@@ -38,6 +38,11 @@ public class SideboardManager implements Bootstrappable {
         autoUpdateBoards(TaskSchedule.seconds(1));
     }
 
+    @Override
+    public void shutdown() {
+        cancelUpdates();
+    }
+
     /**
      * Adds a player to the sideboard manager
      *

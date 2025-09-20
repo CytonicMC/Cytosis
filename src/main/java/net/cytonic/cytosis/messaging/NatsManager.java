@@ -131,6 +131,7 @@ public class NatsManager implements Bootstrappable {
     }
 
     @SneakyThrows // don't care about the error on shutdown
+    @Override
     public void shutdown() {
         sendShutdown();
         connection.close();
