@@ -8,6 +8,7 @@ plugins {
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "8.14.2"
+    id("checkstyle")
 }
 
 group = "net.cytonic"
@@ -325,6 +326,7 @@ tasks.withType<Zip> {
 }
 
 tasks.withType<ShadowJar> {
+    // prevents issues with security exceptions
     exclude("META-INF/**/*.SF")
     exclude("META-INF/**/*.DSA")
     exclude("META-INF/**/*.RSA")
@@ -335,5 +337,55 @@ java {
     withJavadocJar()
 
     toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+// Checkstyle configuration
+checkstyle {
+    toolVersion = "10.21.1"
+    configFile = file("${rootDir}/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+    maxErrors = 0
+}
+
+tasks.withType<Checkstyle>().configureEach {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(file("${project.buildDir}/reports/checkstyle/${name}.html"))
+    }
+
+    // Always generate reports, even on failure
+    isIgnoreFailures = true
+
+    // But still fail the build after generating reports
+    doLast {
+        if (reports.xml.outputLocation.asFile.get().exists()) {
+            val xmlReport = reports.xml.outputLocation.asFile.get()
+            if (xmlReport.readText().contains("<error ")) {
+                throw GradleException("Checkstyle violations found. Check the report at: ${reports.html.outputLocation.get()}")
+            }
+        }
+    }
+}
+
+// Configure checkstyle tasks
+tasks.named<Checkstyle>("checkstyleMain") {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.named<Checkstyle>("checkstyleTest") {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+// Make check task depend on checkstyle
+tasks.named("check") {
+    dependsOn("checkstyleMain", "checkstyleTest")
 }
 
