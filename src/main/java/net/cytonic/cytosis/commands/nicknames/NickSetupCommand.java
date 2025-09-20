@@ -174,7 +174,7 @@ public class NickSetupCommand extends CytosisCommand {
                     }
                     switch (arg.toUpperCase()) {
                         case "SET" -> {
-                            new NicknameEntryMenu().open(player);
+                            Cytosis.getViewFrame().open(NicknameEntryMenu.class, player);
                             return;
                         }
                         case "SKIP" -> {
