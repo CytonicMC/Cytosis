@@ -18,3 +18,6 @@ jobs:
 
       - name: Assemble Jar
         run: gradle --no-daemon compileJava
+
+      - name: Run Java docs
+        run: gradle --no-daemon javadoc
