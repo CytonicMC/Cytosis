@@ -1,18 +1,29 @@
 package net.cytonic.cytosis.managers;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
+import net.minestom.server.command.CommandManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public class CommandDisablingManager {
+public class CommandDisablingManager implements Bootstrappable {
+    private NatsManager nats;
+    private DatabaseManager databaseManager;
 
-    private final NatsManager nats = Cytosis.getNatsManager();
+    @Override
+    public void init() {
+        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
+        this.databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+        loadRemotes();
+        setupConsumers();
+    }
 
     public void setupConsumers() {
         nats.subscribe("cytosis.commands.disabled", (msg) -> {
@@ -70,7 +81,7 @@ public class CommandDisablingManager {
      */
     public boolean disableCommandGlobally(CytosisCommand cmd) {
         sendCommandDisable(cmd.getName().getBytes(StandardCharsets.UTF_8));
-        Cytosis.getDatabaseManager().getRedisDatabase().addValue("cytosis-disabled-commands", cmd.getName());
+        databaseManager.getRedisDatabase().addValue("cytosis-disabled-commands", cmd.getName());
         return true;
     }
 
@@ -82,13 +93,13 @@ public class CommandDisablingManager {
      */
     public boolean enableCommandGlobally(CytosisCommand cmd) {
         sendCommandEnable(cmd.getName().getBytes(StandardCharsets.UTF_8));
-        Cytosis.getDatabaseManager().getRedisDatabase().removeValue("cytosis-disabled-commands", cmd.getName());
+        databaseManager.getRedisDatabase().removeValue("cytosis-disabled-commands", cmd.getName());
         return true;
     }
 
     @Nullable
     private CytosisCommand parseCommand(String rawCommand) {
-        if (Cytosis.getCommandManager().getCommand(rawCommand) instanceof CytosisCommand cc) {
+        if (Cytosis.CONTEXT.getComponent(CommandManager.class).getCommand(rawCommand) instanceof CytosisCommand cc) {
             return cc;
         }
         return null;
@@ -97,7 +108,7 @@ public class CommandDisablingManager {
     public CompletableFuture<Void> loadRemotes() {
         return CompletableFuture.supplyAsync(() -> {
 
-            Set<String> cmds = Cytosis.getDatabaseManager().getRedisDatabase().getSet("cytosis-disabled-commands");
+            Set<String> cmds = databaseManager.getRedisDatabase().getSet("cytosis-disabled-commands");
 
             for (String cmd : cmds) {
                 CytosisCommand command = parseCommand(cmd);
@@ -115,15 +126,15 @@ public class CommandDisablingManager {
 
 
     private void sendCommandEnable(byte[] message) {
-        Cytosis.getNatsManager().publish("cytosis.commands.enabled", message);
+        nats.publish("cytosis.commands.enabled", message);
     }
 
     private void sendCommandDisable(byte[] message) {
-        Cytosis.getNatsManager().publish("cytosis.commands.disabled", message);
+        nats.publish("cytosis.commands.disabled", message);
     }
 
     public boolean isDisabledGlobally(CytosisCommand cmd) {
-        return Cytosis.getDatabaseManager().getRedisDatabase().getSet("cytosis-disabled-commands").contains(cmd.getName());
+        return databaseManager.getRedisDatabase().getSet("cytosis-disabled-commands").contains(cmd.getName());
     }
 
     public boolean isDisabledLocally(CytosisCommand cmd) {

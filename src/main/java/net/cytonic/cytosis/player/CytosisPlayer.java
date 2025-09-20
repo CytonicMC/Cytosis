@@ -1,18 +1,21 @@
 package net.cytonic.cytosis.player;
 
 import io.github.togar2.pvp.player.CombatPlayerImpl;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.managers.*;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.builder.CommandResult;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
@@ -33,7 +36,6 @@ import java.util.UUID;
 public class CytosisPlayer extends CombatPlayerImpl {
     private PlayerRank rank;
 
-
     /**
      * Creates a new instance of a player
      *
@@ -43,7 +45,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
-        rank = Cytosis.getRankManager().getPlayerRank(uuid).orElseGet(() -> {
+        rank = Cytosis.CONTEXT.getComponent(RankManager.class).getPlayerRank(uuid).orElseGet(() -> {
             Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
@@ -51,7 +53,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
-        rank = Cytosis.getRankManager().getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
+        rank = Cytosis.CONTEXT.getComponent(RankManager.class).getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
             Logger.warn("The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
@@ -63,8 +65,9 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
     public PlayerRank getRank() {
         if (isNicked()) {
-            return Cytosis.getNicknameManager().getData(getUuid()).rank();
+            return Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid()).rank();
         }
+
         return getTrueRank();
     }
 
@@ -75,7 +78,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public void setRank(PlayerRank rank) {
         this.rank = rank;
-        Cytosis.getRankManager().changeRank(this, rank);
+        Cytosis.CONTEXT.getComponent(RankManager.class).changeRank(this, rank);
     }
 
     /**
@@ -98,7 +101,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @throws IllegalArgumentException if the preference and value are not of the same type
      */
     public <T> void updatePreference(TypedNamespace<T> namespace, T value) {
-        Cytosis.getPreferenceManager().updatePlayerPreference(getUuid(), namespace, value);
+        Cytosis.CONTEXT.getComponent(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
     }
 
     /**
@@ -111,7 +114,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @throws IllegalArgumentException if the preference and value are not of the same type
      */
     public <T> void updatePreference(NamespacedPreference<T> namespace, T value) {
-        Cytosis.getPreferenceManager().updatePlayerPreference(getUuid(), namespace, value);
+        Cytosis.CONTEXT.getComponent(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
     }
 
     /**
@@ -123,7 +126,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      */
     public <T> T getPreference(TypedNamespace<T> namespace) {
-        return Cytosis.getPreferenceManager().getPlayerPreference(getUuid(), namespace);
+        return Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
     }
 
     /**
@@ -135,7 +138,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      */
     public <T> T getPreference(NamespacedPreference<T> namespace) {
-        return Cytosis.getPreferenceManager().getPlayerPreference(getUuid(), namespace);
+        return Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
     }
 
     /**
@@ -145,7 +148,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the boolean true if the player is on cooldown
      */
     public boolean onNetworkCooldown(Key namespace) {
-        return Cytosis.getNetworkCooldownManager().isOnPersonalCooldown(getUuid(), namespace);
+        return Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class).isOnPersonalCooldown(getUuid(), namespace);
     }
 
     /**
@@ -155,7 +158,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the boolean true if the player is on cooldown on this server
      */
     public boolean onLocalCooldown(Key namespace) {
-        return Cytosis.getLocalCooldownManager().isOnPersonalCooldown(getUuid(), namespace);
+        return Cytosis.CONTEXT.getComponent(LocalCooldownManager.class).isOnPersonalCooldown(getUuid(), namespace);
     }
 
     /**
@@ -165,7 +168,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param expiry    the instant the cooldown is to expire
      */
     public void setNetworkCooldown(Key namespace, Instant expiry) {
-        Cytosis.getNetworkCooldownManager().setPersonal(getUuid(), namespace, expiry);
+        Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class).setPersonal(getUuid(), namespace, expiry);
     }
 
     /**
@@ -175,7 +178,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param expiry    the instant the cooldown is to expire
      */
     public void setLocalCooldown(Key namespace, Instant expiry) {
-        Cytosis.getLocalCooldownManager().setPersonalCooldown(getUuid(), namespace, expiry);
+        Cytosis.CONTEXT.getComponent(LocalCooldownManager.class).setPersonalCooldown(getUuid(), namespace, expiry);
     }
 
     /**
@@ -186,7 +189,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     @Nullable
     public Instant getNetworkCooldown(Key namespace) {
-        return Cytosis.getNetworkCooldownManager().getPersonalExpiry(getUuid(), namespace);
+        return Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class).getPersonalExpiry(getUuid(), namespace);
     }
 
     /**
@@ -197,7 +200,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     @Nullable
     public Instant getLocalCooldown(Key namespace) {
-        return Cytosis.getLocalCooldownManager().getPersonalExpiry(getUuid(), namespace);
+        return Cytosis.CONTEXT.getComponent(LocalCooldownManager.class).getPersonalExpiry(getUuid(), namespace);
     }
 
     /**
@@ -208,7 +211,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     @SuppressWarnings("UnusedReturnValue")
     public CommandResult dispatchCommand(String command) {
-        return Cytosis.getCommandManager().getDispatcher().execute(this, command);
+        return Cytosis.CONTEXT.getComponent(CommandManager.class).getDispatcher().execute(this, command);
     }
 
     /**
@@ -217,7 +220,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the player's active chat channel
      */
     public ChatChannel getChatChannel() {
-        return Cytosis.getChatManager().getChannel(getUuid());
+        return Cytosis.CONTEXT.getComponent(ChatManager.class).getChannel(getUuid());
     }
 
     /**
@@ -226,7 +229,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param channel the channel to set the player to
      */
     public void setChatChannel(ChatChannel channel) {
-        Cytosis.getChatManager().setChannel(getUuid(), channel);
+        Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(getUuid(), channel);
     }
 
     /**
@@ -235,9 +238,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param vanish if they should be vanished or not
      */
     public void setVanish(boolean vanish) {
+        VanishManager vanishManager = Cytosis.CONTEXT.getComponent(VanishManager.class);
         if (vanish) {
-            Cytosis.getVanishManager().enableVanish(this);
-        } else Cytosis.getVanishManager().disableVanish(this);
+            vanishManager.enableVanish(this);
+        } else vanishManager.disableVanish(this);
     }
 
     /**
@@ -246,7 +250,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the player's friends
      */
     public List<UUID> getFriends() {
-        return Cytosis.getFriendManager().getFriends(getUuid());
+        return Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(getUuid());
     }
 
     /**
@@ -255,7 +259,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param uuid the friend to remove
      */
     public void removeFriend(UUID uuid) {
-        Cytosis.getFriendManager().removeFriend(getUuid(), uuid);
+        Cytosis.CONTEXT.getComponent(FriendManager.class).removeFriend(getUuid(), uuid);
     }
 
     /**
@@ -264,12 +268,12 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @param uuid the player to add as a friend
      */
     public void addFriend(UUID uuid) {
-        Cytosis.getFriendManager().addFriend(getUuid(), uuid);
+        Cytosis.CONTEXT.getComponent(FriendManager.class).addFriend(getUuid(), uuid);
     }
 
     @Override
     public void sendActionBar(@NotNull Component message) {
-        Cytosis.getActionbarManager().addToQueue(getUuid(), message);
+        Cytosis.CONTEXT.getComponent(ActionbarManager.class).addToQueue(getUuid(), message);
     }
 
     @Override
@@ -340,34 +344,35 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public void sendFriendRequest(UUID recipient) {
-        Cytosis.getFriendManager().sendRequest(getUuid(), recipient);
+        Cytosis.CONTEXT.getComponent(FriendManager.class).sendRequest(getUuid(), recipient);
     }
 
     public void acceptFriendRequest(UUID sender) {
-        Cytosis.getNatsManager().acceptFriendRequest(sender, getUuid());
+        Cytosis.CONTEXT.getComponent(NatsManager.class).acceptFriendRequest(sender, getUuid());
     }
 
     public void acceptFriendRequestById(UUID requestId) {
-        Cytosis.getNatsManager().acceptFriendRequest(requestId);
+        Cytosis.CONTEXT.getComponent(NatsManager.class).acceptFriendRequest(requestId);
     }
 
     public void declineFriendRequest(UUID sender) {
-        Cytosis.getNatsManager().declineFriendRequest(sender, getUuid());
+        Cytosis.CONTEXT.getComponent(NatsManager.class).declineFriendRequest(sender, getUuid());
     }
 
     public void declineFriendRequestById(UUID requestId) {
-        Cytosis.getNatsManager().declineFriendRequest(requestId);
+        Cytosis.CONTEXT.getComponent(NatsManager.class).declineFriendRequest(requestId);
     }
 
     public boolean isVanished() {
-        return Cytosis.getVanishManager().isVanished(getUuid());
+        return Cytosis.CONTEXT.getComponent(VanishManager.class).isVanished(getUuid());
     }
 
     public void setVanished(boolean vanished) {
+        VanishManager vanishManager = Cytosis.CONTEXT.getComponent(VanishManager.class);
         if (vanished) {
-            Cytosis.getVanishManager().enableVanish(this);
+            vanishManager.enableVanish(this);
         } else {
-            Cytosis.getVanishManager().disableVanish(this);
+            vanishManager.disableVanish(this);
         }
     }
 
@@ -379,13 +384,13 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public boolean hasPlayedBefore() {
-        return Cytosis.getCytonicNetwork().hasPlayedBefore(getUuid());
+        return Cytosis.CONTEXT.getComponent(CytonicNetwork.class).hasPlayedBefore(getUuid());
     }
 
     @Override
     public @NotNull String getUsername() {
         if (isNicked()) {
-            return Cytosis.getNicknameManager().getData(getUuid()).nickname();
+            return Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid()).nickname();
         }
         return getTrueUsername();
     }
@@ -415,7 +420,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     @Override
     public @Nullable PlayerSkin getSkin() {
         if (isNicked()) {
-            NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(getUuid());
+            NicknameManager.NicknameData data = Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid());
             return new PlayerSkin(data.value(), data.signature());
         }
         return super.getSkin();
@@ -430,7 +435,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public boolean isNicked() {
-        return Cytosis.getNicknameManager().isNicked(getUuid());
+        return Cytosis.CONTEXT.getComponent(NicknameManager.class).isNicked(getUuid());
     }
 
     @Override
@@ -438,8 +443,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
         if (!isNicked()) {
             super.updateNewViewer(player);
         } else {
-            Cytosis.getNicknameManager().sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID), false);
+            Cytosis.CONTEXT.getComponent(NicknameManager.class).sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID), false);
         }
-
     }
 }

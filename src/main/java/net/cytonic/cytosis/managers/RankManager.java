@@ -1,8 +1,13 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.utils.CommandHandler;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -19,9 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * A class that manages player ranks
  */
 @NoArgsConstructor
-public class RankManager {
-
-    private final MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
+public class RankManager implements Bootstrappable {
+    private CytonicNetwork cytonicNetwork;
+    private RedisDatabase redis;
+    private MysqlDatabase db;
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
@@ -29,7 +35,12 @@ public class RankManager {
     /**
      * Creates the teams for cosmetic ranks
      */
+    @Override
     public void init() {
+        this.cytonicNetwork = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+        DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+        this.redis = databaseManager.getRedisDatabase();
+        this.db = databaseManager.getMysqlDatabase();
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager())
                     .collisionRule(TeamsPacket.CollisionRule.NEVER)
@@ -54,8 +65,8 @@ public class RankManager {
             }
             player.setRank_UNSAFE(playerRank);
             rankMap.put(player.getUuid(), playerRank);
-            Cytosis.getCytonicNetwork().updateCachedPlayerRank(player.getUuid(), playerRank);
-            Thread.ofVirtual().start(() -> Cytosis.getDatabaseManager().getRedisDatabase().addToHash("player_ranks", player.getUuid().toString(), playerRank.name()));
+            cytonicNetwork.updateCachedPlayerRank(player.getUuid(), playerRank);
+            Thread.ofVirtual().start(() -> redis.addToHash("player_ranks", player.getUuid().toString(), playerRank.name()));
             if (player.isNicked()) return; // don't setup cosmetics for nicked players
             setupCosmetics(player, playerRank);
         });
@@ -74,9 +85,9 @@ public class RankManager {
         rankMap.put(player.getUuid(), rank);
         player.setRank_UNSAFE(rank);
         setupCosmetics(player, rank);
-        Cytosis.getCytonicNetwork().updateCachedPlayerRank(player.getUuid(), rank);
+        cytonicNetwork.updateCachedPlayerRank(player.getUuid(), rank);
         player.refreshCommands();
-        Thread.ofVirtual().start(() -> Cytosis.getDatabaseManager().getRedisDatabase().addToHash("player_ranks", player.getUuid().toString(), rank.name()));
+        Thread.ofVirtual().start(() -> redis.addToHash("player_ranks", player.getUuid().toString(), rank.name()));
     }
 
     /**
@@ -98,7 +109,7 @@ public class RankManager {
     public void setupCosmetics(CytosisPlayer player, PlayerRank rank) {
         teamMap.get(rank).addMember(player.getUsername());
         player.setCustomName(rank.getPrefix().append(player.getName()));
-        Cytosis.getCommandHandler().recalculateCommands(player);
+        Cytosis.CONTEXT.getComponent(CommandHandler.class).recalculateCommands(player);
         if (player.isVanished()) {
             player.setVanished(true); // ranks can mess up the visuals sometimes
         }
@@ -121,15 +132,15 @@ public class RankManager {
     public void loadPlayer(UUID player) {
         Thread.ofVirtual().start(() -> {
             PlayerRank rank = PlayerRank.DEFAULT;
-            String cachedRank = Cytosis.getDatabaseManager().getRedisDatabase().getFromHash("player_ranks", player.toString());
+            String cachedRank = redis.getFromHash("player_ranks", player.toString());
             if (cachedRank != null) {
                 rank = PlayerRank.valueOf(cachedRank);
             } else {
                 // we need to load it for next time!
                 db.getPlayerRank(player).thenAccept(playerRank -> {
                     rankMap.put(player, playerRank);
-                    Cytosis.getCytonicNetwork().updateCachedPlayerRank(player, playerRank);
-                    Cytosis.getDatabaseManager().getRedisDatabase().addToHash("player_ranks", player.toString(), playerRank.name());
+                    cytonicNetwork.updateCachedPlayerRank(player, playerRank);
+                    redis.addToHash("player_ranks", player.toString(), playerRank.name());
                 });
             }
             rankMap.put(player, rank);

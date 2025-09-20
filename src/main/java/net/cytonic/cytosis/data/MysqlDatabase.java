@@ -2,6 +2,7 @@ package net.cytonic.cytosis.data;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -288,7 +289,7 @@ public class MysqlDatabase {
         worker.submit(() -> {
             if (!isConnected()) throw new IllegalStateException("The database must be connected to mute players.");
             try {
-                Cytosis.getCytonicNetwork().getMutedPlayers().put(uuid, true);
+                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getMutedPlayers().put(uuid, true);
                 PreparedStatement ps = getConnection().prepareStatement("INSERT IGNORE INTO cytonic_mutes (uuid, to_expire) VALUES (?,?)");
                 ps.setString(1, uuid.toString());
                 ps.setString(2, toExpire.toString());
@@ -313,7 +314,7 @@ public class MysqlDatabase {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
-                Cytosis.getCytonicNetwork().getMutedPlayers().remove(uuid);
+                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getMutedPlayers().remove(uuid);
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();

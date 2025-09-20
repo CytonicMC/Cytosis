@@ -1,10 +1,13 @@
 package net.cytonic.cytosis.commands.moderation;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
@@ -15,7 +18,6 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import java.time.Instant;
-
 
 public class MuteCommand extends CytosisCommand {
 
@@ -28,7 +30,7 @@ public class MuteCommand extends CytosisCommand {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching players..."));
             }
-            Cytosis.getCytonicNetwork().getLifetimePlayers().forEach((uuid, name) ->
+            Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().forEach((uuid, name) ->
                     suggestion.addEntry(new SuggestionEntry(name)));
         });
         ArgumentWord durationArg = ArgumentType.Word("duration");
@@ -50,17 +52,18 @@ public class MuteCommand extends CytosisCommand {
                 final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parse(rawDur);
 
-                if (!Cytosis.getCytonicNetwork().getLifetimePlayers().containsValue(target)) {
+                if (!Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().containsValue(target)) {
                     sender.sendMessage(Msg.mm("<red>The player " + target + " doesn't exist!"));
                     return;
                 }
-                Cytosis.getDatabaseManager().getMysqlDatabase().findUUIDByName(target).whenComplete((uuid, throwable) -> {
+                DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+                databaseManager.getMysqlDatabase().findUUIDByName(target).whenComplete((uuid, throwable) -> {
                     if (throwable != null) {
                         sender.sendMessage(Msg.serverError("An error occured whilst finding %s!", target));
                         Logger.error("error", throwable);
                         return;
                     }
-                    Cytosis.getDatabaseManager().getMysqlDatabase().isMuted(uuid).whenComplete((muted, throwable1) -> {
+                    databaseManager.getMysqlDatabase().isMuted(uuid).whenComplete((muted, throwable1) -> {
                         if (throwable1 != null) {
                             sender.sendMessage(Msg.serverError("<red>An error occured whilst finding if %s is muted!", target));
                             Logger.error("error", throwable1);
@@ -70,7 +73,7 @@ public class MuteCommand extends CytosisCommand {
                             sender.sendMessage(Msg.mm("%s is already muted!", target));
                             return;
                         }
-                        Cytosis.getDatabaseManager().getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
+                        databaseManager.getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
                             if (throwable2 != null) {
                                 sender.sendMessage(Msg.serverError("An error occured whilst finding %s's rank!", target));
                                 Logger.error("error", throwable2);
@@ -83,8 +86,8 @@ public class MuteCommand extends CytosisCommand {
                             Component snoop = actor.formattedName().append(Msg.mm("<gray> muted ")).append(SnoopUtils.toTarget(uuid))
                                     .append(Msg.mm("<gray> for " + DurationParser.unparseFull(dur) + "."));
 
-                            Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
-                            Cytosis.getDatabaseManager().getMysqlDatabase().mutePlayer(uuid, dur).whenComplete((ignored, throwable3) -> {
+                            Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
+                            databaseManager.getMysqlDatabase().mutePlayer(uuid, dur).whenComplete((ignored, throwable3) -> {
                                 if (throwable3 != null) {
                                     actor.sendMessage(Msg.serverError("An error occured whilst muting %s!", target));
                                     return;

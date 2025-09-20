@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.*;
+import net.cytonic.cytosis.managers.PreferenceManager;
 import net.kyori.adventure.key.Key;
 
 import java.io.IOException;
@@ -103,10 +104,11 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         Key id = Key.key(rawID);
 
         // the easist and fastest way
-        Class<T> type = (Class<T>) Cytosis.getPreferenceManager().getPreferenceRegistry().getTypeFromNamespace(id);
+        PreferenceManager pm = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+        Class<T> type = (Class<T>) pm.getPreferenceRegistry().getTypeFromNamespace(id);
         PreferenceRegistry.Entry<T> preference;
         try {
-            preference = Cytosis.getPreferenceManager().getPreferenceRegistry().get(new TypedNamespace<>(id, type));
+            preference = pm.getPreferenceRegistry().get(new TypedNamespace<>(id, type));
         } catch (IllegalArgumentException e) {
             // Create a FallbackPreference instead of returning null
             return new FallbackPreference<>(new TypedNamespace<>(id, (Class<T>) String.class), String.valueOf(value));

@@ -6,6 +6,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+import net.minestom.server.instance.InstanceContainer;
 
 /**
  * The class representing the time command
@@ -30,38 +31,39 @@ public class TimeCommand extends CytosisCommand {
             suggestion.addEntry(new SuggestionEntry("freeze"));
         });
         setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>Usage: /time (time)")));
+        InstanceContainer defaultInstance = Cytosis.CONTEXT.getComponent(InstanceContainer.class);
         addSyntax((sender, context) -> {
             switch (context.get(timeArgument).toLowerCase()) {
                 case "day" -> {
-                    Cytosis.getDefaultInstance().setTime(1000); // Day
+                    defaultInstance.setTime(1000); // Day
                     sender.sendMessage(Msg.mm("<GREEN>Time set to day."));
                 }
                 case "night" -> {
-                    Cytosis.getDefaultInstance().setTime(13000); // Night
+                    defaultInstance.setTime(13000); // Night
                     sender.sendMessage(Msg.mm("<GREEN>Time set to night."));
                 }
                 case "midnight" -> {
-                    Cytosis.getDefaultInstance().setTime(18000); // Midnight
+                    defaultInstance.setTime(18000); // Midnight
                     sender.sendMessage(Msg.mm("<GREEN>Time set to midnight."));
                 }
                 case "noon" -> {
-                    Cytosis.getDefaultInstance().setTime(6000); // Noon
+                    defaultInstance.setTime(6000); // Noon
                     sender.sendMessage(Msg.mm("<GREEN>Time set to noon."));
                 }
                 case "sunrise" -> {
-                    Cytosis.getDefaultInstance().setTime(23000); // Sunrise
+                    defaultInstance.setTime(23000); // Sunrise
                     sender.sendMessage(Msg.mm("<GREEN>Time set to sunrise."));
                 }
                 case "sunset" -> {
-                    Cytosis.getDefaultInstance().setTime(12000); // Sunset
+                    defaultInstance.setTime(12000); // Sunset
                     sender.sendMessage(Msg.mm("<GREEN>Time set to sunset."));
                 }
                 case "freeze" -> {
-                    if (Cytosis.getDefaultInstance().getTimeRate() == 1) {
-                        Cytosis.getDefaultInstance().setTimeRate(0);
+                    if (defaultInstance.getTimeRate() == 1) {
+                        defaultInstance.setTimeRate(0);
                         sender.sendMessage(Msg.mm("<green>Time frozen."));
-                    } else if (Cytosis.getDefaultInstance().getTimeRate() == 0) {
-                        Cytosis.getDefaultInstance().setTimeRate(1);
+                    } else if (defaultInstance.getTimeRate() == 0) {
+                        defaultInstance.setTimeRate(1);
                         sender.sendMessage(Msg.mm("<green>Time unfrozen."));
                     }
                 }
@@ -69,7 +71,7 @@ public class TimeCommand extends CytosisCommand {
 
         }, timeArgument);
         addSyntax((sender, context) -> {
-            Cytosis.getDefaultInstance().setTime(context.get(timeInteger)); // Set time to input
+            defaultInstance.setTime(context.get(timeInteger)); // Set time to input
             sender.sendMessage(Msg.mm("<GREEN>Time set to " + context.get(timeInteger) + "."));
         }, timeInteger);
     }

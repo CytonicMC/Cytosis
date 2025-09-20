@@ -3,6 +3,7 @@ package net.cytonic.cytosis.nicknames;
 import com.google.gson.Gson;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.Tuple;
+import net.cytonic.cytosis.files.FileManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,7 +16,7 @@ public class SkinParser {
 
     @SuppressWarnings("unchecked")
     public static Tuple<String, String>[] parseSkinData() {
-        File file = Cytosis.getFileManager().extractResource("skins.json", Path.of("skins.json"));
+        File file = Cytosis.CONTEXT.getComponent(FileManager.class).extractResource("skins.json", Path.of("skins.json"));
         InputStreamReader reader = null;
         try {
             reader = new FileReader(file);

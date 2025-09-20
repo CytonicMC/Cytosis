@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.server.worlds;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -12,6 +13,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.io.IOException;
@@ -47,7 +49,8 @@ public class ImportPolarWorldCommand extends CytosisCommand {
                 Logger.error("Failed to load world!", e);
                 player.sendMessage(Msg.serverError("Failed to load world! (%s)", e.getMessage()));
             }
-            InstanceContainer c = Cytosis.getMinestomInstanceManager().createInstanceContainer(loader);
+            InstanceManager instanceManager = Cytosis.CONTEXT.getComponent(InstanceManager.class);
+            InstanceContainer c = instanceManager.createInstanceContainer(loader);
             player.setInstance(c);
             if (loader == null) {
                 player.sendMessage(Msg.serverError("Failed to load world! World is null!"));
@@ -58,14 +61,14 @@ public class ImportPolarWorldCommand extends CytosisCommand {
             Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name).replace("_", ""));
 
             UUID uuid = UUID.randomUUID();
-            Cytosis.getDatabaseManager().getMysqlDatabase().addWorld(
+            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addWorld(
                     context.get(name),
                     context.get(type),
                     world,
                     Pos.ZERO,
                     uuid
             ).whenComplete((result, error) -> {
-                MinecraftServer.getSchedulerManager().buildTask(() -> Cytosis.getMinestomInstanceManager().unregisterInstance(c)).delay(TaskSchedule.seconds(1)).schedule();
+                MinecraftServer.getSchedulerManager().buildTask(() -> instanceManager.unregisterInstance(c)).delay(TaskSchedule.seconds(1)).schedule();
                 sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name).replace("_", ""), uuid.toString()));
             });
 

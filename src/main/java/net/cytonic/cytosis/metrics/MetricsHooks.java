@@ -9,7 +9,7 @@ import java.lang.management.ManagementFactory;
 
 public class MetricsHooks {
     public static void init() {
-        MetricsManager mm = Cytosis.getMetricsManager();
+        MetricsManager mm = Cytosis.CONTEXT.getComponent(MetricsManager.class);
 
         //online players
         mm.createLongGauge("players.online",
@@ -47,7 +47,5 @@ public class MetricsHooks {
 
         mm.createLongCounter("players.unique", "The number of unique players that have played",
                 "players");
-
-
     }
 }

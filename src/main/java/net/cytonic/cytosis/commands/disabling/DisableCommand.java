@@ -5,6 +5,7 @@ import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.utils.Msg;
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
@@ -24,16 +25,17 @@ public class DisableCommand extends CytosisCommand {
         setDefaultExecutor((sender, context) -> sender.sendMessage(Msg.whoops("Invalid Syntax! /disable <cmd>")));
 
         addSyntax((sender, context) -> {
-            CommandDisablingManager manager = Cytosis.getCommandDisablingManager();
+            CommandDisablingManager commandDisablingManager = Cytosis.CONTEXT.getComponent(CommandDisablingManager.class);
+            CommandManager commandManager = Cytosis.CONTEXT.getComponent(CommandManager.class);
             String rawCommand = context.get(cmd);
 
-            if (Cytosis.getCommandManager().getCommand(rawCommand) instanceof CytosisCommand command) {
+            if (commandManager.getCommand(rawCommand) instanceof CytosisCommand command) {
                 if (context.get(global)) {
-                    if (manager.isDisabledGlobally(command)) {
+                    if (commandDisablingManager.isDisabledGlobally(command)) {
                         sender.sendMessage(Msg.whoops("This command is already globally disabled."));
                         return;
                     }
-                    manager.disableCommandGlobally(command);
+                    commandDisablingManager.disableCommandGlobally(command);
                     sender.sendMessage(Msg.redSplash("DISABLED!", "disabled the '" + rawCommand + "' command on every server."));
                     return;
                 }
@@ -42,7 +44,7 @@ public class DisableCommand extends CytosisCommand {
                     sender.sendMessage(Msg.whoops("This command is already disabled on this server."));
                     return;
                 }
-                manager.disableCommandLocally(command);
+                commandDisablingManager.disableCommandLocally(command);
                 sender.sendMessage(Msg.redSplash("DISABLED!", "disabled the '" + rawCommand + "' command on this server."));
             }
 

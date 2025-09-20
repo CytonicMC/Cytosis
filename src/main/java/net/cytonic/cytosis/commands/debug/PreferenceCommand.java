@@ -33,7 +33,7 @@ public class PreferenceCommand extends CytosisCommand {
 
         var nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : Cytosis.getPreferenceManager().getPreferenceRegistry().namespaces()) {
+            for (Key preference : Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPreferenceRegistry().namespaces()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -46,20 +46,20 @@ public class PreferenceCommand extends CytosisCommand {
                 return;
             }
             Key node = Key.key(context.get(nodeArg));
-            PreferenceManager manager = Cytosis.getPreferenceManager();
-            Preference<?> preference = manager.getPreferenceRegistry().get_UNSAFE(node);
+            PreferenceManager preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+            Preference<?> preference = preferenceManager.getPreferenceRegistry().get_UNSAFE(node);
             if (preference == null) {
                 sender.sendMessage(Msg.mm("<red>Preference node <yellow>" + node.asString() + "</yellow> does not exist!"));
                 return;
             }
 
             if (context.get(opperationArg) == Operation.SET) {
-                TypedNamespace<?> typedNamespace = Cytosis.getPreferenceManager().getPreferenceRegistry().typedNamespaces().stream().filter(ns -> ns.namespaceID().equals(node)).findFirst().orElseThrow();
+                TypedNamespace<?> typedNamespace = preferenceManager.getPreferenceRegistry().typedNamespaces().stream().filter(ns -> ns.namespaceID().equals(node)).findFirst().orElseThrow();
                 Class<?> type = typedNamespace.type();
                 String raw = context.get(valueArg)[0];
                 Object value = null;
                 if (raw.equalsIgnoreCase("null")) {
-                    manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, null);
+                    preferenceManager.updatePlayerPreference_UNSAFE(player.getUuid(), node, null);
                     player.sendMessage(Msg.splash("NULLIFIED!", "db0d74", "Successfully set preference node <yellow>" + node.asString() + "</yellow> to null."));
                     return;
                 }
@@ -83,15 +83,14 @@ public class PreferenceCommand extends CytosisCommand {
                     sender.sendMessage(Msg.mm("<red>The value <yellow>" + context.get(valueArg)[0] + "</yellow> is not a valid value for preference node <yellow>" + node.asString() + "</yellow>!"));
                     return;
                 }
-                manager.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
+                preferenceManager.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
                 player.sendMessage(Msg.mm("<green>Successfully updated preference node <yellow>" + node.asString() + "</yellow> to '<light_purple>" + value + "</light_purple>'"));
             } else if (context.get(opperationArg).equals(Operation.GET)) {
-                Object pref = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
+                Object pref = preferenceManager.getPlayerPreference_UNSAFE(player.getUuid(), node);
                 sender.sendMessage(Msg.mm("<gray>The value of preference node <yellow> " + node.asString() + " </yellow> is '<light_purple>" + pref + "</light_purple>'"));
             }
         }), opperationArg, nodeArg, valueArg);
     }
-
 
     @Getter
     private enum Operation {

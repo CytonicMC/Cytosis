@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.movement;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
@@ -15,11 +16,12 @@ public class PlayCommand extends CytosisCommand {
         });
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
+            NatsManager natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
             switch (context.get(word).toLowerCase()) {
                 case "gg", "gilded", "gilded_gorge" ->
-                        Cytosis.getNatsManager().sendPlayerToGenericServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");
+                        natsManager.sendPlayerToGenericServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");
                 case "bw", "bedwars" ->//todo: Some sort of logic for game queuing
-                        Cytosis.getNatsManager().sendPlayerToGenericServer(player.getUuid(), "bedwars", "solos", "BedWars");
+                        natsManager.sendPlayerToGenericServer(player.getUuid(), "bedwars", "solos", "BedWars");
 
             }
         }, word);

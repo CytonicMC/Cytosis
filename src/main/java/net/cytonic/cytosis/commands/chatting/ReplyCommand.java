@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.chatting;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -20,12 +21,13 @@ public class ReplyCommand extends CytosisCommand {
 
             final String msg = String.join(" ", context.get(msgArgument));
 
-            if (!Cytosis.getChatManager().hasOpenPrivateChannel(player)) {
+            ChatManager chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
+            if (!chatManager.hasOpenPrivateChannel(player)) {
                 player.sendMessage(Msg.whoops("You don't have an open conversation!"));
                 return;
             }
 
-            Cytosis.getChatManager().handlePrivateMessage(msg, player);
+            chatManager.handlePrivateMessage(msg, player);
         }, msgArgument);
     }
 }

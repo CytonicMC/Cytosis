@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.server;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.ServerInstancingManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -25,7 +26,7 @@ public class StopCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (context.get(confirmArgument).equalsIgnoreCase("confirm")) {
                 if (Cytosis.IS_NOMAD) {
-                    Cytosis.getServerInstancingManager().deleteThisServerInstance();
+                    Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).deleteThisServerInstance();
                     sender.sendMessage(Msg.success("Dispatched the shutdown of this instance!"));
                     return;
                 }

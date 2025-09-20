@@ -3,10 +3,14 @@ package net.cytonic.cytosis.managers;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
@@ -24,12 +28,21 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("unused")
 @NoArgsConstructor
-public class ChatManager {
+public class ChatManager implements Bootstrappable {
 
     private final Cache<UUID, UUID> openPrivateChannels = CacheBuilder.newBuilder()
             .expireAfterWrite(5L, TimeUnit.MINUTES)
             .expireAfterAccess(5L, TimeUnit.MINUTES)
             .build();
+
+    private PreferenceManager preferenceManager;
+    private NatsManager natsManager;
+
+    @Override
+    public void init() {
+        this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+        this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
+    }
 
     /**
      * Sets a specified players chat channel
@@ -38,7 +51,7 @@ public class ChatManager {
      * @param channel The channel to set
      */
     public void setChannel(UUID uuid, ChatChannel channel) {
-        Cytosis.getPreferenceManager().updatePlayerPreference(uuid, CytosisNamespaces.CHAT_CHANNEL, channel);
+        preferenceManager.updatePlayerPreference(uuid, CytosisNamespaces.CHAT_CHANNEL, channel);
     }
 
     /**
@@ -48,7 +61,7 @@ public class ChatManager {
      * @return the player's currently selected chat channel
      */
     public ChatChannel getChannel(UUID uuid) {
-        return Cytosis.getPreferenceManager().getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
+        return preferenceManager.getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
     }
 
     /**
@@ -103,7 +116,7 @@ public class ChatManager {
             });
             return;
         }
-        Cytosis.getNatsManager().sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message), null));
+        natsManager.sendChatMessage(new ChatMessage(null, channel, JSONComponentSerializer.json().serialize(message), null));
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {
@@ -114,13 +127,13 @@ public class ChatManager {
         }
 
         UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
-        PlayerRank recipientRank = Cytosis.getRankManager().getPlayerRank(uuid).orElseThrow();
+        PlayerRank recipientRank = Cytosis.CONTEXT.getComponent(RankManager.class).getPlayerRank(uuid).orElseThrow();
 
-        Component recipient = recipientRank.getPrefix().append(Component.text(Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(uuid), recipientRank.getTeamColor()));
+        Component recipient = recipientRank.getPrefix().append(Component.text(Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid), recipientRank.getTeamColor()));
 
         Component component = Msg.mm("<dark_aqua>From <reset>").append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername()))).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerMessage(player.getUuid(), uuid, message);
-        Cytosis.getNatsManager().sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(component), player.getUuid()));
+        Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addPlayerMessage(player.getUuid(), uuid, message);
+        natsManager.sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json().serialize(component), player.getUuid()));
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE)));
     }
 

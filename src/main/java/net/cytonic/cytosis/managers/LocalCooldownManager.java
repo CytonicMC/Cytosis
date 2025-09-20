@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.Bootstrappable;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.TaskSchedule;
@@ -13,9 +14,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NoArgsConstructor
-public class LocalCooldownManager {
+public class LocalCooldownManager implements Bootstrappable {
     private final Map<Key, Instant> server = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
+
+    @Override
+    public void init() {
+        startExpiryTask();
+    }
 
     public void startExpiryTask() {
         MinecraftServer.getSchedulerManager().buildTask(() -> {

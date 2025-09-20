@@ -6,6 +6,7 @@ import net.cytonic.cytosis.data.containers.Container;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.containers.PlayerWarnContainer;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import redis.clients.jedis.*;
@@ -73,10 +74,11 @@ public class RedisDatabase {
             public void onMessage(String channel, String message) {
                 if (!channel.equals(RedisDatabase.COOLDOWN_UPDATE_CHANNEL)) return;
                 CooldownUpdateContainer container = (CooldownUpdateContainer) Container.deserialize(message);
+                NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
                 if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.PERSONAL) {
-                    Cytosis.getNetworkCooldownManager().setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
+                    cooldownManager.setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
                 } else if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.GLOBAL) {
-                    Cytosis.getNetworkCooldownManager().setGlobal(container.getNamespace(), container.getExpiry());
+                    cooldownManager.setGlobal(container.getNamespace(), container.getExpiry());
                 } else throw new IllegalArgumentException("Unsupported target: " + container.getTarget());
             }
         }, COOLDOWN_UPDATE_CHANNEL));
@@ -115,7 +117,7 @@ public class RedisDatabase {
      * @param reason      the reason
      */
     public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason) {
-        Cytosis.getDatabaseManager().getMysqlDatabase().addPlayerWarn(actor, target, reason);
+        Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addPlayerWarn(actor, target, reason);
         PlayerWarnContainer container = new PlayerWarnContainer(target, JSONComponentSerializer.json().serialize(warnMessage));
         jedisPub.publish(PLAYER_WARN, container.toString());
     }
