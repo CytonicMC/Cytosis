@@ -25,14 +25,9 @@ public class CytosisOpenTelemetry {
         try {
             url = getUrl();
         } catch (Exception e) {
-
-
-
-
             Cytosis.CONTEXT.setMetricsEnabled(false);
             return;
         }
-
 
         // Configure Span Exporter (for traces)
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder()
