@@ -47,15 +47,21 @@ public class ParticleEngine {
      * @param delay  the delay in ticks before the effect starts playing
      */
     public static void playKeyframed(PacketGroupingAudience audience, KeyframedEffect effect, int delay) {
-        SCHEDULER.buildTask(() -> {
-            effect.getKeyframeEffects().forEach((time, effectsToPlay) -> {
-                if (time <= 0) {
-                    effectsToPlay.forEach(eff -> eff.play(audience));
-                    return;
-                }
-                SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience))).delay(TaskSchedule.tick(time)).schedule();
-            });
-        }).delay(TaskSchedule.tick(delay)).schedule();
+        if (delay == 0) {
+            playKeyFramedInteral(audience, effect);
+            return;
+        }
+        SCHEDULER.buildTask(() -> playKeyFramedInteral(audience, effect)).delay(TaskSchedule.tick(delay)).schedule();
+    }
+
+    private static void playKeyFramedInteral(PacketGroupingAudience audience, KeyframedEffect effect) {
+        effect.getKeyframeEffects().forEach((time, effectsToPlay) -> {
+            if (time <= 0) {
+                effectsToPlay.forEach(eff -> eff.play(audience));
+                return;
+            }
+            SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience))).delay(TaskSchedule.tick(time)).schedule();
+        });
     }
 
     public static Task playLooping(LoopingEffect effect, TaskSchedule period) {
@@ -67,6 +73,9 @@ public class ParticleEngine {
     }
 
     public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience, int delay) {
+        if (delay == 0) {
+            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).schedule();
+        }
         return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay)).schedule();
     }
 
@@ -79,6 +88,10 @@ public class ParticleEngine {
     }
 
     public static void playStatic(StaticEffect effect, PacketGroupingAudience audience, int delay) {
+        if (delay == 0) {
+            effect.play(audience);
+            return;
+        }
         SCHEDULER.buildTask(() -> effect.play(audience)).delay(TaskSchedule.tick(delay)).schedule();
     }
 }
