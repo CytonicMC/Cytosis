@@ -74,7 +74,7 @@ public class PlayerListManager {
                 PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                 new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
                         new PlayerInfoUpdatePacket.Property("textures", player.getSkin().textures(), player.getSkin().signature())
-                ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null, -1)
+                ), false, player.getLatency(), player.getGameMode(), player.getDisplayName(), null, -1, true)
         ));
 
         // remove everyone from the player
@@ -117,7 +117,7 @@ public class PlayerListManager {
                 packets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(uuid, "!" + col + "-" + row, List.of(playerFavicons.get(player.getUuid())[i][j]), // line 105
-                                true, 1, GameMode.CREATIVE, playerComponents.get(player.getUuid())[i][j], null, order)
+                                true, 1, GameMode.CREATIVE, playerComponents.get(player.getUuid())[i][j], null, order, true)
                         )));
                 order++;
             }
@@ -129,7 +129,7 @@ public class PlayerListManager {
                     PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                     new PlayerInfoUpdatePacket.Entry(p.getUuid(), p.getUsername(), List.of(
                             new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())
-                    ), false, p.getLatency(), p.getGameMode(), p.getDisplayName(), null, -1)
+                    ), false, p.getLatency(), p.getGameMode(), p.getDisplayName(), null, -1, true)
             ));
         }
         return packets;
@@ -165,14 +165,14 @@ public class PlayerListManager {
                 updatePackets.add(new PlayerInfoUpdatePacket(
                         EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                                List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order)
+                                List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order, true)
                         )));
             }
 
             if (!components[i][0].equals(columns.get(i).getName())) {
                 updatePackets.add(new PlayerInfoUpdatePacket(
                         PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order)
+                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null, order, true)
                 ));
             }
             for (int j = 1; j < updatedComponents[i].length; j++) {
@@ -181,14 +181,14 @@ public class PlayerListManager {
                     updatePackets.add(new PlayerInfoUpdatePacket(
                             EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                             List.of(new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
-                                    List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order)
+                                    List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order, true)
                             )));
                 }
                 if (!components[i][j].equals(updatedComponents[i][j])) {
                     components[i][j] = updatedComponents[i][j];
                     updatePackets.add(new PlayerInfoUpdatePacket(
                             PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, new PlayerInfoUpdatePacket.Entry(listUUIDs[i][j], "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
-                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order)
+                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null, order, true)
                     ));
                 }
             }

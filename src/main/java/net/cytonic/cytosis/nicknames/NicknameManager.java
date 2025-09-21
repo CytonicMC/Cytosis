@@ -101,7 +101,7 @@ public class NicknameManager implements Bootstrappable {
             properties.add(new PlayerInfoUpdatePacket.Property("textures", data.value(), data.signature()));
         }
         PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(masked, data.nickname(), properties, false,
-                0, GameMode.SURVIVAL, null, null, 1);
+                0, GameMode.SURVIVAL, null, null, 1, true);
 
         if (!freshViewer) {
             // remove the old player info and entity -- avoids nickname detection
@@ -144,7 +144,7 @@ public class NicknameManager implements Bootstrappable {
                 properties.add(new PlayerInfoUpdatePacket.Property("textures", player.getTrueSkin().textures(), player.getTrueSkin().signature()));
             }
             PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getTrueUsername(), properties, false,
-                    0, GameMode.SURVIVAL, null, null, 1);
+                    0, GameMode.SURVIVAL, null, null, 1, true);
             // remove the old player info and entity
             viewer.sendPackets(
                     new PlayerInfoRemovePacket(masked),
