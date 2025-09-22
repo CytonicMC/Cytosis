@@ -1,28 +1,29 @@
 package net.cytonic.cytosis.managers;
 
-import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.npcs.NPC;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+
+import net.cytonic.cytosis.npcs.Npc;
+
 /**
  * A class that manages NPCs
  */
 @NoArgsConstructor
-public class NPCManager {
+public class NpcManager {
 
-    private final List<NPC> npcs = new ArrayList<>();
+    private final List<Npc> npcs = new ArrayList<>();
 
     /**
      * Adds an NPC to the manager
      *
      * @param npc the NPC to add
      */
-    public void addNPC(NPC npc) {
+    public void addNpc(Npc npc) {
         npcs.add(npc);
     }
 
@@ -31,7 +32,7 @@ public class NPCManager {
      *
      * @param npc the NPC to remove
      */
-    public void removeNPC(NPC npc) {
+    public void removeNpc(Npc npc) {
         npc.remove();
         npcs.remove(npc);
     }
@@ -43,9 +44,9 @@ public class NPCManager {
      * @return An optional of the NPC
      */
     @NotNull
-    public Optional<NPC> findNPC(UUID id) {
-        for (NPC npc : npcs) {
-            if (npc.getUUID().equals(id)) {
+    public Optional<Npc> findNpc(UUID id) {
+        for (Npc npc : npcs) {
+            if (npc.getUuid().equals(id)) {
                 return Optional.of(npc);
             }
         }

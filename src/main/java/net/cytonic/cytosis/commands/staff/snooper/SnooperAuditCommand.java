@@ -1,5 +1,8 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
+import net.minestom.server.command.builder.arguments.ArgumentStringArray;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -7,10 +10,9 @@ import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.menus.snooper.SnooperProvider;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.arguments.ArgumentStringArray;
-import net.minestom.server.command.builder.arguments.ArgumentType;
 
 public class SnooperAuditCommand extends CytosisCommand {
+
     public SnooperAuditCommand() {
         super("audit");
 
@@ -28,7 +30,8 @@ public class SnooperAuditCommand extends CytosisCommand {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = c.get(SnooperCommand.CHANNELS);
             if (!Cytosis.CONTEXT.getComponent(SnooperManager.class).getAllChannels(player).contains(rawChannel)) {
-                player.sendMessage(Msg.whoops("The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
+                player.sendMessage(Msg.whoops(
+                    "The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;
             }
 

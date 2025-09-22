@@ -7,16 +7,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.cytosis.Cytosis;
+
 public class PlayerUtils {
 
     /**
-     * Attempts to resolve a player's UUID from a string. The string can be the player's nickname, username, or UUID. It is case-insensitive.
+     * Attempts to resolve a player's UUID from a string. The string can be the player's nickname, username, or UUID. It
+     * is case-insensitive.
      *
      * @param input the player's nickname, username, or UUID.
      * @return the player's UUID, or null if the player could not be resolved.
      */
     public static @Nullable UUID resolveUuid(String input) {
-        if (input == null) return null;
+        if (input == null) {
+            return null;
+        }
         UUID cached = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimeFlattened().getByValue(input.toLowerCase());
         if (cached != null) {
             return cached;

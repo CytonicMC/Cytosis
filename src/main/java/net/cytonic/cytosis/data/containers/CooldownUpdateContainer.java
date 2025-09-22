@@ -1,14 +1,15 @@
 package net.cytonic.cytosis.data.containers;
 
+import java.time.Instant;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.cytonic.cytosis.Cytosis;
 import net.kyori.adventure.key.Key;
 
-import java.time.Instant;
-import java.util.UUID;
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * A class that represents a redis container for updating cooldowns

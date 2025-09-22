@@ -105,11 +105,14 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
             """
             package net.cytonic.cytosis.utils;
             
+            /**
+            * Holds information on the current build of Cytosis. This code is auto-generated at build.
+            */
             public class BuildInfo {
                 public static final String BUILD_VERSION = "${project.version}";
                 public static final String GIT_COMMIT = "${"git rev-parse HEAD".runCommand()}";
                 public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
-                public static final boolean DEPENDENCIES_BUNDLED=${bundled};
+                public static final boolean DEPENDENCIES_BUNDLED = ${bundled};
             }
             """.trimIndent()
         )

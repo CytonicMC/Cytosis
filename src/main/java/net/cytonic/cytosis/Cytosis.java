@@ -1,11 +1,51 @@
 package net.cytonic.cytosis;
 
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import eu.koboo.minestom.stomui.api.ViewRegistry;
 import eu.koboo.minestom.stomui.core.MinestomUI;
 import lombok.Getter;
+import lombok.Setter;
+import net.hollowcube.polar.PolarLoader;
+import net.kyori.adventure.key.Key;
+import net.minestom.server.Auth;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandManager;
+import net.minestom.server.command.ConsoleSender;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.Event;
+import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.LightingChunk;
+import net.minestom.server.instance.block.Block;
+import net.minestom.server.network.ConnectionManager;
+import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
+import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
+import net.minestom.server.timer.TaskSchedule;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
+
+import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
@@ -17,6 +57,26 @@ import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.serializers.KeySerializer;
 import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.ActionbarManager;
+import net.cytonic.cytosis.managers.ChatManager;
+import net.cytonic.cytosis.managers.CommandDisablingManager;
+import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.InstanceManager;
+import net.cytonic.cytosis.managers.LocalCooldownManager;
+import net.cytonic.cytosis.managers.NetworkCooldownManager;
+import net.cytonic.cytosis.managers.NpcManager;
+import net.cytonic.cytosis.managers.PlayerListManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.managers.ServerInstancingManager;
+import net.cytonic.cytosis.managers.SideboardManager;
+import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.managers.VanishManager;
+import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
+import net.cytonic.cytosis.metrics.MetricsHooks;
+import net.cytonic.cytosis.metrics.MetricsManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 import net.hollowcube.polar.PolarLoader;
@@ -57,15 +117,13 @@ public final class Cytosis {
             .create();
 
     public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()
-            .indent(0)
-            .defaultOptions(opts -> opts
-                    .shouldCopyDefaults(true)
-                    .serializers(builder -> {
-                        builder.registerAnnotatedObjects(ObjectMapper.factory());
-                        builder.register(Key.class, new KeySerializer());
-                        builder.register(Pos.class, new PosSerializer());
-                    })
-            );
+        .indent(0)
+        .defaultOptions(opts -> opts.shouldCopyDefaults(true)
+            .serializers(builder -> {
+                builder.registerAnnotatedObjects(ObjectMapper.factory());
+                builder.register(Key.class, new KeySerializer());
+                builder.register(Pos.class, new PosSerializer());
+            }));
 
     // The version of Cytosis
     public static final String VERSION = "0.1";
@@ -83,6 +141,43 @@ public final class Cytosis {
      */
     public static void main(String[] args) {
         new CytosisBootstrap(args, CONTEXT).run();
+    }
+
+    /**
+     * Loads the world based on the settings
+     */
+    public static void loadWorld() {
+        if (CytosisSettings.SERVER_WORLD_NAME.isEmpty()) {
+            Logger.info("Generating basic world");
+            defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+            defaultInstance.setChunkSupplier(LightingChunk::new);
+            Logger.info("Basic world loaded!");
+            return;
+        }
+        Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
+        databaseManager.getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME)
+            .whenComplete((polarWorld, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",
+                        throwable);
+                    defaultInstance.setGenerator(unit -> unit.modifier()
+                        .fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+                    defaultInstance.setChunkSupplier(LightingChunk::new);
+                } else {
+                    defaultInstance.setChunkLoader(new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
+                    defaultInstance.setChunkSupplier(LightingChunk::new);
+                    defaultInstance.enableAutoChunkLoad(true);
+                    Logger.info("World loaded!");
+                }
+            });
+    }
+
+    private static void shutdownHandler() {
+        pluginManager.unloadPlugins();
+        natsManager.shutdown();
+        databaseManager.shutdown();
+        sideboardManager.cancelUpdates();
+        getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
     }
 
     /**
@@ -128,6 +223,20 @@ public final class Cytosis {
      */
     public static <T extends CytosisPlayer> Optional<T> getPlayerAs(String username, Class<T> clazz) {
         return getPlayer(username).map(clazz::cast);
+    }
+
+    /**
+     * Gets the player if they are on THIS instance, by USERNAME
+     *
+     * @param username The name to fetch the player by
+     * @return The optional holding the player if they exist
+     */
+    public static Optional<CytosisPlayer> getPlayer(String username) {
+        if (username == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager()
+            .getOnlinePlayerByUsername(username));
     }
 
     /**

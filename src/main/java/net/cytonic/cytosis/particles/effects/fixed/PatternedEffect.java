@@ -1,17 +1,19 @@
 package net.cytonic.cytosis.particles.effects.fixed;
 
-import lombok.AllArgsConstructor;
-import net.cytonic.cytosis.particles.util.ParticleSupplier;
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.network.packet.server.play.ParticlePacket;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.network.packet.server.play.ParticlePacket;
+
+import net.cytonic.cytosis.particles.util.ParticleSupplier;
+
 @AllArgsConstructor
 public class PatternedEffect extends StaticEffect {
+
     private double particleWidth;
     private double particleHeight;
     private char[][] pattern;
@@ -26,7 +28,6 @@ public class PatternedEffect extends StaticEffect {
 
         double totalHeight = pattern.length * particleHeight;
 
-
         List<ParticlePacket> packets = new ArrayList<>(); // deffer sendind until complete computation
         double y = totalHeight / 2;
         for (char[] chars : pattern) {
@@ -36,9 +37,12 @@ public class PatternedEffect extends StaticEffect {
             for (char aChar : chars) {
                 x += particleWidth;
 
-                if (aChar == ' ') continue; // spaces are ignored
-                if (!patternDictionary.containsKey(aChar))
+                if (aChar == ' ') {
+                    continue; // spaces are ignored
+                }
+                if (!patternDictionary.containsKey(aChar)) {
                     throw new IllegalArgumentException("Pattern does not contain mapping: " + aChar);
+                }
 
                 Pos p = pos.add(0, y, x);
                 packets.add(patternDictionary.get(aChar).get().getPacket(p));

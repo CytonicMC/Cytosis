@@ -1,15 +1,18 @@
 package net.cytonic.cytosis.particles.effects.fixed;
 
-import net.cytonic.cytosis.particles.util.ParticleSupplier;
-import net.cytonic.cytosis.utils.Utils;
+import java.util.List;
+
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 
-import java.util.List;
+import net.cytonic.cytosis.particles.util.ParticleSupplier;
+import net.cytonic.cytosis.utils.Utils;
 
 public class LineEffect extends StaticEffect {
-    Point pos1, pos2;
+
+    Point pos1;
+    Point pos2;
     double density;
     ParticleSupplier supplier;
     List<Point> positions;

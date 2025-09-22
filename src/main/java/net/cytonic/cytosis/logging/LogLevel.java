@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.logging;
 
-
 import org.apache.logging.log4j.Level;
 
 public class LogLevel {

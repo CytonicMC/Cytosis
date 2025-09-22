@@ -1,24 +1,28 @@
 package net.cytonic.cytosis.data.containers.friends;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import org.jetbrains.annotations.NotNull;
+
+import net.cytonic.cytosis.Cytosis;
+
+// CHECKSTYLE:OFF: ParameterName
 public record FriendResponse(UUID request_id) {
+// CHECKSTYLE:ON: ParameterName
 
     /**
      * Deserializes this object from a string
      *
      * @param json the serialized data
-     * @return the deserailized object
+     * @return the serialized object
      */
     public static FriendResponse deserialize(String json) {
         return Cytosis.GSON.fromJson(json, FriendResponse.class);
     }
 
-    public static byte[] create(UUID request_id) {
-        return new FriendResponse(request_id).serialize().getBytes(StandardCharsets.UTF_8);
+    public static byte[] create(UUID requestId) {
+        return new FriendResponse(requestId).serialize().getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -36,7 +40,7 @@ public record FriendResponse(UUID request_id) {
      * @return the serialized string
      */
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return serialize();
     }
 }

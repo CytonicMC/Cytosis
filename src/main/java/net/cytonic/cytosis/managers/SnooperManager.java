@@ -1,27 +1,32 @@
 package net.cytonic.cytosis.managers;
 
-import lombok.Getter;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.data.containers.snooper.*;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
-import net.cytonic.cytosis.utils.Msg;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.containers.snooper.SnoopPersistenceManager;
+import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
+import net.cytonic.cytosis.data.containers.snooper.SnooperContainer;
+import net.cytonic.cytosis.data.containers.snooper.SnooperRecieveEvent;
+import net.cytonic.cytosis.data.containers.snooper.SnoopsContainer;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.Msg;
 
 public class SnooperManager implements Bootstrappable {
     private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();
@@ -86,11 +91,19 @@ public class SnooperManager implements Bootstrappable {
             SnooperContainer container = SnooperContainer.deserialize(message.getData());
 
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
-                if (!player.isStaff()) continue;
-                if (!player.canRecieveSnoop(channel.recipients())) continue;
-                if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) continue;
-                if (!player.getPreference(CytosisNamespaces.LISTENING_SNOOPS).snoops().contains(channel.id().asString()))
+                if (!player.isStaff()) {
                     continue;
+                }
+                if (!player.canRecieveSnoop(channel.recipients())) {
+                    continue;
+                }
+                if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) {
+                    continue;
+                }
+                if (!player.getPreference(CytosisNamespaces.LISTENING_SNOOPS).snoops()
+                    .contains(channel.id().asString())) {
+                    continue;
+                }
 
                 player.sendMessage(container.message());
             }
@@ -115,8 +128,8 @@ public class SnooperManager implements Bootstrappable {
     }
 
     /**
-     * Registers an external listener for a snoop. These have no effect on the delivery on snoops,
-     * as these listeners are called after sending the messages.
+     * Registers an external listener for a snoop. These have no effect on the delivery on snoops, as these listeners
+     * are called after sending the messages.
      *
      * @param event     The reception event
      * @param predicate The predicate used to filter the messsages
@@ -149,7 +162,8 @@ public class SnooperManager implements Bootstrappable {
             return;
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.with(channel));
-        player.sendMessage(Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
+        player.sendMessage(
+            Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
     }
 
     public void blind(CytosisPlayer player, @NotNull String channel) {
@@ -159,7 +173,8 @@ public class SnooperManager implements Bootstrappable {
             return;
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.without(channel));
-        player.sendMessage(Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
+        player.sendMessage(
+            Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
     }
 
     /**
@@ -169,7 +184,8 @@ public class SnooperManager implements Bootstrappable {
      * @return The set of channels
      */
     public Set<String> getAllChannels(CytosisPlayer player) {
-        return registry.channels.values().stream().filter(c -> player.canRecieveSnoop(c.recipients())).map(channel -> channel.id().asString()).collect(Collectors.toSet());
+        return registry.channels.values().stream().filter(c -> player.canRecieveSnoop(c.recipients()))
+            .map(channel -> channel.id().asString()).collect(Collectors.toSet());
     }
 
     @Nullable
@@ -178,6 +194,7 @@ public class SnooperManager implements Bootstrappable {
     }
 
     private class SnooperRegistry {
+
         private final Map<Key, SnooperChannel> channels = new ConcurrentHashMap<>();
 
         protected SnooperRegistry() {
@@ -189,8 +206,9 @@ public class SnooperManager implements Bootstrappable {
         }
 
         protected void registerChannel(SnooperChannel channel) {
-            if (channels.containsKey(channel.id()))
+            if (channels.containsKey(channel.id())) {
                 throw new IllegalArgumentException("Already registered channel " + channel.id().asString());
+            }
             channels.put(channel.id(), channel);
         }
     }

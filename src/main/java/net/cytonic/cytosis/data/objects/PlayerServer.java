@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.objects;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.util.UUID;
+
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * Represents a player connected to a specific server.
@@ -23,15 +23,6 @@ public record PlayerServer(UUID uuid, CytonicServer server) {
     }
 
     /**
-     * Serializes the playerServerinto a string
-     *
-     * @return the serialized string
-     */
-    public String serialize() {
-        return Cytosis.GSON.toJson(this);
-    }
-
-    /**
      * Serializes the playerServer into a string
      *
      * @return the serialized string
@@ -39,5 +30,14 @@ public record PlayerServer(UUID uuid, CytonicServer server) {
     @Override
     public String toString() {
         return serialize();
+    }
+
+    /**
+     * Serializes the playerServerinto a string
+     *
+     * @return the serialized string
+     */
+    public String serialize() {
+        return Cytosis.GSON.toJson(this);
     }
 }

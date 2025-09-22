@@ -1,26 +1,28 @@
 package net.cytonic.cytosis.particles;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
-import net.cytonic.cytosis.particles.effects.keyframed.KeyframedEffect;
-import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
+import java.util.ArrayList;
+
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 
-import java.util.ArrayList;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
+import net.cytonic.cytosis.particles.effects.keyframed.KeyframedEffect;
+import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
 
 /**
  * The class that handles all the interactions with the particle api. It's the primary entrypoint.
  */
 public class ParticleEngine {
+
     private static final SchedulerManager SCHEDULER = MinecraftServer.getSchedulerManager();
 
     /**
-     * Plays this keyframed effect for every Cytosis player. For more fined grained control over who the effect
-     * is played for, use {@link #playKeyframed(PacketGroupingAudience, KeyframedEffect)}
+     * Plays this keyframed effect for every Cytosis player. For more fined grained control over who the effect is
+     * played for, use {@link #playKeyframed(PacketGroupingAudience, KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
      */
@@ -30,8 +32,8 @@ public class ParticleEngine {
     }
 
     /**
-     * Plays this keyframed effect for every player in the audience. To play this for everyone,
-     * use {@link #playKeyframed(KeyframedEffect)}
+     * Plays this keyframed effect for every player in the audience. To play this for everyone, use
+     * {@link #playKeyframed(KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
      */
@@ -40,8 +42,8 @@ public class ParticleEngine {
     }
 
     /**
-     * Plays this keyframed effect for every player in the audience. To play this for everyone,
-     * use {@link #playKeyframed(KeyframedEffect)}
+     * Plays this keyframed effect for every player in the audience. To play this for everyone, use
+     * {@link #playKeyframed(KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
      * @param delay  the delay in ticks before the effect starts playing
@@ -60,7 +62,8 @@ public class ParticleEngine {
                 effectsToPlay.forEach(eff -> eff.play(audience));
                 return;
             }
-            SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience))).delay(TaskSchedule.tick(time)).schedule();
+            SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience)))
+                    .delay(TaskSchedule.tick(time)).schedule();
         });
     }
 
@@ -72,11 +75,13 @@ public class ParticleEngine {
         return playLooping(effect, period, audience, 0);
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience, int delay) {
+    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience,
+        int delay) {
         if (delay == 0) {
             return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).schedule();
         }
-        return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay)).schedule();
+        return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay))
+            .schedule();
     }
 
     public static void playStatic(StaticEffect effect) {

@@ -1,5 +1,10 @@
 package net.cytonic.cytosis.commands.server.worlds;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -17,16 +22,20 @@ import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.anvil.AnvilLoader;
 import net.minestom.server.timer.TaskSchedule;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.utils.CommandUtils;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 
 public class ImportAnvilWorldCommand extends CytosisCommand {
+
     public ImportAnvilWorldCommand() {
         super("anvil");
         setCondition(CommandUtils.IS_ADMIN);
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.whoops("Usage: /importworld anvil \"<path/to/world/folder>\" <name> [type]")));
+        setDefaultExecutor((sender, ignored) -> sender.sendMessage(
+            Msg.whoops("Usage: /importworld anvil \"<path/to/world/folder>\" <name> [type]")));
 
         ArgumentWord path = new ArgumentWord("path");
         ArgumentWord name = new ArgumentWord("name");
@@ -49,7 +58,6 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             InstanceContainer c = instanceManager.createInstanceContainer(loader);
             player.setInstance(c);
 
-
             PolarWorld world;
             try {
                 world = AnvilPolar.anvilToPolar(readPath);
@@ -59,20 +67,19 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
                 return;
             }
 
-            Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name).replace("_", ""));
+            Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name)
+                .replace("_", ""));
 
             UUID uuid = UUID.randomUUID();
-            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addWorld(
-                    context.get(name),
-                    context.get(type),
-                    world,
-                    Pos.ZERO,
-                    uuid
-            ).whenComplete((result, error) -> {
-                MinecraftServer.getSchedulerManager().buildTask(() -> instanceManager.unregisterInstance(c)).delay(TaskSchedule.seconds(1)).schedule();
-                sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name).replace("_", ""), uuid.toString()));
-            });
-
+            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase()
+                .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
+                .whenComplete((result, error) -> {
+                    MinecraftServer.getSchedulerManager()
+                        .buildTask(() -> instanceManager.unregisterInstance(c))
+                        .delay(TaskSchedule.seconds(1)).schedule();
+                    sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name)
+                        .replace("_", ""), uuid.toString()));
+                });
         }, path, name, type);
     }
 }

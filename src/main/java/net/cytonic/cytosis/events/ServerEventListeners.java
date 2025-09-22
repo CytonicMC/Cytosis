@@ -1,13 +1,32 @@
 package net.cytonic.cytosis.events;
 
+import java.util.Optional;
+
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerHand;
+import net.minestom.server.event.EventDispatcher;
+import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.event.player.PlayerBlockPlaceEvent;
+import net.minestom.server.event.player.PlayerChatEvent;
+import net.minestom.server.event.player.PlayerDisconnectEvent;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.minestom.server.event.player.PlayerPacketOutEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.network.packet.server.SendablePacket;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.NPCInteractType;
+import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
@@ -16,7 +35,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.npcs.NPC;
+import net.cytonic.cytosis.npcs.Npc;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
@@ -46,11 +65,12 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onInteract(PlayerEntityInteractEvent event) {
-        Optional<NPC> optional = Cytosis.CONTEXT.getComponent(NPCManager.class).findNPC(event.getTarget().getUuid());
+        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NPCManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
-            NPC npc = optional.get();
+            Npc npc = optional.get();
             EventDispatcher.call(new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()));
-            npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.INTERACT, (CytosisPlayer) event.getPlayer()));
+            npc.getActions()
+                .forEach((action) -> action.execute(npc, NpcInteractType.INTERACT, (CytosisPlayer) event.getPlayer()));
         }
     }
 
@@ -60,7 +80,9 @@ public final class ServerEventListeners {
         if (event.getPlayer() instanceof CytosisPlayer player) {
             //todo: add a preference to disable block updates
             event.setDoBlockUpdates(true);
-        } else throw new IllegalStateException("Invalid player object");
+        } else {
+            throw new IllegalStateException("Invalid player object");
+        }
     }
 
     @Listener
@@ -74,23 +96,18 @@ public final class ServerEventListeners {
     @Async
     @SuppressWarnings({"unchecked", "UnstableApiUsage"})
     private void onPacketOut(PlayerPacketOutEvent e) {
-        if (!(e.getPacket() instanceof EntityMetaDataPacket packet))
-            return;
+        if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
         if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
         if (!Cytosis.CONTEXT.getComponent(VanishManager.class).getVanished().containsValue(packet.entityId())) return;
 
         MetadataPacketBuilder builder = MetadataPacketBuilder.builder(packet);
-
 
         if (builder.isGlowing() && builder.isInvisible()) {
             return; // don't need to modify (also prevents a stackoverflow)
         }
         e.setCancelled(true);
 
-        SendablePacket toSend = builder.setGlowing(true)
-                .setInvisible(true)
-                .build();
-
+        SendablePacket toSend = builder.setGlowing(true).setInvisible(true).build();
 
         Cytosis.getOnlinePlayers().forEach(p -> {
             if (!p.isStaff()) return;
@@ -102,8 +119,9 @@ public final class ServerEventListeners {
     @Listener
     private void onConfig(AsyncPlayerConfigurationEvent event) {
         final Player player = event.getPlayer();
-        if (!Cytosis.CONTEXT.getFlags().contains("--no-instance"))
+        if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
             event.setSpawningInstance(Cytosis.CONTEXT.getComponent(InstanceContainer.class));
+        }
         player.setRespawnPoint(CytosisSettings.SERVER_SPAWN_POS);
 
         // load things as easily as possible
@@ -116,10 +134,13 @@ public final class ServerEventListeners {
     private void onSpawn(PlayerSpawnEvent event) {
         if (!event.isFirstSpawn()) return;
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
-        Logger.info(player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection().getRemoteAddress());
+        Logger.info(
+            player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
+                .getRemoteAddress());
         DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
 
-        databaseManager.getMysqlDatabase().logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
+        databaseManager.getMysqlDatabase()
+            .logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
         databaseManager.getMysqlDatabase().addPlayer(player);
         Cytosis.CONTEXT.getComponent(SideboardManager.class).addPlayer(player);
@@ -137,7 +158,9 @@ public final class ServerEventListeners {
             Logger.error("Failed to load nickname data for " + player.getUsername() + " (" + player.getUuid() + ")", e);
         }
         for (CytosisPlayer p : Cytosis.getOnlinePlayers()) {
-            if (p.isVanished()) p.setVanished(true);
+            if (p.isVanished()) {
+                p.setVanished(true);
+            }
         }
         if (!player.hasPlayedBefore() && Cytosis.CONTEXT.isMetricsEnabled()) {
             // add a new player who hasn't played before
@@ -164,7 +187,8 @@ public final class ServerEventListeners {
                 if (player.canUseChannel(channel) || channel == ChatChannel.ALL) {
                     chatManager.sendMessage(originalMessage, channel, player);
                 } else {
-                    player.sendMessage(Msg.whoops("It looks like you can't chat in the " + channel.name().toLowerCase() + " channel. \uD83E\uDD14"));
+                    player.sendMessage(Msg.whoops("It looks like you can't chat in the " + channel.name()
+                        .toLowerCase() + " channel. \uD83E\uDD14"));
                     chatManager.setChannel(player.getUuid(), ChatChannel.ALL);
                 }
                 return;
@@ -188,11 +212,11 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onAttack(EntityAttackEvent event) {
         if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-        Optional<NPC> optional = Cytosis.CONTEXT.getComponent(NPCManager.class).findNPC(event.getTarget().getUuid());
+        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NPCManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget()) {
-            NPC npc = optional.get();
+            Npc npc = optional.get();
             MinecraftServer.getGlobalEventHandler().call(new NpcInteractEvent(npc, player, npc.getActions()));
-            npc.getActions().forEach((action) -> action.execute(npc, NPCInteractType.ATTACK, player));
+            npc.getActions().forEach((action) -> action.execute(npc, NpcInteractType.ATTACK, player));
         }
     }
 }

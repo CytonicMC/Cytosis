@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data;
 
 import lombok.Getter;
+
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.logging.Logger;
 
@@ -46,7 +47,6 @@ public class DatabaseManager implements Bootstrappable {
 
         Logger.info("Connecting to the Redis Database.");
         redisDatabase = new RedisDatabase(); // it handles initialization in the constructor
-
 
         Logger.info("All Databases connected.");
     }

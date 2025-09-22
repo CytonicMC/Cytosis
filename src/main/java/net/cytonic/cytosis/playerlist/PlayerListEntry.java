@@ -11,6 +11,7 @@ import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 @Getter
 @Setter
 public class PlayerListEntry {
+
     private Component name;
     private PlayerInfoUpdatePacket.Property favicon;
     private int priority;
@@ -45,7 +46,8 @@ public class PlayerListEntry {
      *
      * @param name     The name of the entry
      * @param priority The ordering of the entry
-     * @param favicon  Effectively the {@link PlayerListFavicon} of the entry, but its a {@link PlayerInfoUpdatePacket.Property}
+     * @param favicon  Effectively the {@link PlayerListFavicon} of the entry, but its a
+     *                 {@link PlayerInfoUpdatePacket.Property}
      */
     public PlayerListEntry(Component name, int priority, PlayerInfoUpdatePacket.Property favicon) {
         this.name = name;

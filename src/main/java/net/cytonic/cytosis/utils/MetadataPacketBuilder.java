@@ -1,12 +1,22 @@
 package net.cytonic.cytosis.utils;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityPose;
 import net.minestom.server.entity.Metadata;
-import net.minestom.server.entity.metadata.animal.*;
+import net.minestom.server.entity.metadata.animal.ArmadilloMeta;
+import net.minestom.server.entity.metadata.animal.ChickenVariant;
+import net.minestom.server.entity.metadata.animal.CowVariant;
+import net.minestom.server.entity.metadata.animal.FrogVariant;
+import net.minestom.server.entity.metadata.animal.PigVariant;
+import net.minestom.server.entity.metadata.animal.SnifferMeta;
 import net.minestom.server.entity.metadata.animal.tameable.CatVariant;
 import net.minestom.server.entity.metadata.animal.tameable.WolfSoundVariant;
 import net.minestom.server.entity.metadata.animal.tameable.WolfVariant;
@@ -20,14 +30,9 @@ import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-
 @SuppressWarnings({"unchecked", "unused"})
 public class MetadataPacketBuilder {
+
     private final int entityID;
     private final Map<Integer, Metadata.Entry<?>> entries;
 
@@ -49,65 +54,88 @@ public class MetadataPacketBuilder {
         return new MetadataPacketBuilder(packet);
     }
 
+    public boolean isOnFire() {
+        return getBitmask((byte) 0x01);
+    }
+
     public MetadataPacketBuilder setOnFire(boolean enable) {
         return setBitmask(enable, (byte) 0x01);
     }
 
-    public MetadataPacketBuilder setSneaking(boolean enable) {
-        return setBitmask(enable, (byte) 0x02);
+    private MetadataPacketBuilder setBitmask(boolean enable, byte bit) {
+        Metadata.Entry<@NotNull Byte> entry = (Metadata.Entry<@NotNull Byte>) entries.get(0);
+        if (entry == null) {
+            entry = Metadata.Byte(bit);
+        }
+        byte flags = entry.value();
+        if (enable) {
+            flags |= bit;
+        } else {
+            flags &= (byte) ~bit;
+        }
+        return setByte(0, flags);
     }
 
-    public MetadataPacketBuilder setSprinting(boolean enable) {
-        return setBitmask(enable, (byte) 0x08);
+    public MetadataPacketBuilder setByte(int index, byte value) {
+        entries.put(index, Metadata.Byte(value));
+        return this;
     }
 
-    public MetadataPacketBuilder setSwimming(boolean enable) {
-        return setBitmask(enable, (byte) 0x10);
-    }
+    private boolean getBitmask(byte bit) {
+        Metadata.Entry<@NotNull Byte> entry = (Metadata.Entry<@NotNull Byte>) entries.get(0);
+        if (entry == null) {
+            return false;
+        }
 
-    public MetadataPacketBuilder setInvisible(boolean enable) {
-        return setBitmask(enable, (byte) 0x20);
-    }
-
-    public MetadataPacketBuilder setGlowing(boolean enable) {
-        return setBitmask(enable, (byte) 0x40);
-    }
-
-    public MetadataPacketBuilder setFlyingWithElytra(boolean enable) {
-        return setBitmask(enable, (byte) 0x01);
-    }
-
-    public boolean isOnFire() {
-        return getBitmask((byte) 0x01);
+        return (entry.value() & (1 << bit)) != 0;
     }
 
     public boolean isSneaking() {
         return getBitmask((byte) 0x02);
     }
 
+    public MetadataPacketBuilder setSneaking(boolean enable) {
+        return setBitmask(enable, (byte) 0x02);
+    }
+
     public boolean isSprinting() {
         return getBitmask((byte) 0x08);
+    }
+
+    public MetadataPacketBuilder setSprinting(boolean enable) {
+        return setBitmask(enable, (byte) 0x08);
     }
 
     public boolean isSwimming() {
         return getBitmask((byte) 0x10);
     }
 
+    public MetadataPacketBuilder setSwimming(boolean enable) {
+        return setBitmask(enable, (byte) 0x10);
+    }
+
     public boolean isInvisible() {
         return getBitmask((byte) 0x20);
+    }
+
+    public MetadataPacketBuilder setInvisible(boolean enable) {
+        return setBitmask(enable, (byte) 0x20);
     }
 
     public boolean isGlowing() {
         return getBitmask((byte) 0x40);
     }
 
+    public MetadataPacketBuilder setGlowing(boolean enable) {
+        return setBitmask(enable, (byte) 0x40);
+    }
+
     public boolean isFlyingWithElytra() {
         return getBitmask((byte) 0x01);
     }
 
-    public MetadataPacketBuilder setByte(int index, byte value) {
-        entries.put(index, Metadata.Byte(value));
-        return this;
+    public MetadataPacketBuilder setFlyingWithElytra(boolean enable) {
+        return setBitmask(enable, (byte) 0x01);
     }
 
     public MetadataPacketBuilder setVarInt(int index, int value) {
@@ -200,7 +228,7 @@ public class MetadataPacketBuilder {
         return this;
     }
 
-    public MetadataPacketBuilder setNBT(int index, BinaryTag value) {
+    public MetadataPacketBuilder setNbt(int index, BinaryTag value) {
         entries.put(index, Metadata.NBT(value));
         return this;
     }
@@ -255,7 +283,7 @@ public class MetadataPacketBuilder {
         return this;
     }
 
-    public MetadataPacketBuilder SetFrogVariant(int index, RegistryKey<@NotNull FrogVariant> value) {
+    public MetadataPacketBuilder setFrogVariant(int index, RegistryKey<@NotNull FrogVariant> value) {
         entries.put(index, Metadata.FrogVariant(value));
         return this;
     }
@@ -299,32 +327,11 @@ public class MetadataPacketBuilder {
      * @throws IllegalArgumentException if {@code value.length} doesn't equal 4
      */
     public MetadataPacketBuilder setQuaternion(int index, float[] value) {
-        if (value.length != 4) throw new IllegalArgumentException();
+        if (value.length != 4) {
+            throw new IllegalArgumentException();
+        }
         entries.put(index, Metadata.Quaternion(value));
         return this;
-    }
-
-    private MetadataPacketBuilder setBitmask(boolean enable, byte bit) {
-        Metadata.Entry<@NotNull Byte> entry = (Metadata.Entry<@NotNull Byte>) entries.get(0);
-        if (entry == null) {
-            entry = Metadata.Byte(bit);
-        }
-        byte flags = entry.value();
-        if (enable) {
-            flags |= bit;
-        } else {
-            flags &= (byte) ~bit;
-        }
-        return setByte(0, flags);
-    }
-
-    private boolean getBitmask(byte bit) {
-        Metadata.Entry<@NotNull Byte> entry = (Metadata.Entry<@NotNull Byte>) entries.get(0);
-        if (entry == null) {
-            return false;
-        }
-
-        return (entry.value() & (1 << bit)) != 0;
     }
 
     public EntityMetaDataPacket build() {

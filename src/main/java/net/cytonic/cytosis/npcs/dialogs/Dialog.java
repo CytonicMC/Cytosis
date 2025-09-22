@@ -1,18 +1,19 @@
 package net.cytonic.cytosis.npcs.dialogs;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+
 import lombok.Getter;
-import net.cytonic.cytosis.data.objects.Tuple;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
+import net.cytonic.cytosis.data.objects.Tuple;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Utils;
 
 @SuppressWarnings("unused")
 public class Dialog {
@@ -39,7 +40,8 @@ public class Dialog {
         isStatic = true;
     }
 
-    public Dialog(@Nullable Key id, @NotNull Function<CytosisPlayer, List<Tuple<Component, Integer>>> generator, boolean clickingAdvances) {
+    public Dialog(@Nullable Key id, @NotNull Function<CytosisPlayer, List<Tuple<Component, Integer>>> generator,
+        boolean clickingAdvances) {
         this.id = id;
         this.lines = new ArrayList<>();
         this.clickingAdvances = clickingAdvances;
@@ -47,6 +49,9 @@ public class Dialog {
         isStatic = false;
     }
 
+    public static Dialog evenDelay(@Nullable Key id, int ticks, boolean clickingAdvances, Component... lines) {
+        return evenDelay(id, ticks, clickingAdvances, Utils.list(lines));
+    }
 
     public static Dialog evenDelay(@Nullable Key id, int ticks, boolean clickingAdvances, Collection<Component> lines) {
         List<Tuple<Component, Integer>> tuples = new ArrayList<>(lines.size());
@@ -56,11 +61,8 @@ public class Dialog {
         return new Dialog(id, tuples, clickingAdvances);
     }
 
-    public static Dialog evenDelay(@Nullable Key id, int ticks, boolean clickingAdvances, Component... lines) {
-        return evenDelay(id, ticks, clickingAdvances, Utils.list(lines));
-    }
-
-    public static Dialog evenDelay(@Nullable Key id, int ticks, boolean clickingAdvances, Function<CytosisPlayer, List<Component>> generator) {
+    public static Dialog evenDelay(@Nullable Key id, int ticks, boolean clickingAdvances,
+        Function<CytosisPlayer, List<Component>> generator) {
         return new Dialog(id, generator.andThen(lines -> {
             List<Tuple<Component, Integer>> m = new ArrayList<>(lines.size());
             for (Component line : lines) {
@@ -71,7 +73,9 @@ public class Dialog {
     }
 
     public List<Tuple<Component, Integer>> getLines(CytosisPlayer player) {
-        if (generator != null) return generator.apply(player);
+        if (generator != null) {
+            return generator.apply(player);
+        }
         return lines;
     }
 }

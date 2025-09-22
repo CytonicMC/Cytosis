@@ -1,77 +1,67 @@
 package net.cytonic.cytosis.commands.moderation;
 
+import java.util.List;
+import java.util.UUID;
+
+import net.kyori.adventure.text.Component;
+import net.minestom.server.command.builder.arguments.ArgumentStringArray;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
-import java.util.UUID;
 
 public class WarnCommand extends CytosisCommand {
 
     public WarnCommand() {
         super("warn");
         setCondition(CommandUtils.IS_HELPER);
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /warn <player> [reason]")));
-        var reasonArg = ArgumentType.StringArray("reason");
+        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.red("Usage: /warn <player> [reason]")));
+        ArgumentStringArray reasonArg = ArgumentType.StringArray("reason");
         reasonArg.setDefaultValue(new String[]{""});
-        var playerArg = ArgumentType.Word("target");
-        playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
-            if (sender instanceof CytosisPlayer player) {
-                player.sendActionBar(Msg.mm("<green>Fetching players..."));
-                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers().forEach((ignored1, name) -> suggestion.addEntry(new SuggestionEntry(name)));
-            }
-        });
 
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer actor) {
-                if (!actor.isHelper()) {
-                    actor.sendMessage(Msg.mm("<red>You don't have permission to use this command!"));
-                    return;
-                }
-                final String player = context.get(playerArg);
+                final String player = context.get(CommandUtils.NETWORK_PLAYERS);
                 final String reason = String.join(" ", context.get(reasonArg));
-                CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-                if (!network.getOnlineFlattened().containsValue(player.toLowerCase())) {
-                    sender.sendMessage(Msg.mm("<red>The player " + context.get(playerArg) + " doesn't exist or is not online!"));
+                UUID uuid = PlayerUtils.resolveUuid(player);
+                if (uuid == null) {
+                    sender.sendMessage(Msg.red("The player %s doesn't exist or is not online!",
+                        context.get(CommandUtils.NETWORK_PLAYERS)));
                     return;
                 }
-                UUID uuid = network.getOnlineFlattened().getByValue(player.toLowerCase());
 
-                Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
-                    if (throwable2 != null) {
-                        sender.sendMessage(Msg.mm("<red>An error occured whilst finding " + player + "'s rank!"));
-                        Logger.error("error", throwable2);
-                        return;
-                    }
+                PlayerRank playerRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
 
-                    if (playerRank.isStaff()) {
-                        sender.sendMessage(Msg.mm("<red>" + player + " cannot be warned!"));
-                        return;
-                    }
+                if (playerRank.isStaff()) {
+                    sender.sendMessage(Msg.mm("<red>" + player + " cannot be warned!"));
+                    return;
+                }
+                Component string = Component.empty();
+                if (!reason.isEmpty()) {
+                    string = Msg.mm("\n<aqua>Reason: " + reason);
+                }
+                actor.sendMessage(Msg.mm("<green>Warned " + player + ".").append(string));
 
-                    Component string = Component.empty();
-                    if (!reason.isEmpty()) {
-                        string = Msg.mm("\n<aqua>Reason: " + reason);
-                    }
-
-                    actor.sendMessage(Msg.mm("<green>Warned " + player + ".").append(string));
-
-                    Component component = Msg.mm("<red>You have been warned.").append(string);
-                    Component snoop = actor.formattedName().append(Msg.mm("<gray> warned ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
-                    Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
-                });
+                Component component = Msg.mm("<red>You have been warned.").append(string);
+                Component snoop = actor.formattedName().append(Msg.grey(" warned "))
+                    .append(SnoopUtils.toTarget(uuid)).append(Msg.grey(" for <yellow>" + reason + "</yellow>."));
+                Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
+                Cytosis.getNatsManager().sendChatMessage(
+                    new ChatMessage(List.of(uuid), ChatChannel.INTERNAL_MESSAGE, Msg.toJson(component),
+                        actor.getUuid()));
             }
-        }, playerArg, reasonArg);
+        }, CommandUtils.NETWORK_PLAYERS, reasonArg);
     }
 }

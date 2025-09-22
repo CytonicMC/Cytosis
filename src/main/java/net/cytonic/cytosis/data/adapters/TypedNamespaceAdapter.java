@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.data.adapters;
 
+import java.io.IOException;
+
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -7,11 +9,10 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
 
 
 /**
@@ -61,7 +62,7 @@ public class TypedNamespaceAdapter extends TypeAdapter<TypedNamespace<?>> implem
                     type = Class.forName(className);
                 } catch (ClassNotFoundException e) {
                     return null;
-//                    throw new IOException(STR."Class not found: \{className}", e);
+                    //                    throw new IOException(STR."Class not found: \{className}", e);
                 }
             }
         }

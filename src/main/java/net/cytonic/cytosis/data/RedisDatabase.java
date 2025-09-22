@@ -1,5 +1,19 @@
 package net.cytonic.cytosis.data;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisClientConfig;
+import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.JedisPubSub;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.Container;
@@ -22,7 +36,6 @@ import java.util.concurrent.Executors;
  */
 public class RedisDatabase {
 
-
     /**
      * Cached global cooldowns
      */
@@ -32,7 +45,6 @@ public class RedisDatabase {
      * Cooldown pubsub
      */
     public static final String COOLDOWN_UPDATE_CHANNEL = "update_cooldowns";
-
 
     /**
      * Broadcast channel
@@ -48,7 +60,9 @@ public class RedisDatabase {
     private final JedisPooled jedisPub;
     private final JedisPooled jedisSub;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
-            .uncaughtExceptionHandler((throwable, runnable) -> Logger.error("An error occurred on the CytosisRedisWorker", throwable)).factory());
+        .uncaughtExceptionHandler(
+            (throwable, runnable) -> Logger.error("An error occurred on the CytosisRedisWorker", throwable))
+        .factory());
 
     /**
      * Initializes the connection to redis using the loaded settings and the Jedis client
@@ -65,10 +79,10 @@ public class RedisDatabase {
             @Override
             public void onMessage(String channel, String message) {
                 if (!channel.equals(RedisDatabase.BROADCAST_CHANNEL)) return;
-                Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(JSONComponentSerializer.json().deserialize(message)));
+                Cytosis.getOnlinePlayers()
+                    .forEach(player -> player.sendMessage(JSONComponentSerializer.json().deserialize(message)));
             }
         }, BROADCAST_CHANNEL));
-
         worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
@@ -76,13 +90,15 @@ public class RedisDatabase {
                 CooldownUpdateContainer container = (CooldownUpdateContainer) Container.deserialize(message);
                 NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
                 if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.PERSONAL) {
-                    cooldownManager.setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
+                    cooldownManager
+                        .setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
                 } else if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.GLOBAL) {
                     cooldownManager.setGlobal(container.getNamespace(), container.getExpiry());
-                } else throw new IllegalArgumentException("Unsupported target: " + container.getTarget());
+                } else {
+                    throw new IllegalArgumentException("Unsupported target: " + container.getTarget());
+                }
             }
         }, COOLDOWN_UPDATE_CHANNEL));
-
         worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
@@ -118,7 +134,8 @@ public class RedisDatabase {
      */
     public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason) {
         Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addPlayerWarn(actor, target, reason);
-        PlayerWarnContainer container = new PlayerWarnContainer(target, JSONComponentSerializer.json().serialize(warnMessage));
+        PlayerWarnContainer container = new PlayerWarnContainer(target, JSONComponentSerializer.json()
+            .serialize(warnMessage));
         jedisPub.publish(PLAYER_WARN, container.toString());
     }
 
@@ -240,7 +257,8 @@ public class RedisDatabase {
     }
 
     /**
-     * Gets the keys associated with the specified pattern. For example, {@code foo*} would return {@code foooooo} and {@code fooHiThisIsAKey}.
+     * Gets the keys associated with the specified pattern. For example, {@code foo*} would return {@code foooooo} and
+     * {@code fooHiThisIsAKey}.
      * <br><strong>**This may be time consuming, use sparingly if at all **</strong>
      *
      * @param pattern the pattern used to select the keys

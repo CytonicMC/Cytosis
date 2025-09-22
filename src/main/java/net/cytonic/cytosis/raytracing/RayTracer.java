@@ -1,6 +1,10 @@
 package net.cytonic.cytosis.raytracing;
 
-import net.cytonic.cytosis.utils.Utils;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import net.minestom.server.collision.BoundingBox;
 import net.minestom.server.collision.Shape;
 import net.minestom.server.collision.SweepResult;
@@ -11,10 +15,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import net.cytonic.cytosis.utils.Utils;
 
 @SuppressWarnings("unused")
 public class RayTracer {
@@ -32,8 +33,15 @@ public class RayTracer {
         }
     }
 
-    public static Optional<RayTraceResult> rayTrace(Instance instance, Point origin, Vec direction,
-                                                    double range, boolean ignoreFluids, Entity... exclude) {
+    // Public convenience methods
+    public static Optional<RayTraceResult> rayTraceFromEntity(Entity entity, double range, boolean ignoreFluids) {
+        Pos eyePosition = entity.getPosition().add(0, entity.getEyeHeight(), 0);
+        Vec direction = entity.getPosition().direction();
+        return rayTrace(entity.getInstance(), eyePosition, direction, range, ignoreFluids, entity);
+    }
+
+    public static Optional<RayTraceResult> rayTrace(Instance instance, Point origin, Vec direction, double range,
+        boolean ignoreFluids, Entity... exclude) {
         Vec normalizedDirection = direction.normalize();
 
         RayTraceResult blockResult = rayTraceBlocks(instance, origin, normalizedDirection, range, ignoreFluids);
@@ -42,17 +50,22 @@ public class RayTracer {
         return Optional.ofNullable(getClosestResult(origin, blockResult, entityResult));
     }
 
+    public static Optional<RayTraceResult> rayTraceBlocks(Instance instance, Vec direction, Point origin, double range,
+        boolean ignoreFluids) {
+        return Optional.ofNullable(rayTraceBlocks(instance, origin, direction.normalize(), range, ignoreFluids));
+    }
+
     /**
      * Ray trace against blocks using DDA algorithm with collision shape support
      */
-    private static RayTraceResult rayTraceBlocks(Instance instance, Point origin, Vec direction,
-                                                 double range, boolean ignoreFluids) {
-        DDARayTracer ddaTracer = new DDARayTracer(origin, direction, range);
+    private static RayTraceResult rayTraceBlocks(Instance instance, Point origin, Vec direction, double range,
+        boolean ignoreFluids) {
+        DdaRayTracer ddaTracer = new DdaRayTracer(origin, direction, range);
         RayTraceResult closestResult = null;
         double closestDistance = Double.MAX_VALUE;
 
         while (ddaTracer.hasNext()) {
-            DDARayTracer.VoxelPosition voxel = ddaTracer.next();
+            DdaRayTracer.VoxelPosition voxel = ddaTracer.next();
             Block block = instance.getBlock(voxel.x, voxel.y, voxel.z);
 
             if (shouldCheckBlock(block, ignoreFluids)) {
@@ -71,11 +84,16 @@ public class RayTracer {
         return closestResult;
     }
 
+    public static Optional<RayTraceResult> rayTraceEntities(Instance instance, Vec direction, Point origin,
+        double range, Entity... ignore) {
+        return Optional.ofNullable(rayTraceEntities(instance, origin, direction.normalize(), range, ignore));
+    }
+
     /**
      * Ray trace against entities using bounding box intersection
      */
-    private static RayTraceResult rayTraceEntities(Instance instance, Point origin, Vec direction,
-                                                   double range, Entity... excludeEntities) {
+    private static RayTraceResult rayTraceEntities(Instance instance, Point origin, Vec direction, double range,
+        Entity... excludeEntities) {
         Set<Entity> entities = instance.getEntities();
         List<Entity> toExclude = Utils.list(excludeEntities);
 
@@ -83,7 +101,9 @@ public class RayTracer {
         double closestDistance = Double.MAX_VALUE;
 
         for (Entity entity : entities) {
-            if (toExclude.contains(entity)) continue;
+            if (toExclude.contains(entity)) {
+                continue;
+            }
 
             Optional<Pos> intersection = rayEntityIntersection(origin, direction, entity, range);
 
@@ -99,11 +119,33 @@ public class RayTracer {
         return closestResult;
     }
 
+    private static RayTraceResult getClosestResult(Point origin, RayTraceResult... results) {
+        RayTraceResult closest = null;
+        double closestDistance = Double.MAX_VALUE;
+
+        for (RayTraceResult result : results) {
+            if (result != null) {
+                double distance = origin.distance(result.hitPosition());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closest = result;
+                }
+            }
+        }
+
+        return closest;
+    }
+
+    // Helper methods
+    private static boolean shouldCheckBlock(Block block, boolean ignoreFluids) {
+        return !block.isAir() && (!ignoreFluids || !isFluid(block));
+    }
+
     /**
      * Check ray intersection with a block's collision shape
      */
-    private static RayTraceResult checkBlockCollision(Point origin, Vec direction,
-                                                      DDARayTracer.VoxelPosition voxel, Block block, double maxRange) {
+    private static RayTraceResult checkBlockCollision(Point origin, Vec direction, DdaRayTracer.VoxelPosition voxel,
+        Block block, double maxRange) {
         Shape collisionShape = block.registry().collisionShape();
 
         BoundingBox rayBox = new BoundingBox(RAY_BOX_SIZE, RAY_BOX_SIZE, RAY_BOX_SIZE);
@@ -130,6 +172,34 @@ public class RayTracer {
         return rayBoxIntersection(origin, direction, entityBox, range);
     }
 
+    private static boolean isFluid(Block block) {
+        return block == Block.WATER || block == Block.LAVA;
+    }
+
+    @SuppressWarnings("all")
+    private static SweepResult createEmptySweepResult() {
+        return new SweepResult(Double.MAX_VALUE, 0, 0, 0, null, 0, 0, 0, 0, 0, 0);
+    }
+
+    /**
+     * Get the resolution from SweepResult using cached reflection
+     */
+    private static double getSweepResultResolution(SweepResult result) {
+        if (sweepResultResField == null) {
+            return Double.MAX_VALUE;
+        }
+
+        try {
+            return sweepResultResField.getDouble(result);
+        } catch (IllegalAccessException e) {
+            return Double.MAX_VALUE;
+        }
+    }
+
+    private static boolean isValidResolution(double resolution) {
+        return resolution >= 0 && resolution <= 1.0;
+    }
+
     /**
      * Create world-space bounding box for an entity
      */
@@ -137,16 +207,11 @@ public class RayTracer {
         BoundingBox boundingBox = entity.getBoundingBox();
         Pos entityPos = entity.getPosition();
 
-        return new BoundingBox(
-                boundingBox.width(),
-                boundingBox.height(),
-                boundingBox.depth(),
-                new Pos(
-                        entityPos.x() + boundingBox.relativeStart().x(),
-                        entityPos.y() + boundingBox.relativeStart().y(),
-                        entityPos.z() + boundingBox.relativeStart().z()
-                )
-        );
+        return new BoundingBox(boundingBox.width(), boundingBox.height(), boundingBox.depth(),
+            new Pos(entityPos.x() + boundingBox.relativeStart()
+                .x(), entityPos.y() + boundingBox.relativeStart()
+                .y(), entityPos.z() + boundingBox.relativeStart()
+                .z()));
     }
 
     /**
@@ -200,74 +265,10 @@ public class RayTracer {
     }
 
     /**
-     * Get the resolution from SweepResult using cached reflection
-     */
-    private static double getSweepResultResolution(SweepResult result) {
-        if (sweepResultResField == null) return Double.MAX_VALUE;
-
-        try {
-            return sweepResultResField.getDouble(result);
-        } catch (IllegalAccessException e) {
-            return Double.MAX_VALUE;
-        }
-    }
-
-    // Helper methods
-    private static boolean shouldCheckBlock(Block block, boolean ignoreFluids) {
-        return !block.isAir() && (!ignoreFluids || !isFluid(block));
-    }
-
-    private static boolean isFluid(Block block) {
-        return block == Block.WATER || block == Block.LAVA;
-    }
-
-    private static boolean isValidResolution(double resolution) {
-        return resolution >= 0 && resolution <= 1.0;
-    }
-
-    @SuppressWarnings("all")
-    private static SweepResult createEmptySweepResult() {
-        return new SweepResult(Double.MAX_VALUE, 0, 0, 0, null, 0, 0, 0, 0, 0, 0);
-    }
-
-    private static RayTraceResult getClosestResult(Point origin, RayTraceResult... results) {
-        RayTraceResult closest = null;
-        double closestDistance = Double.MAX_VALUE;
-
-        for (RayTraceResult result : results) {
-            if (result != null) {
-                double distance = origin.distance(result.hitPosition());
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closest = result;
-                }
-            }
-        }
-
-        return closest;
-    }
-
-    // Public convenience methods
-    public static Optional<RayTraceResult> rayTraceFromEntity(Entity entity, double range, boolean ignoreFluids) {
-        Pos eyePosition = entity.getPosition().add(0, entity.getEyeHeight(), 0);
-        Vec direction = entity.getPosition().direction();
-        return rayTrace(entity.getInstance(), eyePosition, direction, range, ignoreFluids, entity);
-    }
-
-    public static Optional<RayTraceResult> rayTraceBlocks(Instance instance, Vec direction, Point origin,
-                                                          double range, boolean ignoreFluids) {
-        return Optional.ofNullable(rayTraceBlocks(instance, origin, direction.normalize(), range, ignoreFluids));
-    }
-
-    public static Optional<RayTraceResult> rayTraceEntities(Instance instance, Vec direction, Point origin,
-                                                            double range, Entity... ignore) {
-        return Optional.ofNullable(rayTraceEntities(instance, origin, direction.normalize(), range, ignore));
-    }
-
-    /**
      * Encapsulates DDA ray tracing logic for cleaner code
      */
-    private static class DDARayTracer {
+    private static class DdaRayTracer {
+
         private final double deltaDistX, deltaDistY, deltaDistZ;
         private final int stepX, stepY, stepZ;
         private final double maxRange;
@@ -275,7 +276,7 @@ public class RayTracer {
         private int voxelX, voxelY, voxelZ;
         private double totalDistance;
 
-        public DDARayTracer(Point origin, Vec direction, double maxRange) {
+        public DdaRayTracer(Point origin, Vec direction, double maxRange) {
             this.maxRange = maxRange;
 
             double dx = direction.x();
@@ -329,6 +330,7 @@ public class RayTracer {
         }
 
         public record VoxelPosition(int x, int y, int z) {
+
         }
     }
 }

@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.commands.server;
 
+import net.kyori.adventure.text.Component;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.utils.Msg;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * The class representing the broadcast command
@@ -29,7 +30,8 @@ public class BroadcastCommand extends CytosisCommand {
         setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.whoops("Usage: /broadcast (message)")));
         addSyntax((sender, context) -> {
             if (!Cytosis.getOnlinePlayers().isEmpty()) {
-                Component broadcast = Msg.aquaSplash("Broadcast", "» <white>" + String.join(" ", context.get(broadcastArgument)));
+                Component broadcast = Msg.aquaSplash("Broadcast",
+                    "» <white>" + String.join(" ", context.get(broadcastArgument)));
                 if (context.get(serverArgument).equalsIgnoreCase("this")) {
                     Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
                 } else if (context.get(serverArgument).equalsIgnoreCase("all")) {

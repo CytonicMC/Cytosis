@@ -1,21 +1,26 @@
 package net.cytonic.cytosis.utils;
 
-import com.google.common.reflect.TypeToken;
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
-import net.cytonic.cytosis.data.containers.ServerStatusContainer;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.Preference;
-import net.cytonic.cytosis.logging.Logger;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Type;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import com.google.common.reflect.TypeToken;
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.cytosis.data.containers.ServerStatusContainer;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class holding utility methods
@@ -72,6 +77,26 @@ public final class Utils {
         return serverIP;
     }
 
+    // the IP of this machine on the tailscale network
+    @Nullable
+    @SneakyThrows
+    public static String getInternalIP() {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface iface = interfaces.nextElement();
+            if (iface.getDisplayName().contains("tailscale")) {
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (addr instanceof Inet4Address) { // Change to Inet6Address for IPv6
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        }
+        return null; // No other IP found (Docker or Tailscale)
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T clone(T value) {
         if (value == null) {
@@ -99,27 +124,6 @@ public final class Utils {
         throw new IllegalArgumentException("Unsupported type for cloning: " + value.getClass());
     }
 
-
-    // the IP of this machine on the tailscale network
-    @Nullable
-    @SneakyThrows
-    public static String getInternalIP() {
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements()) {
-            NetworkInterface iface = interfaces.nextElement();
-            if (iface.getDisplayName().contains("tailscale")) {
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    if (addr instanceof Inet4Address) { // Change to Inet6Address for IPv6
-                        return addr.getHostAddress();
-                    }
-                }
-            }
-        }
-        return null; // No other IP found (Docker or Tailscale)
-    }
-
     /**
      * Capitalizes the first letter of each word in the string, separated by a delimiter of " ".
      *
@@ -132,9 +136,8 @@ public final class Utils {
 
         for (String word : words) {
             if (!word.isEmpty()) {
-                capitalized.append(word.substring(0, 1).toUpperCase())
-                        .append(word.substring(1).toLowerCase())
-                        .append(" ");
+                capitalized.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase())
+                    .append(" ");
             }
         }
 

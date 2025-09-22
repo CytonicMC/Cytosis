@@ -1,17 +1,19 @@
 package net.cytonic.cytosis.commands.staff;
 
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.timer.TaskSchedule;
+
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.timer.TaskSchedule;
 
 /**
  * A command that loops other commands
  */
 public class LoopCommand extends CytosisCommand {
+
     /**
      * A constructor for the loop command.
      */
@@ -56,7 +58,9 @@ public class LoopCommand extends CytosisCommand {
             } else {
                 for (int i = 1; i <= iterations; i++) {
                     int finalI = i;
-                    MinecraftServer.getSchedulerManager().buildTask(() -> player.dispatchCommand(commandStr.replace("%i%", String.valueOf(finalI)))).delay(TaskSchedule.tick(i * period)).schedule();
+                    MinecraftServer.getSchedulerManager()
+                        .buildTask(() -> player.dispatchCommand(commandStr.replace("%i%", String.valueOf(finalI))))
+                        .delay(TaskSchedule.tick(i * period)).schedule();
                 }
             }
 

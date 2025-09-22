@@ -1,14 +1,15 @@
 package net.cytonic.cytosis.plugins;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.Getter;
+import lombok.Setter;
+
 public class PluginContainer {
+
     @Getter
     private final PluginDescription description;
     @Setter
@@ -29,13 +30,10 @@ public class PluginContainer {
                 if (this.service == null) {
                     String name = this.description.getName().orElse(this.description.getId());
                     this.service = Executors.unconfigurableExecutorService(
-                            Executors.newCachedThreadPool(
-                                    new ThreadFactoryBuilder().setDaemon(true)
-                                            .setNameFormat(name + " - Task Executor #%d")
-                                            .setDaemon(true)
-                                            .build()
-                            )
-                    );
+                        Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true)
+                            .setNameFormat(name + " - Task Executor #%d")
+                            .setDaemon(true)
+                            .build()));
                 }
             }
         }

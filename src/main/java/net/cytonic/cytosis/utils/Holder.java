@@ -1,19 +1,20 @@
 package net.cytonic.cytosis.utils;
 
+import java.util.Objects;
+
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
- * A class that holds an object. The intention is that the {@link Holder} object is immutable
- * (final), but its contents can change. One use case is the {@link SplashProvider} in the
- * {@link Msg} class.
+ * A class that holds an object. The intention is that the {@link Holder} object is immutable (final), but its contents
+ * can change. One use case is the {@link SplashProvider} in the {@link Msg} class.
+ *
  * @param <T> The type of the value held within
  */
 @AllArgsConstructor
 public class Holder<T> {
+
     private T value;
 
     /**

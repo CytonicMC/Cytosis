@@ -1,10 +1,11 @@
 package net.cytonic.cytosis.data.containers;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.PlayerRank;
+import java.util.UUID;
+
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 
 public record PlayerRankUpdateContainer(UUID player, PlayerRank rank) {
 

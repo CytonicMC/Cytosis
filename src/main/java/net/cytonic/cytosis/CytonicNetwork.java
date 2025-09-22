@@ -1,9 +1,17 @@
 package net.cytonic.cytosis;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
+
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
@@ -14,13 +22,6 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * A class that holds data about the status of the Cytonic network
  */
@@ -29,7 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CytonicNetwork implements Bootstrappable {
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
     private final BiMap<UUID, String> lifetimeFlattened = new BiMap<>(); // uuid, lowercased name
-    private final Map<UUID, PlayerRank> cachedPlayerRanks = new ConcurrentHashMap<>(); // <player, rank> ** This is for reference and should not be used to set data **
+    //          ** This is for reference and should not be used to set data **
+    private final Map<UUID, PlayerRank> cachedPlayerRanks = new ConcurrentHashMap<>(); // <player, rank>
     private final BiMap<UUID, String> onlinePlayers = new BiMap<>();
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
@@ -67,15 +69,21 @@ public class CytonicNetwork implements Bootstrappable {
         servers.clear();
         networkPlayersOnServers.clear();
 
-        redis.getHash("online_players").forEach((rawUUID, name) -> {
-            UUID uuid = UUID.fromString(rawUUID);
+        redis.getHash("online_players").forEach((rawuuid, name) -> {
+            UUID uuid = UUID.fromString(rawuuid);
             onlinePlayers.put(uuid, name);
             onlineFlattened.put(uuid, name.toLowerCase());
         });
 
-        redis.getHash("player_servers").forEach((id, server) -> networkPlayersOnServers.put(UUID.fromString(id), server));
+        redis.getHash("player_servers")
+            .forEach((id, server) -> networkPlayersOnServers.put(UUID.fromString(id), server));
 
+        importPlayers(db);
+        importBans(db);
+        importMutes(db);
+    }
 
+    private void importPlayers(MysqlDatabase db) {
         PreparedStatement players = db.prepare("SELECT * FROM cytonic_players");
         db.query(players).whenComplete((rs, throwable) -> {
             if (throwable != null) {
@@ -93,7 +101,9 @@ public class CytonicNetwork implements Bootstrappable {
                 Logger.error("An error occurred whilst loading players!", e);
             }
         });
+    }
 
+    private void importBans(MysqlDatabase db) {
         PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans");
         db.query(bans).whenComplete((rs, throwable) -> {
             if (throwable != null) {
@@ -104,7 +114,8 @@ public class CytonicNetwork implements Bootstrappable {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        databaseManager.getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")));
+                        databaseManager.getMysqlDatabase()
+                            .unbanPlayer(UUID.fromString(rs.getString("uuid")));
                     } else {
                         BanData banData = new BanData(rs.getString("reason"), expiry, true);
                         bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
@@ -114,7 +125,9 @@ public class CytonicNetwork implements Bootstrappable {
                 Logger.error("An error occurred whilst loading bans!", e);
             }
         });
+    }
 
+    private void importMutes(MysqlDatabase db) {
         PreparedStatement mutes = db.prepare("SELECT * FROM cytonic_mutes");
         db.query(mutes).whenComplete((rs, throwable) -> {
             if (throwable != null) {
@@ -125,8 +138,11 @@ public class CytonicNetwork implements Bootstrappable {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        databaseManager.getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")));
-                    } else mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
+                        databaseManager.getMysqlDatabase()
+                            .unmutePlayer(UUID.fromString(rs.getString("uuid")));
+                    } else {
+                        mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
+                    }
                 }
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst loading mutes!", e);
@@ -150,70 +166,20 @@ public class CytonicNetwork implements Bootstrappable {
 
         MysqlDatabase db = databaseManager.getMysqlDatabase();
 
-        PreparedStatement rank = db.prepare("SELECT `rank` FROM cytonic_players WHERE uuid = ?");
-        try {
-            rank.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            // this is a problem, and an error should 100% be thrown here and interrrupt something
-            throw new RuntimeException(e);
-        }
-
-
-        // update it to see if the player's rank changed since the server started
-        db.query(rank).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
+        db.getPlayerRank(uuid).thenAccept(playerRank -> cachedPlayerRanks.put(uuid, playerRank))
+            .exceptionally((throwable) -> {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    cachedPlayerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank")));
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading ranks!", e);
-            }
+                return null;
+            });
+
+        db.isBanned(uuid).thenAccept(banData -> bannedPlayers.put(uuid, banData)).exceptionally(throwable -> {
+            Logger.error("An error occurred whilst loading bans!", throwable);
+            return null;
         });
 
-        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans WHERE uuid = ?");
-        try {
-            bans.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            // this is a problem, and an error should 100% be thrown here and interrrupt something
-            throw new RuntimeException(e);
-        }
-        db.query(bans).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading bans!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    bannedPlayers.put(uuid, new BanData(rs.getString("reason"), Instant.parse(rs.getString("to_expire")), true));
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException("An error occurred whilst loading bans!", e);
-            }
-        });
-
-        PreparedStatement muted = db.prepare("SELECT * FROM cytonic_mutes WHERE uuid = ?");
-        try {
-            muted.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            // this is a problem, and an error should 100% be thrown here and interrrupt something
-            throw new RuntimeException(e);
-        }
-        db.query(muted).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading mutes!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    mutedPlayers.put(uuid, true);
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading mutes!", e);
-            }
+        db.isMuted(uuid).thenAccept(aBoolean -> mutedPlayers.put(uuid, aBoolean)).exceptionally(throwable -> {
+            Logger.error("An error occurred whilst loading mutes!", throwable);
+            return null;
         });
     }
 

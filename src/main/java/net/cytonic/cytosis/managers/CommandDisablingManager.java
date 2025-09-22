@@ -1,6 +1,12 @@
 package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Bootstrappable;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.DatabaseManager;
@@ -49,6 +55,14 @@ public class CommandDisablingManager implements Bootstrappable {
         });
     }
 
+    @Nullable
+    private CytosisCommand parseCommand(String rawCommand) {
+        if (Cytosis.getCommandManager().getCommand(rawCommand) instanceof CytosisCommand cc) {
+            return cc;
+        }
+        return null;
+    }
+
     /**
      * Disables a command locally, so it's only disabled on this server.
      *
@@ -56,7 +70,9 @@ public class CommandDisablingManager implements Bootstrappable {
      * @return if the command was successfully disabled.
      */
     public boolean disableCommandLocally(CytosisCommand cmd) {
-        if (cmd.isDisabled()) return false;
+        if (cmd.isDisabled()) {
+            return false;
+        }
         cmd.setDisabled(true);
         return true;
     }
@@ -68,13 +84,16 @@ public class CommandDisablingManager implements Bootstrappable {
      * @return if the command was successfully enabled again
      */
     public boolean enableCommandLocally(CytosisCommand cmd) {
-        if (!cmd.isDisabled()) return false;
+        if (!cmd.isDisabled()) {
+            return false;
+        }
         cmd.setDisabled(false);
         return true;
     }
 
     /**
-     * Globally disables the given command. Normal players will not be able to use the command on any server. Administrators can bypass this, though.
+     * Globally disables the given command. Normal players will not be able to use the command on any server.
+     * Administrators can bypass this, though.
      *
      * @param cmd the command to disable everywhere
      * @return if the command was successfully disabled
@@ -83,6 +102,10 @@ public class CommandDisablingManager implements Bootstrappable {
         sendCommandDisable(cmd.getName().getBytes(StandardCharsets.UTF_8));
         databaseManager.getRedisDatabase().addValue("cytosis-disabled-commands", cmd.getName());
         return true;
+    }
+
+    private void sendCommandDisable(byte[] message) {
+        Cytosis.getNatsManager().publish("cytosis.commands.disabled", message);
     }
 
     /**
@@ -134,7 +157,8 @@ public class CommandDisablingManager implements Bootstrappable {
     }
 
     public boolean isDisabledGlobally(CytosisCommand cmd) {
-        return databaseManager.getRedisDatabase().getSet("cytosis-disabled-commands").contains(cmd.getName());
+        return databaseManager.getRedisDatabase().getSet("cytosis-disabled-commands")
+            .contains(cmd.getName());
     }
 
     public boolean isDisabledLocally(CytosisCommand cmd) {

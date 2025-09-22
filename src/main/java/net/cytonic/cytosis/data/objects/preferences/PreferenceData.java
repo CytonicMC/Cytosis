@@ -1,16 +1,17 @@
 package net.cytonic.cytosis.data.objects.preferences;
 
+import java.util.Map;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.utils.Utils;
 
-import java.util.Map;
-
 /**
  * A class holding a user's preference data.
  */
 public class PreferenceData {
+
     private final Map<TypedNamespace<?>, Preference<?>> preferences;
 
     /**
@@ -23,19 +24,22 @@ public class PreferenceData {
     }
 
     /**
-     * Deserializes the string into a {@link PreferenceData} object. Effectivley the same as {@link #loadData(String)}, but this creates a new object
+     * Deserializes the string into a {@link PreferenceData} object. Effectivley the same as {@link #loadData(String)},
+     * but this creates a new object
      *
      * @param data The serialized json data
      * @return a new {@link PreferenceData} object with the specified data
      */
     public static PreferenceData deserialize(String data) {
-        Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data, Utils.PREFERENCE_MAP.getType()); // <NamespaceID, Preference>
+        Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data,
+            Utils.PREFERENCE_MAP.getType()); // <NamespaceID, Preference>
 
         return new PreferenceData(preferences);
     }
 
     /**
-     * Gets a preference of the specified type. If the player does not have a set preference, it will return the default value.
+     * Gets a preference of the specified type. If the player does not have a set preference, it will return the default
+     * value.
      *
      * @param namespaceID The namespace of the preference
      * @param <T>         The type of the preference
@@ -50,7 +54,8 @@ public class PreferenceData {
     }
 
     /**
-     * Gets a preference of the specified type. If the player does not have a set preference, it will return the default value.
+     * Gets a preference of the specified type. If the player does not have a set preference, it will return the default
+     * value.
      *
      * @param namespace The namespaced ID to pull the namespace from
      * @param <T>       The type of the preference
@@ -65,6 +70,10 @@ public class PreferenceData {
         }
     }
 
+    public <T> void set(NamespacedPreference<T> preference) {
+        set(preference.typedNamespace(), preference.value());
+    }
+
     /**
      * Sets the value of the specified preference
      *
@@ -75,11 +84,9 @@ public class PreferenceData {
     public <T> void set(TypedNamespace<T> namespace, T value) {
         if (PreferenceManager.PREFERENCE_REGISTRY.isJson(namespace)) {
             preferences.put(namespace, new JsonPreference<>(namespace, value));
-        } else preferences.put(namespace, new NamespacedPreference<>(namespace, value));
-    }
-
-    public <T> void set(NamespacedPreference<T> preference) {
-        set(preference.typedNamespace(), preference.value());
+        } else {
+            preferences.put(namespace, new NamespacedPreference<>(namespace, value));
+        }
     }
 
     /**
@@ -100,11 +107,8 @@ public class PreferenceData {
         return Cytosis.GSON.toJson(preferences, Utils.PREFERENCE_MAP.getType());
     }
 
-
     @Override
     public String toString() {
-        return "PreferenceData [preferences=" +
-                preferences +
-                "]";
+        return "PreferenceData [preferences=" + preferences + "]";
     }
 }

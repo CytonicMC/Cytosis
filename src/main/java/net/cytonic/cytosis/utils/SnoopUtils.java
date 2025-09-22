@@ -6,10 +6,14 @@ import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
 
+import net.kyori.adventure.text.Component;
+
+import net.cytonic.cytosis.Cytosis;
+
 public class SnoopUtils {
     public static Component toTarget(UUID uuid) {
         CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         return network.getCachedPlayerRanks().get(uuid).getPrefix()
-                .append(Component.text(network.getLifetimePlayers().getByKey(uuid)));
+            .append(Component.text(network.getLifetimePlayers().getByKey(uuid)));
     }
 }

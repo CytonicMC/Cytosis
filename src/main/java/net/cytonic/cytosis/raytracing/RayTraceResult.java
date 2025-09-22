@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record RayTraceResult(@NotNull Pos hitPosition, @Nullable Entity entity, @Nullable Block block) {
+
     public boolean hitEntity() {
         return entity != null;
     }

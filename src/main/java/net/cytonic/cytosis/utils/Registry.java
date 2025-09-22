@@ -1,21 +1,22 @@
-/*
-    This class was written by unjoinable, and the contributors to his MinigameLib. All credit goes to him.
-    https://github.com/unjoinable/MinigameLib/blob/master/src/main/java/io/github/unjoinable/minigamelib/api/registry/Registry.java
- */
 package net.cytonic.cytosis.utils;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A simple registry superclass
+ * <p>
+ * This class was written by unjoinable, and the contributors to his MinigameLib. All credit goes to him.
+ * <a href="https://github.com/unjoinable/MinigameLib/blob/master/src/main/java/io/github/unjoinable/minigamelib/api/registry/Registry.java">GitHub</a>
  * @param <K> The registry key type.
  * @param <V> The registry value type.
  */
+@SuppressWarnings("unused")
 public abstract class Registry<K, V> implements Iterable<V> {
+
     private final Map<K, V> objects;
 
     /**
