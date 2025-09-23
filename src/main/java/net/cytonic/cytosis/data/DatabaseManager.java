@@ -2,12 +2,15 @@ package net.cytonic.cytosis.data;
 
 import lombok.Getter;
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class managing databases
  */
 @Getter
+@CytosisComponent(dependsOn = {FileManager.class})
 public class DatabaseManager implements Bootstrappable {
 
     private MysqlDatabase mysqlDatabase;

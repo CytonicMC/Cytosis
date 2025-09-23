@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.npcs.NPC;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
  * A class that manages NPCs
  */
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {SideboardManager.class})
 public class NPCManager {
 
     private final List<NPC> npcs = new ArrayList<>();

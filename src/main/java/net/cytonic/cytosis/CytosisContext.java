@@ -29,35 +29,40 @@ public class CytosisContext {
     private List<String> flags;
     private boolean metricsEnabled = false;
 
-    /**
-     * Gets a service by class
-     *
-     * @param clazz the class of the service to get
-     * @param <T>   the type of the service
-     * @return the service
-     */
     public <T> T getComponent(Class<T> clazz) {
-        return getComponent(clazz, true);
+        return getComponent(clazz, false);
     }
 
     public <T> T getComponent(Class<T> clazz, boolean createIfMissing) {
-        if (createIfMissing && !components.containsKey(clazz))
-            registerComponent(clazz);
-
-        return !components.containsKey(clazz) ? null : clazz.cast(components.get(clazz));
+        Object existing = components.get(clazz);
+        if (existing != null) return clazz.cast(existing);
+        if (!createIfMissing) return null;
+        return registerComponent(clazz);
     }
 
-    /**
-     * Registers a component to be started on startup
-     *
-     * @param component the component to register
-     */
-    public <T> T registerComponent(T component) {
-        components.put(component.getClass(), component);
-        if (component instanceof Bootstrappable bootstrappableComponent)
-            bootstrappableComponent.init();
+    public <T> T registerComponent(Class<T> clazz) {
+        try {
+            T instance = clazz.getDeclaredConstructor().newInstance();
+            return registerComponent(clazz, instance);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create component: " + clazz.getName(), e);
+        }
+    }
 
-        return component;
+    public <T> T registerComponent(Class<? super T> key, T component) {
+        Object existing = components.putIfAbsent(key, component);
+        if (existing == null) {
+            if (component instanceof Bootstrappable bootstrappableComponent)
+                bootstrappableComponent.init();
+
+            return component;
+        }
+
+        return (T) existing;
+    }
+
+    public <T> T registerComponent(T component) {
+        return registerComponent((Class<? super T>) component.getClass(), component);
     }
 
     public CytonicServer currentServer() {

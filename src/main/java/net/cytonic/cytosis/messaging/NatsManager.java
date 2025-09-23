@@ -6,6 +6,7 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
 import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
@@ -55,6 +56,7 @@ import java.util.function.Consumer;
 
 import static io.nats.client.ConnectionListener.Events.*;
 
+@CytosisComponent(dependsOn = {CytonicNetwork.class})
 public class NatsManager implements Bootstrappable {
     private RankManager rankManager;
     private FriendManager friendManager;
@@ -74,6 +76,13 @@ public class NatsManager implements Bootstrappable {
         this.friendManager = Cytosis.CONTEXT.getComponent(FriendManager.class);
         this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+
+        if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
+            setup();
+            fetchServers();
+        } else {
+            Logger.warn("Skipping NATS manager setup for CI test!");
+        }
     }
 
     @SneakyThrows

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.utils.ActionbarSupplier;
 import net.kyori.adventure.text.Component;
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The class that handles actionbar sending to players
  */
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {NetworkCooldownManager.class})
 public class ActionbarManager implements Bootstrappable {
     private final Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
     private final Set<UUID> cooldowns = new HashSet<>();

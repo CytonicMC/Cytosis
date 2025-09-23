@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.utils;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.commands.FriendCommand;
 import net.cytonic.cytosis.commands.HelpCommand;
 import net.cytonic.cytosis.commands.chatting.*;
@@ -26,6 +27,7 @@ import net.cytonic.cytosis.commands.server.nomad.UpdateInstancesCommand;
 import net.cytonic.cytosis.commands.server.worlds.ImportWorld;
 import net.cytonic.cytosis.commands.staff.*;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
+import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.CommandManager;
@@ -35,6 +37,7 @@ import net.minestom.server.entity.Player;
  * A class that handles the commands, their execution, and allegedly a console.
  */
 @NoArgsConstructor
+@CytosisComponent(priority = 1, dependsOn = {CommandManager.class})
 public class CommandHandler implements Bootstrappable {
 
     private CommandManager commandManager;

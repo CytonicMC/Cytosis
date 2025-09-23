@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("unused")
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class})
 public class ChatManager implements Bootstrappable {
 
     private final Cache<UUID, UUID> openPrivateChannels = CacheBuilder.newBuilder()

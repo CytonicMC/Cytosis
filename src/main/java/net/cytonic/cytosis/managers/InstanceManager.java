@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 import net.hollowcube.polar.PolarLoader;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {DatabaseManager.class, net.minestom.server.instance.InstanceManager.class})
 public class InstanceManager implements Bootstrappable {
     private DatabaseManager databaseManager;
 

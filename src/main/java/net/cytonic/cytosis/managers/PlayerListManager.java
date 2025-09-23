@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.Setter;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.*;
 import net.kyori.adventure.text.Component;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Setter
 @Getter
+@CytosisComponent()
 public class PlayerListManager {
 
     private final Map<UUID, Component[][]> playerComponents = new ConcurrentHashMap<>();

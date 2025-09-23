@@ -3,7 +3,9 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.VanishToggleEvent;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
@@ -22,6 +24,7 @@ import java.util.UUID;
  * This class handles vanishing
  */
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {NatsManager.class})
 public class VanishManager {
 
     @Getter

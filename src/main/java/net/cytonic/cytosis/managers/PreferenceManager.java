@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.SneakyThrows;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
@@ -28,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Since preferences are pretty small, every online player has their preference data stored here, no matter
  * which server they are connected to.
  */
+@CytosisComponent(dependsOn = {DatabaseManager.class})
 public class PreferenceManager implements Bootstrappable {
     private MysqlDatabase db;
 
