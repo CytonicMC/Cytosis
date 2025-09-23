@@ -20,6 +20,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.event.Event;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.listener.manager.PacketListenerManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 
@@ -31,6 +32,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
+/**
+ * Main bootstrap class responsible for initializing and starting the Cytosis server.
+ * This class orchestrates the entire server start-up process, including configuration,
+ * component registration, server initialization, and runtime settings.
+ */
 public class CytosisBootstrap {
     public static final String SCAN_PACKAGE_ROOT = "net.cytonic";
     private final CytosisContext cytosisContext;
@@ -59,6 +65,9 @@ public class CytosisBootstrap {
         registerCytosisComponents();
         initWorld();
 
+        Logger.info("Initializing view registry");
+        Cytosis.VIEW_REGISTRY.enable();
+
         if (cytosisContext.isMetricsEnabled()) {
             Logger.info("Starting metric hooks");
             MetricsHooks.init();
@@ -83,6 +92,9 @@ public class CytosisBootstrap {
         }
     }
 
+    /**
+     * Applies system settings and loads environment.
+     */
     private void applySystemSettings() {
         System.setProperty("org.jooq.no-logo", "true");
         System.setProperty("org.jooq.no-tips", "true");
@@ -94,6 +106,9 @@ public class CytosisBootstrap {
         CytosisSettings.loadCommandArgs();
     }
 
+    /**
+     * Initializes and configures the Minestom server components required for the application.
+     */
     private void initMinestom() {
         cytosisContext.registerComponent(MinecraftServer.init(new Auth.Velocity(CytosisSettings.SERVER_SECRET)));
         MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
@@ -243,18 +258,28 @@ public class CytosisBootstrap {
         }
     }
 
+    /**
+     * Initializes the world by setting up the necessary components and configurations required
+     * for the world to run properly.
+     */
     private void initWorld() {
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
-        Logger.info("Initializing view registry");
-        Cytosis.VIEW_REGISTRY.enable();
         Logger.info("Adding a singed command packet handler");
-        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
-                MinecraftServer.getPacketListenerManager().processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(), p.getPlayerConnection().getConnectionState()));
+        PacketListenerManager packetListenerManager = MinecraftServer.getPacketListenerManager();
+        packetListenerManager.setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
+                packetListenerManager.processClientPacket(
+                        new ClientCommandChatPacket(packet.message()),
+                        p.getPlayerConnection(),
+                        p.getPlayerConnection().getConnectionState())
+        );
 
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
     }
 
+    /**
+     * Registers all annotated listeners in the cytosis plugin and external plugins.
+     */
     private void registerListeners() {
         long start2 = System.currentTimeMillis();
         Logger.info("Scanning for listeners in plugins!");
@@ -327,6 +352,9 @@ public class CytosisBootstrap {
         Logger.info("Finished scanning for listeners in plugins in " + (System.currentTimeMillis() - start2) + "ms!");
     }
 
+    /**
+     * Starts the minestom server.
+     */
     private void startServer() {
         Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
         cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", CytosisSettings.SERVER_PORT);
