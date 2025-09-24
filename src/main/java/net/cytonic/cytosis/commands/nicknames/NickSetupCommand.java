@@ -23,8 +23,8 @@ public class NickSetupCommand extends CytosisCommand {
     public static final ConcurrentHashMap<UUID, NicknameManager.NicknameData> NICKNAME_DATA = new ConcurrentHashMap<>();
 
     private static final Component NEED_TERMS = Msg.whoops("""
-        You must agree to the terms before you can set up your nickname! Use `/nick setup`
-        to start the process!
+        You must agree to the terms before you can set up your nickname! Use `/nick setup`\
+        to start the process!\
         """);
 
     private static final Book WARNING_BOOK = Book.builder().author(Msg.aqua("CytonicMC Team"))
@@ -39,9 +39,9 @@ public class NickSetupCommand extends CytosisCommand {
 
     private static final Book RANK_BOOK = Book.builder().author(Msg.aqua("CytonicMC Team"))
         .title(Msg.gold("Nickname Rank")).pages(Msg.mm("""
-            <black>First, you'll need to pick which <b><#F5C526>RANK</#F5C526></b> you would like to have while nicked.
-             <hover:show_text:'<gray><i>You will retain the permissions of your current rank, except when using those
-              features would reveal your nickname status. (ie. /fly)'><gray><i>(note)</hover></black>
+            <black>First, you'll need to pick which <b><#F5C526>RANK</#F5C526></b> you would like to have while nicked.\
+            <hover:show_text:'<gray><i>You will retain the permissions of your current rank, except when using those\
+            features would reveal your nickname status. (ie. /fly)'><gray><i>(note)</hover></black>\
             
             <click:run_command:'/nick setup rank DEFAULT'>» <gray>DEFAULT</click>
             <click:run_command:'/nick setup rank NOBLE'>» <dark_purple>[NOBLE]</click>
@@ -110,7 +110,7 @@ public class NickSetupCommand extends CytosisCommand {
                     }
                     Cytosis.CONTEXT.getComponent(NicknameManager.class).nicknamePlayer(player.getUuid(), data);
                     player.sendMessage(Msg.goldSplash("DISGUISED!", """
-                        Your apparent name, rank, and skin have been changed. To go back to your normal self, use the
+                        Your apparent name, rank, and skin have been changed. To go back to your normal self, use the\
                         <#BE9025>/nick reset</#BE9025> command.
                         """));
 

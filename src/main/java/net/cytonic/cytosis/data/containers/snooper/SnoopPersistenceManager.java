@@ -2,7 +2,6 @@ package net.cytonic.cytosis.data.containers.snooper;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -123,7 +122,7 @@ public class SnoopPersistenceManager {
 
         @Override
         public int hashCode() {
-            return Arrays.deepHashCode(new QueryKey[]{this});
+            return Objects.hash(id, permission, start, end, ascending, search);
         }
     }
 }

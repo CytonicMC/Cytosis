@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.objects;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 import net.kyori.adventure.key.Key;
 
@@ -23,6 +23,6 @@ public record TypedNamespace<T>(Key namespaceID, Class<T> type) {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new TypedNamespace<?>[]{this});
+        return Objects.hash(namespaceID, type);
     }
 }

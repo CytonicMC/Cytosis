@@ -24,7 +24,7 @@ public class NickRandomCommand extends CytosisCommand {
             Cytosis.CONTEXT.getComponent(NicknameManager.class)
                 .nicknamePlayer(player.getUuid(), NicknameGenerator.generateNicknameData());
             player.sendMessage(Msg.goldSplash("DISGUISED!", """
-                Your apparent name, rank, and skin have been randomized. To go back to your
+                Your apparent name, rank, and skin have been randomized. To go back to your\
                 normal self, use the <#BE9025>/nick reset</#BE9025> command.
                 """));
         });

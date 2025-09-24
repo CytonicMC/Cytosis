@@ -16,7 +16,7 @@ public class WhereAmiCommand extends CytosisCommand {
                 .appendNewline().append(Msg.mm("<gold>Server ID: </gold><gray>" + CytosisContext.SERVER_ID))
                 .appendNewline()
                 .append(Msg.gold("""
-                    Latest Commit: <gray><hover:show_text:'<gold><b>Click to copy Commit Hash!'>
+                    Latest Commit: <gray><hover:show_text:'<gold><b>Click to copy Commit Hash!'>\
                     <click:copy_to_clipboard:%s>%s
                     """, BuildInfo.GIT_COMMIT, BuildInfo.GIT_COMMIT))
                 .appendNewline()

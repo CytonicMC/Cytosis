@@ -51,7 +51,7 @@ public class GlobalPropertyService implements IGlobalPropertyService {
 
         @Override
         public int hashCode() {
-            return 0;
+            return Objects.hash(name);
         }
 
         @Override

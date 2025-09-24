@@ -112,8 +112,8 @@ public class MysqlDatabase implements Bootstrappable {
                 Logger.info("Database connection closed!");
             } catch (SQLException e) {
                 Logger.error("""
-                    An error occurred whilst disconnecting from the database.
-                    Please report the following stacktrace to CytonicMC:
+                    An error occurred whilst disconnecting from the database.\
+                    Please report the following stacktrace to CytonicMC:\
                     """, e);
             }
         }

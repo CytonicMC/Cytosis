@@ -53,7 +53,7 @@ public class NicknameEntryMenu extends ViewProvider implements AnvilInputInterac
         ViewItem.bySlot(view, 2).material(Material.NAME_TAG).name(input).interaction(viewAction -> {
             if (!checkValid(input)) {
                 player.sendMessage(Msg.whoops("""
-                    Your nickname must be between 3 and 16 characters long, and
+                    Your nickname must be between 3 and 16 characters long, and\
                     only contain letters, numbers, and underscores."""));
                 return;
             }

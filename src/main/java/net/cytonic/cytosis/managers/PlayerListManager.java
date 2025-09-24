@@ -21,6 +21,7 @@ import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket.Pro
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.PacketSendingUtils;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.Column;
@@ -34,7 +35,7 @@ import net.cytonic.cytosis.playerlist.PlayerlistCreator;
  */
 @Setter
 @Getter
-public class PlayerListManager {
+public class PlayerListManager implements Bootstrappable {
 
     private final Map<UUID, Component[][]> playerComponents = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerInfoUpdatePacket.Property[][]> playerFavicons = new ConcurrentHashMap<>();
@@ -47,6 +48,11 @@ public class PlayerListManager {
      * The default player list manager constructor
      */
     public PlayerListManager() {
+
+    }
+
+    @Override
+    public void init() {
         creator = new DefaultPlayerListCreator();
         scheduleUpdate();
         listUuids = new UUID[creator.getColumnCount()][20];
@@ -78,7 +84,6 @@ public class PlayerListManager {
      */
     public void setupPlayer(CytosisPlayer player) {
         player.sendPlayerListHeaderAndFooter(creator.header(player), creator.footer(player));
-
         // remove them from the player list for everyone, but keep skin data
         PacketSendingUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
             new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
@@ -140,6 +145,10 @@ public class PlayerListManager {
         return packets;
     }
 
+    private void createComponentsForPlayer(CytosisPlayer player) {
+
+    }
+
     /**
      * Update a player's player list
      *
@@ -153,10 +162,7 @@ public class PlayerListManager {
 
         columns.forEach(Column::sortEntries);
         PlayerInfoUpdatePacket.Property[][] updatedFavicons = toFavicons(new ArrayList<>(columns));
-
-        playerFavicons.put(player.getUuid(), updatedFavicons);
         Component[][] updatedComponents = toComponents(columns);
-        playerComponents.put(player.getUuid(), updatedComponents);
 
         player.sendPackets(createUpdatePackets(player.getUuid(), updatedComponents, updatedFavicons, columns));
     }
@@ -178,46 +184,61 @@ public class PlayerListManager {
         }).delay(TaskSchedule.tick(updateInterval)).schedule();
     }
 
-    private List<SendablePacket> createUpdatePackets(UUID player, Component[][] comps, Property[][] icons,
+    private List<SendablePacket> createUpdatePackets(UUID player, Component[][] updatedComponents,
+        Property[][] updatedFavicons,
         List<Column> columns) {
-        List<SendablePacket> packets = new ArrayList<>();
-        PlayerInfoUpdatePacket.Property[][] oldIcons = playerFavicons.getOrDefault(player, icons);
-        Component[][] oldComps = playerComponents.getOrDefault(player, comps);
+        List<SendablePacket> updatePackets = new ArrayList<>();
+        PlayerInfoUpdatePacket.Property[][] favicons = playerFavicons.getOrDefault(player, updatedFavicons);
+        Component[][] components = playerComponents.getOrDefault(player, updatedComponents);
         int order = 0;
-        for (int i = 0; i < comps.length; i++) {
-            if (faviconNotEquals(oldIcons[i][0], icons[i][0])) {
-                packets.add(new PlayerInfoRemovePacket(listUuids[i][0]));
-                packets.add(new PlayerInfoUpdatePacket(
+        for (int i = 0; i < updatedComponents.length; i++) {
+            if (faviconNotEquals(favicons[i][0], updatedFavicons[i][0])) {
+                updatePackets.add(new PlayerInfoRemovePacket(listUuids[i][0]));
+                updatePackets.add(new PlayerInfoUpdatePacket(
                     EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
-                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME), List.of(
-                    new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(icons[i][0]), true, 1, GameMode.CREATIVE, comps[i][0], null, order, true))));
+                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
+                    List.of(new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
+                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null,
+                        order, true)
+                    )));
             }
 
-            if (!oldComps[i][0].equals(columns.get(i).getName())) {
-                packets.add(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
+            if (!components[i][0].equals(columns.get(i).getName())) {
+                updatePackets.add(new PlayerInfoUpdatePacket(
+                    PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
                     new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(icons[i][0]), true, 1, GameMode.CREATIVE, comps[i][0], null, order, true)));
+                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null,
+                        order, true)
+                ));
             }
-            for (int j = 1; j < comps[i].length; j++) {
-                if (faviconNotEquals(oldIcons[i][j], icons[i][j])) {
-                    packets.add(new PlayerInfoRemovePacket(listUuids[i][j]));
-                    packets.add(new PlayerInfoUpdatePacket(EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER,
-                        PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
+            for (int j = 1; j < updatedComponents[i].length; j++) {
+                if (faviconNotEquals(favicons[i][j], updatedFavicons[i][j])) {
+                    updatePackets.add(new PlayerInfoRemovePacket(listUuids[i][j]));
+                    updatePackets.add(new PlayerInfoUpdatePacket(
+                        EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER,
+                            PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+                            PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
-                            "!" + (char) ('A' + i) + "-" + (char) ('a' + j), List.of(icons[i][j]), true, 1,
-                            GameMode.CREATIVE, comps[i][j], null, order, true))));
+                            "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
+                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null,
+                            order, true)
+                        )));
                 }
-                if (!oldComps[i][j].equals(comps[i][j])) {
-                    oldComps[i][j] = comps[i][j];
-                    packets.add(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
+                if (!components[i][j].equals(updatedComponents[i][j])) {
+                    components[i][j] = updatedComponents[i][j];
+                    updatePackets.add(new PlayerInfoUpdatePacket(
+                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
                         new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
-                            "!" + (char) ('A' + i) + "-" + (char) ('a' + j), List.of(icons[i][j]), true, 1,
-                            GameMode.CREATIVE, comps[i][j], null, order, true)));
+                            "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
+                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null,
+                            order, true)
+                    ));
                 }
             }
         }
-        return packets;
+        playerFavicons.put(player, updatedFavicons);
+        playerComponents.put(player, updatedComponents);
+        return updatePackets;
     }
 
     /**
