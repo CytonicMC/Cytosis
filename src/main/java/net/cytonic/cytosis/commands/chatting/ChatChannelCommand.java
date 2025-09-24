@@ -67,7 +67,7 @@ public class ChatChannelCommand extends CytosisCommand {
     private void message(CytosisPlayer player, ChatChannel channel) {
         if (channel == ChatChannel.ADMIN || channel == ChatChannel.MOD || channel == ChatChannel.STAFF) {
             if (player.canUseChannel(channel)) {
-                Cytosis.Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(player.getUuid(), channel);
+                Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(player.getUuid(), channel);
                 player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN)
                     .append(Component.text(channel.name(), NamedTextColor.GOLD))
                     .append(Component.text(" channel.", NamedTextColor.GREEN)));
@@ -75,7 +75,7 @@ public class ChatChannelCommand extends CytosisCommand {
             return;
         }
         if (channel == ChatChannel.ALL) {
-            Cytosis.Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(player.getUuid(), ChatChannel.ALL);
+            Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(player.getUuid(), ChatChannel.ALL);
             player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN)
                 .append(Component.text("ALL", NamedTextColor.GOLD))
                 .append(Component.text(" channel.", NamedTextColor.GREEN)));

@@ -20,6 +20,7 @@ import net.cytonic.cytosis.logging.Logger;
  * A class that handles network-wide cooldowns that sync across servers
  */
 public class NetworkCooldownManager implements Bootstrappable {
+
     private final RedisDatabase redis;
     private final Map<Key, Instant> global = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
@@ -31,11 +32,6 @@ public class NetworkCooldownManager implements Bootstrappable {
         this.redis = redis;
     }
 
-    @Override
-    public void init() {
-        importFromRedis();
-    }
-
     /**
      * Converts a string to a personal key used to store hash sets in redis
      *
@@ -44,6 +40,11 @@ public class NetworkCooldownManager implements Bootstrappable {
      */
     public static String toPersonalKey(UUID uuid) {
         return "COOLDOWN_PERSONAL_KEY:" + uuid;
+    }
+
+    @Override
+    public void init() {
+        importFromRedis();
     }
 
     /**

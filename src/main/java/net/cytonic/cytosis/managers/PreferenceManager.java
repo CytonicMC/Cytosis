@@ -7,12 +7,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.SneakyThrows;
-import net.cytonic.cytosis.Bootstrappable;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
@@ -30,7 +29,6 @@ import net.cytonic.cytosis.utils.Msg;
  * are connected to.
  */
 public class PreferenceManager implements Bootstrappable {
-    private MysqlDatabase db;
 
     /**
      * The registry of preferences currently registered. The held preference of the {@link NamespacedPreference} is the
@@ -38,10 +36,17 @@ public class PreferenceManager implements Bootstrappable {
      */
     public static final PreferenceRegistry PREFERENCE_REGISTRY = new PreferenceRegistry();
     private final Map<UUID, PreferenceData> preferenceData = new ConcurrentHashMap<>();
+    private MysqlDatabase db;
+
+    /**
+     * Default constructor
+     */
+    public PreferenceManager() {
+    }
 
     @Override
     public void init() {
-        this.db = Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase();
+        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
 
         PREFERENCE_REGISTRY.write(CytosisNamespaces.ACCEPT_FRIEND_REQUESTS, CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
@@ -63,12 +68,6 @@ public class PreferenceManager implements Bootstrappable {
                 Logger.error("An error occurred whilst creating the preferences table!", throwable);
             }
         });
-    }
-
-    /**
-     * Default constructor
-     */
-    public PreferenceManager() {
     }
 
     /**
@@ -125,35 +124,6 @@ public class PreferenceManager implements Bootstrappable {
         if (!preferenceData.containsKey(uuid)) return;
         persistPreferences(uuid, preferenceData.get(uuid));
         preferenceData.remove(uuid);
-    }
-
-    @SneakyThrows
-    public void persistPreferences(UUID uuid, PreferenceData preferenceData) {
-        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
-        PreparedStatement ps = db.prepare("UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?;");
-        ps.setString(2, uuid.toString());
-        ps.setString(1, preferenceData.serialize());
-
-        db.update(ps).whenComplete((unused, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst updating preferences!", throwable);
-            }
-        });
-    }
-
-    @SneakyThrows
-    public void addNewPlayerPreference(UUID uuid, PreferenceData data) {
-
-        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
-        PreparedStatement ps = db.prepare("INSERT INTO cytonic_preferences VALUES(?,?);");
-        ps.setString(1, uuid.toString());
-        ps.setString(2, data.serialize());
-
-        db.update(ps).whenComplete((unused, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst updating preferences!", throwable);
-            }
-        });
     }
 
     /**

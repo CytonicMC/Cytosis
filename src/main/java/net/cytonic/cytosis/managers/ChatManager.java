@@ -14,7 +14,7 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
@@ -133,7 +133,7 @@ public class ChatManager implements Bootstrappable {
             .append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername())))
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addPlayerMessage(player.getUuid(), uuid, message);
+        Cytosis.CONTEXT.getComponent(MysqlDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
         natsManager
             .sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json()
                 .serialize(component), player.getUuid()));

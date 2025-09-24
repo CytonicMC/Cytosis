@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
@@ -28,14 +30,13 @@ public class FriendDeclineCommand extends CytosisCommand {
                 player.sendMessage(Msg.whoops("You cannot accept your own friend request!"));
                 return;
             }
+            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            String name = network.getLifetimePlayers().getByKey(target);
+            Component targetComp = network.getCachedPlayerRanks().get(target).getPrefix().append(Component.text(name));
 
-            String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(target);
-            Component targetComp = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(target).getPrefix()
-                .append(Component.text(name));
-
-            if (Cytosis.getFriendManager().getFriends(player.getUuid()).contains(target)) {
-                player.sendMessage(Msg.whoops("You are already friends with ").append(targetComp)
-                    .append(Msg.mm("<gray>!")));
+            if (Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
+                player.sendMessage(
+                    Msg.whoops("You are already friends with ").append(targetComp).append(Msg.grey("!")));
                 return;
             }
 

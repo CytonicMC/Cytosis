@@ -49,7 +49,8 @@ public class SnooperProvider extends ViewProvider {
         this.search = search;
         this.ascending = ascending;
 
-        permission = Objects.requireNonNull(Cytosis.CONTEXT.getComponent(SnooperManager.class).getChannel(Key.key(id))).recipients();
+        permission = Objects.requireNonNull(Cytosis.CONTEXT.getComponent(SnooperManager.class).getChannel(Key.key(id)))
+            .recipients();
         pattern = registry.pattern("#########", "#1111111#", "#1111111#", "#1111111#", "#1111111#", "<#O#X#D#>");
         pagination = registry.pageable(new SnooperRenderer(), ItemStack.AIR, pattern.getSlots('1'));
 

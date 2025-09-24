@@ -32,13 +32,14 @@ public class DefaultCreator implements SideboardCreator {
     @Override
     public List<Component> lines(CytosisPlayer player) {
         try {
-            return List.of(Msg.mm("<gray>" + CytosisContext.SERVER_ID), Msg.mm("<green>Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class)
-                .getOnlinePlayers()
-                .size()), Msg.mm(""), Msg.mm("Cytosis v" + Cytosis.VERSION), Msg.mm(""), Msg.mm("<green>Rank: ")
-                .append(Component.text(player.getRank()
-                    .name(), (player.getRank()
-                    .getTeamColor()))), Msg.mm("<green>Chat Channel<white>: " + player.getChatChannel()
-                .name()), Msg.mm(""), Msg.mm("<yellow>mc.cytonic.net"));
+            return List.of(Msg.mm("<gray>" + CytosisContext.SERVER_ID),
+                Msg.mm("<green>Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class)
+                    .getOnlinePlayers()
+                    .size()), Msg.mm(""), Msg.mm("Cytosis v" + Cytosis.VERSION), Msg.mm(""), Msg.mm("<green>Rank: ")
+                    .append(Component.text(player.getRank()
+                        .name(), (player.getRank()
+                        .getTeamColor()))), Msg.mm("<green>Chat Channel<white>: " + player.getChatChannel()
+                    .name()), Msg.mm(""), Msg.mm("<yellow>mc.cytonic.net"));
         } catch (Exception e) {
             Logger.error("error", e);
             return List.of(Msg.mm("<red>Failed to get server information!"));

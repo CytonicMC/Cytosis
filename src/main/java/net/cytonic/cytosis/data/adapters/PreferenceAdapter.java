@@ -16,11 +16,11 @@ import net.kyori.adventure.key.Key;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.FallbackPreference;
-import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
+import net.cytonic.cytosis.managers.PreferenceManager;
 
 /**
  * A type adapter for {@link Preference}, allow Gson to serialize and deserialize it easily. The stored syntax is as
@@ -101,7 +101,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         }
 
         Key id = Key.key(rawID);
-        Class<T> type = (Class<T>) Cytosis.getPreferenceManager()
+        Class<T> type = (Class<T>) Cytosis.CONTEXT.getComponent(PreferenceManager.class)
             .getPreferenceRegistry()
             .getTypeFromNamespace(id);
 
@@ -127,7 +127,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
     @SuppressWarnings("rawtypes")
     private Preference<T> buildPreference(Key id, Class<T> type, Object value) {
         try {
-            PreferenceRegistry.Entry<T> preference = pm
+            PreferenceRegistry.Entry<T> preference = Cytosis.CONTEXT.getComponent(PreferenceManager.class)
                 .getPreferenceRegistry()
                 .get(new TypedNamespace<>(id, type));
 

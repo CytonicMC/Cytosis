@@ -11,15 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.events.Events;
-import net.cytonic.cytosis.utils.ActionbarSupplier;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.network.packet.server.play.ActionBarPacket;
 import net.minestom.server.timer.TaskSchedule;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.utils.ActionbarSupplier;
@@ -29,6 +26,7 @@ import net.cytonic.cytosis.utils.ActionbarSupplier;
  */
 @NoArgsConstructor
 public class ActionbarManager implements Bootstrappable {
+
     private final Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
     private final Set<UUID> cooldowns = new HashSet<>();
     @Setter
@@ -73,8 +71,8 @@ public class ActionbarManager implements Bootstrappable {
 
     /**
      * Adds the specified message to the queue {@code iterations} times. The message is displayed for the specified
-     * number of iterations. If the current queue is empty, then the message is displayed on the next 20 tick
-     * interval. Otherwise, the messages are displayed once the queue reaches the messages.
+     * number of iterations. If the current queue is empty, then the message is displayed on the next 20 tick interval.
+     * Otherwise, the messages are displayed once the queue reaches the messages.
      *
      * @param uuid       The player to send the actionbar to
      * @param message    the message to display

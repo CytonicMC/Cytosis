@@ -2,8 +2,6 @@ package net.cytonic.cytosis.npcs;
 
 import java.util.UUID;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.managers.NPCManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
@@ -12,6 +10,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.managers.NpcManager;
 
 /**
  * A builder for creating Humanoid NPCs, to use it call {@link  Npc#ofHumanoid(Humanoid)} or
@@ -162,7 +161,7 @@ public class HumanoidBuilder {
     public Humanoid build() {
         npc.setInstance(instanceContainer, pos);
         npc.createHolograms();
-        Cytosis.CONTEXT.getComponent(NPCManager.class).addNpc(npc);
+        Cytosis.CONTEXT.getComponent(NpcManager.class).addNpc(npc);
         return npc;
     }
 }

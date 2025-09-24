@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.disabling;
 
+import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.builder.arguments.ArgumentBoolean;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
@@ -10,10 +11,6 @@ import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.CommandManager;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
 
 public class EnableCommand extends CytosisCommand {
 
@@ -34,7 +31,8 @@ public class EnableCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             String rawCommand = context.get(cmd);
-            CommandDisablingManager commandDisablingManager = Cytosis.CONTEXT.getComponent(CommandDisablingManager.class);
+            CommandDisablingManager commandDisablingManager = Cytosis.CONTEXT.getComponent(
+                CommandDisablingManager.class);
             CommandManager commandManager = Cytosis.CONTEXT.getComponent(CommandManager.class);
 
             if (commandManager.getCommand(rawCommand) instanceof CytosisCommand command) {

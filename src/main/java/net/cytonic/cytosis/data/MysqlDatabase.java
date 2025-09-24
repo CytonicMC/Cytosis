@@ -21,6 +21,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.NotNull;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -34,7 +35,7 @@ import net.cytonic.cytosis.utils.PosSerializer;
  * A class handling Cytosis database transactions
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class MysqlDatabase {
+public class MysqlDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
     private final String host;
@@ -63,6 +64,17 @@ public class MysqlDatabase {
         } catch (ClassNotFoundException e) {
             Logger.error("Failed to load database driver", e);
         }
+    }
+
+    @Override
+    public void init() {
+        connect();
+        createTables();
+    }
+
+    @Override
+    public void shutdown() {
+        disconnect();
     }
 
     /**
@@ -398,7 +410,7 @@ public class MysqlDatabase {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
-                Cytosis.getCytonicNetwork().getMutedPlayers().remove(uuid);
+                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getMutedPlayers().remove(uuid);
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();

@@ -63,7 +63,7 @@ public class ParticleEngine {
                 return;
             }
             SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience)))
-                    .delay(TaskSchedule.tick(time)).schedule();
+                .delay(TaskSchedule.tick(time)).schedule();
         });
     }
 

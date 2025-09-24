@@ -25,12 +25,8 @@ public class ServerInstancingManager implements Bootstrappable {
     public static final String BEDWARS_QUADROS = "bw_quadros";
 
     public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY,
-        BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};private NatsManager nats;
-
-    @Override
-    public void init() {
-        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
-    }
+        BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
+    private NatsManager nats;
 
     public static boolean isServerType(String type) {
         for (String t : TYPES) {
@@ -39,6 +35,11 @@ public class ServerInstancingManager implements Bootstrappable {
             }
         }
         return false;
+    }
+
+    @Override
+    public void init() {
+        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
     }
 
     public void createServerInstances(String type, int amount) {

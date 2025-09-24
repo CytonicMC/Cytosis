@@ -13,13 +13,14 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
+
 public class MuteCommand extends CytosisCommand {
 
     public MuteCommand() {
@@ -64,9 +65,9 @@ public class MuteCommand extends CytosisCommand {
             actor.sendMessage(Msg.red("The player " + target + " doesn't exist!"));
             return;
         }
-        DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+        MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
         UUID uuid = network.getLifetimeFlattened().getByValue(target.toLowerCase());
-        databaseManager.getMysqlDatabase().isMuted(uuid).whenComplete((muted, throwable1) -> {
+        db.isMuted(uuid).whenComplete((muted, throwable1) -> {
             if (throwable1 != null) {
                 actor.sendMessage(Msg.serverError("An error occurred whilst finding if %s is muted!", target));
                 Logger.error("error checking mute status", throwable1);
@@ -76,32 +77,31 @@ public class MuteCommand extends CytosisCommand {
                 actor.sendMessage(Msg.whoops("%s is already muted!", target));
                 return;
             }
-            databaseManager.getMysqlDatabase().getPlayerRank(uuid)
-                .whenComplete((playerRank, throwable2) -> {
-                    if (throwable2 != null) {
-                        actor.sendMessage(Msg.serverError("An error occurred whilst finding %s's rank!", target));
-                        Logger.error("error", throwable2);
-                        return;
-                    }
-                    if (playerRank.isStaff()) {
-                        actor.sendMessage(Msg.whoops("%s cannot be muted!", target));
-                        return;
-                    }
-                    Component snoop = actor.formattedName().append(Msg.grey(" muted "))
-                        .append(SnoopUtils.toTarget(uuid))
-                        .append(Msg.grey(" for " + DurationParser.unparseFull(duration) + "."));
+            db.getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
+                if (throwable2 != null) {
+                    actor.sendMessage(Msg.serverError("An error occurred whilst finding %s's rank!", target));
+                    Logger.error("error", throwable2);
+                    return;
+                }
+                if (playerRank.isStaff()) {
+                    actor.sendMessage(Msg.whoops("%s cannot be muted!", target));
+                    return;
+                }
+                Component snoop = actor.formattedName().append(Msg.grey(" muted "))
+                    .append(SnoopUtils.toTarget(uuid))
+                    .append(Msg.grey(" for " + DurationParser.unparseFull(duration) + "."));
 
-                    Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
-                    databaseManager.getMysqlDatabase().mutePlayer(uuid, duration)
-                        .whenComplete((ignored, throwable3) -> {
-                            if (throwable3 != null) {
-                                actor.sendMessage(Msg.serverError("An error occurred whilst muting %s!", target));
-                                return;
-                            }
-                            actor.sendMessage(Msg.greenSplash("MUTED!", "%s was successfully muted for %s.", target,
-                                DurationParser.unparseFull(duration)));
-                        });
+                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                    .sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
+                db.mutePlayer(uuid, duration).whenComplete((ignored, throwable3) -> {
+                    if (throwable3 != null) {
+                        actor.sendMessage(Msg.serverError("An error occurred whilst muting %s!", target));
+                        return;
+                    }
+                    actor.sendMessage(Msg.greenSplash("MUTED!", "%s was successfully muted for %s.", target,
+                        DurationParser.unparseFull(duration)));
                 });
+            });
         });
     }
 }

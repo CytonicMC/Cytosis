@@ -21,7 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.events.Events;
@@ -34,11 +35,13 @@ import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
 
 public class NicknameManager implements Bootstrappable {
-    private RankManager rankManager;
-    private DatabaseManager databaseManager;
+
     //todo: Look into masking UUIDs in outgoing packets
     private final Map<UUID, NicknameData> nicknames = new ConcurrentHashMap<>();
     private final Map<UUID, UUID> maskedUuids = new ConcurrentHashMap<>();
+    private RankManager rankManager;
+    private RedisDatabase redis;
+    private MysqlDatabase db;
 
     public NicknameManager() {
         // remove them from this memory cache
@@ -46,12 +49,6 @@ public class NicknameManager implements Bootstrappable {
             nicknames.remove(event.player());
             maskedUuids.remove(event.player());
         });
-    }
-
-    @Override
-    public void init() {
-        this.rankManager = Cytosis.CONTEXT.getComponent(RankManager.class);
-        this.databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
     }
 
     public static String translateSkin(CytosisPlayer player, String skin) {
@@ -62,6 +59,13 @@ public class NicknameManager implements Bootstrappable {
             return "<#BE9025>My normal skin</#BE9025>";
         }
         return "<#BE9025>Random Skin</#BE9025>";
+    }
+
+    @Override
+    public void init() {
+        this.rankManager = Cytosis.CONTEXT.getComponent(RankManager.class);
+        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
     }
 
     public boolean isNicked(UUID player) {
@@ -87,12 +91,6 @@ public class NicknameManager implements Bootstrappable {
                 Msg.aqua(" (Skin: %s)!", Msg.stripTags(translateSkin(player, data.value()).replace("My", "Their"))));
 
         Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_NICKNAME, Msg.snoop(msg));
-    }
-
-    private void addToTrackedNicknames(UUID playerUuid, String nickname) {
-        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", playerUuid.toString(), nickname);
-        Cytosis.getDatabaseManager().getRedisDatabase()
-            .addToHash("cytosis:nicknames_reverse", nickname, playerUuid.toString());
     }
 
     /**
@@ -147,7 +145,7 @@ public class NicknameManager implements Bootstrappable {
 
         NicknameData data = nicknames.remove(playerUuid);
         if (data == null) return;
-        databaseManager.getRedisDatabase().removeFromHash("cytosis:nicknames", playerUuid.toString());
+        redis.removeFromHash("cytosis:nicknames", playerUuid.toString());
         sendRemovePackets(player);
         rankManager.setupCosmetics(player, player.getTrueRank());
         player.updatePreference(CytosisNamespaces.NICKNAME_DATA, null);
@@ -212,12 +210,12 @@ public class NicknameManager implements Bootstrappable {
     }
 
     public Set<String> getNetworkNicknames() {
-        return new HashSet<>(databaseManager.getRedisDatabase().getHash("cytosis:nicknames").values());
+        return new HashSet<>(redis.getHash("cytosis:nicknames").values());
     }
 
     private void addToTrackedNicknames(UUID playerUuid, String nickname) {
-        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames", playerUuid.toString(), nickname);
-        Cytosis.getDatabaseManager().getRedisDatabase().addToHash("cytosis:nicknames_reverse", nickname, playerUuid.toString());
+        redis.addToHash("cytosis:nicknames", playerUuid.toString(), nickname);
+        redis.addToHash("cytosis:nicknames_reverse", nickname, playerUuid.toString());
     }
 
     public @Nullable UUID deanonymizePlayer(String nickname) {
@@ -228,7 +226,7 @@ public class NicknameManager implements Bootstrappable {
             }
         }
 
-        String raw = databaseManager.getRedisDatabase().getFromHash("cytosis:nicknames_reverse", nickname);
+        String raw = redis.getFromHash("cytosis:nicknames_reverse", nickname);
         if (raw == null) {
             return null;
         }

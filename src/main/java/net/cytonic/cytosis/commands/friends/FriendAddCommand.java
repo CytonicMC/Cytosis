@@ -4,8 +4,12 @@ import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
@@ -31,29 +35,31 @@ public class FriendAddCommand extends CytosisCommand {
                 return;
             }
 
-            boolean nicked = Cytosis.getNicknameManager().isNicked(target);
-            String name = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(target);
-            Component targetComp = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(target).getPrefix()
-                .append(Component.text(name));
+            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            NicknameManager nicknameManager = Cytosis.CONTEXT.getComponent(NicknameManager.class);
+
+            boolean nicked = nicknameManager.isNicked(target);
+            String name = network.getLifetimePlayers().getByKey(target);
+            Component targetComp = network.getCachedPlayerRanks().get(target).getPrefix().append(Component.text(name));
 
             if (nicked) {
-                NicknameData data = Cytosis.getNicknameManager().getData(target);
+                NicknameData data = nicknameManager.getData(target);
                 targetComp = data.rank().getPrefix().append(Component.text(data.nickname()));
             }
 
-            if (!Cytosis.getCytonicNetwork().getOnlinePlayers().containsKey(target) && !nicked) {
+            if (!network.getOnlinePlayers().containsKey(target) && !nicked) {
                 player.sendMessage(Msg.whoops("The player ").append(targetComp).append(Msg.grey(" is not online!")));
                 return;
             }
 
-            if (!Cytosis.getPreferenceManager()
+            if (!Cytosis.CONTEXT.getComponent(PreferenceManager.class)
                 .getPlayerPreference(target, CytosisPreferences.ACCEPT_FRIEND_REQUESTS) || nicked) {
                 player.sendMessage(Msg.whoops("").append(targetComp)
                     .append(Msg.mm("<gray> is not accepting friend requests!")));
                 return;
             }
 
-            if (Cytosis.getFriendManager().getFriends(player.getUuid()).contains(target)) {
+            if (Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
                 player.sendMessage(Msg.whoops("You are already friends with ").append(targetComp)
                     .append(Msg.mm("<gray>!")));
                 return;

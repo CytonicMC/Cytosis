@@ -89,7 +89,7 @@
 
     <!-- Method Length -->
     <module name="MethodLength">
-      <property name="max" value="50"/>
+      <property name="max" value="80"/>
     </module>
 
     <!-- Blank Lines - matches Google style -->

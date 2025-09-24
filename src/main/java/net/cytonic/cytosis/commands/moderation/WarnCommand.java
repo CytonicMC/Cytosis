@@ -12,11 +12,11 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
@@ -42,7 +42,8 @@ public class WarnCommand extends CytosisCommand {
                     return;
                 }
 
-                PlayerRank playerRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
+                PlayerRank playerRank = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getCachedPlayerRanks()
+                    .get(uuid);
 
                 if (playerRank.isStaff()) {
                     sender.sendMessage(Msg.mm("<red>" + player + " cannot be warned!"));
@@ -57,8 +58,9 @@ public class WarnCommand extends CytosisCommand {
                 Component component = Msg.mm("<red>You have been warned.").append(string);
                 Component snoop = actor.formattedName().append(Msg.grey(" warned "))
                     .append(SnoopUtils.toTarget(uuid)).append(Msg.grey(" for <yellow>" + reason + "</yellow>."));
-                Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
-                Cytosis.getNatsManager().sendChatMessage(
+                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                    .sendSnoop(CytosisSnoops.PLAYER_WARN, Msg.snoop(snoop));
+                Cytosis.CONTEXT.getComponent(NatsManager.class).sendChatMessage(
                     new ChatMessage(List.of(uuid), ChatChannel.INTERNAL_MESSAGE, Msg.toJson(component),
                         actor.getUuid()));
             }

@@ -1,12 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.Bootstrappable;
-import net.kyori.adventure.key.Key;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.timer.TaskSchedule;
-import org.jetbrains.annotations.Nullable;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +12,11 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
+import net.cytonic.cytosis.Bootstrappable;
+
 @NoArgsConstructor
 public class LocalCooldownManager implements Bootstrappable {
+
     private final Map<Key, Instant> server = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
 

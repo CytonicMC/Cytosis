@@ -36,7 +36,8 @@ public class ServerCommand extends CytosisCommand {
             serverArgument.setCallback((sender, exception) -> sender.sendMessage(
                 Component.text("The server " + exception.getInput() + " is invalid!", NamedTextColor.RED)));
             serverArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-                List<SuggestionEntry> options = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getServers().values().stream()
+                List<SuggestionEntry> options = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getServers().values()
+                    .stream()
                     .map(cytonicServer -> new SuggestionEntry(cytonicServer.id()))
                     .toList();
                 CommandUtils.filterEntries(cmdc.get(serverArgument), options).forEach(suggestion::addEntry);
@@ -45,12 +46,14 @@ public class ServerCommand extends CytosisCommand {
                 if (sender instanceof CytosisPlayer player) {
                     if (!player.isStaff()) return;
                     if (!context.get(serverArgument).equalsIgnoreCase(CytosisContext.SERVER_ID)) {
-                        for (CytonicServer server : Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getServers().values()) {
+                        for (CytonicServer server : Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getServers()
+                            .values()) {
                             if (server.id().equals(context.get(serverArgument))) {
                                 player.sendMessage(
                                     Component.text("Connecting to " + server.id(), NamedTextColor.GREEN));
                                 //todo: instance?
-                                Cytosis.CONTEXT.getComponent(NatsManager.class).sendPlayerToServer(player.getUuid(), server, null);
+                                Cytosis.CONTEXT.getComponent(NatsManager.class)
+                                    .sendPlayerToServer(player.getUuid(), server, null);
                             }
                         }
                     } else {

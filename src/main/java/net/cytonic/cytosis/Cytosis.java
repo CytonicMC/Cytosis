@@ -1,22 +1,10 @@
 package net.cytonic.cytosis;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,30 +12,19 @@ import com.google.gson.Strictness;
 import eu.koboo.minestom.stomui.api.ViewRegistry;
 import eu.koboo.minestom.stomui.core.MinestomUI;
 import lombok.Getter;
-import lombok.Setter;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.key.Key;
-import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.CommandManager;
-import net.minestom.server.command.ConsoleSender;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.Event;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.network.ConnectionManager;
-import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
-import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
-import net.minestom.server.timer.TaskSchedule;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
-import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
 import net.cytonic.cytosis.data.adapters.KeyAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
@@ -57,44 +34,8 @@ import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.serializers.KeySerializer;
 import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.ActionbarManager;
-import net.cytonic.cytosis.managers.ChatManager;
-import net.cytonic.cytosis.managers.CommandDisablingManager;
-import net.cytonic.cytosis.managers.FriendManager;
-import net.cytonic.cytosis.managers.InstanceManager;
-import net.cytonic.cytosis.managers.LocalCooldownManager;
-import net.cytonic.cytosis.managers.NetworkCooldownManager;
-import net.cytonic.cytosis.managers.NpcManager;
-import net.cytonic.cytosis.managers.PlayerListManager;
-import net.cytonic.cytosis.managers.PreferenceManager;
-import net.cytonic.cytosis.managers.RankManager;
-import net.cytonic.cytosis.managers.ServerInstancingManager;
-import net.cytonic.cytosis.managers.SideboardManager;
-import net.cytonic.cytosis.managers.SnooperManager;
-import net.cytonic.cytosis.managers.VanishManager;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
-import net.cytonic.cytosis.metrics.MetricsHooks;
-import net.cytonic.cytosis.metrics.MetricsManager;
-import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
-import net.hollowcube.polar.PolarLoader;
-import net.kyori.adventure.key.Key;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Player;
-import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.LightingChunk;
-import net.minestom.server.instance.block.Block;
-import org.spongepowered.configurate.gson.GsonConfigurationLoader;
-import org.spongepowered.configurate.objectmapping.ObjectMapper;
-
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * The main class for Cytosis
@@ -102,19 +43,20 @@ import java.util.UUID;
 @Getter
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 public final class Cytosis {
+
     // The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
     public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
-            .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
-            .registerTypeAdapter(Key.class, new KeyAdapter())
-            .registerTypeAdapter(Instant.class, new InstantAdapter())
-            .registerTypeAdapterFactory(new TypedNamespaceAdapter())
-            .registerTypeAdapterFactory(new PreferenceAdapter<>())
-            .registerTypeAdapterFactory(new KeyAdapter())
-            .enableComplexMapKeySerialization()
-            .setStrictness(Strictness.LENIENT)
-            .serializeNulls()
-            .create();
+        .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
+        .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
+        .registerTypeAdapter(Key.class, new KeyAdapter())
+        .registerTypeAdapter(Instant.class, new InstantAdapter())
+        .registerTypeAdapterFactory(new TypedNamespaceAdapter())
+        .registerTypeAdapterFactory(new PreferenceAdapter<>())
+        .registerTypeAdapterFactory(new KeyAdapter())
+        .enableComplexMapKeySerialization()
+        .setStrictness(Strictness.LENIENT)
+        .serializeNulls()
+        .create();
 
     public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()
         .indent(0)
@@ -144,53 +86,17 @@ public final class Cytosis {
     }
 
     /**
-     * Loads the world based on the settings
-     */
-    public static void loadWorld() {
-        if (CytosisSettings.SERVER_WORLD_NAME.isEmpty()) {
-            Logger.info("Generating basic world");
-            defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-            defaultInstance.setChunkSupplier(LightingChunk::new);
-            Logger.info("Basic world loaded!");
-            return;
-        }
-        Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
-        databaseManager.getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME)
-            .whenComplete((polarWorld, throwable) -> {
-                if (throwable != null) {
-                    Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",
-                        throwable);
-                    defaultInstance.setGenerator(unit -> unit.modifier()
-                        .fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-                    defaultInstance.setChunkSupplier(LightingChunk::new);
-                } else {
-                    defaultInstance.setChunkLoader(new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
-                    defaultInstance.setChunkSupplier(LightingChunk::new);
-                    defaultInstance.enableAutoChunkLoad(true);
-                    Logger.info("World loaded!");
-                }
-            });
-    }
-
-    private static void shutdownHandler() {
-        pluginManager.unloadPlugins();
-        natsManager.shutdown();
-        databaseManager.shutdown();
-        sideboardManager.cancelUpdates();
-        getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
-    }
-
-    /**
-     * Gets the players currently on THIS instance
-     * every object the server makes is a CytosisPlayer -- or descendant from one
+     * Gets the players currently on THIS instance every object the server makes is a CytosisPlayer -- or descendant
+     * from one
      *
      * @return a set of players
      */
     public static Set<CytosisPlayer> getOnlinePlayers() {
         Set<CytosisPlayer> players = new HashSet<>();
         for (Player p : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
-            if (p instanceof CytosisPlayer cp)
+            if (p instanceof CytosisPlayer cp) {
                 players.add(cp);
+            }
         }
 
         return players;
@@ -206,8 +112,9 @@ public final class Cytosis {
     public static <T extends CytosisPlayer> Set<T> getOnlinePlayersAs(Class<T> clazz) {
         Set<T> players = new HashSet<>();
         for (Player p : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
-            if (clazz.isInstance(p))
+            if (clazz.isInstance(p)) {
                 players.add(clazz.cast(p));
+            }
         }
 
         return players;
@@ -223,20 +130,6 @@ public final class Cytosis {
      */
     public static <T extends CytosisPlayer> Optional<T> getPlayerAs(String username, Class<T> clazz) {
         return getPlayer(username).map(clazz::cast);
-    }
-
-    /**
-     * Gets the player if they are on THIS instance, by USERNAME
-     *
-     * @param username The name to fetch the player by
-     * @return The optional holding the player if they exist
-     */
-    public static Optional<CytosisPlayer> getPlayer(String username) {
-        if (username == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager()
-            .getOnlinePlayerByUsername(username));
     }
 
     /**
@@ -258,7 +151,11 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<CytosisPlayer> getPlayer(String username) {
-        return username == null ? Optional.empty() : Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
+        if (username == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager()
+            .getOnlinePlayerByUsername(username));
     }
 
     /**
@@ -268,7 +165,8 @@ public final class Cytosis {
      * @return The optional holding the player if they exist
      */
     public static Optional<CytosisPlayer> getPlayer(UUID uuid) {
-        return uuid == null ? Optional.empty() : Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
+        return uuid == null ? Optional.empty()
+            : Optional.ofNullable((CytosisPlayer) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
     /**
@@ -285,17 +183,19 @@ public final class Cytosis {
         }
 
         Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
-        CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().getWorld(CytosisSettings.SERVER_WORLD_NAME).whenComplete((polarWorld, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst initializing the world! Reverting to a basic world", throwable);
-                defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-                defaultInstance.setChunkSupplier(LightingChunk::new);
-            } else {
-                defaultInstance.setChunkLoader(new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
-                defaultInstance.setChunkSupplier(LightingChunk::new);
-                defaultInstance.enableAutoChunkLoad(true);
-                Logger.info("World loaded!");
-            }
-        });
+        CONTEXT.getComponent(MysqlDatabase.class).getWorld(CytosisSettings.SERVER_WORLD_NAME)
+            .whenComplete((polarWorld, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",
+                        throwable);
+                    defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+                    defaultInstance.setChunkSupplier(LightingChunk::new);
+                } else {
+                    defaultInstance.setChunkLoader(new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
+                    defaultInstance.setChunkSupplier(LightingChunk::new);
+                    defaultInstance.enableAutoChunkLoad(true);
+                    Logger.info("World loaded!");
+                }
+            });
     }
 }

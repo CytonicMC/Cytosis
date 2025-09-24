@@ -14,7 +14,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.objects.BanData;
@@ -32,7 +32,7 @@ import net.cytonic.cytosis.utils.SnoopUtils;
  */
 public class BanCommand extends CytosisCommand {
 
-    private final DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+    private final MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
 
     /**
      * Creates the command and sets the consumers
@@ -71,7 +71,7 @@ public class BanCommand extends CytosisCommand {
 
     private void banPlayer(CommandSender sender, CytosisPlayer actor, UUID uuid, String player, String reason,
         Instant dur) {
-        databaseManager.getMysqlDatabase().isBanned(uuid)
+        db.isBanned(uuid)
             .thenAccept(banData -> handleBanCheck(sender, actor, uuid, player, reason, dur, banData))
             .exceptionally(throwable -> handleBanCheckError(sender, player, throwable));
     }
@@ -88,7 +88,7 @@ public class BanCommand extends CytosisCommand {
 
     private void checkPlayerRankAndBan(CommandSender sender, CytosisPlayer actor, UUID uuid, String player,
         String reason, Instant dur) {
-        databaseManager.getMysqlDatabase().getPlayerRank(uuid).whenComplete((playerRank, throwable) -> {
+        db.getPlayerRank(uuid).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
                 handleRankCheckError(sender, player, throwable);
                 return;
@@ -104,20 +104,20 @@ public class BanCommand extends CytosisCommand {
     }
 
     private void executeBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
-        databaseManager.getMysqlDatabase().banPlayer(uuid, reason, dur)
-            .whenComplete((ignored, throwable) -> {
-                if (throwable != null) {
-                    handleBanExecutionError(actor, player, throwable);
-                    return;
-                }
+        db.banPlayer(uuid, reason, dur).whenComplete((ignored, throwable) -> {
+            if (throwable != null) {
+                handleBanExecutionError(actor, player, throwable);
+                return;
+            }
 
-                handleSuccessfulBan(actor, uuid, player, reason, dur);
-            });
+            handleSuccessfulBan(actor, uuid, player, reason, dur);
+        });
     }
 
     private void handleSuccessfulBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
         BanData banData = new BanData(reason, dur, true);
-        Cytosis.getNatsManager().kickPlayer(uuid, KickReason.BANNED, Msg.formatBanMessage(banData));
+        Cytosis.CONTEXT.getComponent(NatsManager.class)
+            .kickPlayer(uuid, KickReason.BANNED, Msg.formatBanMessage(banData));
 
         String durationText = DurationParser.unparseFull(dur);
         actor.sendMessage(Msg.mm("<green>%s was successfully banned for %s.", player, durationText));

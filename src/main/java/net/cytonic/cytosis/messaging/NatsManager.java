@@ -30,6 +30,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
 import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
 import net.cytonic.cytosis.data.containers.PlayerRankUpdateContainer;
@@ -66,15 +67,18 @@ import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
 public class NatsManager implements Bootstrappable {
-    private RankManager rankManager;
-    private FriendManager friendManager;
-    private PreferenceManager preferenceManager;
-    private CytonicNetwork network;
+
     private static final Component FRIEND_LINE = Msg.darkAqua(
         "<st>                                                                                 ");
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
+    private RankManager rankManager;
+    private FriendManager friendManager;
+    private PreferenceManager preferenceManager;
+    private CytonicNetwork network;
+    private ChatManager chatManager;
+    private MysqlDatabase databaseManager;
     private Connection connection;
     private Subscription healthCheck;
     private boolean started = false;
@@ -85,6 +89,15 @@ public class NatsManager implements Bootstrappable {
         this.friendManager = Cytosis.CONTEXT.getComponent(FriendManager.class);
         this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+        this.chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
+        this.databaseManager = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+    }
+
+    @SneakyThrows // don't care about the error on shutdown
+    @Override
+    public void shutdown() {
+        sendShutdown();
+        connection.close();
     }
 
     @SneakyThrows
@@ -95,9 +108,8 @@ public class NatsManager implements Bootstrappable {
             .connectionListener(setupConnectionListener()).errorListener(new ErrorListener() {
                 @Override
                 public void errorOccurred(Connection conn, String error) {
-                    Logger.error(
-                        "An error occurred in a NATS action: %s in connection %s",
-                        error, conn.getServerInfo().getClientId());
+                    Logger.error("An error occurred in a NATS action: %s in connection %s", error,
+                        conn.getServerInfo().getClientId());
                 }
             }).build();
         Nats.connectAsynchronously(options, true);
@@ -144,42 +156,26 @@ public class NatsManager implements Bootstrappable {
                 connection = null;
             }
         };
-
-        Options options = Options.builder()
-                .server("nats://" + CytosisSettings.NATS_USERNAME + ":" + CytosisSettings.NATS_PASSWORD + "@" + CytosisSettings.NATS_HOSTNAME + ":" + CytosisSettings.NATS_PORT)
-                .connectionListener(connectionListener)
-                .errorListener(new ErrorListener() {
-                    @Override
-                    public void errorOccurred(Connection conn, String error) {
-                        Logger.error("An error occured in a NATS action: " + error + " in connection " + conn.getServerInfo().getClientId());
-                    }
-                })
-                .build();
-        Nats.connectAsynchronously(options, true);
-    }
-
-    @SneakyThrows // don't care about the error on shutdown
-    @Override
-    public void shutdown() {
-        sendShutdown();
-        connection.close();
     }
 
     public void sendStartup() {
-        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(), CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
+        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
+            CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
+            Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
-                    try {
-                        Logger.info("Registering server with Cydian!");
-                        publish(Subjects.SERVER_REGISTER, data);
-                    } catch (Exception e) {
-                        Logger.error("Failed to send STARTUP", e);
-                    }
-                }
-        );
+            try {
+                Logger.info("Registering server with Cydian!");
+                publish(Subjects.SERVER_REGISTER, data);
+            } catch (Exception e) {
+                Logger.error("Failed to send STARTUP", e);
+            }
+        });
     }
 
     public void sendShutdown() {
-        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(), CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(), Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
+        byte[] data = new ServerStatusContainer(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
+            CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
+            Cytosis.CONTEXT.getServerGroup().group()).serialize().getBytes();
         // send it sync, so the connection doesn't get closed
         publish(Subjects.SERVER_SHUTDOWN, data);
     }
@@ -397,7 +393,7 @@ public class NatsManager implements Bootstrappable {
     private void listenForPlayerServerChange() {
         connection.createDispatcher(msg -> {
             PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(new String(msg.getData()));
-            Cytosis.getCytonicNetwork().processPlayerServerChange(container);
+            network.processPlayerServerChange(container);
         }).subscribe(Subjects.PLAYER_SERVER_CHANGE);
     }
 
@@ -416,11 +412,10 @@ public class NatsManager implements Bootstrappable {
                         //todo: add permission to message people
                         if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
                             player.playSound(
-                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f,
-                                    1.0F));
+                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                         }
                         player.sendMessage(component);
-                        Cytosis.getChatManager().openPrivateMessage(player, message.sender());
+                        chatManager.openPrivateMessage(player, message.sender());
                     }
                 });
                 return;
@@ -453,7 +448,7 @@ public class NatsManager implements Bootstrappable {
             PlayerRankUpdateContainer container = PlayerRankUpdateContainer.deserialize(msg.getData());
             Cytosis.getPlayer(container.player()).ifPresentOrElse(player -> {
                 // they are on this server, so we need to update their cosmetics
-                Cytosis.getRankManager().changeRank(player, container.rank());
+                rankManager.changeRank(player, container.rank());
                 Component badge;
                 if (container.rank() != PlayerRank.DEFAULT) {
                     badge = container.rank().getPrefix().replaceText(builder -> builder.match(" ").replacement(""));
@@ -463,9 +458,9 @@ public class NatsManager implements Bootstrappable {
                 player.sendMessage(Msg.network("Your rank has been updated to ").append(badge).append(Msg.grey(".")));
 
             }, () -> {
-                Cytosis.getRankManager().changeRankSilently(container.player(), container.rank());
-                Cytosis.getCytonicNetwork().updateCachedPlayerRank(container.player(), container.rank());
-                Cytosis.getDatabaseManager().getMysqlDatabase().setPlayerRank(container.player(), container.rank());
+                rankManager.changeRankSilently(container.player(), container.rank());
+                network.updateCachedPlayerRank(container.player(), container.rank());
+                databaseManager.setPlayerRank(container.player(), container.rank());
             });
         }).subscribe(Subjects.PLAYER_RANK_UPDATE);
     }
@@ -485,62 +480,36 @@ public class NatsManager implements Bootstrappable {
         publishQueue.add(new PublishContainer(channel, data));
     }
 
-    @SneakyThrows // don't care about the error on shutdown
-    public void shutdown() {
-        sendShutdown();
-        connection.close();
-    }
-
-    public void sendShutdown() {
-        byte[] data = new ServerStatusContainer(Cytosis.getServerGroup().type(), Utils.getServerIP(),
-            Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(),
-            Cytosis.getServerGroup().group()).serialize().getBytes();
-        // send it sync, so the connection doesn't get closed
-        publish(Subjects.SERVER_SHUTDOWN, data);
-    }
-
-    public void sendStartup() {
-        byte[] data = new ServerStatusContainer(Cytosis.getServerGroup().type(), Utils.getServerIP(),
-            Cytosis.getRawID(), CytosisSettings.SERVER_PORT, Instant.now(),
-            Cytosis.getServerGroup().group()).serialize().getBytes();
-
-        Logger.info("Registering server with Cydian!");
-        publish(Subjects.SERVER_REGISTER, data);
-    }
-
     public void sendFriendRequest(FriendRequest request) {
-        request(Subjects.FRIEND_REQUEST, request.serialize().getBytes(StandardCharsets.UTF_8),
-            (message, throwable) -> {
-                if (Cytosis.getPlayer(request.sender()).isEmpty()) {
-                    return; // not online, don't care anymore.
-                }
-                CytosisPlayer p = Cytosis.getPlayer(request.sender()).get();
-                if (throwable != null) {
-                    p.sendMessage(Msg.serverError("An error occurred whilst sending your friend request!"));
-                    Logger.error("Internal error whilst sending friend request", throwable);
-                }
-                FriendApiResponse response = FriendApiResponse.deserialize(new String(message.getData()));
-                if (response.success()) {
-                    return; // it was successful, no need to tell anyone
-                }
+        request(Subjects.FRIEND_REQUEST, request.serialize().getBytes(StandardCharsets.UTF_8), (message, throwable) -> {
+            if (Cytosis.getPlayer(request.sender()).isEmpty()) {
+                return; // not online, don't care anymore.
+            }
+            CytosisPlayer p = Cytosis.getPlayer(request.sender()).get();
+            if (throwable != null) {
+                p.sendMessage(Msg.serverError("An error occurred whilst sending your friend request!"));
+                Logger.error("Internal error whilst sending friend request", throwable);
+            }
+            FriendApiResponse response = FriendApiResponse.deserialize(new String(message.getData()));
+            if (response.success()) {
+                return; // it was successful, no need to tell anyone
+            }
 
-                String recipientName = Cytosis.getCytonicNetwork().getLifetimePlayers()
-                    .getByKey(request.recipient());
-                PlayerRank recipientRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks()
-                    .get(request.recipient());
-                Component recipient = recipientRank.getPrefix().append(Component.text(recipientName));
+            String recipientName = network.getLifetimePlayers().getByKey(request.recipient());
+            PlayerRank recipientRank = network.getCachedPlayerRanks().get(request.recipient());
+            Component recipient = recipientRank.getPrefix().append(Component.text(recipientName));
 
-                if (response.code().equalsIgnoreCase("ALREADY_SENT")) {
-                    p.sendMessage(Msg.whoops("You have already sent a friend request to ").append(recipient)
-                        .append(Msg.mm("<gray>!")));
-                } else {
-                    p.sendMessage(Msg.serverError("Failed to send your friend request to ").append(recipient)
-                        .append(Msg.mm("<gray>! Error: " + response.message())));
-                    Logger.error(
-                        "Failed to send " + request.sender() + "'s friend request to " + request.recipient()
-                            + "!. Error: " + response.message() + " | Code: " + response.code());
-                }
-            });
+            if (response.code().equalsIgnoreCase("ALREADY_SENT")) {
+                p.sendMessage(Msg.whoops("You have already sent a friend request to ").append(recipient)
+                    .append(Msg.mm("<gray>!")));
+            } else {
+                p.sendMessage(Msg.serverError("Failed to send your friend request to ").append(recipient)
+                    .append(Msg.mm("<gray>! Error: " + response.message())));
+                Logger.error(
+                    "Failed to send " + request.sender() + "'s friend request to " + request.recipient() + "!. Error: "
+                        + response.message() + " | Code: " + response.code());
+            }
+        });
     }
 
     public void request(String channel, byte[] data, BiConsumer<Message, Throwable> consumer) {
@@ -574,8 +543,8 @@ public class NatsManager implements Bootstrappable {
         FriendApiResponse api = FriendApiResponse.deserialize(response);
         if (api.success()) return;
 
-        String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(sender);
-        PlayerRank recipientRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(sender);
+        String senderName = network.getLifetimePlayers().getByKey(sender);
+        PlayerRank recipientRank = network.getCachedPlayerRanks().get(sender);
         Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
@@ -612,8 +581,8 @@ public class NatsManager implements Bootstrappable {
         }
         FriendApiResponse api = FriendApiResponse.deserialize(response);
 
-        String senderName = Cytosis.getCytonicNetwork().getLifetimePlayers().getByKey(sender);
-        PlayerRank recipientRank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(sender);
+        String senderName = network.getLifetimePlayers().getByKey(sender);
+        PlayerRank recipientRank = network.getCachedPlayerRanks().get(sender);
         Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
@@ -647,7 +616,7 @@ public class NatsManager implements Bootstrappable {
                 List<ServerStatusContainer> containers = Cytosis.GSON.fromJson(new String(m.getData()),
                     Utils.SERVER_LIST);
                 for (ServerStatusContainer container : containers) {
-                    Cytosis.getCytonicNetwork().getServers().put(container.id(), container.server());
+                    network.getServers().put(container.id(), container.server());
                     Logger.info("Loaded server '" + container.id() + "' from Cydian!");
                 }
                 Logger.info("Loaded " + containers.size() + " active servers from Cydian!");
@@ -759,13 +728,6 @@ public class NatsManager implements Bootstrappable {
                         Msg.network("Sending you to %s!", displayname == null ? "the a server" : displayname));
                 }
             });
-    }
-
-    public void listenForPlayerServerChange() {
-        Thread.ofVirtual().name("NATS Player Server Change").start(() -> connection.createDispatcher(msg -> {
-            PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(new String(msg.getData()));
-            network.processPlayerServerChange(container);
-        }).subscribe(Subjects.PLAYER_SERVER_CHANGE));
     }
 
     public void sendChatMessage(ChatMessage chatMessage) {

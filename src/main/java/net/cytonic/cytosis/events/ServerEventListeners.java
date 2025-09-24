@@ -18,13 +18,14 @@ import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerPacketOutEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.events.api.Async;
@@ -32,7 +33,14 @@ import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.*;
+import net.cytonic.cytosis.managers.ChatManager;
+import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.NpcManager;
+import net.cytonic.cytosis.managers.PlayerListManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.managers.SideboardManager;
+import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.npcs.Npc;
@@ -40,19 +48,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerHand;
-import net.minestom.server.event.EventDispatcher;
-import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.event.player.*;
-import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.network.packet.server.SendablePacket;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
-
-import java.util.Optional;
 
 /**
  * A class that registers Cytosis required server events
@@ -65,7 +60,7 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onInteract(PlayerEntityInteractEvent event) {
-        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NPCManager.class).findNpc(event.getTarget().getUuid());
+        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NpcManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
             Npc npc = optional.get();
             EventDispatcher.call(new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()));
@@ -137,12 +132,11 @@ public final class ServerEventListeners {
         Logger.info(
             player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
                 .getRemoteAddress());
-        DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+        MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
 
-        databaseManager.getMysqlDatabase()
-            .logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
+        db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
-        databaseManager.getMysqlDatabase().addPlayer(player);
+        db.addPlayer(player);
         Cytosis.CONTEXT.getComponent(SideboardManager.class).addPlayer(player);
         Cytosis.CONTEXT.getComponent(PlayerListManager.class).setupPlayer(player);
         Cytosis.CONTEXT.getComponent(RankManager.class).addPlayer(player);
@@ -164,7 +158,8 @@ public final class ServerEventListeners {
         }
         if (!player.hasPlayedBefore() && Cytosis.CONTEXT.isMetricsEnabled()) {
             // add a new player who hasn't played before
-            Cytosis.CONTEXT.getComponent(MetricsManager.class).addToLongCounter("players.unique", 1, Attributes.empty());
+            Cytosis.CONTEXT.getComponent(MetricsManager.class)
+                .addToLongCounter("players.unique", 1, Attributes.empty());
         }
     }
 
@@ -173,15 +168,15 @@ public final class ServerEventListeners {
     private void onChat(PlayerChatEvent event) {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         event.setCancelled(true);
-        DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
-        databaseManager.getMysqlDatabase().isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
+        MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        db.isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst checking if the player is muted!", throwable);
                 return;
             }
             if (!isMuted) {
                 ChatManager chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
-                databaseManager.getMysqlDatabase().addChat(player.getUuid(), event.getRawMessage());
+                db.addChat(player.getUuid(), event.getRawMessage());
                 String originalMessage = event.getRawMessage();
                 ChatChannel channel = chatManager.getChannel(player.getUuid());
                 if (player.canUseChannel(channel) || channel == ChatChannel.ALL) {
@@ -203,7 +198,8 @@ public final class ServerEventListeners {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         Cytosis.CONTEXT.getComponent(SideboardManager.class).removePlayer(player);
         Cytosis.CONTEXT.getComponent(FriendManager.class).unloadPlayer(player.getUuid());
-        if (Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+        if (Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+            .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
             Cytosis.CONTEXT.getComponent(VanishManager.class).disableVanish(player);
         }
     }
@@ -212,7 +208,7 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onAttack(EntityAttackEvent event) {
         if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NPCManager.class).findNpc(event.getTarget().getUuid());
+        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NpcManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget()) {
             Npc npc = optional.get();
             MinecraftServer.getGlobalEventHandler().call(new NpcInteractEvent(npc, player, npc.getActions()));

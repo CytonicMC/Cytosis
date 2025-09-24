@@ -1,20 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.CytonicNetwork;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.data.MysqlDatabase;
-import net.cytonic.cytosis.data.containers.friends.FriendRequest;
-import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.Utils;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -29,11 +14,14 @@ import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.friends.FriendRequest;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
@@ -42,6 +30,7 @@ import net.cytonic.cytosis.utils.Utils;
  */
 @NoArgsConstructor
 public class FriendManager implements Bootstrappable {
+
     private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
 
     private CytonicNetwork network;
@@ -55,7 +44,7 @@ public class FriendManager implements Bootstrappable {
     public void init() {
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.db = Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase();
+        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
 
         PreparedStatement ps = db.prepare(
             "CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))");

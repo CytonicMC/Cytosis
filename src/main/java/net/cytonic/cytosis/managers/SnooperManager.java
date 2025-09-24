@@ -16,7 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.snooper.SnoopPersistenceManager;
 import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
 import net.cytonic.cytosis.data.containers.snooper.SnooperContainer;
@@ -29,20 +30,22 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
 
 public class SnooperManager implements Bootstrappable {
+
     private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();
+    private final SnooperRegistry registry = new SnooperRegistry();
     @Getter
     private SnoopPersistenceManager persistenceManager;
-    private final SnooperRegistry registry = new SnooperRegistry();
     private Set<String> stored = new HashSet<>();
 
-    private DatabaseManager databaseManager;
     private NatsManager natsManager;
+
+    public SnooperManager() {
+    }
 
     @Override
     public void init() {
-        this.databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
         this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.persistenceManager = new SnoopPersistenceManager(databaseManager.getMysqlDatabase());
+        this.persistenceManager = new SnoopPersistenceManager(Cytosis.CONTEXT.getComponent(MysqlDatabase.class));
 
         Logger.info("Loading snooper channels from redis");
         loadChannelsFromRedis();
@@ -59,11 +62,8 @@ public class SnooperManager implements Bootstrappable {
         registerChannel(CytosisSnoops.PLAYER_SERVER_CHANGE);
     }
 
-    public SnooperManager() {
-    }
-
     public void loadChannelsFromRedis() {
-        stored = databaseManager.getRedisDatabase().getSet("cytosis:snooper_channels");
+        stored = Cytosis.CONTEXT.getComponent(RedisDatabase.class).getSet("cytosis:snooper_channels");
         for (String channel : stored) {
             try {
                 registerChannel(SnooperChannel.deserialize(channel));
@@ -83,7 +83,7 @@ public class SnooperManager implements Bootstrappable {
         registry.registerChannel(channel);
         if (!stored.contains(channel.serialize())) {
             // we should put it in redis!
-            databaseManager.getRedisDatabase().addValue("cytosis:snooper_channels", channel.serialize());
+            Cytosis.CONTEXT.getComponent(RedisDatabase.class).addValue("cytosis:snooper_channels", channel.serialize());
             stored.add(channel.serialize());
         }
 

@@ -8,8 +8,10 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.condition.Conditions;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
 /**
@@ -21,13 +23,14 @@ public class FriendCommand extends CytosisCommand {
         .setSuggestionCallback((sender, context, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
 
-                List<UUID> friends = Cytosis.getFriendManager().getFriends(player.getUuid());
+                CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+                List<UUID> friends = Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid());
 
-                for (String networkPlayer : Cytosis.getCytonicNetwork().getOnlinePlayers().getValues()) {
+                for (String networkPlayer : network.getOnlinePlayers().getValues()) {
                     if (networkPlayer.equalsIgnoreCase(player.getUsername())) {
                         continue;
                     }
-                    if (friends.contains(Cytosis.getCytonicNetwork().getOnlinePlayers().getByValue(networkPlayer))) {
+                    if (friends.contains(network.getOnlinePlayers().getByValue(networkPlayer))) {
                         continue;
                     }
                     suggestion.addEntry(new SuggestionEntry(networkPlayer));

@@ -6,17 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.togar2.pvp.player.CombatPlayerImpl;
-import net.cytonic.cytosis.CytonicNetwork;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.*;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -30,13 +19,22 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.ActionbarManager;
+import net.cytonic.cytosis.managers.ChatManager;
+import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.LocalCooldownManager;
+import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.managers.VanishManager;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 
@@ -71,10 +69,6 @@ public class CytosisPlayer extends CombatPlayerImpl {
                 "The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
-    }
-
-    public PlayerRank getTrueRank() {
-        return rank;
     }
 
     public PlayerRank getRank() {
@@ -304,7 +298,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     @Override
     public @Nullable PlayerSkin getSkin() {
         if (isNicked()) {
-            NicknameManager.NicknameData data = Cytosis.getNicknameManager().getData(getUuid());
+            NicknameManager.NicknameData data = Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid());
             return new PlayerSkin(data.value(), data.signature());
         }
         return super.getSkin();
@@ -324,7 +318,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     @Override
     public @NotNull String getUsername() {
         if (isNicked()) {
-            return Cytosis.getNicknameManager().getData(getUuid()).nickname();
+            return Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid()).nickname();
         }
         return getTrueUsername();
     }
@@ -351,31 +345,6 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public Component formattedName() {
         return getRank().getPrefix().append(Component.text(getUsername()));
-    }
-
-    public PlayerRank getRank() {
-        if (isNicked()) {
-            return Cytosis.getNicknameManager().getData(getUuid()).rank();
-        }
-        return getTrueRank();
-    }
-
-    /**
-     * Sets the player's rank.
-     *
-     * @param rank the new rank
-     */
-    public void setRank(PlayerRank rank) {
-        this.rank = rank;
-        Cytosis.getRankManager().changeRank(this, rank);
-    }
-
-    public boolean isNicked() {
-        return Cytosis.getNicknameManager().isNicked(getUuid());
-    }
-
-    public @NotNull String getTrueUsername() {
-        return super.getUsername();
     }
 
     /**
@@ -471,43 +440,8 @@ public class CytosisPlayer extends CombatPlayerImpl {
         return Cytosis.CONTEXT.getComponent(CytonicNetwork.class).hasPlayedBefore(getUuid());
     }
 
-    @Override
-    public @NotNull String getUsername() {
-        if (isNicked()) {
-            return Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid()).nickname();
-        }
-        return getTrueUsername();
-    }
-
-    /**
-     * Gets the player's name as a component. This will either return the display name
-     * (if set) or a component holding the username.
-     *
-     * @return the name
-     */
-    @Override
-    public @NotNull Component getName() {
-        return Component.text(getUsername());
-    }
-
     public @NotNull Component getTrueName() {
         return Component.text(getTrueUsername());
-    }
-
-
-    /**
-     * Gets the player skin.
-     *
-     * @return the player skin object,
-     * null means that the player has his {@link #getUuid()} default skin
-     */
-    @Override
-    public @Nullable PlayerSkin getSkin() {
-        if (isNicked()) {
-            NicknameManager.NicknameData data = Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid());
-            return new PlayerSkin(data.value(), data.signature());
-        }
-        return super.getSkin();
     }
 
     public @Nullable PlayerSkin getTrueSkin() {

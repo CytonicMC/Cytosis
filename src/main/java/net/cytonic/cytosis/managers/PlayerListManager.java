@@ -191,13 +191,13 @@ public class PlayerListManager {
                     EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
                         PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME), List.of(
                     new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(icons[i][0]), true, 1, GameMode.CREATIVE, comps[i][0], null, order))));
+                        List.of(icons[i][0]), true, 1, GameMode.CREATIVE, comps[i][0], null, order, true))));
             }
 
             if (!oldComps[i][0].equals(columns.get(i).getName())) {
                 packets.add(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
                     new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(icons[i][0]), true, 1, GameMode.CREATIVE, comps[i][0], null, order)));
+                        List.of(icons[i][0]), true, 1, GameMode.CREATIVE, comps[i][0], null, order, true)));
             }
             for (int j = 1; j < comps[i].length; j++) {
                 if (faviconNotEquals(oldIcons[i][j], icons[i][j])) {
@@ -206,14 +206,14 @@ public class PlayerListManager {
                         PlayerInfoUpdatePacket.Action.UPDATE_LISTED, PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
                         List.of(new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
                             "!" + (char) ('A' + i) + "-" + (char) ('a' + j), List.of(icons[i][j]), true, 1,
-                            GameMode.CREATIVE, comps[i][j], null, order))));
+                            GameMode.CREATIVE, comps[i][j], null, order, true))));
                 }
                 if (!oldComps[i][j].equals(comps[i][j])) {
                     oldComps[i][j] = comps[i][j];
                     packets.add(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
                         new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
                             "!" + (char) ('A' + i) + "-" + (char) ('a' + j), List.of(icons[i][j]), true, 1,
-                            GameMode.CREATIVE, comps[i][j], null, order)));
+                            GameMode.CREATIVE, comps[i][j], null, order, true)));
                 }
             }
         }

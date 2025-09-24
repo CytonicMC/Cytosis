@@ -5,16 +5,15 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.CytonicNetwork;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
 
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
-import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -26,12 +25,12 @@ import net.cytonic.cytosis.player.CytosisPlayer;
  */
 @NoArgsConstructor
 public class RankManager implements Bootstrappable {
-    private CytonicNetwork cytonicNetwork;
-    private RedisDatabase redis;
-    private MysqlDatabase db;
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
+    private CytonicNetwork cytonicNetwork;
+    private RedisDatabase redis;
+    private MysqlDatabase db;
 
     /**
      * Creates the teams for cosmetic ranks
@@ -39,9 +38,8 @@ public class RankManager implements Bootstrappable {
     @Override
     public void init() {
         this.cytonicNetwork = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-        DatabaseManager databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
-        this.redis = databaseManager.getRedisDatabase();
-        this.db = databaseManager.getMysqlDatabase();
+        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager()).collisionRule(
                     TeamsPacket.CollisionRule.NEVER)
@@ -75,21 +73,6 @@ public class RankManager implements Bootstrappable {
             }
             setupCosmetics(player, playerRank);
         });
-    }
-
-    /**
-     * Sets up the cosmetics. (Team, tab list, etc.)
-     *
-     * @param player The player
-     * @param rank   The rank
-     */
-    public void setupCosmetics(CytosisPlayer player, PlayerRank rank) {
-        teamMap.get(rank).addMember(player.getUsername());
-        player.setCustomName(rank.getPrefix().append(player.getName()));
-        Cytosis.getCommandHandler().recalculateCommands(player);
-        if (player.isVanished()) {
-            player.setVanished(true); // ranks can mess up the visuals sometimes
-        }
     }
 
     /**

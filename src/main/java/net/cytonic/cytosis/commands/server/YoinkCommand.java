@@ -18,6 +18,7 @@ import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+
 public class YoinkCommand extends CytosisCommand {
 
     public YoinkCommand() {
@@ -26,9 +27,10 @@ public class YoinkCommand extends CytosisCommand {
         setDefaultExecutor((sender, context) -> sender.sendMessage(Msg.whoops("You need to specify a player!")));
 
         var playerArgument = ArgumentType.Word("player");
-        playerArgument.setSuggestionCallback((cmds, cmdc, suggestion) -> Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers()
-            .getValues()
-            .forEach(v -> suggestion.addEntry(new SuggestionEntry(v))));
+        playerArgument.setSuggestionCallback(
+            (cmds, cmdc, suggestion) -> Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers()
+                .getValues()
+                .forEach(v -> suggestion.addEntry(new SuggestionEntry(v))));
         playerArgument.setCallback((sender, exception) -> sender.sendMessage(
             Component.text("The player " + exception.getInput() + " is invalid!", NamedTextColor.RED)));
 

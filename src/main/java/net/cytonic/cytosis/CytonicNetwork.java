@@ -9,9 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.DatabaseManager;
 
+import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
@@ -28,6 +27,7 @@ import net.cytonic.cytosis.utils.Utils;
 @Getter
 @NoArgsConstructor
 public class CytonicNetwork implements Bootstrappable {
+
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
     private final BiMap<UUID, String> lifetimeFlattened = new BiMap<>(); // uuid, lowercased name
     //          ** This is for reference and should not be used to set data **
@@ -40,30 +40,29 @@ public class CytonicNetwork implements Bootstrappable {
     private final Map<UUID, Boolean> mutedPlayers = new ConcurrentHashMap<>();
 
     private CytosisContext cytosisContext;
-    private DatabaseManager databaseManager;
+    private MysqlDatabase db;
 
     @Override
     public void init() {
         this.cytosisContext = Cytosis.CONTEXT;
-        this.databaseManager = cytosisContext.getComponent(DatabaseManager.class);
+        this.db = cytosisContext.getComponent(MysqlDatabase.class);
         importData();
         cytosisContext.getComponent(CytonicNetwork.class)
-                .getServers()
-                .put(CytosisContext.SERVER_ID,
-                        new CytonicServer(Utils.getServerIP(),
-                                CytosisContext.SERVER_ID,
-                                CytosisSettings.SERVER_PORT,
-                                cytosisContext.getServerGroup().type(),
-                                cytosisContext.getServerGroup().group())
-                );
+            .getServers()
+            .put(CytosisContext.SERVER_ID,
+                new CytonicServer(Utils.getServerIP(),
+                    CytosisContext.SERVER_ID,
+                    CytosisSettings.SERVER_PORT,
+                    cytosisContext.getServerGroup().type(),
+                    cytosisContext.getServerGroup().group())
+            );
     }
 
     /**
      * Imports data from Redis and Cydian
      */
     public void importData() {
-        RedisDatabase redis = databaseManager.getRedisDatabase();
-        MysqlDatabase db = databaseManager.getMysqlDatabase();
+        RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
         onlinePlayers.clear();
         onlineFlattened.clear();
         servers.clear();
@@ -114,8 +113,7 @@ public class CytonicNetwork implements Bootstrappable {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        databaseManager.getMysqlDatabase()
-                            .unbanPlayer(UUID.fromString(rs.getString("uuid")));
+                        this.db.unbanPlayer(UUID.fromString(rs.getString("uuid")));
                     } else {
                         BanData banData = new BanData(rs.getString("reason"), expiry, true);
                         bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
@@ -138,8 +136,7 @@ public class CytonicNetwork implements Bootstrappable {
                 while (rs.next()) {
                     Instant expiry = Instant.parse(rs.getString("to_expire"));
                     if (expiry.isBefore(Instant.now())) {
-                        databaseManager.getMysqlDatabase()
-                            .unmutePlayer(UUID.fromString(rs.getString("uuid")));
+                        this.db.unmutePlayer(UUID.fromString(rs.getString("uuid")));
                     } else {
                         mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
                     }
@@ -163,8 +160,6 @@ public class CytonicNetwork implements Bootstrappable {
         lifetimeFlattened.put(uuid, name.toLowerCase());
         // the player has not played before
         cachedPlayerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
-
-        MysqlDatabase db = databaseManager.getMysqlDatabase();
 
         db.getPlayerRank(uuid).thenAccept(playerRank -> cachedPlayerRanks.put(uuid, playerRank))
             .exceptionally((throwable) -> {

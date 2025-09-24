@@ -1,12 +1,5 @@
 package net.cytonic.cytosis.metrics;
 
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.*;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -19,14 +12,16 @@ import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisContext;
 
 /**
  * The base cytosis metrics collecting utility. It supports counters and histograms
  */
 @SuppressWarnings("unused")
 public class MetricsManager implements Bootstrappable {
-    private CytosisContext cytosisContext;
+
     private final Meter meter;
     // counters
     private final Map<String, DoubleCounter> doublesCounters = new ConcurrentHashMap<>();
@@ -34,6 +29,7 @@ public class MetricsManager implements Bootstrappable {
     // histograms
     private final Map<String, DoubleHistogram> doubleHistograms = new ConcurrentHashMap<>();
     private final Map<String, LongHistogram> longHistograms = new ConcurrentHashMap<>();
+    private CytosisContext cytosisContext;
 
     /*
      * Here are the types of things for future reference:
@@ -49,11 +45,6 @@ public class MetricsManager implements Bootstrappable {
      */
     public MetricsManager() {
         meter = CytosisOpenTelemetry.getMeter("cytosis");
-    }
-
-    @Override
-    public void init() {
-        this.cytosisContext = Cytosis.CONTEXT;
     }
 
     /**
@@ -72,6 +63,11 @@ public class MetricsManager implements Bootstrappable {
      */
     public MetricsManager(String name) {
         this.meter = CytosisOpenTelemetry.getMeter(name);
+    }
+
+    @Override
+    public void init() {
+        this.cytosisContext = Cytosis.CONTEXT;
     }
 
     /**
@@ -127,7 +123,8 @@ public class MetricsManager implements Bootstrappable {
         }
         if (!longsCounters.containsKey(counterName)) return;
         longsCounters.get(counterName).add(value,
-            Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+            Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
                 .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable()).build());
     }
 
@@ -147,7 +144,8 @@ public class MetricsManager implements Bootstrappable {
         }
         if (!doublesCounters.containsKey(counterName)) return;
         doublesCounters.get(counterName).add(value,
-            Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+            Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
                 .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable()).build());
     }
 
@@ -170,8 +168,10 @@ public class MetricsManager implements Bootstrappable {
         validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit).buildWithCallback(
             observableDoubleMeasurement -> observableDoubleMeasurement.record(function.apply(null),
-                Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
-                    .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable()).build()));
+                Attributes.builder().putAll(extraAttributes)
+                    .put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                    .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                    .build()));
     }
 
     /**
@@ -191,8 +191,10 @@ public class MetricsManager implements Bootstrappable {
         validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit).ofLongs().buildWithCallback(
             call -> call.record(function.apply(null),
-                Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
-                    .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable()).build()));
+                Attributes.builder().putAll(extraAttributes)
+                    .put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                    .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                    .build()));
     }
 
     // histograms
@@ -238,7 +240,8 @@ public class MetricsManager implements Bootstrappable {
         if (value < 0) return;
         if (!doubleHistograms.containsKey(histogram)) return;
         doubleHistograms.get(histogram).record(value,
-            Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+            Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
                 .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable()).build());
     }
 
@@ -257,7 +260,8 @@ public class MetricsManager implements Bootstrappable {
         if (value < 0) return;
         if (!longHistograms.containsKey(histogram)) return;
         longHistograms.get(histogram).record(value,
-            Attributes.builder().putAll(extraAttributes).put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+            Attributes.builder().putAll(extraAttributes)
+                .put(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
                 .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable()).build());
     }
 }

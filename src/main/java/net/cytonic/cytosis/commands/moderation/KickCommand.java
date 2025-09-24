@@ -19,6 +19,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
+
 public class KickCommand extends CytosisCommand {
 
     public KickCommand() {
@@ -57,7 +58,8 @@ public class KickCommand extends CytosisCommand {
                 Component snoop = actor.formattedName().append(Msg.grey("kicked "))
                     .append(SnoopUtils.toTarget(uuid))
                     .append(Msg.grey("for <yellow>" + reason + "</yellow>."));
-                Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
+                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                    .sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
                 Cytosis.CONTEXT.getComponent(NatsManager.class)
                     .kickPlayer(uuid, KickReason.COMMAND,
                         Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason));

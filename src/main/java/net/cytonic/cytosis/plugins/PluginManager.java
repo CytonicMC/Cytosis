@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.plugins;
 
-import net.cytonic.cytosis.Bootstrappable;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -19,6 +18,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.plugins.dependencies.DependencyUtils;
 import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
 import net.cytonic.cytosis.plugins.loader.JavaPluginLoader;
@@ -31,9 +31,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Handles loading plugins and provides a registry for loaded plugins.
  */
 public class PluginManager implements Bootstrappable {
+
     private final Map<String, PluginContainer> pluginsById = new LinkedHashMap<>();
     private final Map<Object, PluginContainer> pluginInstances = new IdentityHashMap<>();
-    Logger logger = LoggerFactory.getLogger("Plugin Manager");
+    private final Logger logger = LoggerFactory.getLogger("Plugin Manager");
 
     @Override
     public void init() {
@@ -51,19 +52,9 @@ public class PluginManager implements Bootstrappable {
         }
     }
 
-
     @Override
     public void shutdown() {
         unloadPlugins();
-    }
-
-    private void registerPlugin(PluginContainer plugin) {
-        pluginsById.put(plugin.getDescription().getId(), plugin);
-        Optional<CytosisPlugin> instance = plugin.getInstance();
-        instance.ifPresent(o -> {
-            pluginInstances.put(o, plugin);
-            o.initialize();
-        });
     }
 
     /**

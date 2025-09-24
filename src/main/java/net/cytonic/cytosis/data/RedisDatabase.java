@@ -14,6 +14,7 @@ import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.JedisPubSub;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.Container;
@@ -21,20 +22,11 @@ import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.containers.PlayerWarnContainer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import redis.clients.jedis.*;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * A class that holds the connection to the redis cache
  */
-public class RedisDatabase {
+public class RedisDatabase implements Bootstrappable {
 
     /**
      * Cached global cooldowns
@@ -73,6 +65,10 @@ public class RedisDatabase {
         this.jedis = new JedisPooled(hostAndPort, config);
         this.jedisPub = new JedisPooled(hostAndPort, config);
         this.jedisSub = new JedisPooled(hostAndPort, config);
+    }
+
+    @Override
+    public void init() {
         Logger.info("Connected to Redis!");
 
         worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
@@ -114,6 +110,18 @@ public class RedisDatabase {
     }
 
     /**
+     * Disconnects from the redis server
+     */
+    @Override
+    public void shutdown() {
+        worker.shutdown();
+        jedis.close();
+        jedisPub.close();
+        jedisSub.close();
+        Logger.info("Disconnected from Redis!");
+    }
+
+    /**
      * Sends a broadcast to all servers
      *
      * @param broadcast the broadcast
@@ -133,21 +141,10 @@ public class RedisDatabase {
      * @param reason      the reason
      */
     public void warnPlayer(UUID target, UUID actor, Component warnMessage, String reason) {
-        Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().addPlayerWarn(actor, target, reason);
+        Cytosis.CONTEXT.getComponent(MysqlDatabase.class).addPlayerWarn(actor, target, reason);
         PlayerWarnContainer container = new PlayerWarnContainer(target, JSONComponentSerializer.json()
             .serialize(warnMessage));
         jedisPub.publish(PLAYER_WARN, container.toString());
-    }
-
-    /**
-     * Disconnects from the redis server
-     */
-    public void disconnect() {
-        worker.shutdown();
-        jedis.close();
-        jedisPub.close();
-        jedisSub.close();
-        Logger.info("Disconnected from Redis!");
     }
 
     /**

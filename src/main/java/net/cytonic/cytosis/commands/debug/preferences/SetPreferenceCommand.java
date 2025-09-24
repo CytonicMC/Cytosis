@@ -20,10 +20,10 @@ public class SetPreferenceCommand extends CytosisCommand {
 
     public SetPreferenceCommand() {
         super("set");
-
+        PreferenceManager pm = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : Cytosis.getPreferenceManager().getPreferenceRegistry().namespaces()) {
+            for (Key preference : pm.getPreferenceRegistry().namespaces()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -38,14 +38,14 @@ public class SetPreferenceCommand extends CytosisCommand {
             }
 
             Key node = Key.key(context.get(nodeArg));
-            PreferenceManager manager = Cytosis.getPreferenceManager();
+            PreferenceManager manager = pm;
             Preference<?> preference = manager.getPreferenceRegistry().unsafeGet(node);
             if (preference == null) {
                 sender.sendMessage(Msg.red("Preference node <yellow>%s</yellow> does not exist!", node.asString()));
                 return;
             }
 
-            TypedNamespace<?> typedNamespace = Cytosis.getPreferenceManager().getPreferenceRegistry()
+            TypedNamespace<?> typedNamespace = pm.getPreferenceRegistry()
                 .typedNamespaces().stream()
                 .filter(ns -> ns.namespaceID().equals(node)).findFirst()
                 .orElseThrow();

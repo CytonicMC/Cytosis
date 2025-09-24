@@ -102,6 +102,11 @@ public class Humanoid extends EntityCreature implements Npc {
     }
 
     @Override
+    public UUID getUuid() {
+        return super.getUuid();
+    }
+
+    @Override
     public void update(long time) {
         super.update(time);
     }
@@ -137,11 +142,6 @@ public class Humanoid extends EntityCreature implements Npc {
     @Override
     public NamedTextColor getGlowingColor() {
         return glowingColor;
-    }
-
-    @Override
-    public UUID getUuid() {
-        return super.getUuid();
     }
 
     @Override

@@ -14,7 +14,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
@@ -51,16 +51,16 @@ public class RankCommand extends CytosisCommand {
             UUID target = PlayerUtils.resolveUuid(name);
             if (target == null) {
                 sender.sendMessage(
-                    Msg.mm("<red>The player " + context.get(CommandUtils.LIFETIME_PLAYERS) + " doesn't exist!"));
+                    Msg.red("The player " + context.get(CommandUtils.LIFETIME_PLAYERS) + " doesn't exist!"));
                 return;
             }
 
             if (player.getUuid().equals(target)) {
-                sender.sendMessage(Msg.mm("<red>You cannot change your own rank!"));
+                sender.sendMessage(Msg.red("You cannot change your own rank!"));
                 return;
             }
 
-            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().getPlayerRank(target).thenAccept(rank -> {
+            Cytosis.CONTEXT.getComponent(MysqlDatabase.class).getPlayerRank(target).thenAccept(rank -> {
                 if (!PlayerRank.canChangeRank(player.getRank(), rank, newRank)) {
                     sender.sendMessage(Msg.whoops("You cannot do this!"));
                     return;
@@ -86,7 +86,7 @@ public class RankCommand extends CytosisCommand {
             .append(Msg.mm("<gray>."));
 
         Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
-        Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().setPlayerRank(uuid, rank).thenAccept(unused -> {
+        Cytosis.CONTEXT.getComponent(MysqlDatabase.class).setPlayerRank(uuid, rank).thenAccept(unused -> {
             Cytosis.CONTEXT.getComponent(NatsManager.class).sendPlayerRankUpdate(uuid, rank);
             sender.sendMessage(Msg.mm("<green>Successfully updated " + usr + "'s rank!"));
         }).exceptionally(throwable -> {

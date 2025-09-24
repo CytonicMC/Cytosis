@@ -5,12 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import lombok.experimental.UtilityClass;
-import net.cytonic.cytosis.CytonicNetwork;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
@@ -18,8 +12,10 @@ import net.minestom.server.command.builder.condition.CommandCondition;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.utils.StringUtils;
 
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -63,14 +59,16 @@ public class CommandUtils {
             List<SuggestionEntry> options = new ArrayList<>();
             Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers()
                 .forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
-            Cytosis.CONTEXT.getComponent(NicknameManager.class).getNetworkNicknames().forEach(s -> options.add(new SuggestionEntry(s)));
+            Cytosis.CONTEXT.getComponent(NicknameManager.class).getNetworkNicknames()
+                .forEach(s -> options.add(new SuggestionEntry(s)));
             filterEntries(ctx.get(LIFETIME_PLAYERS), options).forEach(suggestion::addEntry);
         });
         NETWORK_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
             List<SuggestionEntry> options = new ArrayList<>();
             Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers()
                 .forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
-            Cytosis.CONTEXT.getComponent(NicknameManager.class).getNetworkNicknames().forEach(s -> options.add(new SuggestionEntry(s)));
+            Cytosis.CONTEXT.getComponent(NicknameManager.class).getNetworkNicknames()
+                .forEach(s -> options.add(new SuggestionEntry(s)));
             filterEntries(ctx.get(NETWORK_PLAYERS), options).forEach(suggestion::addEntry);
         });
     }

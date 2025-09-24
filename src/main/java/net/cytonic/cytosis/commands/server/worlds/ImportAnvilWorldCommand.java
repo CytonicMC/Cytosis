@@ -5,13 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.utils.CommandUtils;
-import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 import net.hollowcube.polar.AnvilPolar;
 import net.hollowcube.polar.PolarWorld;
 import net.minestom.server.MinecraftServer;
@@ -25,6 +18,7 @@ import net.minestom.server.timer.TaskSchedule;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -69,9 +63,8 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
 
             Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name)
                 .replace("_", ""));
-
             UUID uuid = UUID.randomUUID();
-            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase()
+            Cytosis.CONTEXT.getComponent(MysqlDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
                 .whenComplete((result, error) -> {
                     MinecraftServer.getSchedulerManager()

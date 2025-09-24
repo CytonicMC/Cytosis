@@ -8,13 +8,11 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.logging.Logger;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 
