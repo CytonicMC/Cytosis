@@ -245,6 +245,7 @@ public class NatsManager implements Bootstrappable {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(target.append(Msg.mm("<aqua> accepted your friend request!")));
                     player.sendMessage(FRIEND_LINE);
+                    friendManager.addCachedFriend(request.recipient(), request.sender());
                 }
             }
             msg.ack();

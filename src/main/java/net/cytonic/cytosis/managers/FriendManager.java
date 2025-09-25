@@ -100,6 +100,16 @@ public class FriendManager implements Bootstrappable {
         friends.remove(uuid);
     }
 
+
+    public void addCachedFriend(UUID uuid, UUID friend) {
+        List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
+        list.add(friend);
+        friends.put(uuid, list);
+
+        list = friends.getOrDefault(friend, new ArrayList<>());
+        list.add(uuid);
+        friends.put(friend, list);
+    }
     /**
      * Adds a player as a friend
      *
