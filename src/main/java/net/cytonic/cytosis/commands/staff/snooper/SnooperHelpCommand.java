@@ -15,14 +15,14 @@ public class SnooperHelpCommand extends CytosisCommand {
         super("help");
 
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(
-            Msg.splash("SNOOPER HELP!", "e829aa", "»").appendNewline().append(Msg.grey(
-                """
+            Msg.splash("SNOOPER HELP!", "e829aa", "»")
+                .appendNewline().append(Msg.grey("""
                     /snooper <#ee61c0>about</#ee61c0>: Gives information about what snooper is, its\
                      limitations, and advantages.
                     /snooper <#ee61c0>help</#ee61c0>: Displays this message.
                     /snooper <#ee61c0>listen</#ee61c0> <channel>: Starts snooping on a specific channel.
-                    /snooper <#ee61c0>mute</#ee61c0>: Completely disables receiving snoops. <i><dark_gray>This is required\
-                     to be enabled in any public videos or screen recordings.</i>
+                    /snooper <#ee61c0>mute</#ee61c0>: Completely disables receiving snoops. <i><dark_gray>This is\
+                     required to be enabled in any public videos or screen recordings.</i>
                     /snooper <#ee61c0>unmute</#ee61c0>: Re-enables receiving snoops.
                     /snooper <#ee61c0>audit</#ee61c0> <channel>: Opens the GUI to "audit" past snoops, allowing you to\
                     view all previously sent snoops on a given channel.
