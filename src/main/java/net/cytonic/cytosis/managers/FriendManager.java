@@ -100,7 +100,6 @@ public class FriendManager implements Bootstrappable {
         friends.remove(uuid);
     }
 
-
     public void addCachedFriend(UUID uuid, UUID friend) {
         List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
         list.add(friend);
@@ -110,6 +109,7 @@ public class FriendManager implements Bootstrappable {
         list.add(uuid);
         friends.put(friend, list);
     }
+
     /**
      * Adds a player as a friend
      *
