@@ -10,7 +10,7 @@ import net.cytonic.cytosis.logging.BootstrapLogger;
 
 /**
  * The {@link Bootstrapper}'s implementation of DependencyDownload's {@link ClasspathAppender}. It handles adding URLs
- * to the {@link BootstrapClassLoader}, logging errors and optionally each path appended to the classpath, via the
+ * to the {@link CytosisRootClassLoader}, logging errors and optionally each path appended to the classpath, via the
  * "cytosis.log-bootstrap-appending" system property.
  */
 public class BootstrapClasspathAppender implements ClasspathAppender {
