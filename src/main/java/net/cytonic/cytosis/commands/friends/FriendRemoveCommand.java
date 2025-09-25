@@ -21,13 +21,12 @@ public class FriendRemoveCommand extends CytosisCommand {
         super("remove");
         ArgumentWord playerArg = ArgumentType.Word("player");
         playerArg.setSuggestionCallback((sender, context, suggestion) -> {
-            if (sender instanceof CytosisPlayer player) {
-                for (UUID networkPlayer : Cytosis.CONTEXT.getComponent(FriendManager.class)
-                    .getFriends(player.getUuid())) {
-                    suggestion.addEntry(new SuggestionEntry(
-                        Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimeFlattened()
-                            .getByKey(networkPlayer)));
-                }
+            if (!(sender instanceof CytosisPlayer player)) return;
+            for (UUID networkPlayer : Cytosis.CONTEXT.getComponent(FriendManager.class)
+                .getFriends(player.getUuid())) {
+                suggestion.addEntry(new SuggestionEntry(
+                    Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers()
+                        .getByKey(networkPlayer)));
             }
         });
 
