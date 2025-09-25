@@ -89,7 +89,13 @@
 
     <!-- Method Length -->
     <module name="MethodLength">
+      <property name="max" value="50"/>
+      <property name="severity" value="warning"/>
+    </module>
+
+    <module name="MethodLength">
       <property name="max" value="80"/>
+      <property name="severity" value="error"/>
     </module>
 
     <!-- Blank Lines - matches Google style -->
