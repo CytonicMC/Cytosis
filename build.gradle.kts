@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.gradleup.shadow") version "9.2.1"
+    id("com.gradleup.shadow") version "9.2.2"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "8.14.2"
