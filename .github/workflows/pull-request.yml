@@ -26,4 +26,4 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: cytosis
-          path: /build/libs/cytosis.jar
+          path: ./build/libs/cytosis.jar
