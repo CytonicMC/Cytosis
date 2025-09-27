@@ -6,6 +6,7 @@ import io.opentelemetry.api.metrics.*;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +15,7 @@ import java.util.function.Function;
 /**
  * The base cytosis metrics collecting utility. It supports counters and histograms
  */
+@CytosisComponent
 public class MetricsManager implements Bootstrappable {
     private CytosisContext cytosisContext;
 
@@ -44,6 +46,10 @@ public class MetricsManager implements Bootstrappable {
     @Override
     public void init() {
         this.cytosisContext = Cytosis.CONTEXT;
+
+        if (!cytosisContext.getFlags().contains("--no-metrics")) {
+            CytosisOpenTelemetry.setup();
+        }
     }
 
     /**

@@ -2,7 +2,9 @@ package net.cytonic.cytosis.events;
 
 import io.github.classgraph.ClassGraph;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.trait.CancellableEvent;
@@ -16,20 +18,13 @@ import java.util.*;
  *
  * @author Foxikle
  */
+@CytosisComponent(dependsOn = {MinecraftServer.class})
 public class EventHandler {
-    private final GlobalEventHandler GLOBAL_HANDLER;
+    private GlobalEventHandler GLOBAL_HANDLER;
     private final Map<String, EventListener<? extends Event>> NAMESPACED_HANDLERS = new HashMap<>();
     private boolean initialized = false;
 
-
-    /**
-     * Constructor for EventHandler.
-     * Initializes the GlobalEventHandler instance.
-     *
-     * @param globalHandler The GlobalEventHandler instance to be used.
-     */
-    public EventHandler(GlobalEventHandler globalHandler) {
-        GLOBAL_HANDLER = globalHandler;
+    public EventHandler() {
     }
 
     public void findEvents() {
@@ -58,6 +53,7 @@ public class EventHandler {
      */
     public void init() {
         if (initialized) throw new IllegalStateException("The event handler has already been initialized!");
+        this.GLOBAL_HANDLER = MinecraftServer.getGlobalEventHandler();
         findEvents();
         initialized = true;
     }

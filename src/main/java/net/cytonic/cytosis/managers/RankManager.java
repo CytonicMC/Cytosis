@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A class that manages player ranks
  */
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {FriendManager.class})
 public class RankManager implements Bootstrappable {
     private CytonicNetwork cytonicNetwork;
     private RedisDatabase redis;

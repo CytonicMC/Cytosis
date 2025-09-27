@@ -2,6 +2,7 @@ package net.cytonic.cytosis.managers;
 
 import lombok.NoArgsConstructor;
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.TaskSchedule;
@@ -14,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {NPCManager.class})
 public class LocalCooldownManager implements Bootstrappable {
     private final Map<Key, Instant> server = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();

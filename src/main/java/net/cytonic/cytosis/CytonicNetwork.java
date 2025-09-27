@@ -2,6 +2,7 @@ package net.cytonic.cytosis;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.MysqlDatabase;
@@ -12,6 +13,7 @@ import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.utils.Utils;
 
 import java.sql.PreparedStatement;
@@ -26,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Getter
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {RankManager.class})
 public class CytonicNetwork implements Bootstrappable {
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
     private final BiMap<UUID, String> lifetimeFlattened = new BiMap<>(); // uuid, lowercased name

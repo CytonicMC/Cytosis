@@ -2,6 +2,7 @@ package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.logging.Logger;
@@ -13,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+@CytosisComponent(priority = 1, dependsOn = {CommandManager.class, DatabaseManager.class, NatsManager.class})
 public class CommandDisablingManager implements Bootstrappable {
     private NatsManager nats;
     private DatabaseManager databaseManager;

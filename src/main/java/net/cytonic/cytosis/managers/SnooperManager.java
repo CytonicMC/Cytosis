@@ -3,6 +3,7 @@ package net.cytonic.cytosis.managers;
 import lombok.Getter;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.DatabaseManager;
 import net.cytonic.cytosis.data.containers.snooper.*;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@CytosisComponent(dependsOn = {DatabaseManager.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {
     private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();
     @Getter
