@@ -78,7 +78,7 @@ public class ParticleEngine {
     public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience,
         int delay) {
         if (delay == 0) {
-            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).schedule();
+            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).schedule();
         }
         return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay))
             .schedule();
