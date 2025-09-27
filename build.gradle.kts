@@ -8,6 +8,7 @@ plugins {
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "8.14.2"
+    id("checkstyle")
 }
 
 group = "net.cytonic"
@@ -104,11 +105,14 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
             """
             package net.cytonic.cytosis.utils;
             
+            /**
+            * Holds information on the current build of Cytosis. This code is auto-generated at build.
+            */
             public class BuildInfo {
                 public static final String BUILD_VERSION = "${project.version}";
                 public static final String GIT_COMMIT = "${"git rev-parse HEAD".runCommand()}";
                 public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
-                public static final boolean DEPENDENCIES_BUNDLED=${bundled};
+                public static final boolean DEPENDENCIES_BUNDLED = ${bundled};
             }
             """.trimIndent()
         )
@@ -134,6 +138,7 @@ tasks.register("thinJar") {
 }
 
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
+    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
@@ -179,6 +184,7 @@ thinShadow.configure {
 }
 
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
+    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
@@ -325,6 +331,7 @@ tasks.withType<Zip> {
 }
 
 tasks.withType<ShadowJar> {
+    // prevents issues with security exceptions
     exclude("META-INF/**/*.SF")
     exclude("META-INF/**/*.DSA")
     exclude("META-INF/**/*.RSA")
@@ -335,5 +342,51 @@ java {
     withJavadocJar()
 
     toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+// Checkstyle configuration
+checkstyle {
+    toolVersion = "10.21.1"
+    configFile = file("${rootDir}/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+    maxErrors = 0
+}
+
+tasks.withType<Checkstyle>().configureEach {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(file("$projectDir/build/reports/checkstyle/${name}.html"))
+    }
+
+    // Always generate reports, even on failure
+    isIgnoreFailures = true
+}
+
+// Configure checkstyle tasks
+tasks.named<Checkstyle>("checkstyleMain") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.named<Checkstyle>("checkstyleTest") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+// Make check task depend on checkstyle
+tasks.named("check") {
+    dependsOn("checkstyleMain", "checkstyleTest")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 }
 

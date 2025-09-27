@@ -1,9 +1,9 @@
 package net.cytonic.cytosis.data.containers;
 
+import java.util.UUID;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.KickReason;
-
-import java.util.UUID;
 
 /**
  * The container for when a player gets kicked
@@ -29,8 +29,9 @@ public record PlayerKickContainer(UUID uuid, KickReason reason, String kickMessa
      *
      * @return the serialized string
      */
-    public String serialize() {
-        return Cytosis.GSON.toJson(this);
+    @Override
+    public String toString() {
+        return serialize();
     }
 
     /**
@@ -38,8 +39,7 @@ public record PlayerKickContainer(UUID uuid, KickReason reason, String kickMessa
      *
      * @return the serialized string
      */
-    @Override
-    public String toString() {
-        return serialize();
+    public String serialize() {
+        return Cytosis.GSON.toJson(this);
     }
 }

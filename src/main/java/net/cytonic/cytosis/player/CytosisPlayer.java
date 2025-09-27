@@ -1,17 +1,11 @@
 package net.cytonic.cytosis.player;
 
+import java.time.Instant;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+
 import io.github.togar2.pvp.player.CombatPlayerImpl;
-import net.cytonic.cytosis.CytonicNetwork;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.*;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -21,19 +15,36 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
+import net.cytonic.cytosis.CytonicNetwork;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.enums.ChatChannel;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.ActionbarManager;
+import net.cytonic.cytosis.managers.ChatManager;
+import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.LocalCooldownManager;
+import net.cytonic.cytosis.managers.NetworkCooldownManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.managers.VanishManager;
+import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
+import net.cytonic.cytosis.utils.CytosisNamespaces;
 
 /**
- * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the managers themselves.
+ * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the
+ * managers themselves.
  */
 @SuppressWarnings("unused")
 public class CytosisPlayer extends CombatPlayerImpl {
+
     private PlayerRank rank;
 
     /**
@@ -54,13 +65,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
         rank = Cytosis.CONTEXT.getComponent(RankManager.class).getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
-            Logger.warn("The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
+            Logger.warn(
+                "The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
-    }
-
-    public PlayerRank getTrueRank() {
-        return rank;
     }
 
     public PlayerRank getRank() {
@@ -86,10 +94,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
      *
      * @param rank the new rank
      */
-    public void setRank_UNSAFE(PlayerRank rank) {
+    @Internal
+    public void setRankUnsafe(PlayerRank rank) {
         this.rank = rank;
     }
-
 
     /**
      * Updates the preference
@@ -125,7 +133,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the value stored in the preference
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      */
-    public <T> T getPreference(TypedNamespace<T> namespace) {
+    public <T> T getPreference(NamespacedPreference<T> namespace) {
         return Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
     }
 
@@ -137,7 +145,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the value stored in the preference
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      */
-    public <T> T getPreference(NamespacedPreference<T> namespace) {
+    public <T> T getPreference(TypedNamespace<T> namespace) {
         return Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
     }
 
@@ -263,7 +271,8 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     /**
-     * Instantly adds the player as a friend, <strong>bypassing the request phase entirely.</strong> No messages are sent to either player.
+     * Instantly adds the player as a friend, <strong>bypassing the request phase entirely.</strong> No messages are
+     * sent to either player.
      *
      * @param uuid the player to add as a friend
      */
@@ -272,35 +281,46 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     @Override
-    public void sendActionBar(@NotNull Component message) {
-        Cytosis.CONTEXT.getComponent(ActionbarManager.class).addToQueue(getUuid(), message);
-    }
-
-    @Override
     public void sendActionBar(@NotNull ComponentLike message) {
         this.sendActionBar(message.asComponent());
     }
 
-    public boolean isStaff() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getTrueRank());
+    @Override
+    public void sendActionBar(@NotNull Component message) {
+        Cytosis.CONTEXT.getComponent(ActionbarManager.class).addToQueue(getUuid(), message);
     }
 
     /**
-     * Returns if this player has admin (or higher) permissions
+     * Gets the player skin.
      *
-     * @return If this player has administrative permissions
+     * @return the player skin object, null means that the player has his {@link #getUuid()} default skin
      */
-    public boolean isAdmin() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN).contains(getTrueRank());
+    @Override
+    public @Nullable PlayerSkin getSkin() {
+        if (isNicked()) {
+            NicknameManager.NicknameData data = Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid());
+            return new PlayerSkin(data.value(), data.signature());
+        }
+        return super.getSkin();
     }
 
     /**
-     * Returns if this player has moderator (or higher) permissions
+     * Gets the player's name as a component. This will either return the display name (if set) or a component holding
+     * the username.
      *
-     * @return If this player has moderation permissions
+     * @return the name
      */
-    public boolean isModerator() {
-        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR).contains(getTrueRank());
+    @Override
+    public @NotNull Component getName() {
+        return Component.text(getUsername());
+    }
+
+    @Override
+    public @NotNull String getUsername() {
+        if (isNicked()) {
+            return Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid()).nickname();
+        }
+        return getTrueUsername();
     }
 
     /**
@@ -310,6 +330,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public boolean isHelper() {
         return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR, PlayerRank.HELPER).contains(getTrueRank());
+    }
+
+    public PlayerRank getTrueRank() {
+        return rank;
     }
 
     /**
@@ -341,6 +365,29 @@ public class CytosisPlayer extends CombatPlayerImpl {
             case ADMIN -> isAdmin();
             default -> true; //todo: implement parties and dms
         };
+    }
+
+    public boolean isStaff() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER)
+            .contains(getTrueRank());
+    }
+
+    /**
+     * Returns if this player has moderator (or higher) permissions
+     *
+     * @return If this player has moderation permissions
+     */
+    public boolean isModerator() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.MODERATOR).contains(getTrueRank());
+    }
+
+    /**
+     * Returns if this player has admin (or higher) permissions
+     *
+     * @return If this player has administrative permissions
+     */
+    public boolean isAdmin() {
+        return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN).contains(getTrueRank());
     }
 
     public void sendFriendRequest(UUID recipient) {
@@ -377,9 +424,15 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public boolean canRecieveSnoop(byte flags) {
-        if ((flags & 0x01) != 0 && rank == PlayerRank.OWNER) return true;
-        if ((flags & 0x02) != 0 && rank == PlayerRank.ADMIN) return true;
-        if ((flags & 0x04) != 0 && rank == PlayerRank.MODERATOR) return true;
+        if ((flags & 0x01) != 0 && rank == PlayerRank.OWNER) {
+            return true;
+        }
+        if ((flags & 0x02) != 0 && rank == PlayerRank.ADMIN) {
+            return true;
+        }
+        if ((flags & 0x04) != 0 && rank == PlayerRank.MODERATOR) {
+            return true;
+        }
         return (flags & 0x08) != 0 && rank == PlayerRank.HELPER;
     }
 
@@ -387,43 +440,8 @@ public class CytosisPlayer extends CombatPlayerImpl {
         return Cytosis.CONTEXT.getComponent(CytonicNetwork.class).hasPlayedBefore(getUuid());
     }
 
-    @Override
-    public @NotNull String getUsername() {
-        if (isNicked()) {
-            return Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid()).nickname();
-        }
-        return getTrueUsername();
-    }
-
-    /**
-     * Gets the player's name as a component. This will either return the display name
-     * (if set) or a component holding the username.
-     *
-     * @return the name
-     */
-    @Override
-    public @NotNull Component getName() {
-        return Component.text(getUsername());
-    }
-
     public @NotNull Component getTrueName() {
         return Component.text(getTrueUsername());
-    }
-
-
-    /**
-     * Gets the player skin.
-     *
-     * @return the player skin object,
-     * null means that the player has his {@link #getUuid()} default skin
-     */
-    @Override
-    public @Nullable PlayerSkin getSkin() {
-        if (isNicked()) {
-            NicknameManager.NicknameData data = Cytosis.CONTEXT.getComponent(NicknameManager.class).getData(getUuid());
-            return new PlayerSkin(data.value(), data.signature());
-        }
-        return super.getSkin();
     }
 
     public @Nullable PlayerSkin getTrueSkin() {
@@ -443,7 +461,9 @@ public class CytosisPlayer extends CombatPlayerImpl {
         if (!isNicked()) {
             super.updateNewViewer(player);
         } else {
-            Cytosis.CONTEXT.getComponent(NicknameManager.class).sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID), false);
+            Cytosis.CONTEXT.getComponent(NicknameManager.class)
+                .sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID),
+                    false);
         }
     }
 }

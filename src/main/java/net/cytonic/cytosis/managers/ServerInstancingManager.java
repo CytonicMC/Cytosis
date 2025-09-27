@@ -2,7 +2,11 @@ package net.cytonic.cytosis.managers;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.containers.servers.*;
+import net.cytonic.cytosis.data.containers.servers.CreateInstanceContainer;
+import net.cytonic.cytosis.data.containers.servers.DeleteAllInstancesContainer;
+import net.cytonic.cytosis.data.containers.servers.DeleteInstanceContainer;
+import net.cytonic.cytosis.data.containers.servers.InstanceResponseContainer;
+import net.cytonic.cytosis.data.containers.servers.UpdateInstancesContainer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
@@ -20,14 +24,9 @@ public class ServerInstancingManager implements Bootstrappable {
     public static final String BEDWARS_TRIOS = "bw_trios";
     public static final String BEDWARS_QUADROS = "bw_quadros";
 
-    public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY, BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
-
+    public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY,
+        BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
     private NatsManager nats;
-
-    @Override
-    public void init() {
-        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
-    }
 
     public static boolean isServerType(String type) {
         for (String t : TYPES) {
@@ -36,6 +35,11 @@ public class ServerInstancingManager implements Bootstrappable {
             }
         }
         return false;
+    }
+
+    @Override
+    public void init() {
+        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
     }
 
     public void createServerInstances(String type, int amount) {
@@ -69,7 +73,9 @@ public class ServerInstancingManager implements Bootstrappable {
     }
 
     public void deleteThisServerInstance() {
-        if (!Cytosis.IS_NOMAD) return; // this isn't a nomad server to delete
+        if (!Cytosis.IS_NOMAD) {
+            return; // this isn't a nomad server to delete
+        }
         deleteServerInstance(System.getenv("NOMAD_JOB_NAME"), System.getenv("NOMAD_ALLOC_ID"));
     }
 

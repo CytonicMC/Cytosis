@@ -1,25 +1,27 @@
 package net.cytonic.cytosis.particles.effects.keyframed;
 
-import net.cytonic.cytosis.particles.effects.fixed.LineEffect;
-import net.cytonic.cytosis.particles.effects.fixed.SingleParticleEffect;
-import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
-import net.cytonic.cytosis.particles.util.ParticleSupplier;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.ApiStatus;
 
+import net.cytonic.cytosis.particles.effects.fixed.LineEffect;
+import net.cytonic.cytosis.particles.effects.fixed.SingleParticleEffect;
+import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
+import net.cytonic.cytosis.particles.util.ParticleSupplier;
+
 /**
- * The interface describing how geometrical effects "bridge" the points of the shape.
- * By default, {@code line(10)} is used.
+ * The interface describing how geometrical effects "bridge" the points of the shape. By default, {@code line(10)} is
+ * used.
  */
 public interface BridgingStrategy {
+
     /**
      * The default implementation with a low-density line (5 particles per block).
      */
     BridgingStrategy DEFAULT = line(5);
 
-    //todo: Make a non-deterministic impl for more randomness
+    //TODO: Make a non-deterministic impl for more randomness
 
     /**
      * Bridges between two points by placing a particle between the two positions
@@ -59,7 +61,7 @@ public interface BridgingStrategy {
     }
 
     /**
-     * Does noting
+     * Does nothing
      *
      * @return the NOOP strategy
      */
@@ -72,6 +74,7 @@ public interface BridgingStrategy {
 
     @ApiStatus.Internal
     record Line(int density) implements BridgingStrategy {
+
         @Override
         public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new LineEffect(supplier, start, end, density);
@@ -80,6 +83,7 @@ public interface BridgingStrategy {
 
     @ApiStatus.Internal
     record Start() implements BridgingStrategy {
+
         @Override
         public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new SingleParticleEffect(supplier, start);
@@ -88,6 +92,7 @@ public interface BridgingStrategy {
 
     @ApiStatus.Internal
     record End() implements BridgingStrategy {
+
         @Override
         public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new SingleParticleEffect(supplier, end);
@@ -96,9 +101,12 @@ public interface BridgingStrategy {
 
     @ApiStatus.Internal
     record Midpoint() implements BridgingStrategy {
+
         @Override
         public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
-            double x, y, z;
+            double x;
+            double y;
+            double z;
             x = (start.x() + end.x()) / 2;
             y = (start.y() + end.y()) / 2;
             z = (start.z() + end.z()) / 2;
@@ -108,6 +116,7 @@ public interface BridgingStrategy {
 
     @ApiStatus.Internal
     record None() implements BridgingStrategy {
+
         @Override
         public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new StaticEffect() {

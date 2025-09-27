@@ -6,6 +6,7 @@ import net.cytonic.cytosis.CytosisContext;
  * A list of every subject used by the NATS server
  */
 public class Subjects {
+
     public static final String SERVER_REGISTER = "servers.register";
     public static final String SERVER_SHUTDOWN = "servers.shutdown";
     public static final String SERVER_LIST = "servers.list";

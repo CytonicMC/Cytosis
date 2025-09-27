@@ -5,6 +5,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 
 public class ParticleCommand extends CytosisCommand {
+
     public ParticleCommand() {
         super("particle");
         setCondition(CommandUtils.IS_ADMIN);

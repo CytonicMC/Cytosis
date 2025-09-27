@@ -6,6 +6,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
 public class NickRevealCommand extends CytosisCommand {
+
     public NickRevealCommand() {
         super("reveal");
         setCondition(CommandUtils.IS_STAFF);
@@ -16,7 +17,8 @@ public class NickRevealCommand extends CytosisCommand {
                 player.sendMessage(Msg.whoops("You are not currently nicked!"));
                 return;
             }
-            sender.sendMessage(Msg.goldSplash("REVEALED!", "Your nickname is currently ").append(player.formattedName()));
+            sender.sendMessage(Msg.goldSplash("REVEALED!", "Your nickname is currently ")
+                .append(player.formattedName()));
         });
 
         addSyntax((sender, context) -> {
@@ -31,12 +33,11 @@ public class NickRevealCommand extends CytosisCommand {
                 return;
             }
 
-            sender.sendMessage(Msg.goldSplash("REVEALED!", "")
-                    .append(player.trueFormattedName())
-                    .append(Msg.grey(" is currently nicked as "))
-                    .append(player.formattedName())
-                    .append(Msg.grey(" <click:copy_to_clipboard:%s>(UUID: %s)", player.getUuid().toString(), player.getUuid().toString()))
-            );
+            sender.sendMessage(Msg.goldSplash("REVEALED!", "").append(player.trueFormattedName())
+                .append(Msg.grey(" is currently nicked as ")).append(player.formattedName())
+                .append(Msg.grey(" <click:copy_to_clipboard:%s>(UUID: %s)", player.getUuid()
+                    .toString(), player.getUuid()
+                    .toString())));
         }, CommandUtils.ONLINE_PLAYERS);
     }
 }

@@ -1,20 +1,21 @@
 package net.cytonic.cytosis.commands.moderation;
 
+import java.util.UUID;
+
+import net.kyori.adventure.text.Component;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.DatabaseManager;
+import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.SnoopUtils;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-
-import java.util.UUID;
 
 public class UnmuteCommand extends CytosisCommand {
 
@@ -27,13 +28,14 @@ public class UnmuteCommand extends CytosisCommand {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching muted players..."));
                 CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-                network.getMutedPlayers().forEach((uuid, ignored1) -> suggestion.addEntry(new SuggestionEntry(network.getLifetimePlayers().getByKey(uuid))));
+                network.getMutedPlayers()
+                    .forEach((uuid, ignored1) -> suggestion.addEntry(new SuggestionEntry(network
+                        .getLifetimePlayers()
+                        .getByKey(uuid))));
             }
         });
         addSyntax((sender, context) -> {
-            if (!(sender instanceof CytosisPlayer actor)) {
-                return;
-            }
+            if (!(sender instanceof CytosisPlayer actor)) return;
 
             final String player = context.get(playerArg);
             CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
@@ -47,10 +49,11 @@ public class UnmuteCommand extends CytosisCommand {
                 return;
             }
 
-            Component snoop = actor.formattedName().append(Msg.mm("<gray> unmuted ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray>."));
+            Component snoop = actor.formattedName().append(Msg.mm("<gray> unmuted ")).append(SnoopUtils.toTarget(uuid))
+                .append(Msg.mm("<gray>."));
 
             Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNMUTE, Msg.snoop(snoop));
-            Cytosis.CONTEXT.getComponent(DatabaseManager.class).getMysqlDatabase().unmutePlayer(uuid);
+            Cytosis.CONTEXT.getComponent(MysqlDatabase.class).unmutePlayer(uuid);
             sender.sendMessage(Msg.greenSplash("UNMUTED", "%s was successfully unmuted!", player));
         }, playerArg);
     }

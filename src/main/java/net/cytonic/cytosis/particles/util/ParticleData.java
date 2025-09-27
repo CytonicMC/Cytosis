@@ -10,12 +10,14 @@ import org.jetbrains.annotations.NotNull;
 public class ParticleData {
 
     Particle particle;
-    boolean overrideLimiter, longDistance;
+    boolean overrideLimiter;
+    boolean longDistance;
     Point offset;
     float maxSpeed;
     int particleCount;
 
-    private ParticleData(@NotNull Particle particle, boolean overrideLimiter, boolean longDistance, Point offset, float maxSpeed, int particleCount) {
+    private ParticleData(@NotNull Particle particle, boolean overrideLimiter, boolean longDistance, Point offset,
+        float maxSpeed, int particleCount) {
         this.particle = particle;
         this.overrideLimiter = overrideLimiter;
         this.longDistance = longDistance;
@@ -32,12 +34,13 @@ public class ParticleData {
         return of(p, false, false, Pos.ZERO, 0, particleCount);
     }
 
-    public static ParticleData of(Particle p, Point offset, float maxSpeed, int particleCount) {
-        return of(p, false, false, offset, maxSpeed, particleCount);
+    public static ParticleData of(Particle p, boolean overrideLimiter, boolean longDistance, Point offset,
+        float maxSpeed, int particleCount) {
+        return new ParticleData(p, overrideLimiter, longDistance, offset, maxSpeed, particleCount);
     }
 
-    public static ParticleData of(Particle p, boolean overrideLimiter, boolean longDistance, Point offset, float maxSpeed, int particleCount) {
-        return new ParticleData(p, overrideLimiter, longDistance, offset, maxSpeed, particleCount);
+    public static ParticleData of(Particle p, Point offset, float maxSpeed, int particleCount) {
+        return of(p, false, false, offset, maxSpeed, particleCount);
     }
 
     public static ParticleData dust(String hexColor) {

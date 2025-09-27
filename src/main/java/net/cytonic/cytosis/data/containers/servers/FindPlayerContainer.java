@@ -1,10 +1,11 @@
 package net.cytonic.cytosis.data.containers.servers;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.util.UUID;
 
+import net.cytonic.cytosis.Cytosis;
+
 public record FindPlayerContainer(UUID player) {
+
     /**
      * Deserializes this object from a string
      *

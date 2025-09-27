@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.utils;
 
-import net.cytonic.cytosis.data.objects.BanData;
+import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 
-import java.util.List;
-
+import net.cytonic.cytosis.data.objects.BanData;
 
 /**
  * A class that holds utils for formatting messages
@@ -15,18 +16,10 @@ import java.util.List;
 public interface Msg {
 
     /**
-     * The overridable provider, for messages to be changed. To change it,
-     * use {@link Holder#set(Object)} to set the new value.
+     * The overridable provider, for messages to be changed. To change it, use {@link Holder#set(Object)} to set the new
+     * value.
      */
-    Holder<SplashProvider> provider = new Holder<>(SplashProvider.DEFAULT);
-
-
-    /**
-     * Parses MiniMessage into a Component
-     */
-    static Component mm(String message, Object... args) {
-        return MiniMessage.miniMessage().deserialize(String.format(message, args)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
-    }
+    Holder<SplashProvider> PROVIDER = new Holder<>(SplashProvider.DEFAULT);
 
     static List<Component> wrap(String minimessage) {
         return ComponentWrapper.wrap(mm(minimessage), 36);
@@ -36,28 +29,36 @@ public interface Msg {
         return ComponentWrapper.wrap(mm(minimessage), width);
     }
 
+    /**
+     * Parses MiniMessage into a Component
+     */
+    static Component mm(String message, Object... args) {
+        return MiniMessage.miniMessage().deserialize(String.format(message, args))
+            .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    }
+
     static Component whoops(String str, Object... args) {
-        return mm(provider.get().whoops() + "<gray> " + str, args);
+        return mm(PROVIDER.get().whoops() + "<gray> " + str, args);
     }
 
     static Component serverError(String str, Object... args) {
-        return mm(provider.get().serverError() + "<gray> " + str, args);
+        return mm(PROVIDER.get().serverError() + "<gray> " + str, args);
     }
 
     static Component success(String str, Object... args) {
-        return mm(provider.get().success() + "<gray> " + str, args);
+        return mm(PROVIDER.get().success() + "<gray> " + str, args);
     }
 
     static Component network(String str, Object... args) {
-        return mm(provider.get().network() + "<gray> " + str, args);
+        return mm(PROVIDER.get().network() + "<gray> " + str, args);
     }
 
     static Component tip(String str, Object... args) {
-        return mm(provider.get().tip() + "<gray> " + str, args);
+        return mm(PROVIDER.get().tip() + "<gray> " + str, args);
     }
 
     static Component snoop(Component component) {
-        return mm(provider.get().snoop()).append(Msg.mm("<!i><!b>").append(component));
+        return mm(PROVIDER.get().snoop()).append(Msg.mm("<!i><!b>").append(component));
     }
 
     static Component aquaSplash(String splash, String text, Object... args) {
@@ -125,11 +126,13 @@ public interface Msg {
     }
 
     static Component splash(String splash, TextColor color, String text, Object... args) {
-        return mm("<" + color.asHexString() + "><b>" + splash + "</b></" + color.asHexString() + "><gray> " + text, args);
+        return mm("<" + color.asHexString() + "><b>" + splash + "</b></" + color.asHexString() + "><gray> " + text,
+            args);
     }
 
     static Component splash(String splash, String hex, String text, Object... args) {
-        return mm("<#" + hex.replace("#", "") + "><b>" + splash + "</b></#" + hex.replace("#", "") + "><gray> " + text, args);
+        return mm("<#" + hex.replace("#", "") + "><b>" + splash + "</b></#" + hex.replace("#", "") + "><gray> " + text,
+            args);
     }
 
     /**
@@ -219,6 +222,10 @@ public interface Msg {
         return MiniMessage.miniMessage().stripTags(str);
     }
 
+    static String toJson(Component component) {
+        return JSONComponentSerializer.json().serialize(component);
+    }
+
     /**
      * Gets a formatted ban message
      *
@@ -226,12 +233,16 @@ public interface Msg {
      * @return the formatted message in Component format
      */
     static Component formatBanMessage(BanData banData) {
-        if (!banData.isBanned()) return Component.empty();
+        if (!banData.isBanned()) {
+            return Component.empty();
+        }
 
         return Component.empty()
-                .append(Msg.mm("<red>You are currently banned from the Cytonic Network!").appendNewline().appendNewline())
-                .append(Msg.mm("<gray>Reason:<gray> <white>" + banData.reason() + "</white>").appendNewline())
-                .append(Msg.mm("<gray>Expires:</gray> <white>" + DurationParser.unparse(banData.expiry(), " ") + "</white>").appendNewline().appendNewline())
-                .append(Msg.mm("<gray>Appeal at: </gray><aqua><underlined>https://cytonic.net</underlined></aqua>").appendNewline());
+            .append(Msg.mm("<red>You are currently banned from the Cytonic Network!").appendNewline().appendNewline())
+            .append(Msg.mm("<gray>Reason:<gray> <white>" + banData.reason() + "</white>").appendNewline()).append(
+                Msg.mm("<gray>Expires:</gray> <white>" + DurationParser.unparse(banData.expiry(), " ") + "</white>")
+                    .appendNewline().appendNewline()).append(
+                Msg.mm("<gray>Appeal at: </gray><aqua><underlined>https://cytonic.net</underlined></aqua>")
+                    .appendNewline());
     }
 }

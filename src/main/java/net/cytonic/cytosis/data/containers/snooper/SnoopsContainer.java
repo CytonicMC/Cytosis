@@ -1,12 +1,13 @@
 package net.cytonic.cytosis.data.containers.snooper;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.cytonic.cytosis.Cytosis;
+
 public record SnoopsContainer(Set<String> snoops) {
+
     public static SnoopsContainer fromJson(String json) {
         return Cytosis.GSON.fromJson(json, SnoopsContainer.class);
     }
@@ -21,12 +22,12 @@ public record SnoopsContainer(Set<String> snoops) {
         return new SnoopsContainer(newSnoops);
     }
 
-    public String toJson() {
-        return Cytosis.GSON.toJson(this);
-    }
-
     @Override
     public String toString() {
         return toJson();
+    }
+
+    public String toJson() {
+        return Cytosis.GSON.toJson(this);
     }
 }

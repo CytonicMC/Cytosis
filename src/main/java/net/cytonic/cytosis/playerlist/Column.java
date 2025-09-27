@@ -1,12 +1,12 @@
 package net.cytonic.cytosis.playerlist;
 
-import lombok.Getter;
-import lombok.Setter;
-import net.kyori.adventure.text.Component;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.text.Component;
 
 /**
  * A class representing one column in the player list. Columns are used to display data in the player list, holding up
@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 public class Column {
+
     private Component name;
     private PlayerListFavicon favicon;
     private List<PlayerListEntry> entries; // <PlayerListEntry>

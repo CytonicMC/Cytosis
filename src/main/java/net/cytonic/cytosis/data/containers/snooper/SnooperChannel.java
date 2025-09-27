@@ -1,8 +1,9 @@
 package net.cytonic.cytosis.data.containers.snooper;
 
+import net.kyori.adventure.key.Key;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.kyori.adventure.key.Key;
 
 /**
  * Represents a channel or pathway a message can be sent to.
@@ -20,6 +21,7 @@ import net.kyori.adventure.key.Key;
  *                   {@link PlayerRank#HELPER} is {@code 0x08}
  */
 public record SnooperChannel(String channel, Key id, byte recipients) {
+
     public static SnooperChannel deserialize(String json) {
         return Cytosis.GSON.fromJson(json, SnooperChannel.class);
     }

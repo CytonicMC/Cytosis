@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.objects;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.time.Instant;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A Record that contains information about a player's ban

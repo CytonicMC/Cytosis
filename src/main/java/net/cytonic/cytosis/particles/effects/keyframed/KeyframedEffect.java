@@ -1,16 +1,18 @@
 package net.cytonic.cytosis.particles.effects.keyframed;
 
-import net.cytonic.cytosis.particles.Keyframeable;
-import net.cytonic.cytosis.particles.ParticleEffect;
-import net.cytonic.cytosis.particles.ParticleEffectType;
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minestom.server.adventure.audience.PacketGroupingAudience;
+
+import net.cytonic.cytosis.particles.Keyframeable;
+import net.cytonic.cytosis.particles.ParticleEffect;
+import net.cytonic.cytosis.particles.ParticleEffectType;
+
 public abstract class KeyframedEffect extends ParticleEffect implements Keyframeable {
+
     public KeyframedEffect() {
         super(ParticleEffectType.KEYFRAMED);
     }
@@ -26,7 +28,8 @@ public abstract class KeyframedEffect extends ParticleEffect implements Keyframe
      * @return the map of effects timed according to the specified easing function.
      * @throws IllegalArgumentException if {@code effects.size()} is greater than duration
      */
-    protected Map<Integer, List<ParticleEffect>> computeEasing(List<Keyframe<?>> keyframes, int duration, EasingFunction easingFunction) {
+    protected Map<Integer, List<ParticleEffect>> computeEasing(List<Keyframe<?>> keyframes, int duration,
+        EasingFunction easingFunction) {
         if (keyframes.isEmpty()) {
             return new LinkedHashMap<>();
         }
@@ -51,6 +54,10 @@ public abstract class KeyframedEffect extends ParticleEffect implements Keyframe
         return result;
     }
 
+    private void addEffectToTick(Map<Integer, List<ParticleEffect>> map, int tick, ParticleEffect effect) {
+        map.computeIfAbsent(tick, k -> new ArrayList<>()).add(effect);
+    }
+
     private double applyEasing(double t, EasingFunction easingFunction) {
         return switch (easingFunction) {
             case LINEAR -> t;
@@ -62,12 +69,10 @@ public abstract class KeyframedEffect extends ParticleEffect implements Keyframe
         };
     }
 
-    private void addEffectToTick(Map<Integer, List<ParticleEffect>> map, int tick, ParticleEffect effect) {
-        map.computeIfAbsent(tick, k -> new ArrayList<>()).add(effect);
-    }
-
     @Override
     public void play(PacketGroupingAudience audience) {
-        throw new UnsupportedOperationException("Keyframed effects cannot be played directly. Use ParticleEngine#playKeyframed(PacketGroupingAudience, KeyframedEffect) instead.");
+        throw new UnsupportedOperationException(
+            "Keyframed effects cannot be played directly. Use ParticleEngine#playKeyframed(PacketGroupingAudience,"
+                + " KeyframedEffect) instead.");
     }
 }

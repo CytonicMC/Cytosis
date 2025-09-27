@@ -4,6 +4,7 @@ package net.cytonic.cytosis.plugins;
  * The interface for Cytosis plugins
  */
 public interface CytosisPlugin {
+
     /**
      * Called when the plugin is loaded
      */
