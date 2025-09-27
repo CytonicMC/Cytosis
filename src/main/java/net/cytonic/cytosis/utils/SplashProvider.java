@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.utils;
 
 public interface SplashProvider {
+
     SplashProvider DEFAULT = new SplashProvider() {
 
         @Override

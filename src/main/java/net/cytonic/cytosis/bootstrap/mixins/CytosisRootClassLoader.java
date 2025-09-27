@@ -1,11 +1,5 @@
 package net.cytonic.cytosis.bootstrap.mixins;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -13,16 +7,23 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class Loader that can modify class bytecode when they are loaded
  */
 public class CytosisRootClassLoader extends URLClassLoader {
+
     public final static Logger LOGGER = LoggerFactory.getLogger(CytosisRootClassLoader.class);
     private static volatile CytosisRootClassLoader INSTANCE;
-    private ASMMixinTransformer mixinTransformer;
+    private AsmMixinTransformer mixinTransformer;
 
     private CytosisRootClassLoader(ClassLoader parent) {
-        super("Cytosis Root ClassLoader", extractURLsFromClasspath(), parent);
+        super("Cytosis Root ClassLoader", extractUrlsFromClasspath(), parent);
     }
 
     public static CytosisRootClassLoader getInstance() {
@@ -36,11 +37,7 @@ public class CytosisRootClassLoader extends URLClassLoader {
         return INSTANCE;
     }
 
-    public void initializeMixinTransformer(CytosisMixinService service) {
-        this.mixinTransformer = new ASMMixinTransformer(service);
-    }
-
-    private static URL[] extractURLsFromClasspath() {
+    private static URL[] extractUrlsFromClasspath() {
         String classpath = System.getProperty("java.class.path");
         String[] parts = classpath.split(";");
         URL[] urls = new URL[parts.length];
@@ -61,11 +58,16 @@ public class CytosisRootClassLoader extends URLClassLoader {
         return urls;
     }
 
+    public void initializeMixinTransformer(CytosisMixinService service) {
+        this.mixinTransformer = new AsmMixinTransformer(service);
+    }
+
     @Override
     public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> loadedClass = findLoadedClass(name);
-        if (loadedClass != null)
+        if (loadedClass != null) {
             return loadedClass;
+        }
 
         try {
             // we do not load system classes by ourselves
@@ -92,16 +94,12 @@ public class CytosisRootClassLoader extends URLClassLoader {
     }
 
     public byte[] loadBytes(String name, boolean transform) throws IOException, ClassNotFoundException {
-        if (name == null)
-            throw new ClassNotFoundException();
+        if (name == null) throw new ClassNotFoundException();
         String path = name.replace(".", "/") + ".class";
 
         byte[] originalBytes;
         try (InputStream input = getResourceAsStream(path)) {
-            if (input == null) {
-                throw new ClassNotFoundException("Could not find resource " + path);
-            }
-
+            if (input == null) throw new ClassNotFoundException("Could not find resource " + path);
             originalBytes = input.readAllBytes();
         }
 
@@ -127,14 +125,14 @@ public class CytosisRootClassLoader extends URLClassLoader {
         return originalBytes;
     }
 
+    @Override
+    public void addURL(URL url) {
+        super.addURL(url);
+    }
+
     // overridden to increase access (from protected to public)
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
         return super.findClass(name);
-    }
-
-    @Override
-    public void addURL(URL url) {
-        super.addURL(url);
     }
 }

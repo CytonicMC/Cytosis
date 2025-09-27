@@ -1,20 +1,26 @@
 package net.cytonic.cytosis.managers;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.Nullable;
+
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.logging.Logger;
-import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.Nullable;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A class that handles network-wide cooldowns that sync across servers
  */
 public class NetworkCooldownManager implements Bootstrappable {
+
     private final RedisDatabase redis;
     private final Map<Key, Instant> global = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
@@ -24,11 +30,6 @@ public class NetworkCooldownManager implements Bootstrappable {
      */
     public NetworkCooldownManager(RedisDatabase redis) {
         this.redis = redis;
-    }
-
-    @Override
-    public void init() {
-        importFromRedis();
     }
 
     /**
@@ -41,6 +42,11 @@ public class NetworkCooldownManager implements Bootstrappable {
         return "COOLDOWN_PERSONAL_KEY:" + uuid;
     }
 
+    @Override
+    public void init() {
+        importFromRedis();
+    }
+
     /**
      * Determines if the global cooldown is active
      *
@@ -48,9 +54,13 @@ public class NetworkCooldownManager implements Bootstrappable {
      * @return if the specified cooldown is active
      */
     public boolean isOnGlobalCooldown(Key id) {
-        if (!global.containsKey(id)) return false;
+        if (!global.containsKey(id)) {
+            return false;
+        }
         Instant expire = global.get(id);
-        if (expire.isAfter(Instant.now())) return true;
+        if (expire.isAfter(Instant.now())) {
+            return true;
+        }
         global.remove(id);
         return false;
     }
@@ -63,10 +73,16 @@ public class NetworkCooldownManager implements Bootstrappable {
      * @return if the player is currently on cooldown for the specified cooldown
      */
     public boolean isOnPersonalCooldown(UUID uuid, Key id) {
-        if (!personal.containsKey(uuid)) return false;
-        if (!personal.get(uuid).containsKey(id)) return false;
+        if (!personal.containsKey(uuid)) {
+            return false;
+        }
+        if (!personal.get(uuid).containsKey(id)) {
+            return false;
+        }
         Instant expire = personal.get(uuid).get(id);
-        if (expire.isAfter(Instant.now())) return true;
+        if (expire.isAfter(Instant.now())) {
+            return true;
+        }
         personal.get(uuid).remove(id);
         return false;
     }
@@ -82,15 +98,6 @@ public class NetworkCooldownManager implements Bootstrappable {
     }
 
     /**
-     * Resets the global cooldown for a specifiec cooldown
-     *
-     * @param id the {@link Key}  id of the cooldown
-     */
-    public void resetGlobalCooldown(Key id) {
-        resetGlobalCooldown(id, true);
-    }
-
-    /**
      * Resets a player's individual cooldown (yay!)
      *
      * @param uuid   The player's uuid
@@ -103,9 +110,19 @@ public class NetworkCooldownManager implements Bootstrappable {
         redis.removeFromHash(toPersonalKey(uuid), id.asString());
 
         if (notify) {
-            CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, uuid);
+            CooldownUpdateContainer container = new CooldownUpdateContainer(
+                CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, uuid);
             redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
         }
+    }
+
+    /**
+     * Resets the global cooldown for a specifiec cooldown
+     *
+     * @param id the {@link Key}  id of the cooldown
+     */
+    public void resetGlobalCooldown(Key id) {
+        resetGlobalCooldown(id, true);
     }
 
     /**
@@ -118,7 +135,8 @@ public class NetworkCooldownManager implements Bootstrappable {
         if (!global.containsKey(id)) return;
         global.remove(id);
         if (notify) {
-            CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, null);
+            CooldownUpdateContainer container = new CooldownUpdateContainer(
+                CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, null);
             redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
         }
     }
@@ -136,7 +154,8 @@ public class NetworkCooldownManager implements Bootstrappable {
         }
         global.put(id, expire);
         redis.addToHash(RedisDatabase.GLOBAL_COOLDOWNS_KEY, id.asString(), expire.toString());
-        CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.GLOBAL, id, expire, null);
+        CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.GLOBAL,
+            id, expire, null);
         redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
     }
 
@@ -152,10 +171,13 @@ public class NetworkCooldownManager implements Bootstrappable {
             resetPersonalCooldown(uuid, id, false);
             return;
         }
-        if (!personal.containsKey(uuid)) personal.put(uuid, new ConcurrentHashMap<>());
+        if (!personal.containsKey(uuid)) {
+            personal.put(uuid, new ConcurrentHashMap<>());
+        }
         personal.get(uuid).put(id, expire);
         redis.addToHash(toPersonalKey(uuid), id.asString(), expire.toString());
-        CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.PERSONAL, id, expire, uuid);
+        CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.PERSONAL,
+            id, expire, uuid);
         redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
     }
 
@@ -211,18 +233,6 @@ public class NetworkCooldownManager implements Bootstrappable {
     }
 
     /**
-     * Gets the keys of the currently active personal cooldowns (every player)
-     *
-     * @return the set of personal keys
-     */
-    public Set<Key> getPersonalKeys() {
-        Set<Key> personalKeys = new HashSet<>();
-        personal.forEach((uuid, namespaceIDInstantMap) ->
-                namespaceIDInstantMap.forEach((namespaceID, instant) -> personalKeys.add(namespaceID)));
-        return personalKeys;
-    }
-
-    /**
      * Gets the keys of the currently active global cooldowns
      *
      * @return the set of global keys
@@ -240,5 +250,16 @@ public class NetworkCooldownManager implements Bootstrappable {
         Set<Key> keys = getPersonalKeys();
         keys.addAll(global.keySet());
         return keys;
+    }
+
+    /**
+     * Gets the keys of the currently active personal cooldowns (every player)
+     *
+     * @return the set of personal keys
+     */
+    public Set<Key> getPersonalKeys() {
+        Set<Key> personalKeys = new HashSet<>();
+        personal.forEach((uuid, map) -> map.forEach((key, instant) -> personalKeys.add(key)));
+        return personalKeys;
     }
 }

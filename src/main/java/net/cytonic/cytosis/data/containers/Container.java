@@ -4,9 +4,12 @@ package net.cytonic.cytosis.data.containers;
  * A skeleton class providing default methods to redis containers
  */
 public interface Container {
+
     /**
      * Deserializes the serialized container. The format of a serialized container is: {@code ID-JSON}, so an example
-     * might be {@code UPDATE_COOLDOWN-{"id":"UPDATE_COOLDOWN", "target":"GLOBAL", "namespace":"cytosis:", "expiry":"<Insert Instant Here>"}}
+     * might be
+     * {@code UPDATE_COOLDOWN-{"id":"UPDATE_COOLDOWN", "target":"GLOBAL", "namespace":"cytosis:", "expiry":"<Insert
+     * Instant Here>"}}
      *
      * @param serializedContainer the serialized data
      * @return an instance of {@link Container}, using data from the specified string

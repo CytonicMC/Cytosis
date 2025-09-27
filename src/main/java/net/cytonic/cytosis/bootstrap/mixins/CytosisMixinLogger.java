@@ -1,17 +1,28 @@
 package net.cytonic.cytosis.bootstrap.mixins;
 
+import java.util.Objects;
+
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.logging.ILogger;
 import org.spongepowered.asm.logging.Level;
 
-import java.util.Objects;
-
 public record CytosisMixinLogger(@NotNull String id) implements ILogger {
 
     @NotNull
-    private static final Logger SLF4J_LOGGER = Objects.requireNonNull(LoggerFactory.getLogger(CytosisMixinLogger.class));
+    private static final Logger SLF4J_LOGGER = Objects.requireNonNull(
+        LoggerFactory.getLogger(CytosisMixinLogger.class));
+
+    @Override
+    public @NotNull String getId() {
+        return this.id;
+    }
+
+    @Override
+    public String getType() {
+        return "SLF4J (implemented by CytosisMixinLogger)";
+    }
 
     @Override
     public void catching(Level level, Throwable t) {
@@ -21,8 +32,8 @@ public record CytosisMixinLogger(@NotNull String id) implements ILogger {
     @Override
     public void catching(Throwable t) {
 
-
-        CytosisMixinLogger.SLF4J_LOGGER.error("A throwable has been caught by the mixin subsystem: No further information.", t);
+        CytosisMixinLogger.SLF4J_LOGGER.error(
+            "A throwable has been caught by the mixin subsystem: No further information.", t);
     }
 
     @Override
@@ -53,16 +64,6 @@ public record CytosisMixinLogger(@NotNull String id) implements ILogger {
     @Override
     public void fatal(String message, Throwable t) {
         CytosisMixinLogger.SLF4J_LOGGER.error(message, t);
-    }
-
-    @Override
-    public @NotNull String getId() {
-        return this.id;
-    }
-
-    @Override
-    public String getType() {
-        return "SLF4J (implemented by CytosisMixinLogger)";
     }
 
     @Override

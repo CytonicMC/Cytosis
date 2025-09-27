@@ -2,7 +2,6 @@ package net.cytonic.cytosis.data.objects;
 
 import net.cytonic.cytosis.Cytosis;
 
-
 /**
  * A record representing a server group
  *
@@ -26,8 +25,9 @@ public record ServerGroup(String group, String type) {
      *
      * @return the serialized string
      */
-    public String serialize() {
-        return Cytosis.GSON.toJson(this);
+    @Override
+    public String toString() {
+        return serialize();
     }
 
     /**
@@ -35,13 +35,11 @@ public record ServerGroup(String group, String type) {
      *
      * @return the serialized string
      */
-    @Override
-    public String toString() {
-        return serialize();
+    public String serialize() {
+        return Cytosis.GSON.toJson(this);
     }
 
     public String humanReadable() {
         return group + ":" + type;
     }
-
 }

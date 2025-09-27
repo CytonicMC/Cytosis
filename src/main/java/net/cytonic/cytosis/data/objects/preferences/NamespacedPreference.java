@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.data.objects.preferences;
 
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.utils.Utils;
 
 public class NamespacedPreference<T> extends Preference<T> {
 

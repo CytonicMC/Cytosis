@@ -1,13 +1,15 @@
 package net.cytonic.cytosis.commands.chatting;
 
+import net.minestom.server.command.builder.arguments.ArgumentType;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.arguments.ArgumentType;
 
 public class ReplyCommand extends CytosisCommand {
+
     public ReplyCommand() {
         super("reply", "r");
         var msgArgument = ArgumentType.StringArray("msg");
@@ -15,9 +17,7 @@ public class ReplyCommand extends CytosisCommand {
             sender.sendMessage(Msg.whoops("You must have a message to reply with!"));
         });
         addSyntax((sender, context) -> {
-            if (!(sender instanceof CytosisPlayer player)) {
-                return;
-            }
+            if (!(sender instanceof CytosisPlayer player)) return;
 
             final String msg = String.join(" ", context.get(msgArgument));
 

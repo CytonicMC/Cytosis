@@ -1,5 +1,14 @@
 package net.cytonic.cytosis.bootstrap.mixins;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassReader;
@@ -9,15 +18,17 @@ import org.spongepowered.asm.launch.platform.container.ContainerHandleVirtual;
 import org.spongepowered.asm.launch.platform.container.IContainerHandle;
 import org.spongepowered.asm.logging.ILogger;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
-import org.spongepowered.asm.service.*;
+import org.spongepowered.asm.service.IClassBytecodeProvider;
+import org.spongepowered.asm.service.IClassProvider;
+import org.spongepowered.asm.service.IClassTracker;
+import org.spongepowered.asm.service.IMixinAuditTrail;
+import org.spongepowered.asm.service.IMixinInternal;
+import org.spongepowered.asm.service.ITransformerProvider;
+import org.spongepowered.asm.service.MixinServiceAbstract;
 import org.spongepowered.asm.util.IConsumer;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.Callable;
-
 public class CytosisMixinService extends MixinServiceAbstract {
+
     private static final CytosisRootClassLoader CLASSLOADER = CytosisRootClassLoader.getInstance();
     private final IClassBytecodeProvider bytecodeProvider = new IClassBytecodeProvider() {
         @Override
@@ -31,14 +42,54 @@ public class CytosisMixinService extends MixinServiceAbstract {
         }
 
         @Override
-        public ClassNode getClassNode(String name, boolean runTransformers, int readerFlags) throws ClassNotFoundException {
+        public ClassNode getClassNode(String name, boolean runTransformers, int flags)
+            throws ClassNotFoundException {
+
             List<Exception> caughtExceptions = new ArrayList<>();
+            Callable<@NotNull ClassReader>[] suppliers = buildSuppliers(name);
 
-            @SuppressWarnings("unchecked")
+            for (Callable<@NotNull ClassReader> supplier : suppliers) {
+                if (supplier == null) continue;
+                try {
+                    ClassReader reader = supplier.call();
+                    ClassNode node = new ClassNode();
+                    reader.accept(node, flags);
+                    return node;
+                } catch (Exception e) {
+                    caughtExceptions.add(e);
+                }
+            }
+
+            Exception causedBy = collectSuppressed(caughtExceptions);
+
+            ClassNotFoundException thrownException =
+                new ClassNotFoundException("Could not load ClassNode with name " + name, causedBy);
+
+            thrownException.fillInStackTrace();
+
+            LoggerFactory.getLogger(CytosisMixinService.class).warn(
+                "Unable to call #getClassNode(): Couldn't load ClassNode for class with name '{}'.",
+                name,
+                thrownException
+            );
+
+            throw thrownException;
+        }
+
+        @SuppressWarnings("unchecked")
+        private Callable<@NotNull ClassReader>[] buildSuppliers(String name) {
             Callable<@NotNull ClassReader>[] suppliers = new Callable[4];
+            int systemClassLoaderIndex = suppliers.length - 1;
 
-            int systemClassLoaderIndex;
-            systemClassLoaderIndex = suppliers.length - 1;
+            suppliers[0] = () -> new ClassReader(
+                CytosisMixinService.CLASSLOADER.loadBytes(name, false)
+            );
+
+            suppliers[1] = () -> new ClassReader(
+                Objects.requireNonNull(
+                    CytosisMixinService.CLASSLOADER.getResourceAsStream(name.replace('.', '/') + ".class")
+                )
+            );
 
             suppliers[systemClassLoaderIndex] = () -> {
                 ClassLoader cl = this.getClass().getClassLoader();
@@ -53,47 +104,26 @@ public class CytosisMixinService extends MixinServiceAbstract {
                 return new ClassReader(Objects.requireNonNull(is));
             };
 
-            suppliers[0] = () -> new ClassReader(CytosisMixinService.CLASSLOADER.loadBytes(name, false));
+            return suppliers;
+        }
 
-            suppliers[1] = () -> new ClassReader(Objects.requireNonNull(CytosisMixinService.CLASSLOADER.getResourceAsStream(name.replace('.', '/') + ".class")));
+        private Exception collectSuppressed(List<Exception> exceptions) {
+            if (exceptions.isEmpty()) return null;
 
-            for (Callable<@NotNull ClassReader> supplier : suppliers) {
-                try {
-                    @SuppressWarnings("null")
-                    ClassReader reader = supplier.call();
-                    ClassNode node = new ClassNode();
-                    reader.accept(node, readerFlags);
-                    return node;
-                } catch (Exception e) {
-                    caughtExceptions.add(e);
-                }
+            ListIterator<Exception> it = exceptions.listIterator(exceptions.size());
+            Exception root = it.previous();
+            while (it.hasPrevious()) {
+                root.addSuppressed(it.previous());
             }
-
-            Exception causedBy;
-            ListIterator<Exception> it = caughtExceptions.listIterator(caughtExceptions.size());
-            if (it.hasPrevious()) {
-                causedBy = it.previous();
-                while (it.hasPrevious()) {
-                    causedBy.addSuppressed(it.previous());
-                }
-            } else {
-                causedBy = null;
-            }
-
-            ClassNotFoundException thrownException = new ClassNotFoundException("Could not load ClassNode with name " + name, causedBy);
-
-            thrownException.fillInStackTrace();
-            LoggerFactory.getLogger(CytosisMixinService.class).warn("Unable to call #getClassNode(): Couldn't load ClassNode for class with name '{}'.", name, thrownException);
-
-            throw thrownException;
+            return root;
         }
     };
 
     private final IClassProvider classProvider = new IClassProvider() {
 
         @Override
-        public Class<?> findAgentClass(String name, boolean initialize) {
-            throw new RuntimeException("Agent class loading is not supported");
+        public URL[] getClassPath() {
+            return CytosisMixinService.CLASSLOADER.getURLs();
         }
 
         @Override
@@ -101,7 +131,8 @@ public class CytosisMixinService extends MixinServiceAbstract {
             try {
                 return CytosisMixinService.CLASSLOADER.findClass(name);
             } catch (ClassNotFoundException e) {
-                LoggerFactory.getLogger(CytosisMixinService.class).warn("#findClass(String): Unable to find class '{}'", name, e);
+                LoggerFactory.getLogger(CytosisMixinService.class)
+                    .warn("#findClass(String): Unable to find class '{}'", name, e);
                 throw e;
             }
         }
@@ -115,42 +146,18 @@ public class CytosisMixinService extends MixinServiceAbstract {
                     return Class.forName(name, initialize, CytosisMixinService.class.getClassLoader());
                 } catch (ClassNotFoundException e2) {
                     e2.addSuppressed(e);
-                    LoggerFactory.getLogger(CytosisMixinService.class).warn("#findClass(String, boolean): Unable to find class '{}'", name, e2);
+                    LoggerFactory.getLogger(CytosisMixinService.class)
+                        .warn("#findClass(String, boolean): Unable to find class '{}'", name, e2);
                     throw e2;
                 }
             }
         }
 
         @Override
-        public URL[] getClassPath() {
-            return CytosisMixinService.CLASSLOADER.getURLs();
+        public Class<?> findAgentClass(String name, boolean initialize) {
+            throw new RuntimeException("Agent class loading is not supported");
         }
     };
-
-    @Override
-    protected ILogger createLogger(String name) {
-        return new CytosisMixinLogger(Objects.requireNonNull(name, "logger may not have a null name"));
-    }
-
-    @Override
-    public IMixinAuditTrail getAuditTrail() {
-        return null; // unsupported
-    }
-
-    @Override
-    public IClassBytecodeProvider getBytecodeProvider() {
-        return this.bytecodeProvider;
-    }
-
-    @Override
-    public IClassProvider getClassProvider() {
-        return this.classProvider;
-    }
-
-    @Override
-    public IClassTracker getClassTracker() {
-        return null; // unsupported
-    }
 
     @Nullable
     public final <T extends IMixinInternal> T getMixinInternal(Class<T> type) {
@@ -160,6 +167,36 @@ public class CytosisMixinService extends MixinServiceAbstract {
     @Override
     public String getName() {
         return "Cytosis Bootstrap";
+    }
+
+    @Override
+    public boolean isValid() {
+        return true;
+    }
+
+    @Override
+    public IClassProvider getClassProvider() {
+        return this.classProvider;
+    }
+
+    @Override
+    public IClassBytecodeProvider getBytecodeProvider() {
+        return this.bytecodeProvider;
+    }
+
+    @Override
+    public ITransformerProvider getTransformerProvider() {
+        return null; // unsupported
+    }
+
+    @Override
+    public IClassTracker getClassTracker() {
+        return null; // unsupported
+    }
+
+    @Override
+    public IMixinAuditTrail getAuditTrail() {
+        return null; // unsupported
     }
 
     @Override
@@ -178,29 +215,24 @@ public class CytosisMixinService extends MixinServiceAbstract {
     }
 
     @Override
-    public ITransformerProvider getTransformerProvider() {
-        return null; // unsupported
-    }
-
-    @Override
     public void init() {
         super.init();
     }
 
     @Override
-    public boolean isValid() {
-        return true;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void unwire() {
-        super.unwire();
+    protected ILogger createLogger(String name) {
+        return new CytosisMixinLogger(Objects.requireNonNull(name, "logger may not have a null name"));
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void wire(Phase phase, IConsumer<Phase> phaseConsumer) {
         super.wire(phase, phaseConsumer);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void unwire() {
+        super.unwire();
     }
 }
