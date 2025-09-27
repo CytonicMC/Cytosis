@@ -1,16 +1,17 @@
 package net.cytonic.cytosis.particles;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
-import net.cytonic.cytosis.particles.effects.keyframed.KeyframedEffect;
-import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
+import java.util.ArrayList;
+
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 
-import java.util.ArrayList;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
+import net.cytonic.cytosis.particles.effects.keyframed.KeyframedEffect;
+import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
 
 /**
  * The class that handles all the interactions with the particle api. It's the primary entrypoint.
@@ -74,7 +75,7 @@ public class ParticleEngine {
 
     public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience, int delay) {
         if (delay == 0) {
-            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).schedule();
+            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).schedule();
         }
         return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay)).schedule();
     }
