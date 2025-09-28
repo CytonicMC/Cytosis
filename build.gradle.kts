@@ -346,7 +346,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "11.0.1"
+    toolVersion = "11.1.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
