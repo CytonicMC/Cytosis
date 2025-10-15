@@ -1,5 +1,11 @@
 package net.cytonic.cytosis.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -7,12 +13,11 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.utils.StringUtils;
 
-import java.util.*;
-
 /**
  * A util class that wraps text components
  */
 public final class ComponentWrapper {
+
     private ComponentWrapper() {
     }
 
@@ -24,7 +29,9 @@ public final class ComponentWrapper {
      * @return The list of wrapped components
      */
     public static List<Component> wrap(Component component, int length) {
-        if (!(component instanceof TextComponent text)) return Collections.singletonList(component);
+        if (!(component instanceof TextComponent text)) {
+            return Collections.singletonList(component);
+        }
         var wrapped = new ArrayList<Component>();
         var parts = flatten(text);
         var currentLine = Component.empty();
@@ -37,13 +44,14 @@ public final class ComponentWrapper {
             var join = nextPart != null && (part.content().endsWith(" ") || nextPart.content().startsWith(" "));
             var lineBuilder = new StringBuilder();
             var words = content.split(" ");
-            words = Arrays.stream(words)
-                    .flatMap(word -> Arrays.stream(word.splitWithDelimiters("\n", -1)))
-                    .toArray(String[]::new);
+            words = Arrays.stream(words).flatMap(word -> Arrays.stream(word.splitWithDelimiters("\n", -1)))
+                .toArray(String[]::new);
             for (var j = 0; j < words.length; j++) {
                 var word = words[j];
                 var lastWord = j == words.length - 1;
-                if (word.isEmpty()) continue;
+                if (word.isEmpty()) {
+                    continue;
+                }
                 var isLongEnough = lineLength != 0 && lineLength + word.length() > length;
                 var newLines = StringUtils.countMatches(word, '\n') + (isLongEnough ? 1 : 0);
                 for (var k = 0; k < newLines; ++k) {
@@ -60,10 +68,13 @@ public final class ComponentWrapper {
                 lineLength += word.length() + 1;
             }
             var endOfComponent = lineBuilder.toString();
-            if (!endOfComponent.isEmpty())
+            if (!endOfComponent.isEmpty()) {
                 currentLine = currentLine.append(Component.text(endOfComponent).style(style));
+            }
         }
-        if (lineLength > 0) wrapped.add(currentLine);
+        if (lineLength > 0) {
+            wrapped.add(currentLine);
+        }
         return wrapped;
     }
 
@@ -75,7 +86,9 @@ public final class ComponentWrapper {
         toCheck.add(component);
         while (!toCheck.empty()) {
             var parent = toCheck.pop();
-            if (!parent.content().isEmpty()) flattened.add(parent);
+            if (!parent.content().isEmpty()) {
+                flattened.add(parent);
+            }
             for (var child : parent.children().reversed()) {
                 if (child instanceof TextComponent text) {
                     Style style = parent.style();

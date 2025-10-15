@@ -1,7 +1,12 @@
 package net.cytonic.cytosis;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
@@ -9,9 +14,6 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -20,6 +22,7 @@ import java.util.function.Consumer;
 @Getter
 @Setter
 public class CytosisContext {
+
     // The instance ID is used to identify the server
     public static final String SERVER_ID = generateID();
     private ServerGroup serverGroup = new ServerGroup("cytonic", "lobby");
@@ -146,7 +149,8 @@ public class CytosisContext {
     }
 
     public CytonicServer currentServer() {
-        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, getServerGroup().type(), getServerGroup().group());
+        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, getServerGroup().type(),
+            getServerGroup().group());
     }
 
     /**
@@ -165,12 +169,11 @@ public class CytosisContext {
     }
 
     public void shutdownHandler() {
-        Cytosis.getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
+        Cytosis.getOnlinePlayers()
+            .forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
 
         // shutdown bootstrappable components
-        components.values().stream()
-                .filter(component -> component instanceof Bootstrappable bootstrappableComponent)
-                .map(Bootstrappable.class::cast)
-                .forEach(Bootstrappable::shutdown);
+        components.values().stream().filter(component -> component instanceof Bootstrappable)
+            .map(Bootstrappable.class::cast).forEach(Bootstrappable::shutdown);
     }
 }

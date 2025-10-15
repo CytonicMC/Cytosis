@@ -3,6 +3,7 @@ package net.cytonic.cytosis.data.containers.friends;
 import net.cytonic.cytosis.Cytosis;
 
 public record FriendApiResponse(boolean success, String code, String message) {
+
     /**
      * Deserializes this object from a string
      *

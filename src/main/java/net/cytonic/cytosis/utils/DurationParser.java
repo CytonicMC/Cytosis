@@ -1,16 +1,17 @@
 package net.cytonic.cytosis.utils;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A class handling parsing of duration strings
  */
 public final class DurationParser {
+
     private static final Pattern PATTERN = Pattern.compile("(\\d+)([ydhms])");
 
     /**
@@ -20,15 +21,17 @@ public final class DurationParser {
     }
 
     /**
-     * Parses a duration from a string akin to "1y5d6h23m12s"
-     * `-1` provides a null, representing a permanant value
+     * Parses a duration from a string akin to "1y5d6h23m12s" `-1` provides a null, representing a permanant value
      *
      * @param input The string to parse the value from
-     * @return null if the duration is permanant, returns {@link Instant#now()} if the input doesn't contain any parsable data, or an {@link Instant} with the specified duration from now.
+     * @return null if the duration is permanant, returns {@link Instant#now()} if the input doesn't contain any
+     * parsable data, or an {@link Instant} with the specified duration from now.
      */
     @Nullable
     public static Instant parse(String input) {
-        if (input.equalsIgnoreCase("-1")) return null;
+        if (input.equalsIgnoreCase("-1")) {
+            return null;
+        }
 
         Matcher matcher = PATTERN.matcher(input);
         Duration duration = Duration.ZERO;
@@ -58,9 +61,13 @@ public final class DurationParser {
      * @return The duration string representing the duration from now to the given instant
      */
     public static String unparse(@Nullable Instant instant, String spacing) {
-        if (instant == null) return null;
+        if (instant == null) {
+            return null;
+        }
         Duration duration = Duration.between(Instant.now(), instant);
-        if (duration.isNegative()) duration = Duration.between(instant, Instant.now()); // work for inverted durations
+        if (duration.isNegative()) {
+            duration = Duration.between(instant, Instant.now()); // work for inverted durations
+        }
 
         long years = Math.abs(duration.toDays() / 365);
         long days = Math.abs(duration.toDays() % 365);
@@ -88,7 +95,6 @@ public final class DurationParser {
             builder.append("<1s").append(spacing);
         }
 
-
         return builder.toString();
     }
 
@@ -99,9 +105,13 @@ public final class DurationParser {
      * @return The duration string representing the duration from now to the given instant
      */
     public static String unparseFull(@Nullable Instant instant) {
-        if (instant == null) return null;
+        if (instant == null) {
+            return null;
+        }
         Duration duration = Duration.between(Instant.now(), instant);
-        if (duration.isNegative()) duration = Duration.between(instant, Instant.now()); // work for inverted durations
+        if (duration.isNegative()) {
+            duration = Duration.between(instant, Instant.now()); // work for inverted durations
+        }
 
         long years = duration.toDays() / 365;
         long days = duration.toDays() % 365;

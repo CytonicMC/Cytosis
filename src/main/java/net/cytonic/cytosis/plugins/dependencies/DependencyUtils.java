@@ -1,13 +1,20 @@
 package net.cytonic.cytosis.plugins.dependencies;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
-import net.cytonic.cytosis.plugins.PluginDescription;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import net.cytonic.cytosis.plugins.PluginDescription;
 
 /**
  * Handles sorting plugin dependencies into an order that satisfies all dependencies.
@@ -19,8 +26,8 @@ public class DependencyUtils {
     }
 
     /**
-     * Attempts to topographically sort all plugins for the proxy to load in dependency order using a
-     * depth-first search.
+     * Attempts to topographically sort all plugins for the proxy to load in dependency order using a depth-first
+     * search.
      *
      * @param candidates the plugins to sort
      * @return the sorted list of plugins
@@ -33,7 +40,8 @@ public class DependencyUtils {
         // Create a graph and populate it with plugin dependencies. Specifically, each graph has plugin
         // nodes, and edges that represent the dependencies that plugin relies on. Non-existent plugins
         // are ignored.
-        MutableGraph<PluginDescription> graph = GraphBuilder.directed().allowsSelfLoops(false).expectedNodeCount(sortedCandidates.size()).build();
+        MutableGraph<PluginDescription> graph = GraphBuilder.directed().allowsSelfLoops(false)
+            .expectedNodeCount(sortedCandidates.size()).build();
         Map<String, PluginDescription> candidateMap = Maps.uniqueIndex(sortedCandidates, PluginDescription::getId);
 
         for (PluginDescription description : sortedCandidates) {
@@ -62,7 +70,9 @@ public class DependencyUtils {
         return sorted;
     }
 
-    private static void visitNode(Graph<PluginDescription> dependencyGraph, PluginDescription current, Map<PluginDescription, Mark> visited, List<PluginDescription> sorted, Deque<PluginDescription> currentDependencyScanStack) {
+    private static void visitNode(Graph<PluginDescription> dependencyGraph, PluginDescription current,
+        Map<PluginDescription, Mark> visited, List<PluginDescription> sorted,
+        Deque<PluginDescription> currentDependencyScanStack) {
         Mark mark = visited.getOrDefault(current, Mark.NOT_VISITED);
         if (mark == Mark.VISITED) {
             // Visited this node already, nothing to do.
@@ -73,7 +83,8 @@ public class DependencyUtils {
             // circular dependency, thus we do not have a directed acyclic graph and therefore no
             // topological sort is possible.)
             currentDependencyScanStack.addLast(current);
-            final String loop = currentDependencyScanStack.stream().map(PluginDescription::getId).collect(Collectors.joining(" -> "));
+            final String loop = currentDependencyScanStack.stream().map(PluginDescription::getId)
+                .collect(Collectors.joining(" -> "));
             throw new IllegalStateException("Circular dependency detected: " + loop);
         }
 
@@ -92,6 +103,8 @@ public class DependencyUtils {
     }
 
     private enum Mark {
-        NOT_VISITED, VISITING, VISITED
+        NOT_VISITED,
+        VISITING,
+        VISITED
     }
 }

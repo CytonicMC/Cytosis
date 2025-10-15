@@ -7,6 +7,7 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
 
 public class SnooperUnmuteCommand extends CytosisCommand {
+
     public SnooperUnmuteCommand() {
         super("unmute");
         setCondition(CommandUtils.IS_STAFF);

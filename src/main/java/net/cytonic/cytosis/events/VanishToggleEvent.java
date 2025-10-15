@@ -2,12 +2,14 @@ package net.cytonic.cytosis.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.cytonic.cytosis.player.CytosisPlayer;
 import net.minestom.server.event.trait.PlayerEvent;
+
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 @AllArgsConstructor
 @Getter
 public class VanishToggleEvent implements PlayerEvent {
+
     /**
      * The NEW vanished state.
      */

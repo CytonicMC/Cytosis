@@ -1,12 +1,15 @@
 package net.cytonic.cytosis.commands.server;
 
+import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.arguments.ArgumentWord;
+import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
+import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+import net.minestom.server.instance.InstanceContainer;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
-import net.minestom.server.instance.InstanceContainer;
 
 /**
  * The class representing the time command
@@ -19,8 +22,9 @@ public class TimeCommand extends CytosisCommand {
     public TimeCommand() {
         super("time");
         setCondition(CommandUtils.IS_STAFF);
-        var timeArgument = ArgumentType.Word("time").from("day", "night", "noon", "midnight", "sunrise", "sunset", "freeze");
-        var timeInteger = ArgumentType.Integer("timeInteger");
+        ArgumentWord timeArgument = ArgumentType.Word("time")
+            .from("day", "night", "noon", "midnight", "sunrise", "sunset", "freeze");
+        ArgumentInteger timeInteger = ArgumentType.Integer("timeInteger");
         timeArgument.setSuggestionCallback((sender, cmdc, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("day"));
             suggestion.addEntry(new SuggestionEntry("night"));
@@ -30,49 +34,35 @@ public class TimeCommand extends CytosisCommand {
             suggestion.addEntry(new SuggestionEntry("sunset"));
             suggestion.addEntry(new SuggestionEntry("freeze"));
         });
-        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>Usage: /time (time)")));
+        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.red("Usage: /time (time)")));
         InstanceContainer defaultInstance = Cytosis.CONTEXT.getComponent(InstanceContainer.class);
         addSyntax((sender, context) -> {
+            long timeToSet = defaultInstance.getTime();
             switch (context.get(timeArgument).toLowerCase()) {
-                case "day" -> {
-                    defaultInstance.setTime(1000); // Day
-                    sender.sendMessage(Msg.mm("<GREEN>Time set to day."));
-                }
-                case "night" -> {
-                    defaultInstance.setTime(13000); // Night
-                    sender.sendMessage(Msg.mm("<GREEN>Time set to night."));
-                }
-                case "midnight" -> {
-                    defaultInstance.setTime(18000); // Midnight
-                    sender.sendMessage(Msg.mm("<GREEN>Time set to midnight."));
-                }
-                case "noon" -> {
-                    defaultInstance.setTime(6000); // Noon
-                    sender.sendMessage(Msg.mm("<GREEN>Time set to noon."));
-                }
-                case "sunrise" -> {
-                    defaultInstance.setTime(23000); // Sunrise
-                    sender.sendMessage(Msg.mm("<GREEN>Time set to sunrise."));
-                }
-                case "sunset" -> {
-                    defaultInstance.setTime(12000); // Sunset
-                    sender.sendMessage(Msg.mm("<GREEN>Time set to sunset."));
-                }
+                case "day" -> timeToSet = 1000L;
+                case "night" -> timeToSet = 13000L;
+                case "midnight" -> timeToSet = 18000L;
+                case "noon" -> timeToSet = 6000L;
+                case "sunrise" -> timeToSet = 23000L;
+                case "sunset" -> timeToSet = 12000L;
                 case "freeze" -> {
                     if (defaultInstance.getTimeRate() == 1) {
                         defaultInstance.setTimeRate(0);
-                        sender.sendMessage(Msg.mm("<green>Time frozen."));
+                        sender.sendMessage(Msg.aqua("Time frozen."));
                     } else if (defaultInstance.getTimeRate() == 0) {
                         defaultInstance.setTimeRate(1);
-                        sender.sendMessage(Msg.mm("<green>Time unfrozen."));
+                        sender.sendMessage(Msg.gold("Time unfrozen."));
                     }
                 }
+                default -> {
+                    // won't ever happen
+                }
             }
-
+            defaultInstance.setTime(timeToSet);
         }, timeArgument);
         addSyntax((sender, context) -> {
             defaultInstance.setTime(context.get(timeInteger)); // Set time to input
-            sender.sendMessage(Msg.mm("<GREEN>Time set to " + context.get(timeInteger) + "."));
+            sender.sendMessage(Msg.green("Time set to " + context.get(timeInteger) + "."));
         }, timeInteger);
     }
 }

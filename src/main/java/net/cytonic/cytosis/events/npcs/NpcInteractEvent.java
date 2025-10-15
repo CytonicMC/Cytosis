@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.events.npcs;
 
-import net.cytonic.cytosis.npcs.NPC;
-import net.cytonic.cytosis.npcs.NPCAction;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.minestom.server.event.Event;
-
 import java.util.List;
 
+import net.minestom.server.event.Event;
+
+import net.cytonic.cytosis.npcs.Npc;
+import net.cytonic.cytosis.npcs.NpcAction;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 @SuppressWarnings("unused")
-public record NpcInteractEvent(NPC npc, CytosisPlayer player, List<NPCAction> actions) implements Event {
+public record NpcInteractEvent(Npc npc, CytosisPlayer player, List<NpcAction> actions) implements Event {
+
 }

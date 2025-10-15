@@ -1,6 +1,12 @@
 package net.cytonic.cytosis.playerlist;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.Component;
+
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
@@ -8,11 +14,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
-import net.kyori.adventure.text.Component;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A class providing the default player list for Cytosis
@@ -34,18 +35,19 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
         columns.add(PlayerlistCreator.PLAYER_COLUMN.apply(player));
 
         columns.add(new Column(Msg.mm("<dark_aqua><b>     Server Info"), PlayerListFavicon.BLUE,
-                Utils.list(new PlayerListEntry(Msg.mm("<dark_aqua>Uptime: " + DurationParser.unparse(start, " ")), 0),
-                        new PlayerListEntry(Component.empty(), 1),
-                        new PlayerListEntry(Msg.mm("<dark_aqua>Players: " + Cytosis.getOnlinePlayers().size()), 2),
-                        new PlayerListEntry(Msg.mm("<dark_aqua>Version: " + Cytosis.VERSION), 3),
-                        new PlayerListEntry(Msg.mm("<dark_aqua>ID: " + CytosisContext.SERVER_ID), 4),
-                        new PlayerListEntry(Msg.mm("<darK_aqua>Network Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers().size()), 5)
-                )));
-        columns.add(new Column(Msg.mm("<yellow><b>     Player Info"), PlayerListFavicon.YELLOW, Utils.list(
-                new PlayerListEntry(Msg.mm("<yellow>Rank: " + player.getRank().name()), 0),
-                new PlayerListEntry(Msg.mm("<yellow>Ping: " + player.getLatency() + "ms"), 1),
-                new PlayerListEntry(Msg.mm("<yellow>Locale: " + player.getLocale()), 2)
-        )));
+            Utils.list(new PlayerListEntry(Msg.mm("<dark_aqua>Uptime: " + DurationParser.unparse(start, " ")), 0),
+                new PlayerListEntry(Component.empty(), 1),
+                new PlayerListEntry(Msg.mm("<dark_aqua>Players: " + Cytosis.getOnlinePlayers()
+                    .size()), 2), new PlayerListEntry(Msg.mm("<dark_aqua>Version: " + Cytosis.VERSION), 3),
+                new PlayerListEntry(Msg.mm("<dark_aqua>ID: " + CytosisContext.SERVER_ID), 4),
+                new PlayerListEntry(
+                    Msg.mm("<darK_aqua>Network Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class)
+                        .getOnlinePlayers()
+                        .size()), 5))));
+        columns.add(new Column(Msg.mm("<yellow><b>     Player Info"), PlayerListFavicon.YELLOW,
+            Utils.list(new PlayerListEntry(Msg.mm("<yellow>Rank: " + player.getRank()
+                    .name()), 0), new PlayerListEntry(Msg.mm("<yellow>Ping: " + player.getLatency() + "ms"), 1),
+                new PlayerListEntry(Msg.mm("<yellow>Locale: " + player.getLocale()), 2))));
 
         return columns;
     }

@@ -4,7 +4,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-
 /**
  * The class representing the ping command
  */
@@ -18,8 +17,6 @@ public class PingCommand extends CytosisCommand {
         setDefaultExecutor((sender, cmdc) -> {
             if (sender instanceof final CytosisPlayer player) {
                 player.sendMessage(Msg.yellowSplash("Pong!", "Your ping is " + player.getLatency() + "ms."));
-            } else {
-                sender.sendMessage(Msg.whoops("Only players may execute this command!"));
             }
         });
     }

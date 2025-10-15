@@ -1,17 +1,19 @@
 package net.cytonic.cytosis.particles.effects.looping;
 
-import net.cytonic.cytosis.particles.effects.keyframed.BridgingStrategy;
-import net.cytonic.cytosis.particles.util.ParticleSupplier;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
+import net.cytonic.cytosis.particles.effects.keyframed.BridgingStrategy;
+import net.cytonic.cytosis.particles.util.ParticleSupplier;
 
 public class CircularLoopingEffect extends LoopingEffect {
-    private final double INCREMENT;
+
+    private final double increment;
     private final int resolution;
     private final ParticleSupplier particleSupplier;
     private final Function<Double, Double> radiusFunc;
@@ -36,9 +38,9 @@ public class CircularLoopingEffect extends LoopingEffect {
      *                         0 to 2π, allowing for dynamic offsets based on the current angle of the rotation. There
      *                         is a helper method, {@link CircularLoopingEffect#getPhasedOffset(double, Phase)} to get
      *                         its offset relative to a phase.
-     * @param radiusFunc       The function called to supply the radius of the circular loop. The double parameter is
-     *                         an angle from 0 to 2π, which allows for the dynamic radius based on the current angle.
-     *                         Note: It is the RADIUS, so half the width of the circle.
+     * @param radiusFunc       The function called to supply the radius of the circular loop. The double parameter is an
+     *                         angle from 0 to 2π, which allows for the dynamic radius based on the current angle. Note:
+     *                         It is the RADIUS, so half the width of the circle.
      * @param particleSupplier The supplier for the particles used. This is called for every particle drawn, so it
      *                         should be performant.
      * @param bridge           The strategy used to connect the points of the circular path. For more details about the
@@ -48,15 +50,15 @@ public class CircularLoopingEffect extends LoopingEffect {
      * @see Phase
      */
     @ApiStatus.Internal
-    public CircularLoopingEffect(Supplier<Point> posSupplier, int resolution, Phase phase, Function<Double, Point> offsetFunc,
-                                 Function<Double, Double> radiusFunc, ParticleSupplier particleSupplier, BridgingStrategy bridge,
-                                 double phaseOffset) {
+    public CircularLoopingEffect(Supplier<Point> posSupplier, int resolution, Phase phase,
+        Function<Double, Point> offsetFunc, Function<Double, Double> radiusFunc, ParticleSupplier particleSupplier,
+        BridgingStrategy bridge, double phaseOffset) {
         super(posSupplier);
         this.resolution = resolution;
         this.particleSupplier = particleSupplier;
         this.offsetFunc = offsetFunc;
         this.radiusFunc = radiusFunc;
-        this.INCREMENT = 2 * Math.PI / resolution;
+        this.increment = 2 * Math.PI / resolution;
         this.phase = phase;
         this.bridge = bridge;
         this.phaseShift = phaseOffset;
@@ -95,6 +97,21 @@ public class CircularLoopingEffect extends LoopingEffect {
         };
     }
 
+    private void cachePositions() {
+        for (int i = 0; i < resolution; i++) {
+            cachedPositions[i] = calculatePos(i * increment);
+        }
+    }
+
+    private Point calculatePos(double angle) {
+        return switch (phase) {
+            case ONE -> new Pos(Math.sin(angle + phaseShift) * radius, 0, Math.cos(angle + phaseShift) * radius);
+            case TWO -> new Pos(Math.cos(angle + phaseShift) * radius, 0, Math.sin(angle + phaseShift) * radius);
+            case THREE -> new Pos(-Math.sin(angle + phaseShift) * radius, 0, -Math.cos(angle + phaseShift) * radius);
+            case FOUR -> new Pos(-Math.cos(angle + phaseShift) * radius, 0, -Math.sin(angle + phaseShift) * radius);
+        };
+    }
+
     @Override
     @ApiStatus.Internal
     public void playNextTick(PacketGroupingAudience audience) {
@@ -104,7 +121,7 @@ public class CircularLoopingEffect extends LoopingEffect {
         }
 
         currentTick++;
-        currentAngle += INCREMENT;
+        currentAngle += increment;
 
         this.radius = radiusFunc.apply(currentAngle);
         this.offset = offsetFunc.apply(currentAngle);
@@ -119,20 +136,5 @@ public class CircularLoopingEffect extends LoopingEffect {
 
     private Point getPos(Point center) {
         return center.add(cachedPositions[currentTick - 1]);
-    }
-
-    private Point calculatePos(double angle) {
-        return switch (phase) {
-            case ONE -> new Pos(Math.sin(angle + phaseShift) * radius, 0, Math.cos(angle + phaseShift) * radius);
-            case TWO -> new Pos(Math.cos(angle + phaseShift) * radius, 0, Math.sin(angle + phaseShift) * radius);
-            case THREE -> new Pos(-Math.sin(angle + phaseShift) * radius, 0, -Math.cos(angle + phaseShift) * radius);
-            case FOUR -> new Pos(-Math.cos(angle + phaseShift) * radius, 0, -Math.sin(angle + phaseShift) * radius);
-        };
-    }
-
-    private void cachePositions() {
-        for (int i = 0; i < resolution; i++) {
-            cachedPositions[i] = calculatePos(i * INCREMENT);
-        }
     }
 }

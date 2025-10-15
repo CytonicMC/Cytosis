@@ -1,10 +1,11 @@
 package net.cytonic.cytosis.config;
 
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.PosSerializer;
 import net.minestom.server.coordinate.Pos;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.PosSerializer;
 
 /**
  * This class is used to store all the cached configuration values.
@@ -113,7 +114,6 @@ public final class CytosisSettings {
      */
     public static void loadEnvironmentVariables() {
         Logger.info("Loading environment variables!");
-        // database
         if (System.getenv("DATABASE_USER") != null) DATABASE_USER = System.getenv("DATABASE_USER");
         if (System.getenv("DATABASE_PASSWORD") != null) DATABASE_PASSWORD = System.getenv("DATABASE_PASSWORD");
         if (System.getenv("DATABASE_HOST") != null) DATABASE_HOST = System.getenv("DATABASE_HOST");
@@ -123,8 +123,9 @@ public final class CytosisSettings {
         if (System.getenv("SERVER_SECRET") != null) SERVER_SECRET = System.getenv("SERVER_SECRET");
         if (System.getenv("SERVER_PORT") != null) SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
         if (System.getenv("SERVER_WORLD_NAME") != null) SERVER_WORLD_NAME = System.getenv("SERVER_WORLD_NAME");
-        if (System.getenv("SERVER_SPAWN_POINT") != null)
+        if (System.getenv("SERVER_SPAWN_POINT") != null) {
             SERVER_SPAWN_POS = PosSerializer.deserialize(System.getenv("SERVER_SPAWN_POINT"));
+        }
         // redis
         if (!(System.getenv("REDIS_HOST") == null)) REDIS_HOST = System.getenv("REDIS_HOST");
         if (!(System.getenv("REDIS_PORT") == null)) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
@@ -143,20 +144,25 @@ public final class CytosisSettings {
         Logger.info("Loading command args!");
         // database
         if (System.getProperty("DATABASE_USER") != null) DATABASE_USER = System.getProperty("DATABASE_USER");
-        if (System.getProperty("DATABASE_PASSWORD") != null)
+        if (System.getProperty("DATABASE_PASSWORD") != null) {
             DATABASE_PASSWORD = System.getProperty("DATABASE_PASSWORD");
+        }
         if (System.getProperty("DATABASE_HOST") != null) DATABASE_HOST = System.getProperty("DATABASE_HOST");
-        if (System.getProperty("DATABASE_PORT") != null)
+        if (System.getProperty("DATABASE_PORT") != null) {
             DATABASE_PORT = Integer.parseInt(System.getProperty("DATABASE_PORT"));
+        }
         if (System.getProperty("DATABASE_NAME") != null) DATABASE_NAME = System.getProperty("DATABASE_NAME");
         //server
         if (System.getProperty("SERVER_SECRET") != null) SERVER_SECRET = System.getProperty("SERVER_SECRET");
-        if (System.getProperty("SERVER_PORT") != null)
+        if (System.getProperty("SERVER_PORT") != null) {
             SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
-        if (System.getProperty("SERVER_WORLD_NAME") != null)
+        }
+        if (System.getProperty("SERVER_WORLD_NAME") != null) {
             SERVER_WORLD_NAME = System.getProperty("SERVER_WORLD_NAME");
-        if (System.getProperty("SERVER_SPAWN_POINT") != null)
+        }
+        if (System.getProperty("SERVER_SPAWN_POINT") != null) {
             SERVER_SPAWN_POS = PosSerializer.deserialize(System.getProperty("SERVER_SPAWN_POINT"));
+        }
         // redis
         if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
         if (System.getProperty("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getProperty("REDIS_PORT"));

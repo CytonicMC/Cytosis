@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @AllArgsConstructor
 public abstract class ParticleEffect {
+
     @Getter
     final ParticleEffectType type;
 

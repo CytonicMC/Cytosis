@@ -141,10 +141,10 @@ public class CytosisBootstrap {
         loaders.addAll(PluginClassLoader.loaders);
 
         ClassGraph graph = new ClassGraph()
-                .acceptPackages(SCAN_PACKAGE_ROOT)
-                .enableClassInfo()
-                .enableAnnotationInfo()
-                .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+            .acceptPackages(SCAN_PACKAGE_ROOT)
+            .enableClassInfo()
+            .enableAnnotationInfo()
+            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         List<Class<?>> candidates = new ArrayList<>();
         // scan for annotated classes
@@ -266,13 +266,10 @@ public class CytosisBootstrap {
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
         Logger.info("Adding a singed command packet handler");
-        PacketListenerManager packetListenerManager = MinecraftServer.getPacketListenerManager();
-        packetListenerManager.setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
-                packetListenerManager.processClientPacket(
-                        new ClientCommandChatPacket(packet.message()),
-                        p.getPlayerConnection(),
-                        p.getPlayerConnection().getConnectionState())
-        );
+        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
+            MinecraftServer.getPacketListenerManager()
+                .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(),
+                    p.getPlayerConnection().getConnectionState()));
 
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
     }
@@ -289,65 +286,65 @@ public class CytosisBootstrap {
         loaders.addAll(PluginClassLoader.loaders);
 
         ClassGraph graph = new ClassGraph()
-                .acceptPackages(SCAN_PACKAGE_ROOT)
-                .enableAllInfo()
-                .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+            .acceptPackages(SCAN_PACKAGE_ROOT)
+            .enableAllInfo()
+            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         AtomicInteger counter = new AtomicInteger(0);
         EventHandler eventHandler = cytosisContext.getComponent(EventHandler.class);
         try (var scanResult = graph.scan()) {
             scanResult
-                    .getClassesWithMethodAnnotation(Listener.class.getName())
-                    .forEach(classInfo -> {
-                        Class<?> clazz = classInfo.loadClass();
-                        Object instance;
-                        try {
-                            Constructor<?> constructor = clazz.getDeclaredConstructor();
-                            constructor.setAccessible(true);
-                            instance = constructor.newInstance();
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                                 NoSuchMethodException e) {
-                            Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
-                            return;
-                        }
+                .getClassesWithMethodAnnotation(Listener.class.getName())
+                .forEach(classInfo -> {
+                    Class<?> clazz = classInfo.loadClass();
+                    Object instance;
+                    try {
+                        Constructor<?> constructor = clazz.getDeclaredConstructor();
+                        constructor.setAccessible(true);
+                        instance = constructor.newInstance();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException e) {
+                        Logger.error("The class " + clazz.getSimpleName() + " needs to have a public, no argument constructor to have an @Listener in it!", e);
+                        return;
+                    }
 
-                        for (Method method : clazz.getDeclaredMethods()) {
-                            if (method.isAnnotationPresent(Listener.class)) {
-                                method.setAccessible(true);
-                                int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
-                                boolean async = method.isAnnotationPresent(Async.class);
+                    for (Method method : clazz.getDeclaredMethods()) {
+                        if (method.isAnnotationPresent(Listener.class)) {
+                            method.setAccessible(true);
+                            int priority = method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value() : 50;
+                            boolean async = method.isAnnotationPresent(Async.class);
 
-                                Class<? extends Event> eventClass;
+                            Class<? extends Event> eventClass;
+                            try {
+                                eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
+                            } catch (ClassCastException e) {
+                                Logger.error("The parameter of a method annotated with @Listener must be a valid event!", e);
+                                return;
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                Logger.error("Methods annotated with @Listener must have a valid event as a parameter!", e);
+                                return;
+                            }
+
+                            eventHandler.registerListener(new EventListener<>(
+                                "cytosis:annotation-listener-" + counter.getAndIncrement(),
+                                async, priority, (Class<Event>) eventClass, event -> {
                                 try {
-                                    eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-                                } catch (ClassCastException e) {
-                                    Logger.error("The parameter of a method annotated with @Listener must be a valid event!", e);
-                                    return;
-                                } catch (ArrayIndexOutOfBoundsException e) {
-                                    Logger.error("Methods annotated with @Listener must have a valid event as a parameter!", e);
-                                    return;
-                                }
-
-                                eventHandler.registerListener(new EventListener<>(
-                                        "cytosis:annotation-listener-" + counter.getAndIncrement(),
-                                        async, priority, (Class<Event>) eventClass, event -> {
-                                    try {
-                                        method.invoke(instance, event);
-                                    } catch (IllegalAccessException e) {
-                                        Logger.error("Failed to call @Listener!", e);
-                                    } catch (InvocationTargetException e) {
-                                        Throwable cause = e.getCause();
-                                        if (cause != null) {
-                                            Logger.error("Exception in @Listener method: ", cause);
-                                        } else {
-                                            Logger.error("Unknown error in @Listener method.", e);
-                                        }
+                                    method.invoke(instance, event);
+                                } catch (IllegalAccessException e) {
+                                    Logger.error("Failed to call @Listener!", e);
+                                } catch (InvocationTargetException e) {
+                                    Throwable cause = e.getCause();
+                                    if (cause != null) {
+                                        Logger.error("Exception in @Listener method: ", cause);
+                                    } else {
+                                        Logger.error("Unknown error in @Listener method.", e);
                                     }
                                 }
-                                ));
                             }
+                            ));
                         }
-                    });
+                    }
+                });
         }
         Logger.info("Finished scanning for listeners in plugins in " + (System.currentTimeMillis() - start2) + "ms!");
     }
