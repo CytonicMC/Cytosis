@@ -29,6 +29,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.files.FileManager;
+import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.PosSerializer;
@@ -46,7 +47,6 @@ public class MysqlDatabase implements Bootstrappable {
     private final String database;
     private final String username;
     private final String password;
-
     @Getter
     private Connection connection;
 
@@ -59,7 +59,8 @@ public class MysqlDatabase implements Bootstrappable {
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
         this.host = CytosisSettings.DATABASE_HOST;
         this.port = CytosisSettings.DATABASE_PORT;
-        this.database = CytosisSettings.DATABASE_NAME;
+        this.database = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment().getPrefix()
+            + CytosisSettings.DATABASE_NAME;
         this.username = CytosisSettings.DATABASE_USER;
         this.password = CytosisSettings.DATABASE_PASSWORD;
         try {
@@ -133,7 +134,6 @@ public class MysqlDatabase implements Bootstrappable {
         createPlayerJoinsTable();
         createMutesTable();
         createPlayerMessagesTable();
-        createPlayerWarnsTable();
     }
 
     /**
@@ -260,47 +260,6 @@ public class MysqlDatabase implements Bootstrappable {
         } catch (SQLException e) {
             Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
         }
-    }
-
-    private void createPlayerWarnsTable() {
-        try {
-            getConnection().prepareStatement("""
-                CREATE TABLE IF NOT EXISTS cytonic_player_warns (
-                    id INT NOT NULL AUTO_INCREMENT,
-                    timestamp TIMESTAMP,
-                    target VARCHAR(36),
-                    actor VARCHAR(36),
-                    reason TEXT,
-                    PRIMARY KEY(id)
-                )
-                """).executeUpdate();
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst creating the `cytonic_player_warns` table.", e);
-        }
-    }
-
-    public CompletableFuture<Void> addPlayerWarn(UUID actor, UUID target, String reason) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        worker.submit(() -> {
-            if (!isConnected()) {
-                throw new IllegalStateException("The database must be connected to add player warns.");
-            }
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("""
-                    INSERT INTO cytonic_player_warns (timestamp, target, actor, reason)
-                    VALUES (CURRENT_TIMESTAMP, ?, ?, ?)
-                    """);
-                ps.setString(1, target.toString());
-                ps.setString(2, actor.toString());
-                ps.setString(3, reason);
-                ps.executeUpdate();
-                future.complete(null);
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a warn!", e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
     }
 
     /**

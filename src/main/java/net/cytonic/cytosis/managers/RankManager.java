@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
@@ -117,7 +118,7 @@ public class RankManager implements Bootstrappable {
      */
     public void setupCosmetics(CytosisPlayer player, PlayerRank rank) {
         teamMap.get(rank).addMember(player.getUsername());
-        player.setCustomName(rank.getPrefix().append(player.getName()));
+        player.set(DataComponents.CUSTOM_NAME, rank.getPrefix().append(player.getName()));
         Cytosis.CONTEXT.getComponent(CommandHandler.class).recalculateCommands(player);
         if (player.isVanished()) {
             player.setVanished(true); // ranks can mess up the visuals sometimes
