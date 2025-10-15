@@ -75,7 +75,7 @@ public class EventHandler {
     private <T extends Event> void handleEvent(T event) {
         List<EventListener<? extends Event>> matchingListeners = new ArrayList<>();
         for (EventListener<? extends Event> listener : namespacedHandlers.values()) {
-            if (listener.getEventClass() == event.getClass()) {
+            if (listener.getEventClass().isAssignableFrom(event.getClass())) {
                 matchingListeners.add(listener);
             }
         }
