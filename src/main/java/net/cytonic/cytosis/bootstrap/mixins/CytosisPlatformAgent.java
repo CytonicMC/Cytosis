@@ -1,11 +1,11 @@
 package net.cytonic.cytosis.bootstrap.mixins;
 
+import java.util.Collection;
+
 import org.spongepowered.asm.launch.platform.IMixinPlatformServiceAgent;
 import org.spongepowered.asm.launch.platform.MixinPlatformAgentAbstract;
 import org.spongepowered.asm.launch.platform.container.IContainerHandle;
 import org.spongepowered.asm.util.Constants;
-
-import java.util.Collection;
 
 @SuppressWarnings("unused")
 public class CytosisPlatformAgent extends MixinPlatformAgentAbstract implements IMixinPlatformServiceAgent {

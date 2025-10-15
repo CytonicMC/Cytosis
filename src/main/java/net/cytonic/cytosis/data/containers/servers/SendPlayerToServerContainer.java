@@ -1,10 +1,11 @@
 package net.cytonic.cytosis.data.containers.servers;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.util.UUID;
 
+import net.cytonic.cytosis.Cytosis;
+
 public record SendPlayerToServerContainer(UUID player, String serverId, UUID instance) {
+
     /**
      * Deserializes this object from a string
      *
@@ -20,8 +21,9 @@ public record SendPlayerToServerContainer(UUID player, String serverId, UUID ins
      *
      * @return the serialized string
      */
-    public String serialize() {
-        return Cytosis.GSON.toJson(this);
+    @Override
+    public String toString() {
+        return serialize();
     }
 
     /**
@@ -29,8 +31,7 @@ public record SendPlayerToServerContainer(UUID player, String serverId, UUID ins
      *
      * @return the serialized string
      */
-    @Override
-    public String toString() {
-        return serialize();
+    public String serialize() {
+        return Cytosis.GSON.toJson(this);
     }
 }

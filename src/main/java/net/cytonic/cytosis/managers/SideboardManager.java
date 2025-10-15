@@ -1,30 +1,32 @@
 package net.cytonic.cytosis.managers;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.sideboard.DefaultCreator;
-import net.cytonic.cytosis.sideboard.Sideboard;
-import net.cytonic.cytosis.sideboard.SideboardCreator;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.sideboard.DefaultCreator;
+import net.cytonic.cytosis.sideboard.Sideboard;
+import net.cytonic.cytosis.sideboard.SideboardCreator;
 
 /**
  * A manager class for sideboards
  */
 @NoArgsConstructor
 public class SideboardManager implements Bootstrappable {
+
     private final Map<UUID, Sideboard> sideboards = new ConcurrentHashMap<>();
     @Getter
     @Nullable
@@ -53,21 +55,10 @@ public class SideboardManager implements Bootstrappable {
     }
 
     /**
-     * Removes a player from the sideboard manager
-     *
-     * @param player the player
+     * schedule the sideboard updater.
      */
-    public void removePlayer(Player player) {
-        sideboards.remove(player.getUuid());
-    }
-
-    /**
-     * Removes a player from the sideboard manager
-     *
-     * @param player the player
-     */
-    public void removePlayer(UUID player) {
-        sideboards.remove(player);
+    public void autoUpdateBoards(TaskSchedule schedule) {
+        task = MinecraftServer.getSchedulerManager().buildTask(this::updatePlayersNow).repeat(schedule).schedule();
     }
 
     public void updatePlayersNow() {
@@ -84,13 +75,21 @@ public class SideboardManager implements Bootstrappable {
     }
 
     /**
-     * schedule the sideboard updater.
+     * Removes a player from the sideboard manager
+     *
+     * @param player the player
      */
-    public void autoUpdateBoards(TaskSchedule schedule) {
-        task = MinecraftServer.getSchedulerManager()
-                .buildTask(this::updatePlayersNow)
-                .repeat(schedule)
-                .schedule();
+    public void removePlayer(UUID player) {
+        sideboards.remove(player);
+    }
+
+    /**
+     * Removes a player from the sideboard manager
+     *
+     * @param player the player
+     */
+    public void removePlayer(Player player) {
+        removePlayer(player.getUuid());
     }
 
     /**

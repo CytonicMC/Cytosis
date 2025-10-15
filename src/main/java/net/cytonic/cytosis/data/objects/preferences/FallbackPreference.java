@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data.objects.preferences;
 
 import lombok.Getter;
+
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 
 /**
@@ -10,6 +11,7 @@ import net.cytonic.cytosis.data.objects.TypedNamespace;
  */
 @Getter
 public class FallbackPreference<T> extends NamespacedPreference<T> {
+
     private final String rawValue;
 
     public FallbackPreference(TypedNamespace<T> namespace, String rawValue) {

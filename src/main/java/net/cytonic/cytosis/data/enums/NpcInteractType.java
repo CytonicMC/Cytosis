@@ -3,7 +3,7 @@ package net.cytonic.cytosis.data.enums;
 /**
  * An enum holding data about NPC interactions
  */
-public enum NPCInteractType {
+public enum NpcInteractType {
     /**
      * Left-clicking an NPC
      */

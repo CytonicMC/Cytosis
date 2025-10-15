@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.plugins.dependencies;
 
-import lombok.Getter;
-
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
+
+import javax.annotation.Nullable;
+import lombok.Getter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -14,7 +14,6 @@ import static com.google.common.base.Strings.emptyToNull;
  * Represents a dependency on another plugin.
  */
 public final class PluginDependency {
-
 
     @Getter
     private final String id;
@@ -46,6 +45,11 @@ public final class PluginDependency {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(id, version, optional);
+    }
+
+    @Override
     public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
@@ -54,22 +58,12 @@ public final class PluginDependency {
             return false;
         }
         PluginDependency that = (PluginDependency) o;
-        return optional == that.optional
-                && Objects.equals(id, that.id)
-                && Objects.equals(version, that.version);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, version, optional);
+        return optional == that.optional && Objects.equals(id, that.id) && Objects.equals(version, that.version);
     }
 
     @Override
     public String toString() {
-        return "PluginDependency{"
-                + "id='" + id + '\''
-                + ", version='" + version + '\''
-                + ", optional=" + optional
-                + '}';
+        return "PluginDependency{" + "id='" + id + '\'' + ", version='" + version + '\'' + ", optional=" + optional
+            + '}';
     }
 }

@@ -5,13 +5,18 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
  * The logging implementation intended for use with the bootstrapper
  */
 public class BootstrapLogger {
+
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final Logger LOGGER = Logger.getLogger("CytosisBootstrapper");
 
@@ -25,7 +30,8 @@ public class BootstrapLogger {
             public String format(LogRecord record) {
                 String time = LocalTime.now().format(TIME_FORMAT);
                 StringBuilder sb = new StringBuilder();
-                sb.append(String.format("[%s] [%s] [Bootstrapper] -> %s%n", time, colorizeLevel(record.getLevel()), record.getMessage()));
+                sb.append(String.format("[%s] [%s] [Bootstrapper] -> %s%n", time, colorizeLevel(record.getLevel()),
+                    record.getMessage()));
                 if (record.getThrown() != null) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
@@ -46,15 +52,15 @@ public class BootstrapLogger {
         LOGGER.log(Level.SEVERE, message, args);
     }
 
-    public static void warn(String message, Object... args) {
-        LOGGER.log(Level.WARNING, message, args);
-    }
-
     public static void error(String message, Throwable t) {
         if (t instanceof InvocationTargetException target) {
             t = target.getCause();
         }
         LOGGER.log(Level.SEVERE, message, t);
+    }
+
+    public static void warn(String message, Object... args) {
+        LOGGER.log(Level.WARNING, message, args);
     }
 
     private static String colorizeLevel(Level level) {

@@ -8,14 +8,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class PolarExtension implements PolarWorldAccess {
 
-
     @Override
     public void loadWorldData(@NotNull Instance instance, @Nullable NetworkBuffer userData) {
         if (userData == null) {
+            // todo: implement me!
         }
 
     }
-
 
     @Override
     public void saveWorldData(@NotNull Instance instance, @NotNull NetworkBuffer userData) {

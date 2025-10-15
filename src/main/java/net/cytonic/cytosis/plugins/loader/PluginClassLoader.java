@@ -1,7 +1,5 @@
 package net.cytonic.cytosis.plugins.loader;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,12 +8,14 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.cytonic.cytosis.Cytosis;
+
 /**
  * The per-plugin class loader.
  */
 public class PluginClassLoader extends URLClassLoader {
 
-    public static final Set<PluginClassLoader> loaders = new CopyOnWriteArraySet<>();
+    public static final Set<PluginClassLoader> LOADERS = new CopyOnWriteArraySet<>();
 
     static {
         ClassLoader.registerAsParallelCapable();
@@ -26,7 +26,7 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     public void addToClassloaders() {
-        loaders.add(this);
+        LOADERS.add(this);
     }
 
     public void addPath(Path path) {
@@ -39,7 +39,7 @@ public class PluginClassLoader extends URLClassLoader {
 
     @Override
     public void close() throws IOException {
-        loaders.remove(this);
+        LOADERS.remove(this);
         super.close();
     }
 
@@ -56,7 +56,7 @@ public class PluginClassLoader extends URLClassLoader {
         }
 
         if (checkOther) {
-            for (PluginClassLoader loader : loaders) {
+            for (PluginClassLoader loader : LOADERS) {
                 if (loader != this) {
                     try {
                         return loader.loadClass0(name, resolve, false);

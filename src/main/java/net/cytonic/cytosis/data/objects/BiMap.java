@@ -1,15 +1,16 @@
 package net.cytonic.cytosis.data.objects;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
- * A class that holds a bidirectional map, meaning it can be queried by key AND value. Under the hood, it uses a ConcurrentHashMap, making it thread safe.
+ * A class that holds a bidirectional map, meaning it can be queried by key AND value. Under the hood, it uses a
+ * ConcurrentHashMap, making it thread safe.
  *
  * @param <K> The key type
  * @param <V> The value type
@@ -51,12 +52,16 @@ public class BiMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
     public void removeByKey(K key) {
         V key2 = keyToValue.remove(key);
-        if (key2 != null) valueToKey.remove(key2);
+        if (key2 != null) {
+            valueToKey.remove(key2);
+        }
     }
 
     public void removeByValue(V key) {
         K key2 = valueToKey.remove(key);
-        if (key2 != null) keyToValue.remove(key2);
+        if (key2 != null) {
+            keyToValue.remove(key2);
+        }
     }
 
     /**

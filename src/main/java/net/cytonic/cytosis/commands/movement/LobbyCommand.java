@@ -11,7 +11,8 @@ public class LobbyCommand extends CytosisCommand {
         super("lobby", "l");
         setDefaultExecutor((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            Cytosis.CONTEXT.getComponent(NatsManager.class).sendPlayerToGenericServer(player.getUuid(), "cytonic", "lobby", "a Lobby");
+            Cytosis.CONTEXT.getComponent(NatsManager.class)
+                .sendPlayerToGenericServer(player.getUuid(), "cytonic", "lobby", "a Lobby");
         });
     }
 }

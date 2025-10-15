@@ -1,16 +1,18 @@
 package net.cytonic.cytosis.data.containers.friends;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import net.cytonic.cytosis.Cytosis;
+
 /**
  * A record class that is a json "packet", representing accepting a friend request with 2 UUIDs.
- * @param sender The player who accepted/denied the request
+ *
+ * @param sender    The player who accepted/denied the request
  * @param recipient the original player who sent the friend request
  */
 public record OrganicFriendResponse(UUID sender, UUID recipient) {
+
     /**
      * Deserializes this object from a string
      *

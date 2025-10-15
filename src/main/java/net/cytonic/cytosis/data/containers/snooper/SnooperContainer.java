@@ -1,8 +1,9 @@
 package net.cytonic.cytosis.data.containers.snooper;
 
-import net.cytonic.cytosis.Cytosis;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+
+import net.cytonic.cytosis.Cytosis;
 
 public record SnooperContainer(String rawMessage) {
 

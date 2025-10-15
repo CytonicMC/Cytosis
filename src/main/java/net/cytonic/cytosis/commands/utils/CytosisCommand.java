@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.commands.utils;
 
+import java.util.Collection;
+
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.command.CommandSender;
@@ -9,8 +11,6 @@ import net.minestom.server.command.builder.CommandSyntax;
 import net.minestom.server.command.builder.arguments.Argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 @Getter
 @Setter
@@ -22,13 +22,9 @@ public class CytosisCommand extends Command {
         super(command, aliases);
     }
 
-    private boolean checkDisabled(CommandSender sender) {
-        if (!disabled) return false;
-        return !CommandUtils.IS_ADMIN.canUse(sender, null);
-    }
-
     @Override
-    public @NotNull Collection<CommandSyntax> addSyntax(@NotNull CommandExecutor executor, @NotNull Argument<?>... args) {
+    public @NotNull Collection<CommandSyntax> addSyntax(@NotNull CommandExecutor executor,
+        @NotNull Argument<?>... args) {
         return super.addSyntax(((s, c) -> {
             if (checkDisabled(s)) {
                 s.sendMessage(CommandUtils.COMMAND_DISABLED);
@@ -61,5 +57,12 @@ public class CytosisCommand extends Command {
                 executor.apply(s, c);
             }
         });
+    }
+
+    private boolean checkDisabled(CommandSender sender) {
+        if (!disabled) {
+            return false;
+        }
+        return !CommandUtils.IS_ADMIN.canUse(sender, null);
     }
 }

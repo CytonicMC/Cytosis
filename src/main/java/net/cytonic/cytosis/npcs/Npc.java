@@ -1,5 +1,8 @@
 package net.cytonic.cytosis.npcs;
 
+import java.util.List;
+import java.util.UUID;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
@@ -7,13 +10,10 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.tag.Taggable;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * The blueprint for an NPC
  */
-public interface NPC extends Taggable {
+public interface Npc extends Taggable {
 
     Tag<String> DATA_TAG = Tag.String("npc_data");
 
@@ -32,11 +32,11 @@ public interface NPC extends Taggable {
     /**
      * Creates a new builder out of an existing NPC
      *
-     * @param NPC The npc to import data from
+     * @param npc The npc to import data from
      * @return the created builder
      */
-    static HumanoidBuilder ofHumanoid(Humanoid NPC) {
-        return new HumanoidBuilder(NPC);
+    static HumanoidBuilder ofHumanoid(Humanoid npc) {
+        return new HumanoidBuilder(npc);
     }
 
     /**
@@ -44,14 +44,14 @@ public interface NPC extends Taggable {
      *
      * @param action the exection action
      */
-    void addAction(NPCAction action);
+    void addAction(NpcAction action);
 
     /**
      * Lists the NPCs actions
      *
      * @return the NPC's actions
      */
-    List<NPCAction> getActions();
+    List<NpcAction> getActions();
 
     /**
      * Gets the hologram lines
@@ -95,7 +95,7 @@ public interface NPC extends Taggable {
      *
      * @return the uuid
      */
-    UUID getUUID();
+    UUID getUuid();
 
     /**
      * Creates the holograms

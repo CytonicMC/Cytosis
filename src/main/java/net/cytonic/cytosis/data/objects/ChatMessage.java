@@ -1,17 +1,19 @@
 package net.cytonic.cytosis.data.objects;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.cytonic.cytosis.data.enums.ChatChannel;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
 import java.util.UUID;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.cytosis.data.enums.ChatChannel;
 
 /**
  * A class that represents a message sent to the specified recipients.
  * <br><br>
- * <strong>Api Note:</strong> The {@code recipients} field may be null, indicating the message should be broadcast out on the channel, rather than sent only to the recipients.
+ * <strong>Api Note:</strong> The {@code recipients} field may be null, indicating the message should be broadcast out
+ * on the channel, rather than sent only to the recipients.
  *
  * @param recipients        The intended recipients of the message, may be null. See note above.
  * @param channel           The channel the message is sent out upon.
@@ -39,16 +41,6 @@ public record ChatMessage(@Nullable List<UUID> recipients, ChatChannel channel, 
     }
 
     /**
-     * Converts the object to a string representation of itself.
-     *
-     * @return the string representation of this chat message.
-     * @see ChatMessage#fromJson(String)
-     */
-    public String toJson() {
-        return GSON.toJson(this);
-    }
-
-    /**
      * A method to stringify this object.
      *
      * @return the string representation of this object
@@ -57,5 +49,15 @@ public record ChatMessage(@Nullable List<UUID> recipients, ChatChannel channel, 
     @Override
     public String toString() {
         return toJson();
+    }
+
+    /**
+     * Converts the object to a string representation of itself.
+     *
+     * @return the string representation of this chat message.
+     * @see ChatMessage#fromJson(String)
+     */
+    public String toJson() {
+        return GSON.toJson(this);
     }
 }

@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.objects;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.util.UUID;
+
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * A class that holds a pair of UUID and name, mostly used to store players in Redis
@@ -25,16 +25,6 @@ public record PlayerPair(UUID uuid, String name) {
 
     /**
      * Converts the player pair into a JSON string
-     *
-     * @return the json string
-     */
-    @Override
-    public String toString() {
-        return Cytosis.GSON.toJson(this);
-    }
-
-    /**
-     * Converts the player pair into a JSON string
      * <p>
      * This method is an alias for {@link #toString()}
      *
@@ -42,5 +32,15 @@ public record PlayerPair(UUID uuid, String name) {
      */
     public String serialize() {
         return toString();
+    }
+
+    /**
+     * Converts the player pair into a JSON string
+     *
+     * @return the json string
+     */
+    @Override
+    public String toString() {
+        return Cytosis.GSON.toJson(this);
     }
 }

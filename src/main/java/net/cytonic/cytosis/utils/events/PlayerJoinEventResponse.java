@@ -8,6 +8,7 @@ import net.minestom.server.instance.Instance;
  */
 @FunctionalInterface
 public interface PlayerJoinEventResponse {
+
     /**
      * Complete this interface
      *

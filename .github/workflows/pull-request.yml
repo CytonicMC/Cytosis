@@ -14,10 +14,16 @@ jobs:
           java-version: '21'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Assemble Jar
-        run: gradle --no-daemon compileJava
+        run: gradle --no-daemon thinJar
 
       - name: Run Java docs
         run: gradle --no-daemon javadoc
+
+      - name: Upload jar as artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: cytosis
+          path: build/libs/cytosis.jar

@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.data.adapters;
 
+import java.io.IOException;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -9,8 +11,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.key.Key;
-
-import java.io.IOException;
 
 @NoArgsConstructor
 public class KeyAdapter extends TypeAdapter<Key> implements TypeAdapterFactory {
@@ -34,7 +34,9 @@ public class KeyAdapter extends TypeAdapter<Key> implements TypeAdapterFactory {
     public Key read(JsonReader in) throws IOException {
 
         String key = in.nextString();
-        if (key == null) throw new JsonParseException("Preference deserialization failed: No group found");
+        if (key == null) {
+            throw new JsonParseException("Preference deserialization failed: No group found");
+        }
 
         return Key.key(key);
     }

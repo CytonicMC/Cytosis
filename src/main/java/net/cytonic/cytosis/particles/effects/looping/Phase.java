@@ -1,9 +1,8 @@
 package net.cytonic.cytosis.particles.effects.looping;
 
 /**
- * The phases associated with circular loops. To get points 180 degrees apart, the phases must both
- * be even or odd. Phases {@link #ONE} and {@link #THREE} spin counterclockwise. Phases {@link #TWO}
- * and {@link #FOUR} spin clockwise.
+ * The phases associated with circular loops. To get points 180 degrees apart, the phases must both be even or odd.
+ * Phases {@link #ONE} and {@link #THREE} spin counterclockwise. Phases {@link #TWO} and {@link #FOUR} spin clockwise.
  */
 public enum Phase {
     /**

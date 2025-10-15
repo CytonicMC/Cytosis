@@ -1,14 +1,15 @@
 package net.cytonic.cytosis.commands.server.nomad;
 
+import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.arguments.ArgumentWord;
+import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.ServerInstancingManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.arguments.ArgumentWord;
-import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 /**
  * A command for closing all instances of cytosis on a kubernetes cluster
@@ -21,8 +22,7 @@ public class ShutdownInstancesCommand extends CytosisCommand {
     public ShutdownInstancesCommand() {
         super("shutdowninstances");
         setCondition(CommandUtils.IS_ADMIN);
-        ArgumentWord typeArg = ArgumentType.Word("type").from(
-                "cytosis", "cynder");
+        ArgumentWord typeArg = ArgumentType.Word("type").from("cytosis", "cynder");
         typeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("cytosis"));
             suggestion.addEntry(new SuggestionEntry("cynder"));

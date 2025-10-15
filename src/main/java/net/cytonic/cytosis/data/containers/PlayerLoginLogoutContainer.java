@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.containers;
 
-import net.cytonic.cytosis.Cytosis;
-
 import java.util.UUID;
+
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * The container for when the player logs in or logs out
@@ -27,8 +27,9 @@ public record PlayerLoginLogoutContainer(String username, UUID uuid) {
      *
      * @return the serialized string
      */
-    public String serialize() {
-        return Cytosis.GSON.toJson(this);
+    @Override
+    public String toString() {
+        return serialize();
     }
 
     /**
@@ -36,8 +37,7 @@ public record PlayerLoginLogoutContainer(String username, UUID uuid) {
      *
      * @return the serialized string
      */
-    @Override
-    public String toString() {
-        return serialize();
+    public String serialize() {
+        return Cytosis.GSON.toJson(this);
     }
 }

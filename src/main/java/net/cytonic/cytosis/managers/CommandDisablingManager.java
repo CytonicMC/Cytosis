@@ -1,26 +1,28 @@
 package net.cytonic.cytosis.managers;
 
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.DatabaseManager;
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
-import net.minestom.server.command.CommandManager;
-import org.jetbrains.annotations.Nullable;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import net.minestom.server.command.CommandManager;
+import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
+
 public class CommandDisablingManager implements Bootstrappable {
+
     private NatsManager nats;
-    private DatabaseManager databaseManager;
+    private RedisDatabase redis;
 
     @Override
     public void init() {
         this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.databaseManager = Cytosis.CONTEXT.getComponent(DatabaseManager.class);
+        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
         loadRemotes();
         setupConsumers();
     }
@@ -56,7 +58,9 @@ public class CommandDisablingManager implements Bootstrappable {
      * @return if the command was successfully disabled.
      */
     public boolean disableCommandLocally(CytosisCommand cmd) {
-        if (cmd.isDisabled()) return false;
+        if (cmd.isDisabled()) {
+            return false;
+        }
         cmd.setDisabled(true);
         return true;
     }
@@ -68,21 +72,28 @@ public class CommandDisablingManager implements Bootstrappable {
      * @return if the command was successfully enabled again
      */
     public boolean enableCommandLocally(CytosisCommand cmd) {
-        if (!cmd.isDisabled()) return false;
+        if (!cmd.isDisabled()) {
+            return false;
+        }
         cmd.setDisabled(false);
         return true;
     }
 
     /**
-     * Globally disables the given command. Normal players will not be able to use the command on any server. Administrators can bypass this, though.
+     * Globally disables the given command. Normal players will not be able to use the command on any server.
+     * Administrators can bypass this, though.
      *
      * @param cmd the command to disable everywhere
      * @return if the command was successfully disabled
      */
     public boolean disableCommandGlobally(CytosisCommand cmd) {
         sendCommandDisable(cmd.getName().getBytes(StandardCharsets.UTF_8));
-        databaseManager.getRedisDatabase().addValue("cytosis-disabled-commands", cmd.getName());
+        redis.addValue("cytosis-disabled-commands", cmd.getName());
         return true;
+    }
+
+    private void sendCommandDisable(byte[] message) {
+        Cytosis.CONTEXT.getComponent(NatsManager.class).publish("cytosis.commands.disabled", message);
     }
 
     /**
@@ -93,7 +104,7 @@ public class CommandDisablingManager implements Bootstrappable {
      */
     public boolean enableCommandGlobally(CytosisCommand cmd) {
         sendCommandEnable(cmd.getName().getBytes(StandardCharsets.UTF_8));
-        databaseManager.getRedisDatabase().removeValue("cytosis-disabled-commands", cmd.getName());
+        redis.removeValue("cytosis-disabled-commands", cmd.getName());
         return true;
     }
 
@@ -108,7 +119,7 @@ public class CommandDisablingManager implements Bootstrappable {
     public CompletableFuture<Void> loadRemotes() {
         return CompletableFuture.supplyAsync(() -> {
 
-            Set<String> cmds = databaseManager.getRedisDatabase().getSet("cytosis-disabled-commands");
+            Set<String> cmds = redis.getSet("cytosis-disabled-commands");
 
             for (String cmd : cmds) {
                 CytosisCommand command = parseCommand(cmd);
@@ -124,17 +135,13 @@ public class CommandDisablingManager implements Bootstrappable {
         });
     }
 
-
     private void sendCommandEnable(byte[] message) {
         nats.publish("cytosis.commands.enabled", message);
     }
 
-    private void sendCommandDisable(byte[] message) {
-        nats.publish("cytosis.commands.disabled", message);
-    }
-
     public boolean isDisabledGlobally(CytosisCommand cmd) {
-        return databaseManager.getRedisDatabase().getSet("cytosis-disabled-commands").contains(cmd.getName());
+        return redis.getSet("cytosis-disabled-commands")
+            .contains(cmd.getName());
     }
 
     public boolean isDisabledLocally(CytosisCommand cmd) {

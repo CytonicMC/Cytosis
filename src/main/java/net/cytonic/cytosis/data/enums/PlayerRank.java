@@ -1,9 +1,10 @@
 package net.cytonic.cytosis.data.enums;
 
 import lombok.Getter;
-import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+
+import net.cytonic.cytosis.utils.Msg;
 
 /**
  * This class holds constants that represent player ranks
@@ -58,7 +59,6 @@ public enum PlayerRank {
     private final NamedTextColor teamColor;
     private final NamedTextColor chatColor;
 
-
     /**
      * Creates a Rank object
      *
@@ -70,6 +70,29 @@ public enum PlayerRank {
         this.prefix = prefix;
         this.teamColor = teamColor;
         this.chatColor = chatColor;
+    }
+
+    /**
+     * A method to check if a rank can be changed
+     *
+     * @param currentUserRole    The changer's current role
+     * @param targetOriginalRole The player's original role
+     * @param targetNewRole      The player's new role
+     * @return if the rank can be changed
+     */
+    public static boolean canChangeRank(PlayerRank currentUserRole, PlayerRank targetOriginalRole,
+        PlayerRank targetNewRole) {
+        if (currentUserRole == OWNER) {
+            return true;
+        }
+        if (isDemotion(targetOriginalRole, targetNewRole)) {
+            return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
+        }
+        if (isPromotion(targetOriginalRole, targetNewRole)) {
+            return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
+        }
+        // If it's neither promotion nor demotion, it's an invalid operation
+        return false;
     }
 
     /**
@@ -92,26 +115,6 @@ public enum PlayerRank {
      */
     public static boolean isPromotion(PlayerRank currentRole, PlayerRank newRole) {
         return newRole.ordinal() < currentRole.ordinal();
-    }
-
-    /**
-     * A method to check if a rank can be changed
-     *
-     * @param currentUserRole    The changer's current role
-     * @param targetOriginalRole The player's original role
-     * @param targetNewRole      The player's new role
-     * @return if the rank can be changed
-     */
-    public static boolean canChangeRank(PlayerRank currentUserRole, PlayerRank targetOriginalRole, PlayerRank targetNewRole) {
-        if (currentUserRole == OWNER) return true;
-        if (isDemotion(targetOriginalRole, targetNewRole)) {
-            return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
-        }
-        if (isPromotion(targetOriginalRole, targetNewRole)) {
-            return currentUserRole.ordinal() <= targetOriginalRole.ordinal();
-        }
-        // If it's neither promotion nor demotion, it's an invalid operation
-        return false;
     }
 
     public boolean isStaff() {

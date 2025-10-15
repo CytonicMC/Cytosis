@@ -1,12 +1,13 @@
 package net.cytonic.cytosis.npcs.pathfinding;
 
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
-
 import java.util.List;
 import java.util.function.Consumer;
 
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
+
 public interface Path {
+
     List<Pos> getNodes();
 
     /**

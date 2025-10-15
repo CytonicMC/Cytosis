@@ -8,6 +8,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
 public class SnooperListenCommand extends CytosisCommand {
+
     public SnooperListenCommand() {
         super("listen");
         setCondition(CommandUtils.IS_STAFF);
@@ -18,7 +19,8 @@ public class SnooperListenCommand extends CytosisCommand {
             String rawChannel = context.get(SnooperCommand.CHANNELS);
             SnooperManager snooperManager = Cytosis.CONTEXT.getComponent(SnooperManager.class);
             if (!snooperManager.getAllChannels(player).contains(rawChannel)) {
-                player.sendMessage(Msg.whoops("The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
+                player.sendMessage(Msg.whoops(
+                    "The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;
             }
             snooperManager.snoop(player, rawChannel);

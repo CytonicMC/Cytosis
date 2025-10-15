@@ -1,11 +1,12 @@
 package net.cytonic.cytosis.commands.nicknames;
 
+import net.minestom.server.command.builder.Command;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.minestom.server.command.builder.Command;
 
 public class NickCommand extends Command {
+
     public NickCommand() {
         super("nick", "nickname");
         setCondition(CommandUtils.IS_STAFF);
