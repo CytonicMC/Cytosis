@@ -20,7 +20,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.event.Event;
 import net.minestom.server.instance.InstanceManager;
-import net.minestom.server.listener.manager.PacketListenerManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 
@@ -138,7 +137,7 @@ public class CytosisBootstrap {
         Logger.info("Auto-registering Cytosis components...");
         List<ClassLoader> loaders = new ArrayList<>();
         loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.loaders);
+        loaders.addAll(PluginClassLoader.LOADERS);
 
         ClassGraph graph = new ClassGraph()
             .acceptPackages(SCAN_PACKAGE_ROOT)
@@ -283,7 +282,7 @@ public class CytosisBootstrap {
 
         List<ClassLoader> loaders = new ArrayList<>();
         loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.loaders);
+        loaders.addAll(PluginClassLoader.LOADERS);
 
         ClassGraph graph = new ClassGraph()
             .acceptPackages(SCAN_PACKAGE_ROOT)

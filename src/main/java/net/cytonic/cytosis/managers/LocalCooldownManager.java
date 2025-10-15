@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {NPCManager.class})
+@CytosisComponent
 public class LocalCooldownManager implements Bootstrappable {
 
     private final Map<Key, Instant> server = new ConcurrentHashMap<>();

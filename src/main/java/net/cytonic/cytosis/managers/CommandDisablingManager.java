@@ -15,7 +15,7 @@ import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 
-@CytosisComponent(priority = 1, dependsOn = {CommandManager.class, DatabaseManager.class, NatsManager.class})
+@CytosisComponent(priority = 1, dependsOn = {CommandManager.class, RedisDatabase.class, NatsManager.class})
 public class CommandDisablingManager implements Bootstrappable {
 
     private NatsManager nats;

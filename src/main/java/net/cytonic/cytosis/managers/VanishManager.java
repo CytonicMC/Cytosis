@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.event.EventDispatcher;

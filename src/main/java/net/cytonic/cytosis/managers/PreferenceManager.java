@@ -30,7 +30,7 @@ import net.cytonic.cytosis.utils.Msg;
  * preferences are pretty small, every online player has their preference data stored here, no matter which server they
  * are connected to.
  */
-@CytosisComponent(dependsOn = {DatabaseManager.class})
+@CytosisComponent(dependsOn = {MysqlDatabase.class})
 public class PreferenceManager implements Bootstrappable {
 
     /**

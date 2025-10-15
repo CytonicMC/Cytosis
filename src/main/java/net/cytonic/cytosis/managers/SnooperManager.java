@@ -30,7 +30,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
 
-@CytosisComponent(dependsOn = {DatabaseManager.class, NatsManager.class})
+@CytosisComponent(dependsOn = {MysqlDatabase.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {
 
     private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();

@@ -7,7 +7,6 @@ import net.minestom.server.entity.Player;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.commands.FriendCommand;
 import net.cytonic.cytosis.commands.HelpCommand;
 import net.cytonic.cytosis.commands.chatting.AllChatCommand;
 import net.cytonic.cytosis.commands.chatting.ChatChannelCommand;
