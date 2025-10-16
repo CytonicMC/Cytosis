@@ -14,6 +14,7 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -29,6 +30,7 @@ import net.cytonic.cytosis.utils.Msg;
  */
 @SuppressWarnings("unused")
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class})
 public class ChatManager implements Bootstrappable {
 
     private final Cache<UUID, UUID> openPrivateChannels = CacheBuilder.newBuilder()

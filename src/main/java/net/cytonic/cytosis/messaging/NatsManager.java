@@ -29,6 +29,7 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
@@ -66,6 +67,7 @@ import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
+@CytosisComponent(dependsOn = {CytonicNetwork.class})
 public class NatsManager implements Bootstrappable {
 
     private static final Component FRIEND_LINE = Msg.darkAqua(
@@ -78,7 +80,7 @@ public class NatsManager implements Bootstrappable {
     private PreferenceManager preferenceManager;
     private CytonicNetwork network;
     private ChatManager chatManager;
-    private MysqlDatabase databaseManager;
+    private MysqlDatabase mysqlDatabase;
     private Connection connection;
     private Subscription healthCheck;
     private boolean started = false;
@@ -90,7 +92,16 @@ public class NatsManager implements Bootstrappable {
         this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
-        this.databaseManager = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        this.mysqlDatabase = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+
+        if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
+            setup();
+            fetchServers();
+        } else {
+            Logger.warn("Skipping NATS manager setup for CI test!");
+        }
+
+        sendStartup();
     }
 
     @SneakyThrows // don't care about the error on shutdown
@@ -365,7 +376,9 @@ public class NatsManager implements Bootstrappable {
             Logger.info("Registered server: " + container.id());
 
             Cytosis.getOnlinePlayers().forEach(player -> {
-                if (!player.isAdmin()) return;
+                if (!player.isAdmin()) {
+                    return;
+                }
                 if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
                     player.sendMessage(
                         Msg.network("Server %s of type %s:%s has been started!", container.id(), container.group(),
@@ -377,7 +390,9 @@ public class NatsManager implements Bootstrappable {
             var container = ServerStatusContainer.deserialize(new String(msg.getData()));
             network.getServers().remove(container.id(), container.server());
             Cytosis.getOnlinePlayers().forEach(player -> {
-                if (!player.isAdmin()) return;
+                if (!player.isAdmin()) {
+                    return;
+                }
                 if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
                     player.sendMessage(
                         Msg.network("Server %s of type %s:%s has been shut down!", container.id(), container.group(),
@@ -407,7 +422,9 @@ public class NatsManager implements Bootstrappable {
             Component component = JSONComponentSerializer.json().deserialize(message.serializedMessage());
 
             if (channel == ChatChannel.PRIVATE_MESSAGE) {
-                if (message.recipients() == null || message.recipients().isEmpty()) return;
+                if (message.recipients() == null || message.recipients().isEmpty()) {
+                    return;
+                }
                 Cytosis.getOnlinePlayers().forEach(player -> {
                     if (message.recipients().contains(player.getUuid())) {
                         //todo: add permission to message people
@@ -423,7 +440,9 @@ public class NatsManager implements Bootstrappable {
             }
 
             if (channel == ChatChannel.INTERNAL_MESSAGE) {
-                if (message.recipients() == null || message.recipients().isEmpty()) return;
+                if (message.recipients() == null || message.recipients().isEmpty()) {
+                    return;
+                }
                 for (UUID uuid : message.recipients()) {
                     Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(component));
                 }
@@ -461,7 +480,7 @@ public class NatsManager implements Bootstrappable {
             }, () -> {
                 rankManager.changeRankSilently(container.player(), container.rank());
                 network.updateCachedPlayerRank(container.player(), container.rank());
-                databaseManager.setPlayerRank(container.player(), container.rank());
+                mysqlDatabase.setPlayerRank(container.player(), container.rank());
             });
         }).subscribe(Subjects.PLAYER_RANK_UPDATE);
     }
@@ -542,7 +561,9 @@ public class NatsManager implements Bootstrappable {
             Logger.error("Internal error upon processing a friend acceptance.", throwable);
         }
         FriendApiResponse api = FriendApiResponse.deserialize(response);
-        if (api.success()) return;
+        if (api.success()) {
+            return;
+        }
 
         String senderName = network.getLifetimePlayers().getByKey(sender);
         PlayerRank recipientRank = network.getCachedPlayerRanks().get(sender);
@@ -592,7 +613,9 @@ public class NatsManager implements Bootstrappable {
                     .append(Msg.mm("<gray>!"))));
         }
 
-        if (api.success()) return;
+        if (api.success()) {
+            return;
+        }
 
         if (recipient != null) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
@@ -663,7 +686,9 @@ public class NatsManager implements Bootstrappable {
         request(Subjects.PLAYER_SEND,
             new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes(),
             (message, throwable) -> {
-                if (Cytosis.getPlayer(player).isEmpty()) return;
+                if (Cytosis.getPlayer(player).isEmpty()) {
+                    return;
+                }
                 Player p = Cytosis.getPlayer(player).get();
                 if (throwable != null) {
                     p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", server.id()));
@@ -685,7 +710,9 @@ public class NatsManager implements Bootstrappable {
         request(Subjects.PLAYER_SEND,
             new SendPlayerToServerContainer(player, serverID, instance).serialize().getBytes(),
             (message, throwable) -> {
-                if (Cytosis.getPlayer(player).isEmpty()) return;
+                if (Cytosis.getPlayer(player).isEmpty()) {
+                    return;
+                }
                 Player p = Cytosis.getPlayer(player).get();
                 if (throwable != null) {
                     p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", serverID));
@@ -710,7 +737,9 @@ public class NatsManager implements Bootstrappable {
     public void sendPlayerToGenericServer(UUID player, String group, String id, @Nullable String displayname) {
         request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypeContainer(player, group, id).serialize(),
             (message, throwable) -> {
-                if (Cytosis.getPlayer(player).isEmpty()) return;
+                if (Cytosis.getPlayer(player).isEmpty()) {
+                    return;
+                }
                 Player p = Cytosis.getPlayer(player).get();
                 if (throwable != null) {
                     p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!",

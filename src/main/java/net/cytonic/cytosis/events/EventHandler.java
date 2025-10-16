@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.classgraph.ClassGraph;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.trait.CancellableEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 
 /**
@@ -21,32 +23,14 @@ import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
  *
  * @author Foxikle
  */
+@CytosisComponent(dependsOn = {MinecraftServer.class})
 public class EventHandler {
 
-    private final GlobalEventHandler globalEventHandler;
+    private GlobalEventHandler globalEventHandler;
     private final Map<String, EventListener<? extends Event>> namespacedHandlers = new HashMap<>();
     private boolean initialized = false;
 
-    /**
-     * Constructor for EventHandler. Initializes the GlobalEventHandler instance.
-     *
-     * @param globalHandler The GlobalEventHandler instance to be used.
-     */
-    public EventHandler(GlobalEventHandler globalHandler) {
-        globalEventHandler = globalHandler;
-    }
-
-    /**
-     * Initializes the event handler.
-     *
-     * @throws IllegalStateException if the event handler has already been initialized.
-     */
-    public void init() {
-        if (initialized) {
-            throw new IllegalStateException("The event handler has already been initialized!");
-        }
-        findEvents();
-        initialized = true;
+    public EventHandler() {
     }
 
     public void findEvents() {
@@ -64,6 +48,18 @@ public class EventHandler {
             globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
         });
 
+    }
+
+    /**
+     * Initializes the event handler.
+     *
+     * @throws IllegalStateException if the event handler has already been initialized.
+     */
+    public void init() {
+        if (initialized) throw new IllegalStateException("The event handler has already been initialized!");
+        this.globalEventHandler = MinecraftServer.getGlobalEventHandler();
+        findEvents();
+        initialized = true;
     }
 
     /**

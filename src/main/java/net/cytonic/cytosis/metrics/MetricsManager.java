@@ -15,10 +15,12 @@ import io.opentelemetry.api.metrics.Meter;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 
 /**
  * The base cytosis metrics collecting utility. It supports counters and histograms
  */
+@CytosisComponent
 @SuppressWarnings("unused")
 public class MetricsManager implements Bootstrappable {
 
@@ -68,6 +70,10 @@ public class MetricsManager implements Bootstrappable {
     @Override
     public void init() {
         this.cytosisContext = Cytosis.CONTEXT;
+
+        if (!cytosisContext.getFlags().contains("--no-metrics")) {
+            CytosisOpenTelemetry.setup();
+        }
     }
 
     /**

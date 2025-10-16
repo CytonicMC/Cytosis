@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.plugins.dependencies.DependencyUtils;
 import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
 import net.cytonic.cytosis.plugins.loader.JavaPluginLoader;
@@ -30,6 +32,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Handles loading plugins and provides a registry for loaded plugins.
  */
+@CytosisComponent(priority = 100, dependsOn = {CommandDisablingManager.class})
 public class PluginManager implements Bootstrappable {
 
     private final Map<String, PluginContainer> pluginsById = new LinkedHashMap<>();

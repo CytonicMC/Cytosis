@@ -16,16 +16,19 @@ import redis.clients.jedis.JedisPubSub;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.containers.Container;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.containers.PlayerWarnContainer;
+import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 
 /**
  * A class that holds the connection to the redis cache
  */
+@CytosisComponent(dependsOn = {FileManager.class})
 public class RedisDatabase implements Bootstrappable {
 
     /**
@@ -74,7 +77,9 @@ public class RedisDatabase implements Bootstrappable {
         worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
-                if (!channel.equals(RedisDatabase.BROADCAST_CHANNEL)) return;
+                if (!channel.equals(RedisDatabase.BROADCAST_CHANNEL)) {
+                    return;
+                }
                 Cytosis.getOnlinePlayers()
                     .forEach(player -> player.sendMessage(JSONComponentSerializer.json().deserialize(message)));
             }
@@ -82,7 +87,9 @@ public class RedisDatabase implements Bootstrappable {
         worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
-                if (!channel.equals(RedisDatabase.COOLDOWN_UPDATE_CHANNEL)) return;
+                if (!channel.equals(RedisDatabase.COOLDOWN_UPDATE_CHANNEL)) {
+                    return;
+                }
                 CooldownUpdateContainer container = (CooldownUpdateContainer) Container.deserialize(message);
                 NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
                 if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.PERSONAL) {
@@ -98,7 +105,9 @@ public class RedisDatabase implements Bootstrappable {
         worker.submit(() -> jedisSub.subscribe(new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
-                if (!channel.equals(RedisDatabase.PLAYER_WARN)) return;
+                if (!channel.equals(RedisDatabase.PLAYER_WARN)) {
+                    return;
+                }
                 PlayerWarnContainer container = PlayerWarnContainer.deserialize(message);
                 UUID uuid = container.target();
                 Component warnMessage = JSONComponentSerializer.json().deserialize(container.warnMessage());

@@ -2,8 +2,6 @@ package net.cytonic.cytosis.managers;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +15,8 @@ import net.minestom.server.entity.Player;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.MysqlDatabase;
-import net.cytonic.cytosis.data.containers.friends.FriendRequest;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
@@ -29,6 +27,7 @@ import net.cytonic.cytosis.utils.Utils;
  * A class to manage friends
  */
 @NoArgsConstructor
+@CytosisComponent( dependsOn = {PreferenceManager.class, MysqlDatabase.class})
 public class FriendManager implements Bootstrappable {
 
     private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
@@ -253,16 +252,5 @@ public class FriendManager implements Bootstrappable {
                 player.sendMessage(message);
             }
         });
-    }
-
-    /**
-     * Sends a friend request.
-     *
-     * @param sender    The sender of the request
-     * @param recipient The recipient
-     */
-    public void sendRequest(UUID sender, UUID recipient) {
-        natsManager
-            .sendFriendRequest(new FriendRequest(sender, recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 }

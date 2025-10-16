@@ -13,6 +13,7 @@ import net.minestom.server.scoreboard.TeamBuilder;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
@@ -24,6 +25,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
  * A class that manages player ranks
  */
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {FriendManager.class})
 public class RankManager implements Bootstrappable {
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();

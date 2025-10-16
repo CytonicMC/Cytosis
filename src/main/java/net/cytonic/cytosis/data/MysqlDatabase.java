@@ -24,9 +24,11 @@ import org.jetbrains.annotations.NotNull;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
+import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.PosSerializer;
@@ -35,6 +37,7 @@ import net.cytonic.cytosis.utils.PosSerializer;
  * A class handling Cytosis database transactions
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
+@CytosisComponent(dependsOn = {FileManager.class})
 public class MysqlDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
