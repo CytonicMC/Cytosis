@@ -100,6 +100,8 @@ public class NatsManager implements Bootstrappable {
         } else {
             Logger.warn("Skipping NATS manager setup for CI test!");
         }
+
+        sendStartup();
     }
 
     @SneakyThrows // don't care about the error on shutdown

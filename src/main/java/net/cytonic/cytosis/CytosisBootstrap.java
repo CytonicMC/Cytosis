@@ -14,7 +14,6 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
@@ -136,7 +135,5 @@ public class CytosisBootstrap {
         Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
         cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", CytosisSettings.SERVER_PORT);
         MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception: ", e));
-
-        cytosisContext.getComponent(NatsManager.class).sendStartup();
     }
 }
