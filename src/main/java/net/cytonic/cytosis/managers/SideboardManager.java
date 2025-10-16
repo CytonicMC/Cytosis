@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sideboard.DefaultCreator;
 import net.cytonic.cytosis.sideboard.Sideboard;
@@ -25,6 +27,7 @@ import net.cytonic.cytosis.sideboard.SideboardCreator;
  * A manager class for sideboards
  */
 @NoArgsConstructor
+@CytosisComponent(dependsOn = {NicknameManager.class})
 public class SideboardManager implements Bootstrappable {
 
     private final Map<UUID, Sideboard> sideboards = new ConcurrentHashMap<>();

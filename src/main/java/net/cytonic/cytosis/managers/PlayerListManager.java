@@ -23,6 +23,7 @@ import net.minestom.server.utils.PacketSendingUtils;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.Column;
 import net.cytonic.cytosis.playerlist.DefaultPlayerListCreator;
@@ -35,6 +36,7 @@ import net.cytonic.cytosis.playerlist.PlayerlistCreator;
  */
 @Setter
 @Getter
+@CytosisComponent
 public class PlayerListManager implements Bootstrappable {
 
     private final Map<UUID, Component[][]> playerComponents = new ConcurrentHashMap<>();
@@ -184,6 +186,18 @@ public class PlayerListManager implements Bootstrappable {
         }).delay(TaskSchedule.tick(updateInterval)).schedule();
     }
 
+    /**
+     * Creates and returns a list of update packets to refresh the player list based on the provided updated components,
+     * updated favicons, and columns. This method compares the current state of the player list data for the specified
+     * player with the provided updated data and generates packets to reflect the changes.
+     *
+     * @param player the unique identifier of the player whose player list is being updated
+     * @param updatedComponents a 2D array of components representing the updated display names in the player list
+     * @param updatedFavicons a 2D array of properties representing the updated favicons
+     *                        (player head textures) in the player list
+     * @param columns a list of column objects representing the data structure of the player list
+     * @return a list of {@code SendablePacket} objects representing the necessary updates to the player list
+     */
     private List<SendablePacket> createUpdatePackets(UUID player, Component[][] updatedComponents,
         Property[][] updatedFavicons,
         List<Column> columns) {
@@ -192,53 +206,71 @@ public class PlayerListManager implements Bootstrappable {
         Component[][] components = playerComponents.getOrDefault(player, updatedComponents);
         int order = 0;
         for (int i = 0; i < updatedComponents.length; i++) {
-            if (faviconNotEquals(favicons[i][0], updatedFavicons[i][0])) {
-                updatePackets.add(new PlayerInfoRemovePacket(listUuids[i][0]));
-                updatePackets.add(new PlayerInfoUpdatePacket(
-                    EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER, PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
-                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-                    List.of(new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null,
-                        order, true)
-                    )));
-            }
+            processColumnEntry(updatePackets, favicons, components, updatedFavicons, updatedComponents,
+                columns, i, 0, order, true);
 
-            if (!components[i][0].equals(columns.get(i).getName())) {
-                updatePackets.add(new PlayerInfoUpdatePacket(
-                    PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
-                    new PlayerInfoUpdatePacket.Entry(listUuids[i][0], "!" + (char) ('A' + i) + "-" + 'a',
-                        List.of(updatedFavicons[i][0]), true, 1, GameMode.CREATIVE, updatedComponents[i][0], null,
-                        order, true)
-                ));
-            }
             for (int j = 1; j < updatedComponents[i].length; j++) {
-                if (faviconNotEquals(favicons[i][j], updatedFavicons[i][j])) {
-                    updatePackets.add(new PlayerInfoRemovePacket(listUuids[i][j]));
-                    updatePackets.add(new PlayerInfoUpdatePacket(
-                        EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER,
-                            PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
-                            PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-                        List.of(new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
-                            "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
-                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null,
-                            order, true)
-                        )));
-                }
-                if (!components[i][j].equals(updatedComponents[i][j])) {
-                    components[i][j] = updatedComponents[i][j];
-                    updatePackets.add(new PlayerInfoUpdatePacket(
-                        PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
-                        new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
-                            "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
-                            List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null,
-                            order, true)
-                    ));
-                }
+                processColumnEntry(updatePackets, favicons, components, updatedFavicons, updatedComponents,
+                    columns, i, j, order, false);
             }
         }
         playerFavicons.put(player, updatedFavicons);
         playerComponents.put(player, updatedComponents);
         return updatePackets;
+    }
+
+    /**
+     * Processes a single entry in the player list and creates update packets if needed
+     *
+     * @param updatePackets the list to add update packets to
+     * @param favicons the current favicons
+     * @param components the current components
+     * @param updatedFavicons the updated favicons
+     * @param updatedComponents the updated components
+     * @param columns the columns to compare with
+     * @param i the column index
+     * @param j the entry index
+     * @param order the order value for the entry
+     * @param isHeader whether this entry is a column header
+     */
+    private void processColumnEntry(List<SendablePacket> updatePackets,
+        PlayerInfoUpdatePacket.Property[][] favicons,
+        Component[][] components,
+        PlayerInfoUpdatePacket.Property[][] updatedFavicons,
+        Component[][] updatedComponents,
+        List<Column> columns,
+        int i, int j, int order, boolean isHeader) {
+        // Check if favicon needs updating
+        if (faviconNotEquals(favicons[i][j], updatedFavicons[i][j])) {
+            updatePackets.add(new PlayerInfoRemovePacket(listUuids[i][j]));
+            updatePackets.add(new PlayerInfoUpdatePacket(
+                EnumSet.of(PlayerInfoUpdatePacket.Action.ADD_PLAYER,
+                    PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+                    PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
+                List.of(new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
+                    "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
+                    List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null,
+                    order, true)
+                )));
+        }
+
+        // Check if component needs updating
+        boolean componentNeedsUpdate = isHeader
+            ? !components[i][j].equals(columns.get(i).getName())
+            : !components[i][j].equals(updatedComponents[i][j]);
+
+        if (componentNeedsUpdate) {
+            if (!isHeader) {
+                components[i][j] = updatedComponents[i][j];
+            }
+            updatePackets.add(new PlayerInfoUpdatePacket(
+                PlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
+                new PlayerInfoUpdatePacket.Entry(listUuids[i][j],
+                    "!" + (char) ('A' + i) + "-" + (char) ('a' + j),
+                    List.of(updatedFavicons[i][j]), true, 1, GameMode.CREATIVE, updatedComponents[i][j], null,
+                    order, true)
+            ));
+        }
     }
 
     /**

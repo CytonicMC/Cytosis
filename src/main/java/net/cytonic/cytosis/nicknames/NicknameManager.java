@@ -20,12 +20,14 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.events.Events;
+import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.SnooperManager;
@@ -34,6 +36,7 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
 
+@CytosisComponent(dependsOn = {PlayerListManager.class})
 public class NicknameManager implements Bootstrappable {
 
     //todo: Look into masking UUIDs in outgoing packets

@@ -12,6 +12,8 @@ import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.logging.Logger;
@@ -19,17 +21,20 @@ import net.cytonic.cytosis.logging.Logger;
 /**
  * A class that handles network-wide cooldowns that sync across servers
  */
+@CytosisComponent(dependsOn = {RedisDatabase.class, LocalCooldownManager.class})
 public class NetworkCooldownManager implements Bootstrappable {
 
-    private final RedisDatabase redis;
+    private RedisDatabase redis;
     private final Map<Key, Instant> global = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
 
-    /**
-     * A default constructor
-     */
-    public NetworkCooldownManager(RedisDatabase redis) {
-        this.redis = redis;
+    public NetworkCooldownManager() {
+    }
+
+    @Override
+    public void init() {
+        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        importFromRedis();
     }
 
     /**
@@ -40,11 +45,6 @@ public class NetworkCooldownManager implements Bootstrappable {
      */
     public static String toPersonalKey(UUID uuid) {
         return "COOLDOWN_PERSONAL_KEY:" + uuid;
-    }
-
-    @Override
-    public void init() {
-        importFromRedis();
     }
 
     /**
