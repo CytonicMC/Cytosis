@@ -1,8 +1,10 @@
 package net.cytonic.cytosis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +14,6 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
-
-import java.util.ArrayList;
-import java.util.function.Consumer;
 
 /**
  * Holds references to all Cytosis components for dependency passing.
@@ -58,8 +57,12 @@ public class CytosisContext {
      */
     public <T> T getComponent(Class<T> clazz, boolean createIfMissing) {
         Object existing = components.get(clazz);
-        if (existing != null) return clazz.cast(existing);
-        if (!createIfMissing) return null;
+        if (existing != null) {
+            return clazz.cast(existing);
+        }
+        if (!createIfMissing) {
+            return null;
+        }
         return registerComponent(clazz);
     }
 
@@ -81,10 +84,10 @@ public class CytosisContext {
     }
 
     /**
-     * Registers a component in the context. If a component with the specified class type
-     * is already registered, the existing instance is returned. If the new component implements
-     * {@code Bootstrappable}, its {@code init()} method is invoked during the registration process.
-     * Additionally, notifies all registered consumers that this component is now available.
+     * Registers a component in the context. If a component with the specified class type is already registered, the
+     * existing instance is returned. If the new component implements {@code Bootstrappable}, its {@code init()} method
+     * is invoked during the registration process. Additionally, notifies all registered consumers that this component
+     * is now available.
      *
      * @param <T>       the type of the component being registered
      * @param key       the class type or a superclass of the component
@@ -94,8 +97,9 @@ public class CytosisContext {
     public <T> T registerComponent(Class<? super T> key, T component) {
         Object existing = components.putIfAbsent(key, component);
         if (existing == null) {
-            if (component instanceof Bootstrappable bootstrappableComponent)
+            if (component instanceof Bootstrappable bootstrappableComponent) {
                 bootstrappableComponent.init();
+            }
 
             notifyAvailable(key, component);
             return component;
@@ -109,15 +113,16 @@ public class CytosisContext {
      *
      * @param <T>       the type of the component being registered
      * @param component the component instance to register
-     * @return the registered component instance if it was not already registered, or the existing instance if already present
+     * @return the registered component instance if it was not already registered, or the existing instance if already
+     * present
      */
     public <T> T registerComponent(T component) {
         return registerComponent((Class<? super T>) component.getClass(), component);
     }
 
     /**
-     * Register a callback to be executed once the requested component is registered.
-     * If the component is already registered, the consumer is executed immediately.
+     * Register a callback to be executed once the requested component is registered. If the component is already
+     * registered, the consumer is executed immediately.
      */
     public <T> void whenAvailable(Class<T> componentClass, Consumer<T> consumer) {
         T existing = getComponent(componentClass);
@@ -126,8 +131,8 @@ public class CytosisContext {
             return;
         }
         availabilityConsumers
-                .computeIfAbsent(componentClass, k -> new ArrayList<>())
-                .add(consumer);
+            .computeIfAbsent(componentClass, k -> new ArrayList<>())
+            .add(consumer);
     }
 
     /**
@@ -139,7 +144,9 @@ public class CytosisContext {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void notifyAvailable(Class<?> componentClass, Object instance) {
         List<Consumer<?>> listeners = availabilityConsumers.remove(componentClass);
-        if (listeners == null || listeners.isEmpty()) return;
+        if (listeners == null || listeners.isEmpty()) {
+            return;
+        }
         for (Consumer consumer : listeners) {
             try {
                 consumer.accept(instance);

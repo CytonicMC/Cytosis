@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.classgraph.ClassGraph;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
@@ -15,6 +14,7 @@ import net.minestom.server.event.trait.CancellableEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 
 /**

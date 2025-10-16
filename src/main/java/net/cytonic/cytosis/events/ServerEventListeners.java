@@ -35,6 +35,7 @@ import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.NpcManager;
 import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
@@ -47,7 +48,6 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.managers.NpcManager;
 
 /**
  * A class that registers Cytosis required server events

@@ -7,8 +7,6 @@ import java.util.UUID;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
@@ -16,7 +14,9 @@ import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.utils.PacketSendingUtils;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.VanishToggleEvent;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;

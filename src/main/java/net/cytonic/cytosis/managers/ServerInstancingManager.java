@@ -3,7 +3,6 @@ package net.cytonic.cytosis.managers;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.containers.servers.*;
 import net.cytonic.cytosis.data.containers.servers.CreateInstanceContainer;
 import net.cytonic.cytosis.data.containers.servers.DeleteAllInstancesContainer;
 import net.cytonic.cytosis.data.containers.servers.DeleteInstanceContainer;
@@ -46,7 +45,9 @@ public class ServerInstancingManager implements Bootstrappable {
     }
 
     public void createServerInstances(String type, int amount) {
-        if (!isServerType(type)) return;
+        if (!isServerType(type)) {
+            return;
+        }
         CreateInstanceContainer container = new CreateInstanceContainer(type, amount);
         nats.request(Subjects.CREATE_SERVER, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
@@ -61,7 +62,9 @@ public class ServerInstancingManager implements Bootstrappable {
     }
 
     public void deleteAllServerInstances(String type) {
-        if (!isServerType(type)) return;
+        if (!isServerType(type)) {
+            return;
+        }
         DeleteAllInstancesContainer container = new DeleteAllInstancesContainer(type);
         nats.request(Subjects.DELETE_ALL_SERVERS, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
@@ -83,7 +86,9 @@ public class ServerInstancingManager implements Bootstrappable {
     }
 
     public void deleteServerInstance(String type, String allocId) {
-        if (!isServerType(type)) return;
+        if (!isServerType(type)) {
+            return;
+        }
         DeleteInstanceContainer container = new DeleteInstanceContainer(type, allocId);
         nats.request(Subjects.DELETE_SERVER, container.serialize(), (message, throwable) -> {
             if (throwable != null) {
@@ -98,7 +103,9 @@ public class ServerInstancingManager implements Bootstrappable {
     }
 
     public void updateServers(String type) {
-        if (!isServerType(type)) return;
+        if (!isServerType(type)) {
+            return;
+        }
         UpdateInstancesContainer container = new UpdateInstancesContainer(type);
         nats.request(Subjects.UPDATE_SERVER, container.serialize(), (message, throwable) -> {
             if (throwable != null) {

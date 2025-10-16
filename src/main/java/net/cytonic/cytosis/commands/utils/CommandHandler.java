@@ -54,7 +54,6 @@ import net.cytonic.cytosis.commands.staff.OpMeCommand;
 import net.cytonic.cytosis.commands.staff.RankCommand;
 import net.cytonic.cytosis.commands.staff.ServerAlertsCommand;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
-import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 

@@ -49,15 +49,6 @@ public class MetricsManager implements Bootstrappable {
         meter = CytosisOpenTelemetry.getMeter("cytosis");
     }
 
-    @Override
-    public void init() {
-        this.cytosisContext = Cytosis.CONTEXT;
-
-        if (!cytosisContext.getFlags().contains("--no-metrics")) {
-            CytosisOpenTelemetry.setup();
-        }
-    }
-
     /**
      * Creates a new Metrics manager with the specified meter
      *
@@ -74,6 +65,15 @@ public class MetricsManager implements Bootstrappable {
      */
     public MetricsManager(String name) {
         this.meter = CytosisOpenTelemetry.getMeter(name);
+    }
+
+    @Override
+    public void init() {
+        this.cytosisContext = Cytosis.CONTEXT;
+
+        if (!cytosisContext.getFlags().contains("--no-metrics")) {
+            CytosisOpenTelemetry.setup();
+        }
     }
 
     /**

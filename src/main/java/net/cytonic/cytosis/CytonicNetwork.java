@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;

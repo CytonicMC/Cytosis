@@ -11,11 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.events.Events;
-import net.cytonic.cytosis.utils.ActionbarSupplier;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.network.packet.server.play.ActionBarPacket;
@@ -23,6 +18,7 @@ import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.utils.ActionbarSupplier;
 

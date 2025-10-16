@@ -4,7 +4,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
@@ -13,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 

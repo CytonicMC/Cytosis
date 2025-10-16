@@ -7,13 +7,13 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 
 @NoArgsConstructor
 @CytosisComponent
@@ -30,11 +30,15 @@ public class LocalCooldownManager implements Bootstrappable {
     public void startExpiryTask() {
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             new HashMap<>(server).forEach((key, instant) -> {
-                if (instant.isAfter(Instant.now())) return;
+                if (instant.isAfter(Instant.now())) {
+                    return;
+                }
                 server.remove(key);
             });
             personal.forEach((u, map) -> new HashMap<>(map).forEach((key, i) -> {
-                if (i.isAfter(Instant.now())) return;
+                if (i.isAfter(Instant.now())) {
+                    return;
+                }
                 personal.get(u).remove(key);
             }));
 
@@ -78,12 +82,16 @@ public class LocalCooldownManager implements Bootstrappable {
     }
 
     public void resetPersonalCooldown(UUID uuid, Key id) {
-        if (!personal.containsKey(uuid)) return;
+        if (!personal.containsKey(uuid)) {
+            return;
+        }
         personal.get(uuid).remove(id);
     }
 
     public void resetServerCooldown(Key id) {
-        if (!server.containsKey(id)) return;
+        if (!server.containsKey(id)) {
+            return;
+        }
         server.remove(id);
     }
 
