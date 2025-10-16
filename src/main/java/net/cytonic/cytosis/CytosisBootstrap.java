@@ -1,28 +1,30 @@
 package net.cytonic.cytosis;
 
-import java.time.Duration;
-import java.util.List;
-
-import net.cytonic.cytosis.commands.utils.CommandHandler;
-import net.minestom.server.Auth;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.CommandManager;
-import net.minestom.server.instance.InstanceManager;
-import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
-import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewFrame;
-
+import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
+import net.minestom.server.Auth;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandManager;
+import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
+import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
+
+import java.lang.reflect.Constructor;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main bootstrap class responsible for initializing and starting the Cytosis server. This class orchestrates the entire
