@@ -1,21 +1,10 @@
 package net.cytonic.cytosis;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.github.classgraph.ClassGraph;
-import net.minestom.server.Auth;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.CommandManager;
-import net.minestom.server.event.Event;
-import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
-import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
-
+import io.github.classgraph.ScanResult;
+import me.devnatan.AnvilInputFeature;
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewFrame;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.MysqlDatabase;
@@ -27,21 +16,7 @@ import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.ActionbarManager;
-import net.cytonic.cytosis.managers.ChatManager;
-import net.cytonic.cytosis.managers.CommandDisablingManager;
-import net.cytonic.cytosis.managers.FriendManager;
-import net.cytonic.cytosis.managers.InstanceManager;
-import net.cytonic.cytosis.managers.LocalCooldownManager;
-import net.cytonic.cytosis.managers.NetworkCooldownManager;
-import net.cytonic.cytosis.managers.NpcManager;
-import net.cytonic.cytosis.managers.PlayerListManager;
-import net.cytonic.cytosis.managers.PreferenceManager;
-import net.cytonic.cytosis.managers.RankManager;
-import net.cytonic.cytosis.managers.ServerInstancingManager;
-import net.cytonic.cytosis.managers.SideboardManager;
-import net.cytonic.cytosis.managers.SnooperManager;
-import net.cytonic.cytosis.managers.VanishManager;
+import net.cytonic.cytosis.managers.*;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
 import net.cytonic.cytosis.metrics.MetricsHooks;
@@ -51,6 +26,20 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
+import net.minestom.server.Auth;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandManager;
+import net.minestom.server.event.Event;
+import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
+import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CytosisBootstrap {
 
@@ -80,7 +69,7 @@ public class CytosisBootstrap {
         loadNetworkTopology();
         initMessagingAndSnooper();
         initServerInstancingAndBlocks();
-        initViewAndPacketsAndMetricsHooks();
+        initPacketsAndMetricsHooks();
 
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
 
@@ -89,6 +78,7 @@ public class CytosisBootstrap {
         initPlayerFacingManagers();
         initCooldowns();
         initActionbar();
+        initViewFrame();
         loadPluginsAndScanListeners();
         startServer();
 
@@ -155,7 +145,7 @@ public class CytosisBootstrap {
 
         Logger.info("Starting instance managers.");
         net.minestom.server.instance.InstanceManager minestomInstanceManager = cytosisContext.registerComponent(
-            MinecraftServer.getInstanceManager());
+                MinecraftServer.getInstanceManager());
         cytosisContext.registerComponent(new InstanceManager());
 
         Logger.info("Starting connection manager.");
@@ -197,15 +187,12 @@ public class CytosisBootstrap {
         BlockPlacementUtils.init();
     }
 
-    private void initViewAndPacketsAndMetricsHooks() {
-        Logger.info("Initializing view registry");
-        Cytosis.VIEW_REGISTRY.enable();
-
+    private void initPacketsAndMetricsHooks() {
         Logger.info("Adding a singed command packet handler");
         MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
-            MinecraftServer.getPacketListenerManager()
-                .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(),
-                    p.getPlayerConnection().getConnectionState()));
+                MinecraftServer.getPacketListenerManager()
+                        .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(),
+                                p.getPlayerConnection().getConnectionState()));
 
         if (cytosisContext.isMetricsEnabled()) {
             Logger.info("Starting metric hooks");
@@ -278,6 +265,42 @@ public class CytosisBootstrap {
         cytosisContext.registerComponent(new ActionbarManager());
     }
 
+    private void initViewFrame() {
+        Logger.info("Initializing view frame");
+        ViewFrame viewFrame = ViewFrame.create();
+
+        List<ClassLoader> loaders = new ArrayList<>();
+        loaders.add(Cytosis.class.getClassLoader());
+        loaders.addAll(PluginClassLoader.LOADERS);
+
+        ClassGraph graph = new ClassGraph()
+                .acceptPackages("net.cytonic")
+                .enableAllInfo()
+                .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+
+        try (ScanResult result = graph.scan()) {
+            result.getSubclasses(View.class).loadClasses().forEach(foundClass -> {
+                try {
+                    if (!foundClass.getPackage().getName().startsWith("net.cytonic")) {
+                        return;
+                    }
+
+                    Constructor<?> constructor = foundClass.getDeclaredConstructor();
+                    constructor.setAccessible(true);
+                    View instance = (View) constructor.newInstance();
+                    viewFrame.with(instance);
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading views!", e);
+                }
+            });
+        } catch (Exception e) {
+            Logger.error("An error occurred whilst loading views!", e);
+        }
+
+        viewFrame.install(AnvilInputFeature.AnvilInput);
+        cytosisContext.registerComponent(viewFrame.register());
+    }
+
     private void loadPluginsAndScanListeners() {
         Logger.info("Initializing Plugin Manager!");
         cytosisContext.registerComponent(new PluginManager());
@@ -291,67 +314,67 @@ public class CytosisBootstrap {
         loaders.addAll(PluginClassLoader.LOADERS);
 
         ClassGraph graph = new ClassGraph()
-            .acceptPackages("net.cytonic")
-            .enableAllInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+                .acceptPackages("net.cytonic")
+                .enableAllInfo()
+                .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         AtomicInteger counter = new AtomicInteger(0);
         EventHandler eventHandler = cytosisContext.getComponent(EventHandler.class);
         graph.scan()
-            .getClassesWithMethodAnnotation(Listener.class.getName())
-            .forEach(classInfo -> {
-                Class<?> clazz = classInfo.loadClass();
-                Object instance;
-                try {
-                    Constructor<?> constructor = clazz.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    instance = constructor.newInstance();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                         NoSuchMethodException e) {
-                    Logger.error("The class " + clazz.getSimpleName()
-                        + " needs to have a public, no argument constructor to have an @Listener in it!", e);
-                    return;
-                }
+                .getClassesWithMethodAnnotation(Listener.class.getName())
+                .forEach(classInfo -> {
+                    Class<?> clazz = classInfo.loadClass();
+                    Object instance;
+                    try {
+                        Constructor<?> constructor = clazz.getDeclaredConstructor();
+                        constructor.setAccessible(true);
+                        instance = constructor.newInstance();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException e) {
+                        Logger.error("The class " + clazz.getSimpleName()
+                                + " needs to have a public, no argument constructor to have an @Listener in it!", e);
+                        return;
+                    }
 
-                for (Method method : clazz.getDeclaredMethods()) {
-                    if (method.isAnnotationPresent(Listener.class)) {
-                        method.setAccessible(true);
-                        int priority =
-                            method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value()
-                                : 50;
-                        boolean async = method.isAnnotationPresent(Async.class);
+                    for (Method method : clazz.getDeclaredMethods()) {
+                        if (method.isAnnotationPresent(Listener.class)) {
+                            method.setAccessible(true);
+                            int priority =
+                                    method.isAnnotationPresent(Priority.class) ? method.getAnnotation(Priority.class).value()
+                                            : 50;
+                            boolean async = method.isAnnotationPresent(Async.class);
 
-                        Class<? extends Event> eventClass;
-                        try {
-                            eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
-                        } catch (ClassCastException e) {
-                            Logger.error("The parameter of a method annotated with @Listener must be a valid event!",
-                                e);
-                            return;
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            Logger.error("Methods annotated with @Listener must have a valid event as a parameter!", e);
-                            return;
-                        }
-                        eventHandler.registerListener(new EventListener<>(
-                            "cytosis:annotation-listener-" + counter.getAndIncrement(),
-                            async, priority, (Class<Event>) eventClass, event -> {
+                            Class<? extends Event> eventClass;
                             try {
-                                method.invoke(instance, event);
-                            } catch (IllegalAccessException e) {
-                                Logger.error("Failed to call @Listener!", e);
-                            } catch (InvocationTargetException e) {
-                                Throwable cause = e.getCause();
-                                if (cause != null) {
-                                    Logger.error("Exception in @Listener method: ", cause);
-                                } else {
-                                    Logger.error("Unknown error in @Listener method.", e);
+                                eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
+                            } catch (ClassCastException e) {
+                                Logger.error("The parameter of a method annotated with @Listener must be a valid event!",
+                                        e);
+                                return;
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                Logger.error("Methods annotated with @Listener must have a valid event as a parameter!", e);
+                                return;
+                            }
+                            eventHandler.registerListener(new EventListener<>(
+                                    "cytosis:annotation-listener-" + counter.getAndIncrement(),
+                                    async, priority, (Class<Event>) eventClass, event -> {
+                                try {
+                                    method.invoke(instance, event);
+                                } catch (IllegalAccessException e) {
+                                    Logger.error("Failed to call @Listener!", e);
+                                } catch (InvocationTargetException e) {
+                                    Throwable cause = e.getCause();
+                                    if (cause != null) {
+                                        Logger.error("Exception in @Listener method: ", cause);
+                                    } else {
+                                        Logger.error("Unknown error in @Listener method.", e);
+                                    }
                                 }
                             }
+                            ));
                         }
-                        ));
                     }
-                }
-            });
+                });
         Logger.info("Finished scanning for listeners in plugins in " + (System.currentTimeMillis() - start2) + "ms!");
 
         eventHandler.init();

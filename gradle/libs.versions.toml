@@ -17,8 +17,8 @@ mysql = "9.4.0"
 okhttp = "5.2.1"
 opentelemetry = "1.55.0"
 polar = "1.14.7"
-invui = "1.0"
-anvilInput = "1.0"
+invui = "1.0-SNAPSHOT"
+anvilInput = "1.0-SNAPSHOT"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.4"
 mixin = "0.16.5+mixin.0.8.7"
@@ -31,8 +31,8 @@ polar = { module = "dev.hollowcube:polar", version.ref = "polar" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 minestompvp = { module = "com.github.TogAr2:MinestomPvP", version.ref = "minestompvp" }
-invui = { module = "net.cytonic:MinestomInventoryFramework", version.ref = "invui" }
-anvilInput = { module = "net.cytonic:MinestomAnvilInput", version.ref = "anvilInput" }
+invui = { module = "me.devnatan:minestomInventoryFramework", version.ref = "invui" }
+anvilInput = { module = "me.devnatan:minestomAnvilInput", version.ref = "anvilInput" }
 configurate = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
 minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "minimessage" }

@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.nicknames;
 
+import me.devnatan.inventoryframework.ViewFrame;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -174,7 +175,7 @@ public class NickSetupCommand extends CytosisCommand {
                     }
                     switch (arg.toUpperCase()) {
                         case "SET" -> {
-                            Cytosis.getViewFrame().open(NicknameEntryMenu.class, player);
+                            Cytosis.CONTEXT.getComponent(ViewFrame.class).open(NicknameEntryMenu.class, player);
                             return;
                         }
                         case "SKIP" -> {

@@ -1,6 +1,10 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
 import com.google.common.collect.ImmutableMap;
+import me.devnatan.inventoryframework.ViewFrame;
+import net.minestom.server.command.builder.arguments.ArgumentStringArray;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -9,8 +13,6 @@ import net.cytonic.cytosis.menus.snooper.DateRange;
 import net.cytonic.cytosis.menus.snooper.SnooperMenu;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.command.builder.arguments.ArgumentStringArray;
-import net.minestom.server.command.builder.arguments.ArgumentType;
 
 public class SnooperAuditCommand extends CytosisCommand {
     public SnooperAuditCommand() {
@@ -45,7 +47,16 @@ public class SnooperAuditCommand extends CytosisCommand {
                 ascending = false;
             }
 
-            Cytosis.getViewFrame().open(SnooperMenu.class, player, ImmutableMap.of("id", rawChannel, "search", searchFor, "ascending", ascending, "date", DateRange.SEVEN_DAYS));
+            Cytosis.CONTEXT
+                    .getComponent(ViewFrame.class)
+                    .open(
+                            SnooperMenu.class,
+                            player,
+                            ImmutableMap.of(
+                                    "id", rawChannel,
+                                    "search", searchFor,
+                                    "ascending", ascending,
+                                    "date", DateRange.SEVEN_DAYS));
         }, SnooperCommand.CHANNELS, search);
     }
 }
