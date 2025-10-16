@@ -3,6 +3,7 @@ package net.cytonic.cytosis;
 import java.time.Duration;
 import java.util.List;
 
+import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -50,6 +51,8 @@ public class CytosisBootstrap {
         applySystemSettings();
         initMinestom();
         BootstrapRegistrationUtils.registerCytosisComponents(cytosisContext);
+        // register commands after every component is registered to avoid missing dependencies
+        cytosisContext.getComponent(CommandHandler.class).registerCytosisCommands();
         initWorld();
 
         Logger.info("Initializing view registry");
