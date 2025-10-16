@@ -29,7 +29,15 @@ import net.cytonic.cytosis.utils.ActionbarSupplier;
 @CytosisComponent(dependsOn = {NetworkCooldownManager.class})
 public class ActionbarManager implements Bootstrappable {
 
-    private final Map<UUID, Queue<Component>> messageQueues = new ConcurrentHashMap<>();
+    private static final int DEFAULT_TICKS = 20;
+
+    // Scheduled queue per player
+    private final Map<UUID, Queue<MessageEntry>> messageQueues = new ConcurrentHashMap<>();
+    // Immediate-priority queue per player
+    private final Map<UUID, Queue<MessageEntry>> immediateQueues = new ConcurrentHashMap<>();
+    // Currently active message per player
+    private final Map<UUID, MessageEntry> currentMessages = new ConcurrentHashMap<>();
+
     private final Set<UUID> cooldowns = new HashSet<>();
     @Setter
     @Getter
@@ -42,6 +50,7 @@ public class ActionbarManager implements Bootstrappable {
     public void init() {
         Events.onConfig((player) -> {
             messageQueues.put(player.getUuid(), new LinkedList<>());
+            immediateQueues.put(player.getUuid(), new LinkedList<>());
             cooldowns.add(player.getUuid());
             // prevent sending packets too early
             MinecraftServer.getSchedulerManager().buildTask(() -> cooldowns.remove(player.getUuid()))
@@ -49,26 +58,53 @@ public class ActionbarManager implements Bootstrappable {
         });
         Events.onLeave((player) -> {
             messageQueues.remove(player.getUuid());
+            immediateQueues.remove(player.getUuid());
+            currentMessages.remove(player.getUuid());
             cooldowns.remove(player.getUuid());
         });
 
-        MinecraftServer.getSchedulerManager().scheduleTask(() -> messageQueues.forEach((uuid, queue) -> {
-            if (cooldowns.contains(uuid)) return;
-            Cytosis.getPlayer(uuid).ifPresentOrElse(p -> {
-                if (queue.isEmpty()) {
+        // Run every tick to support custom durations and immediate overrides
+        MinecraftServer.getSchedulerManager()
+            .scheduleTask(() -> messageQueues.forEach((uuid, ignored) -> handleQueueForPlayer(uuid)),
+                TaskSchedule.nextTick(), TaskSchedule.tick(1));
+    }
+
+    private void handleQueueForPlayer(UUID uuid) {
+        if (cooldowns.contains(uuid)) {
+            return;
+        }
+        Cytosis.getPlayer(uuid).ifPresentOrElse(p -> {
+            MessageEntry active = currentMessages.get(uuid);
+            if (active == null || active.remainingTicks <= 0) {
+                Queue<MessageEntry> iq = immediateQueues.get(uuid);
+                Queue<MessageEntry> nq = messageQueues.get(uuid);
+                if (iq != null && !iq.isEmpty()) {
+                    active = iq.poll();
+                    currentMessages.put(uuid, active);
+                } else if (nq != null && !nq.isEmpty()) {
+                    active = nq.poll();
+                    currentMessages.put(uuid, active);
+                } else {
                     // we have to use a packet here to avoid an endless recursion
                     p.sendPacket(new ActionBarPacket(defaultSupplier.getActionbar(p)));
                     return;
                 }
+            }
+            // Send active message and decrement remaining ticks
+            if (active != null) {
                 // we have to use a packet here to avoid an endless recursion
-                p.sendPacket(new ActionBarPacket(queue.poll()));
-
-            }, () -> {
-                messageQueues.remove(uuid);
-                cooldowns.remove(uuid);
-            });
-        }), TaskSchedule.tick(20), TaskSchedule.tick(20));
-
+                p.sendPacket(new ActionBarPacket(active.message));
+                active.remainingTicks--;
+                if (active.remainingTicks <= 0) {
+                    currentMessages.remove(uuid);
+                }
+            }
+        }, () -> {
+            messageQueues.remove(uuid);
+            immediateQueues.remove(uuid);
+            currentMessages.remove(uuid);
+            cooldowns.remove(uuid);
+        });
     }
 
     /**
@@ -81,24 +117,66 @@ public class ActionbarManager implements Bootstrappable {
      * @param iterations the number of seconds (20 tick intervals) to display the message for
      */
     public void addToQueue(UUID uuid, Component message, int iterations) {
-        for (int i = 0; i < iterations; i++) {
-            addToQueue(uuid, message);
-        }
+        // each iteration = 20 ticks
+        addToQueueTicks(uuid, message, Math.max(0, iterations) * DEFAULT_TICKS);
     }
 
     /**
-     * Adds a message to the actionbar queue. If the queue is empty, the message is displayed on the next 20 tick
-     * interval.
+     * Adds a message to the actionbar queue. If the queue is empty, the message is displayed on the next interval.
      *
      * @param uuid    The player to show the message to
      * @param message the message to display
      */
     public void addToQueue(UUID uuid, Component message) {
-        Queue<Component> queue = messageQueues.get(uuid);
-        if (queue == null) {
-            queue = new LinkedList<>();
+        addToQueueTicks(uuid, message, DEFAULT_TICKS);
+    }
+
+    /**
+     * Adds a message to the normal queue with a custom duration in ticks.
+     *
+     * @param uuid    The player to show the message to
+     * @param message the message to display
+     * @param ticks   how long to display, in ticks
+     */
+    public void addToQueueTicks(UUID uuid, Component message, int ticks) {
+        if (ticks <= 0) {
+            return;
         }
-        queue.add(message);
-        messageQueues.put(uuid, queue);
+        Queue<MessageEntry> queue = messageQueues.computeIfAbsent(uuid, u -> new LinkedList<>());
+        queue.add(new MessageEntry(message, ticks));
+    }
+
+    /**
+     * Adds a message to the immediate-priority queue with a custom duration in ticks. The message is displayed
+     * immediately and overrides the standard queue.
+     *
+     * @param uuid    The player to show the message to
+     * @param message the message to display
+     * @param ticks   how long to display, in ticks
+     */
+    public void addImmediate(UUID uuid, Component message, int ticks) {
+        if (ticks <= 0) {
+            return;
+        }
+        Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new LinkedList<>());
+        MessageEntry entry = new MessageEntry(message, ticks);
+        queue.add(entry);
+        currentMessages.put(uuid, entry);
+        // we have to use a packet here to avoid an endless recursion
+        Cytosis.getPlayer(uuid).ifPresent(p -> p.sendPacket(new ActionBarPacket(message)));
+    }
+
+    /**
+     * Simple holder for a message with remaining ticks.
+     */
+    private static final class MessageEntry {
+
+        final Component message;
+        int remainingTicks;
+
+        MessageEntry(Component message, int remainingTicks) {
+            this.message = message;
+            this.remainingTicks = remainingTicks;
+        }
     }
 }
