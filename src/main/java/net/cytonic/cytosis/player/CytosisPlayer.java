@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.player;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.containers.friends.FriendRequest;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
@@ -391,7 +393,8 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public void sendFriendRequest(UUID recipient) {
-        Cytosis.CONTEXT.getComponent(FriendManager.class).sendRequest(getUuid(), recipient);
+        Cytosis.CONTEXT.getComponent(NatsManager.class)
+            .sendFriendRequest(new FriendRequest(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 
     public void acceptFriendRequest(UUID sender) {
