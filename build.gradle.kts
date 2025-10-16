@@ -16,7 +16,6 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
     maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
