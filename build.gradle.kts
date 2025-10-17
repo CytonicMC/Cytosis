@@ -16,7 +16,6 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
     maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
@@ -37,9 +36,8 @@ dependencies {
     api(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
-    api(libs.stomui) {
-        exclude(group = "net.minestom", module = "minestom-snapshots")
-    }
+    api(libs.invui)
+    api(libs.anvilInput)
     api(libs.configurate)
     api(libs.classgraph)
     api(libs.jnats)
@@ -66,9 +64,8 @@ dependencies {
     runtimeDownloadOnly(libs.polar)
     runtimeDownloadOnly(libs.jedis)
     runtimeDownloadOnly(libs.guava)
-    runtimeDownloadOnly(libs.stomui) {
-        exclude(group = "net.minestom", module = "minestom-snapshots")
-    }
+    runtimeDownloadOnly(libs.invui)
+    runtimeDownloadOnly(libs.anvilInput)
     runtimeDownloadOnly(libs.configurate)
     runtimeDownloadOnly(libs.classgraph)
     runtimeDownloadOnly(libs.minestompvp) {
