@@ -16,6 +16,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -34,6 +35,7 @@ public class RankManager implements Bootstrappable {
     private CytonicNetwork cytonicNetwork;
     private RedisDatabase redis;
     private MysqlDatabase db;
+    private GlobalDatabase gdb;
 
     /**
      * Creates the teams for cosmetic ranks
@@ -43,6 +45,7 @@ public class RankManager implements Bootstrappable {
         this.cytonicNetwork = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
         this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        this.gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager()).collisionRule(
                     TeamsPacket.CollisionRule.NEVER)
@@ -60,7 +63,7 @@ public class RankManager implements Bootstrappable {
      */
     public void addPlayer(CytosisPlayer player) {
         // cache the rank
-        db.getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
+        gdb.getPlayerRank(player.getUuid()).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occured whilst fetching " + player.getUsername() + "'s rank!", throwable);
                 return;
@@ -148,7 +151,7 @@ public class RankManager implements Bootstrappable {
                 rank = PlayerRank.valueOf(cachedRank);
             } else {
                 // we need to load it for next time!
-                db.getPlayerRank(player).thenAccept(playerRank -> {
+                gdb.getPlayerRank(player).thenAccept(playerRank -> {
                     rankMap.put(player, playerRank);
                     cytonicNetwork.updateCachedPlayerRank(player, playerRank);
                     redis

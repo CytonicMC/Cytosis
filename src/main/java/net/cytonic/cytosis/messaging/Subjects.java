@@ -28,7 +28,7 @@ public class Subjects {
     public static final String PLAYER_SERVER_CHANGE = PREFIX + "players.server_change.notify";
     public static final String PLAYER_RANK_UPDATE = PREFIX + "players.rank.update";
 
-    public static final String HEALTH_CHECK = "health.check." + CytosisContext.SERVER_ID;
+    public static final String HEALTH_CHECK = PREFIX + "health.check." + CytosisContext.SERVER_ID;
 
     // friends
     public static final String FRIEND_REQUEST = PREFIX + "friends.request";

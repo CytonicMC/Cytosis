@@ -11,7 +11,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -53,7 +53,7 @@ public class UnmuteCommand extends CytosisCommand {
                 .append(Msg.mm("<gray>."));
 
             Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNMUTE, Msg.snoop(snoop));
-            Cytosis.CONTEXT.getComponent(MysqlDatabase.class).unmutePlayer(uuid);
+            Cytosis.CONTEXT.getComponent(GlobalDatabase.class).unmutePlayer(uuid);
             sender.sendMessage(Msg.greenSplash("UNMUTED", "%s was successfully unmuted!", player));
         }, playerArg);
     }

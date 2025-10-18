@@ -31,6 +31,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.Container;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
@@ -84,6 +85,7 @@ public class NatsManager implements Bootstrappable {
     private CytonicNetwork network;
     private ChatManager chatManager;
     private MysqlDatabase mysqlDatabase;
+    private GlobalDatabase globalDatabase;
     private Connection connection;
     private Subscription healthCheck;
     private boolean started = false;
@@ -96,6 +98,7 @@ public class NatsManager implements Bootstrappable {
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
         this.mysqlDatabase = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        this.globalDatabase = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
             setup();
@@ -509,7 +512,7 @@ public class NatsManager implements Bootstrappable {
             }, () -> {
                 rankManager.changeRankSilently(container.player(), container.rank());
                 network.updateCachedPlayerRank(container.player(), container.rank());
-                mysqlDatabase.setPlayerRank(container.player(), container.rank());
+                globalDatabase.setPlayerRank(container.player(), container.rank());
             });
         }).subscribe(Subjects.PLAYER_RANK_UPDATE);
     }

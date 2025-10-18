@@ -12,8 +12,10 @@ import redis.clients.jedis.JedisPooled;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.files.FileManager;
+import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
@@ -21,6 +23,8 @@ import net.cytonic.cytosis.logging.Logger;
  */
 @CytosisComponent(dependsOn = {FileManager.class})
 public class RedisDatabase implements Bootstrappable {
+
+    private final String prefix;
 
     /**
      * Cached global cooldowns
@@ -40,6 +44,7 @@ public class RedisDatabase implements Bootstrappable {
         HostAndPort hostAndPort = new HostAndPort(CytosisSettings.REDIS_HOST, 6379);
         JedisClientConfig config = DefaultJedisClientConfig.builder().password(CytosisSettings.REDIS_PASSWORD).build();
         this.jedis = new JedisPooled(hostAndPort, config);
+        prefix = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment().getPrefix();
     }
 
     @Override
@@ -64,7 +69,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the set
      */
     public Set<String> getSet(String key) {
-        return jedis.smembers(key);
+        return jedis.smembers(prefix + key);
     }
 
     /**
@@ -74,11 +79,11 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value
      */
     public void setValue(String key, String value) {
-        jedis.set(key, value);
+        jedis.set(prefix + key, value);
     }
 
     public String getValue(String key) {
-        return jedis.get(key);
+        return jedis.get(prefix + key);
     }
 
     /**
@@ -88,7 +93,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value(s)
      */
     public void addValue(String key, String... value) {
-        jedis.sadd(key, value);
+        jedis.sadd(prefix + key, value);
     }
 
     /**
@@ -98,7 +103,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value(s)
      */
     public void removeValue(String key, String... value) {
-        jedis.srem(key, value);
+        jedis.srem(prefix + key, value);
     }
 
     /**
@@ -109,38 +114,38 @@ public class RedisDatabase implements Bootstrappable {
      * @param value the value of the key value pair
      */
     public void addToHash(String hash, String key, String value) {
-        jedis.hset(hash, key, value);
+        jedis.hset(prefix + hash, key, value);
     }
 
     /**
      * Remove a key value pair from a hash
      *
-     * @param key   the name of the hash
-     * @param field the field in the hash
+     * @param hash   the name of the hash
+     * @param key the field in the hash
      */
-    public void removeFromHash(String key, String field) {
-        jedis.hdel(key, field);
+    public void removeFromHash(String hash, String key) {
+        jedis.hdel(prefix + hash, key);
     }
 
     /**
      * Gets the map of key value pairs stored in a hash
      *
-     * @param key the key tied to the hash
+     * @param hash the key tied to the hash
      * @return the map of values
      */
-    public Map<String, String> getHash(String key) {
-        return jedis.hgetAll(key);
+    public Map<String, String> getHash(String hash) {
+        return jedis.hgetAll(prefix + hash);
     }
 
     /**
      * Gets the specified field from the specified hash
      *
-     * @param key   The hash to query
-     * @param field the field to query from the hash
+     * @param hash   The hash to query
+     * @param key the field to query from the hash
      * @return the value stored in the hash
      */
-    public String getFromHash(String key, String field) {
-        return jedis.hget(key, field);
+    public String getFromHash(String hash, String key) {
+        return jedis.hget(prefix + hash, key);
     }
 
     /**
@@ -154,4 +159,92 @@ public class RedisDatabase implements Bootstrappable {
     public Set<String> getKeys(String pattern) {
         return jedis.keys(pattern);
     }
+
+    /**
+     * Gets a set from the redis server
+     *
+     * @param key key
+     * @return the set
+     */
+    public Set<String> getGlobalSet(String key) {
+        return jedis.smembers(key);
+    }
+
+    /**
+     * Set a key equal to a value
+     *
+     * @param key   key
+     * @param value value
+     */
+    public void setGlobalValue(String key, String value) {
+        jedis.set(key, value);
+    }
+
+    public String getGlobalValue(String key) {
+        return jedis.get(key);
+    }
+
+    /**
+     * Adds a value to a set
+     *
+     * @param key   key
+     * @param value value(s)
+     */
+    public void addGlobalValue(String key, String... value) {
+        jedis.sadd(key, value);
+    }
+
+    /**
+     * Remove a value from a set
+     *
+     * @param key   key
+     * @param value value(s)
+     */
+    public void removeGlobalValue(String key, String... value) {
+        jedis.srem(key, value);
+    }
+
+    /**
+     * Adds a key and value to a hash
+     *
+     * @param hash  the name of the hash
+     * @param key   the key of the key value pair
+     * @param value the value of the key value pair
+     */
+    public void addToGlobalHash(String hash, String key, String value) {
+        jedis.hset(hash, key, value);
+    }
+
+    /**
+     * Remove a key value pair from a hash
+     *
+     * @param hash the name of the hash
+     * @param key  the field in the hash
+     */
+    public void removeFromGlobalHash(String hash, String key) {
+        jedis.hdel(hash, key);
+    }
+
+    /**
+     * Gets the map of key value pairs stored in a hash
+     *
+     * @param hash the key tied to the hash
+     * @return the map of values
+     */
+    public Map<String, String> getGlobalHash(String hash) {
+        return jedis.hgetAll(hash);
+    }
+
+    /**
+     * Gets the specified field from the specified hash
+     *
+     * @param hash The hash to query
+     * @param key  the field to query from the hash
+     * @return the value stored in the hash
+     */
+    public String getFromGlobalHash(String hash, String key) {
+        return jedis.hget(hash, key);
+    }
+
+
 }

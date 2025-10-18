@@ -33,6 +33,11 @@ public final class CytosisSettings {
      */
     public static String DATABASE_NAME = "";
 
+    /**
+     * Name of the database to use
+     */
+    public static String GLOBAL_DATABASE = "";
+
     // server
     /**
      * The velocity forwarding secret
@@ -89,6 +94,7 @@ public final class CytosisSettings {
             DATABASE_HOST = node.node("database", "host").getString();
             DATABASE_PORT = node.node("database", "port").getInt();
             DATABASE_NAME = node.node("database", "name").getString();
+            GLOBAL_DATABASE = node.node("database", "global_name").getString();
             //server
             SERVER_SECRET = node.node("server", "secret").getString();
             SERVER_PORT = node.node("server", "port").getInt();
@@ -119,6 +125,8 @@ public final class CytosisSettings {
         if (System.getenv("DATABASE_HOST") != null) DATABASE_HOST = System.getenv("DATABASE_HOST");
         if (System.getenv("DATABASE_PORT") != null) DATABASE_PORT = Integer.parseInt(System.getenv("DATABASE_PORT"));
         if (System.getenv("DATABASE_NAME") != null) DATABASE_NAME = System.getenv("DATABASE_NAME");
+        if (System.getenv("GLOBAL_DATABASE") != null) GLOBAL_DATABASE = System.getenv("GLOBAL_DATABASE");
+
         //server
         if (System.getenv("SERVER_SECRET") != null) SERVER_SECRET = System.getenv("SERVER_SECRET");
         if (System.getenv("SERVER_PORT") != null) SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
@@ -151,7 +159,7 @@ public final class CytosisSettings {
         if (System.getProperty("DATABASE_PORT") != null) {
             DATABASE_PORT = Integer.parseInt(System.getProperty("DATABASE_PORT"));
         }
-        if (System.getProperty("DATABASE_NAME") != null) DATABASE_NAME = System.getProperty("DATABASE_NAME");
+        if (System.getProperty("GLOBAL_DATABASE") != null) GLOBAL_DATABASE = System.getProperty("GLOBAL_DATABASE");
         //server
         if (System.getProperty("SERVER_SECRET") != null) SERVER_SECRET = System.getProperty("SERVER_SECRET");
         if (System.getProperty("SERVER_PORT") != null) {
