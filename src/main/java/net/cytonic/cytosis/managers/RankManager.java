@@ -72,7 +72,7 @@ public class RankManager implements Bootstrappable {
             rankMap.put(player.getUuid(), playerRank);
             cytonicNetwork.updateCachedPlayerRank(player.getUuid(), playerRank);
             Thread.ofVirtual().start(() -> redis
-                .addToHash("player_ranks", player.getUuid()
+                .addToGlobalHash("player_ranks", player.getUuid()
                     .toString(), playerRank.name()));
             if (player.isNicked()) {
                 return; // don't setup cosmetics for nicked players
@@ -99,7 +99,7 @@ public class RankManager implements Bootstrappable {
         cytonicNetwork.updateCachedPlayerRank(player.getUuid(), rank);
         player.refreshCommands();
         Thread.ofVirtual().start(() -> redis
-            .addToHash("player_ranks", player.getUuid().toString(), rank.name()));
+            .addToGlobalHash("player_ranks", player.getUuid().toString(), rank.name()));
     }
 
     /**
@@ -146,7 +146,7 @@ public class RankManager implements Bootstrappable {
         Thread.ofVirtual().start(() -> {
             PlayerRank rank = PlayerRank.DEFAULT;
             String cachedRank = redis
-                .getFromHash("player_ranks", player.toString());
+                .getFromGlobalHash("player_ranks", player.toString());
             if (cachedRank != null) {
                 rank = PlayerRank.valueOf(cachedRank);
             } else {
@@ -155,7 +155,7 @@ public class RankManager implements Bootstrappable {
                     rankMap.put(player, playerRank);
                     cytonicNetwork.updateCachedPlayerRank(player, playerRank);
                     redis
-                        .addToHash("player_ranks", player.toString(), playerRank.name());
+                        .addToGlobalHash("player_ranks", player.toString(), playerRank.name());
                 });
             }
             rankMap.put(player, rank);

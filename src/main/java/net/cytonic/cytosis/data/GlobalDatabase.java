@@ -375,6 +375,10 @@ public class GlobalDatabase implements Bootstrappable {
                 ps.setString(1, uuid.toString());
                 ps.setString(2, rank.name());
                 ps.executeUpdate();
+
+                Cytosis.CONTEXT.getComponent(RedisDatabase.class)
+                    .addToGlobalHash("player_ranks", uuid.toString(), rank.name());
+
                 future.complete(null);
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst setting the rank of '" + uuid + "'");

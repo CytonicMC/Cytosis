@@ -76,7 +76,11 @@ public class CytonicNetwork implements Bootstrappable {
         // the player has not played before
         cachedPlayerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
 
-        gdb.getPlayerRank(uuid).thenAccept(playerRank -> cachedPlayerRanks.put(uuid, playerRank))
+        gdb.getPlayerRank(uuid).thenAccept(playerRank -> {
+                cachedPlayerRanks.put(uuid, playerRank);
+                Cytosis.CONTEXT.getComponent(RedisDatabase.class)
+                    .addToGlobalHash("player_ranks", uuid.toString(), playerRank.name());
+            })
             .exceptionally((throwable) -> {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
                 return null;
