@@ -159,6 +159,7 @@ public final class CytosisSettings {
         if (System.getProperty("DATABASE_PORT") != null) {
             DATABASE_PORT = Integer.parseInt(System.getProperty("DATABASE_PORT"));
         }
+        if (System.getProperty("DATABASE_NAME") != null) DATABASE_NAME = System.getProperty("DATABASE_NAME");
         if (System.getProperty("GLOBAL_DATABASE") != null) GLOBAL_DATABASE = System.getProperty("GLOBAL_DATABASE");
         //server
         if (System.getProperty("SERVER_SECRET") != null) SERVER_SECRET = System.getProperty("SERVER_SECRET");
