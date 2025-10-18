@@ -1,7 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,25 +14,25 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.Utils;
 
 /**
  * A class to manage friends
  */
 @NoArgsConstructor
-@CytosisComponent( dependsOn = {PreferenceManager.class, MysqlDatabase.class})
+@CytosisComponent(dependsOn = {PreferenceManager.class, MysqlDatabase.class})
 public class FriendManager implements Bootstrappable {
 
     private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
 
     private CytonicNetwork network;
     private NatsManager natsManager;
-    private MysqlDatabase db;
+    private GlobalDatabase db;
 
     /**
      * Initializes the friends table and loads the online players friends
@@ -43,16 +41,7 @@ public class FriendManager implements Bootstrappable {
     public void init() {
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
-
-        PreparedStatement ps = db.prepare(
-            "CREATE TABLE IF NOT EXISTS cytonic_friends (uuid VARCHAR(36), friends TEXT, PRIMARY KEY (uuid))");
-        db.update(ps).whenComplete((r, t) -> {
-            if (t != null) {
-                Logger.error("An error occurred whilst creating the friends table!", t);
-            }
-            Cytosis.getOnlinePlayers().forEach(player -> loadFriends(player.getUuid()));
-        });
+        this.db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
     }
 
     /**
@@ -62,32 +51,12 @@ public class FriendManager implements Bootstrappable {
      */
     public void loadFriends(UUID uuid) {
 
-        PreparedStatement ps = db.prepare("SELECT * FROM cytonic_friends WHERE uuid = ?");
-        try {
-            ps.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        db.query(ps).whenComplete((resultSet, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading friends!", throwable);
-                return;
-            }
-
-            try {
-                if (resultSet.next()) {
-                    List<UUID> list = Cytosis.GSON.fromJson(resultSet.getString("friends"), Utils.UUID_LIST);
-                    if (list == null) {
-                        list = new ArrayList<>();
-                    }
-                    list.remove(uuid); // remove them if they are already their own friend
-                    friends.put(uuid, list);
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading friends!", e);
-            }
-        });
+        db.loadFriends(uuid)
+            .thenAccept(uuids -> friends.put(uuid, uuids))
+            .exceptionally(throwable -> {
+                Logger.error("Failed to load friends!", throwable);
+                return null;
+            });
     }
 
     /**
@@ -127,18 +96,7 @@ public class FriendManager implements Bootstrappable {
         list.add(friend);
         friends.put(uuid, list);
 
-        PreparedStatement f1 = db.prepare(
-            "INSERT INTO cytonic_friends (uuid, friends) VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?");
-        try {
-            f1.setString(1, uuid.toString());
-            f1.setString(2, Cytosis.GSON.toJson(list));
-            f1.setString(3, Cytosis.GSON.toJson(list));
-        } catch (SQLException e) {
-            // big problem
-            throw new RuntimeException(e);
-        }
-        db.update(f1)
-            .whenComplete((unused, throwable) -> Logger.error("An error occurred whilst adding a friend!", throwable));
+        db.updateFriends(uuid, list);
 
         if (recursive) { // add the other player to their friends' list
             addFriendRecursive(friend, uuid, false);
@@ -158,23 +116,11 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void removeFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        List<UUID> list1 = friends.getOrDefault(uuid, new ArrayList<>());
-        list1.remove(friend);
-        friends.put(uuid, list1);
+        List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
+        list.remove(friend);
+        friends.put(uuid, list);
 
-        PreparedStatement f1 = db.prepare(
-            "INSERT INTO cytonic_friends (uuid, friends) VALUES (?,?) ON DUPLICATE KEY UPDATE friends = ?");
-        try {
-            f1.setString(1, uuid.toString());
-            f1.setString(2, Cytosis.GSON.toJson(list1));
-            f1.setString(3, Cytosis.GSON.toJson(list1));
-        } catch (SQLException e) {
-            // big problem
-            throw new RuntimeException(e);
-        }
-        db.update(f1)
-            .whenComplete(
-                (unused, throwable) -> Logger.error("An error occurred whilst removing a friend!", throwable));
+        db.updateFriends(uuid, list);
 
         if (recursive) {
             removeFriendRecursive(friend, uuid, false);

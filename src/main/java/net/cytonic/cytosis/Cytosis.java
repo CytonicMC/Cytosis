@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import lombok.Getter;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
 import net.cytonic.cytosis.data.adapters.KeyAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
@@ -179,7 +179,7 @@ public final class Cytosis {
         }
 
         Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
-        CONTEXT.getComponent(MysqlDatabase.class).getWorld(CytosisSettings.SERVER_WORLD_NAME)
+        CONTEXT.getComponent(GlobalDatabase.class).getWorld(CytosisSettings.SERVER_WORLD_NAME)
                 .whenComplete((polarWorld, throwable) -> {
                     if (throwable != null) {
                         Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",

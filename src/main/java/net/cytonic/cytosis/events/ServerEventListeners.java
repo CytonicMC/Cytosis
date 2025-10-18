@@ -25,6 +25,7 @@ import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
@@ -133,10 +134,11 @@ public final class ServerEventListeners {
             player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
                 .getRemoteAddress());
         MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        GlobalDatabase gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
 
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
-        db.addPlayer(player);
+        gdb.addPlayer(player);
         Cytosis.CONTEXT.getComponent(SideboardManager.class).addPlayer(player);
         Cytosis.CONTEXT.getComponent(PlayerListManager.class).setupPlayer(player);
         Cytosis.CONTEXT.getComponent(RankManager.class).addPlayer(player);
@@ -168,8 +170,9 @@ public final class ServerEventListeners {
     private void onChat(PlayerChatEvent event) {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         event.setCancelled(true);
+        GlobalDatabase gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
         MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
-        db.isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
+        gdb.isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst checking if the player is muted!", throwable);
                 return;

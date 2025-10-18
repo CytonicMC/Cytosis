@@ -31,7 +31,10 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.containers.Container;
+import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
 import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
 import net.cytonic.cytosis.data.containers.PlayerRankUpdateContainer;
@@ -50,11 +53,13 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.Tuple;
+import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -67,7 +72,7 @@ import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
-@CytosisComponent(dependsOn = {CytonicNetwork.class})
+@CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class})
 public class NatsManager implements Bootstrappable {
 
     private static final Component FRIEND_LINE = Msg.darkAqua(
@@ -81,6 +86,7 @@ public class NatsManager implements Bootstrappable {
     private CytonicNetwork network;
     private ChatManager chatManager;
     private MysqlDatabase mysqlDatabase;
+    private GlobalDatabase globalDatabase;
     private Connection connection;
     private Subscription healthCheck;
     private boolean started = false;
@@ -93,6 +99,7 @@ public class NatsManager implements Bootstrappable {
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
         this.mysqlDatabase = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        this.globalDatabase = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
             setup();
@@ -161,6 +168,8 @@ public class NatsManager implements Bootstrappable {
                     listenForPlayerServerChange();
                     listenForChatMessage();
                     listenForPlayerRankUpdates();
+                    listenForBroadcasts();
+                    listenForCooldownUpdates();
                 }
             } else {
                 Logger.info("Disconnected from NATS server! (%s)", type.name());
@@ -288,6 +297,30 @@ public class NatsManager implements Bootstrappable {
                         Msg.aqua("Your friend request to ").append(target).append(Msg.aqua(" has expired!")));
                     player.sendMessage(FRIEND_LINE);
                 }
+            }
+            msg.ack();
+        });
+    }
+
+    private void listenForBroadcasts() {
+        connection.createDispatcher().subscribe(Subjects.CHAT_BROADCAST, msg -> {
+            Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(Msg.fromJson(new String(msg.getData()))));
+            msg.ack();
+        });
+    }
+
+    private void listenForCooldownUpdates() {
+        connection.createDispatcher().subscribe(Subjects.CHAT_BROADCAST, msg -> {
+            CooldownUpdateContainer container = (CooldownUpdateContainer) Container.deserialize(
+                new String(msg.getData()));
+            NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
+            if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.PERSONAL) {
+                cooldownManager
+                    .setPersonal(container.getUserUuid(), container.getNamespace(), container.getExpiry());
+            } else if (container.getTarget() == CooldownUpdateContainer.CooldownTarget.GLOBAL) {
+                cooldownManager.setGlobal(container.getNamespace(), container.getExpiry());
+            } else {
+                throw new IllegalArgumentException("Unsupported target: " + container.getTarget());
             }
             msg.ack();
         });
@@ -480,7 +513,7 @@ public class NatsManager implements Bootstrappable {
             }, () -> {
                 rankManager.changeRankSilently(container.player(), container.rank());
                 network.updateCachedPlayerRank(container.player(), container.rank());
-                mysqlDatabase.setPlayerRank(container.player(), container.rank());
+                globalDatabase.setPlayerRank(container.player(), container.rank());
             });
         }).subscribe(Subjects.PLAYER_RANK_UPDATE);
     }
@@ -771,6 +804,10 @@ public class NatsManager implements Bootstrappable {
         }
 
         subscribeQueue.add(new SubscribeContainer(channel, consumer));
+    }
+
+    public void sendBroadcast(Component message) {
+        publish(Subjects.CHAT_BROADCAST, Msg.toJson(message).getBytes());
     }
 
     private record PublishContainer(String channel, byte[] data) {

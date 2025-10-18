@@ -13,7 +13,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -65,7 +65,7 @@ public class MuteCommand extends CytosisCommand {
             actor.sendMessage(Msg.red("The player " + target + " doesn't exist!"));
             return;
         }
-        MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        GlobalDatabase db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
         UUID uuid = network.getLifetimeFlattened().getByValue(target.toLowerCase());
         db.isMuted(uuid).whenComplete((muted, throwable1) -> {
             if (throwable1 != null) {

@@ -17,6 +17,8 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.messaging.Subjects;
 
 /**
  * A class that handles network-wide cooldowns that sync across servers
@@ -25,6 +27,7 @@ import net.cytonic.cytosis.logging.Logger;
 public class NetworkCooldownManager implements Bootstrappable {
 
     private RedisDatabase redis;
+    private NatsManager nats;
     private final Map<Key, Instant> global = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
 
@@ -34,6 +37,7 @@ public class NetworkCooldownManager implements Bootstrappable {
     @Override
     public void init() {
         this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
         importFromRedis();
     }
 
@@ -112,7 +116,8 @@ public class NetworkCooldownManager implements Bootstrappable {
         if (notify) {
             CooldownUpdateContainer container = new CooldownUpdateContainer(
                 CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, uuid);
-            redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
+
+            nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
         }
     }
 
@@ -137,7 +142,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         if (notify) {
             CooldownUpdateContainer container = new CooldownUpdateContainer(
                 CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, null);
-            redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
+            nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
         }
     }
 
@@ -156,7 +161,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         redis.addToHash(RedisDatabase.GLOBAL_COOLDOWNS_KEY, id.asString(), expire.toString());
         CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.GLOBAL,
             id, expire, null);
-        redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
+        nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
     }
 
     /**
@@ -178,7 +183,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         redis.addToHash(toPersonalKey(uuid), id.asString(), expire.toString());
         CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.PERSONAL,
             id, expire, uuid);
-        redis.publish(RedisDatabase.COOLDOWN_UPDATE_CHANNEL, container.serialize());
+        nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
     }
 
     /**

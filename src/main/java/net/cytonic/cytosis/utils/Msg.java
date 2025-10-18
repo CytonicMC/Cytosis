@@ -226,6 +226,10 @@ public interface Msg {
         return JSONComponentSerializer.json().serialize(component);
     }
 
+    static Component fromJson(String json) {
+        return JSONComponentSerializer.json().deserialize(json);
+    }
+
     /**
      * Gets a formatted ban message
      *

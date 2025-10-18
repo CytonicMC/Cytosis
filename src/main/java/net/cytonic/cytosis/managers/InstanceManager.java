@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 
@@ -20,11 +21,11 @@ import net.cytonic.cytosis.utils.polar.PolarExtension;
 @CytosisComponent(dependsOn = {MysqlDatabase.class, net.minestom.server.instance.InstanceManager.class})
 public class InstanceManager implements Bootstrappable {
 
-    private MysqlDatabase db;
+    private GlobalDatabase db;
 
     @Override
     public void init() {
-        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        this.db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
     }
 
     public CompletableFuture<Instance> loadDatabaseWorld(String databaseName, @Nullable UUID uuid) {

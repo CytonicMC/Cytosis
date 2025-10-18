@@ -14,7 +14,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.objects.BanData;
@@ -32,7 +32,7 @@ import net.cytonic.cytosis.utils.SnoopUtils;
  */
 public class BanCommand extends CytosisCommand {
 
-    private final MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+    private final GlobalDatabase gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
 
     /**
      * Creates the command and sets the consumers
@@ -71,7 +71,7 @@ public class BanCommand extends CytosisCommand {
 
     private void banPlayer(CommandSender sender, CytosisPlayer actor, UUID uuid, String player, String reason,
         Instant dur) {
-        db.isBanned(uuid)
+        gdb.isBanned(uuid)
             .thenAccept(banData -> handleBanCheck(sender, actor, uuid, player, reason, dur, banData))
             .exceptionally(throwable -> handleBanCheckError(sender, player, throwable));
     }
@@ -88,7 +88,7 @@ public class BanCommand extends CytosisCommand {
 
     private void checkPlayerRankAndBan(CommandSender sender, CytosisPlayer actor, UUID uuid, String player,
         String reason, Instant dur) {
-        db.getPlayerRank(uuid).whenComplete((playerRank, throwable) -> {
+        gdb.getPlayerRank(uuid).whenComplete((playerRank, throwable) -> {
             if (throwable != null) {
                 handleRankCheckError(sender, player, throwable);
                 return;
@@ -104,7 +104,7 @@ public class BanCommand extends CytosisCommand {
     }
 
     private void executeBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
-        db.banPlayer(uuid, reason, dur).whenComplete((ignored, throwable) -> {
+        gdb.banPlayer(uuid, reason, dur).whenComplete((ignored, throwable) -> {
             if (throwable != null) {
                 handleBanExecutionError(actor, player, throwable);
                 return;

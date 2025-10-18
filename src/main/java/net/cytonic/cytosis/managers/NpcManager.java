@@ -8,11 +8,13 @@ import java.util.UUID;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.npcs.Npc;
 
 /**
  * A class that manages NPCs
  */
+@CytosisComponent
 @NoArgsConstructor
 public class NpcManager {
 
