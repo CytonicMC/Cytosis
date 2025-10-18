@@ -11,17 +11,17 @@ import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisPooled;
 
 import net.cytonic.cytosis.Bootstrappable;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.environments.EnvironmentManager;
+import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class that holds the connection to the redis cache
  */
-@CytosisComponent(dependsOn = {FileManager.class})
+@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
 public class RedisDatabase implements Bootstrappable {
 
     private final String prefix;

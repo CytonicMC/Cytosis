@@ -33,7 +33,7 @@ import net.cytonic.cytosis.utils.PosSerializer;
  * some worlds are stored in {@link GlobalDatabase}
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-@CytosisComponent(dependsOn = {FileManager.class})
+@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
 public class MysqlDatabase implements Bootstrappable {
 
     private final ExecutorService worker;

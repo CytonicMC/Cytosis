@@ -24,10 +24,13 @@ import org.jetbrains.annotations.NotNull;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceData;
+import net.cytonic.cytosis.environments.EnvironmentManager;
+import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.PosSerializer;
@@ -37,6 +40,7 @@ import net.cytonic.cytosis.utils.Utils;
  * The database object that handles data that is stored across network environments
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
+@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
 public class GlobalDatabase implements Bootstrappable {
 
     private final ExecutorService worker;

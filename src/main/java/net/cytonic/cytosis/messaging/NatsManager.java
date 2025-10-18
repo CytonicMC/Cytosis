@@ -53,6 +53,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.Tuple;
+import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.logging.Logger;
@@ -71,7 +72,7 @@ import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
-@CytosisComponent(dependsOn = {CytonicNetwork.class})
+@CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class})
 public class NatsManager implements Bootstrappable {
 
     private static final Component FRIEND_LINE = Msg.darkAqua(
