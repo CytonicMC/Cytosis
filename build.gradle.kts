@@ -43,6 +43,7 @@ dependencies {
     api(libs.jnats)
     api(libs.jooq)
     api(libs.mixin)
+    api(libs.minimessage)
 
 
     // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
