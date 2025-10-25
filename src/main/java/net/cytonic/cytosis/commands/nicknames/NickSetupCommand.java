@@ -168,6 +168,8 @@ public class NickSetupCommand extends CytosisCommand {
                             (k, data) -> data.withSkin(player.getSkin().signature(), player.getSkin().textures()));
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
                             (k, data) -> data.withSkin(NicknameGenerator.generateSkin()));
+                        default -> {
+                        }
                     }
                     player.openBook(NAME_BOOK);
                 }
@@ -200,6 +202,8 @@ public class NickSetupCommand extends CytosisCommand {
                         }
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
                             (k, data) -> data.withNickname(NicknameGenerator.generateUsername()));
+                        default -> {
+                        }
                     }
                     player.openBook(getConfirmBook(player, NICKNAME_DATA.get(player.getUuid())));
                 }
