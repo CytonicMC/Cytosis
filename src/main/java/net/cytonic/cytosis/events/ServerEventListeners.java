@@ -90,7 +90,7 @@ public final class ServerEventListeners {
     @Listener
     @Priority(0)
     @Async
-    @SuppressWarnings({"unchecked", "UnstableApiUsage"})
+    @SuppressWarnings({"UnstableApiUsage"})
     private void onPacketOut(PlayerPacketOutEvent e) {
         if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
         if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
