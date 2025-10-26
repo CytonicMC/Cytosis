@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.sound.SoundEvent;
@@ -32,7 +33,6 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.containers.Container;
 import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
 import net.cytonic.cytosis.data.containers.PlayerKickContainer;
@@ -84,8 +84,6 @@ public class NatsManager implements Bootstrappable {
     private FriendManager friendManager;
     private PreferenceManager preferenceManager;
     private CytonicNetwork network;
-    private ChatManager chatManager;
-    private MysqlDatabase mysqlDatabase;
     private GlobalDatabase globalDatabase;
     private Connection connection;
     private Subscription healthCheck;
@@ -94,11 +92,8 @@ public class NatsManager implements Bootstrappable {
     @Override
     public void init() {
         this.rankManager = Cytosis.CONTEXT.getComponent(RankManager.class);
-        this.friendManager = Cytosis.CONTEXT.getComponent(FriendManager.class);
         this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-        this.chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
-        this.mysqlDatabase = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
         this.globalDatabase = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
@@ -108,7 +103,11 @@ public class NatsManager implements Bootstrappable {
             Logger.warn("Skipping NATS manager setup for CI test!");
         }
 
-        sendStartup();
+        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+            // these have to be slightly delayed to avoid initialization order issues
+            this.friendManager = Cytosis.CONTEXT.getComponent(FriendManager.class);
+            sendStartup();
+        });
     }
 
     @SneakyThrows // don't care about the error on shutdown
@@ -466,7 +465,7 @@ public class NatsManager implements Bootstrappable {
                                 Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                         }
                         player.sendMessage(component);
-                        chatManager.openPrivateMessage(player, message.sender());
+                        Cytosis.CONTEXT.getComponent(ChatManager.class).openPrivateMessage(player, message.sender());
                     }
                 });
                 return;
