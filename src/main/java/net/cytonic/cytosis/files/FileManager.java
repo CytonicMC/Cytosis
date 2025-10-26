@@ -13,6 +13,7 @@ import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.logging.Logger;
 
@@ -31,7 +32,7 @@ public class FileManager implements Bootstrappable {
     public void init() {
         try {
             createConfigFile();
-            GsonConfigurationLoader loader = GsonConfigurationLoader.builder().file(CONFIG_PATH.toFile()).build();
+            GsonConfigurationLoader loader = Cytosis.GSON_CONFIGURATION_LOADER.file(CONFIG_PATH.toFile()).build();
             ConfigurationNode node = loader.load();
             ConfigurationTransformation transformation = ConfigurationTransformation.builder().build();
             transformation.apply(node);
