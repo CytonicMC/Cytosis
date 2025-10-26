@@ -29,7 +29,7 @@ import net.cytonic.cytosis.utils.Utils;
  */
 @Getter
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {RankManager.class})
+@CytosisComponent(dependsOn = {RankManager.class, RedisDatabase.class, GlobalDatabase.class})
 public class CytonicNetwork implements Bootstrappable {
 
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
@@ -51,8 +51,7 @@ public class CytonicNetwork implements Bootstrappable {
         this.cytosisContext = Cytosis.CONTEXT;
         this.gdb = cytosisContext.getComponent(GlobalDatabase.class);
         importData();
-        cytosisContext.getComponent(CytonicNetwork.class)
-            .getServers()
+        getServers()
             .put(CytosisContext.SERVER_ID,
                 new CytonicServer(Utils.getServerIP(),
                     CytosisContext.SERVER_ID,
@@ -78,7 +77,7 @@ public class CytonicNetwork implements Bootstrappable {
 
         gdb.getPlayerRank(uuid).thenAccept(playerRank -> {
                 cachedPlayerRanks.put(uuid, playerRank);
-                Cytosis.CONTEXT.getComponent(RedisDatabase.class)
+                cytosisContext.getComponent(RedisDatabase.class)
                     .addToGlobalHash("player_ranks", uuid.toString(), playerRank.name());
             })
             .exceptionally((throwable) -> {
@@ -144,7 +143,7 @@ public class CytonicNetwork implements Bootstrappable {
      * Imports data from Redis and Cydian
      */
     public void importData() {
-        RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
         onlinePlayers.clear();
         onlineFlattened.clear();
         servers.clear();
@@ -176,7 +175,7 @@ public class CytonicNetwork implements Bootstrappable {
         for (PunishmentEntry pe : gdb.loadMutes()) {
             if (pe.expiry().isBefore(Instant.now())) {
                 this.gdb.unbanPlayer(pe.player());
-                RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+                RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
                 redis.removeFromGlobalHash("banned_players", pe.player().toString());
             } else {
                 BanData banData = new BanData(pe.reason(), pe.expiry(), true);

@@ -23,7 +23,7 @@ import net.cytonic.cytosis.messaging.Subjects;
 /**
  * A class that handles network-wide cooldowns that sync across servers
  */
-@CytosisComponent(dependsOn = {RedisDatabase.class, LocalCooldownManager.class})
+@CytosisComponent(dependsOn = {RedisDatabase.class, NatsManager.class, LocalCooldownManager.class})
 public class NetworkCooldownManager implements Bootstrappable {
 
     private RedisDatabase redis;

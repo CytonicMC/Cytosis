@@ -25,7 +25,7 @@ import net.cytonic.cytosis.utils.Msg;
  * A class to manage friends
  */
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {PreferenceManager.class, MysqlDatabase.class})
+@CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class, MysqlDatabase.class, CytonicNetwork.class})
 public class FriendManager implements Bootstrappable {
 
     private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();

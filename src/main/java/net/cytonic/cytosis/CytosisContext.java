@@ -12,6 +12,7 @@ import lombok.Setter;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
@@ -61,6 +62,7 @@ public class CytosisContext {
             return clazz.cast(existing);
         }
         if (!createIfMissing) {
+            Logger.warn("Attempted to fetch missing component '%s'!", clazz.getSimpleName());
             return null;
         }
         return registerComponent(clazz);

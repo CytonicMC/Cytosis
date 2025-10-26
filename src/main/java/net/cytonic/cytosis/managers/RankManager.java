@@ -27,12 +27,11 @@ import net.cytonic.cytosis.player.CytosisPlayer;
  * A class that manages player ranks
  */
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {FriendManager.class})
+@CytosisComponent(dependsOn = {MysqlDatabase.class, RedisDatabase.class, GlobalDatabase.class})
 public class RankManager implements Bootstrappable {
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
-    private CytonicNetwork cytonicNetwork;
     private RedisDatabase redis;
     private MysqlDatabase db;
     private GlobalDatabase gdb;
@@ -42,7 +41,6 @@ public class RankManager implements Bootstrappable {
      */
     @Override
     public void init() {
-        this.cytonicNetwork = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
         this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
         this.gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
@@ -70,7 +68,7 @@ public class RankManager implements Bootstrappable {
             }
             player.setRankUnsafe(playerRank);
             rankMap.put(player.getUuid(), playerRank);
-            cytonicNetwork.updateCachedPlayerRank(player.getUuid(), playerRank);
+            Cytosis.CONTEXT.getComponent(CytonicNetwork.class).updateCachedPlayerRank(player.getUuid(), playerRank);
             Thread.ofVirtual().start(() -> redis
                 .addToGlobalHash("player_ranks", player.getUuid()
                     .toString(), playerRank.name()));
@@ -96,7 +94,7 @@ public class RankManager implements Bootstrappable {
         rankMap.put(player.getUuid(), rank);
         player.setRankUnsafe(rank);
         setupCosmetics(player, rank);
-        cytonicNetwork.updateCachedPlayerRank(player.getUuid(), rank);
+        Cytosis.CONTEXT.getComponent(CytonicNetwork.class).updateCachedPlayerRank(player.getUuid(), rank);
         player.refreshCommands();
         Thread.ofVirtual().start(() -> redis
             .addToGlobalHash("player_ranks", player.getUuid().toString(), rank.name()));
@@ -153,7 +151,7 @@ public class RankManager implements Bootstrappable {
                 // we need to load it for next time!
                 gdb.getPlayerRank(player).thenAccept(playerRank -> {
                     rankMap.put(player, playerRank);
-                    cytonicNetwork.updateCachedPlayerRank(player, playerRank);
+                    Cytosis.CONTEXT.getComponent(CytonicNetwork.class).updateCachedPlayerRank(player, playerRank);
                     redis
                         .addToGlobalHash("player_ranks", player.toString(), playerRank.name());
                 });
