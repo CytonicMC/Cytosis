@@ -35,18 +35,23 @@ public final class PosSerializer {
      * {@link Pos} object with all coordinates set to 0 is returned.
      */
     public static Pos deserialize(String serializedPos) {
-        if (!serializedPos.isEmpty()) {
-            serializedPos = serializedPos.replace("}", "");
-            String[] parts = serializedPos.split("[=,\\s]+");
-            double x = Double.parseDouble(parts[1]);
-            double y = Double.parseDouble(parts[3]);
-            double z = Double.parseDouble(parts[5]);
-            float yaw = Float.parseFloat(parts[7]);
-            float pitch = Float.parseFloat(parts[9]);
-            return new Pos(x, y, z, yaw, pitch);
-        } else {
+        if (serializedPos == null || serializedPos.isEmpty())
             return new Pos(0, 0, 0, 180, 0);
-        }
+
+        serializedPos = serializedPos.replace("}", "");
+        String[] parts = serializedPos.split("[=,\\s]+");
+
+        double x = Double.parseDouble(parts[1]);
+        double y = Double.parseDouble(parts[3]);
+        double z = Double.parseDouble(parts[5]);
+
+        float yaw = 180f;
+        float pitch = 0f;
+
+        if (parts.length > 7) yaw = Float.parseFloat(parts[7]);
+        if (parts.length > 9) pitch = Float.parseFloat(parts[9]);
+
+        return new Pos(x, y, z, yaw, pitch);
     }
 
     public static CompoundBinaryTag serializeAsTag(Pos pos) {
