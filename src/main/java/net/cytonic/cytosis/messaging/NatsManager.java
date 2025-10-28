@@ -9,13 +9,14 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.containers.*;
-import net.cytonic.cytosis.data.containers.friends.FriendApiResponse;
-import net.cytonic.cytosis.data.containers.friends.FriendRequest;
-import net.cytonic.cytosis.data.containers.friends.FriendResponse;
-import net.cytonic.cytosis.data.containers.friends.OrganicFriendResponse;
-import net.cytonic.cytosis.data.packets.CooldownUpdatePacket;
-import net.cytonic.cytosis.data.packets.Packet;
+import net.cytonic.cytosis.data.containers.PlayerKickContainer;
+import net.cytonic.cytosis.data.containers.PlayerLoginLogoutContainer;
+import net.cytonic.cytosis.data.containers.PlayerRankUpdateContainer;
+import net.cytonic.cytosis.data.containers.ServerStatusContainer;
+import net.cytonic.cytosis.data.packets.friends.FriendApiResponse;
+import net.cytonic.cytosis.data.packets.friends.FriendRequest;
+import net.cytonic.cytosis.data.packets.friends.FriendResponse;
+import net.cytonic.cytosis.data.packets.friends.OrganicFriendResponse;
 import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
 import net.cytonic.cytosis.data.containers.servers.SendPlayerToServerContainer;
 import net.cytonic.cytosis.data.containers.servers.SendToServerTypeContainer;
@@ -26,6 +27,8 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.Tuple;
+import net.cytonic.cytosis.data.packets.CooldownUpdatePacket;
+import net.cytonic.cytosis.data.packets.Packet;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
@@ -196,7 +199,7 @@ public class NatsManager implements Bootstrappable {
     private void listenForFriendDeclineNotifications() {
         connection.createDispatcher().subscribe(Subjects.FRIEND_DECLINATION_NOTIFY, msg -> {
 
-            FriendRequest request = FriendRequest.deserialize(new String(msg.getData()));
+            FriendRequest request = FriendRequest.deserialize(msg.getData());
 
             String targetName = network.getLifetimePlayers().getByKey(request.recipient());
             String senderName = network.getLifetimePlayers().getByKey(request.sender());
@@ -224,7 +227,7 @@ public class NatsManager implements Bootstrappable {
 
     private void listenForFriendAcceptNotifications() {
         connection.createDispatcher().subscribe(Subjects.FRIEND_ACCEPTANCE_NOTIFY, msg -> {
-            FriendRequest request = FriendRequest.deserialize(new String(msg.getData()));
+            FriendRequest request = FriendRequest.deserialize(msg.getData());
 
             String targetName = network.getLifetimePlayers().getByKey(request.recipient());
             String senderName = network.getLifetimePlayers().getByKey(request.sender());
@@ -257,7 +260,7 @@ public class NatsManager implements Bootstrappable {
     private void listenForFriendExpiryNotifcations() {
         connection.createDispatcher().subscribe(Subjects.FRIEND_EXPIRE_NOTIFY, msg -> {
 
-            FriendRequest request = FriendRequest.deserialize(new String(msg.getData()));
+            FriendRequest request = FriendRequest.deserialize(msg.getData());
 
             String targetName = network.getLifetimePlayers().getByKey(request.recipient());
             String senderName = network.getLifetimePlayers().getByKey(request.sender());
@@ -327,7 +330,7 @@ public class NatsManager implements Bootstrappable {
 
     private void listenForFriendRequestNotification() {
         connection.createDispatcher(msg -> {
-            FriendRequest request = FriendRequest.deserialize(new String(msg.getData()));
+            FriendRequest request = FriendRequest.deserialize(msg.getData());
 
             String targetName = network.getLifetimePlayers().getByKey(request.recipient());
             String senderName = network.getLifetimePlayers().getByKey(request.sender());
@@ -514,7 +517,7 @@ public class NatsManager implements Bootstrappable {
     }
 
     public void sendFriendRequest(FriendRequest request) {
-        request(Subjects.FRIEND_REQUEST, request.serialize().getBytes(StandardCharsets.UTF_8), (message, throwable) -> {
+        request(Subjects.FRIEND_REQUEST, request.serialize(), (message, throwable) -> {
             if (Cytosis.getPlayer(request.sender()).isEmpty()) {
                 return; // not online, don't care anymore.
             }
@@ -523,7 +526,7 @@ public class NatsManager implements Bootstrappable {
                 p.sendMessage(Msg.serverError("An error occurred whilst sending your friend request!"));
                 Logger.error("Internal error whilst sending friend request", throwable);
             }
-            FriendApiResponse response = FriendApiResponse.deserialize(new String(message.getData()));
+            FriendApiResponse response = Packet.deserialize(message.getData(), FriendApiResponse.class);
             if (response.success()) {
                 return; // it was successful, no need to tell anyone
             }
@@ -555,16 +558,16 @@ public class NatsManager implements Bootstrappable {
     }
 
     public void acceptFriendRequest(UUID requestId) {
-        request(Subjects.FRIEND_ACCEPT_BY_ID, FriendResponse.create(requestId),
-                (m, t) -> handleAccept(new String(m.getData()), t, null, null));
+        request(Subjects.FRIEND_ACCEPT_BY_ID, new FriendResponse(requestId).serialize(),
+                (m, t) -> handleAccept(m.getData(), t, null, null));
     }
 
     public void acceptFriendRequest(UUID sender, UUID recipient) {
-        request(Subjects.FRIEND_ACCEPT, OrganicFriendResponse.create(sender, recipient),
-                (m, t) -> handleAccept(new String(m.getData()), t, recipient, sender));
+        request(Subjects.FRIEND_ACCEPT, new OrganicFriendResponse(sender, recipient).serialize(),
+                (m, t) -> handleAccept(m.getData(), t, recipient, sender));
     }
 
-    private void handleAccept(String response, @Nullable Throwable throwable, @Nullable UUID recipient,
+    private void handleAccept(byte[] response, @Nullable Throwable throwable, @Nullable UUID recipient,
                               @Nullable UUID sender) {
         if (throwable != null) {
             if (recipient != null) {
@@ -573,7 +576,7 @@ public class NatsManager implements Bootstrappable {
             }
             Logger.error("Internal error upon processing a friend acceptance.", throwable);
         }
-        FriendApiResponse api = FriendApiResponse.deserialize(response);
+        FriendApiResponse api = Packet.deserialize(response, FriendApiResponse.class);
         if (api.success()) {
             return;
         }
@@ -596,16 +599,16 @@ public class NatsManager implements Bootstrappable {
     }
 
     public void declineFriendRequest(UUID requestId) {
-        request(Subjects.FRIEND_DECLINE_BY_ID, FriendResponse.create(requestId),
-                (m, t) -> handleDecline(new String(m.getData()), t, null, null));
+        request(Subjects.FRIEND_DECLINE_BY_ID, new FriendResponse(requestId).serialize(),
+                (m, t) -> handleDecline(m.getData(), t, null, null));
     }
 
     public void declineFriendRequest(UUID sender, UUID recipient) {
-        request(Subjects.FRIEND_DECLINE, OrganicFriendResponse.create(sender, recipient),
-                (m, t) -> handleDecline(new String(m.getData()), t, recipient, sender));
+        request(Subjects.FRIEND_DECLINE, new OrganicFriendResponse(sender, recipient).serialize(),
+                (m, t) -> handleDecline(m.getData(), t, recipient, sender));
     }
 
-    private void handleDecline(String response, @Nullable Throwable throwable, @Nullable UUID recipient,
+    private void handleDecline(byte[] response, @Nullable Throwable throwable, @Nullable UUID recipient,
                                @Nullable UUID sender) {
         if (throwable != null) {
             if (recipient != null) {
@@ -614,7 +617,7 @@ public class NatsManager implements Bootstrappable {
             }
             Logger.error("Internal error upon proccessing a friend decline.", throwable);
         }
-        FriendApiResponse api = FriendApiResponse.deserialize(response);
+        FriendApiResponse api = Packet.deserialize(response, FriendApiResponse.class);
 
         String senderName = network.getLifetimePlayers().getByKey(sender);
         PlayerRank recipientRank = network.getCachedPlayerRanks().get(sender);
