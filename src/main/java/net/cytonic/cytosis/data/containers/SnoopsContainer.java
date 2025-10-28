@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.containers.snooper;
+package net.cytonic.cytosis.data.containers;
 
 import java.util.HashSet;
 import java.util.Set;

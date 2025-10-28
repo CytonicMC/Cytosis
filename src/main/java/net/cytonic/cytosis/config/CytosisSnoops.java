@@ -2,7 +2,7 @@ package net.cytonic.cytosis.config;
 
 import net.kyori.adventure.key.Key;
 
-import net.cytonic.cytosis.data.containers.snooper.SnooperChannel;
+import net.cytonic.cytosis.snooper.SnooperChannel;
 
 public class CytosisSnoops {
 

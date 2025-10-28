@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.menus.snooper;
+package net.cytonic.cytosis.snooper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,7 +24,6 @@ import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.containers.snooper.QueriedSnoop;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.menus.MenuUtils;
 import net.cytonic.cytosis.utils.DurationParser;

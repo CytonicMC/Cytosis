@@ -1,28 +1,22 @@
-package net.cytonic.cytosis.data.containers.snooper;
+package net.cytonic.cytosis.snooper;
+
+import lombok.SneakyThrows;
+import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.logging.Logger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jetbrains.annotations.Nullable;
+import org.jooq.*;
+import org.jooq.Record;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-
-import lombok.SneakyThrows;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.jetbrains.annotations.Nullable;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.SelectConditionStep;
-import org.jooq.Table;
-import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
-
-import net.cytonic.cytosis.data.MysqlDatabase;
-import net.cytonic.cytosis.logging.Logger;
 
 public class SnoopPersistenceManager {
 
@@ -78,7 +72,7 @@ public class SnoopPersistenceManager {
     }
 
     public CompletableFuture<List<QueriedSnoop>> query(String id, byte permission, @Nullable Instant start,
-        @Nullable Instant end, boolean ascending, @Nullable String search) {
+                                                       @Nullable Instant end, boolean ascending, @Nullable String search) {
         return CompletableFuture.supplyAsync(() -> {
             SelectConditionStep<Record> query = db.select().from(table)
                 .where(DSL.bitAnd(target, permission).ne((byte) 0))
@@ -96,7 +90,7 @@ public class SnoopPersistenceManager {
         });
     }
 
-    private List<QueriedSnoop> processSnoops(Result<org.jooq.Record> result) {
+    private List<QueriedSnoop> processSnoops(Result<Record> result) {
         return result.stream().map(record -> {
             return new QueriedSnoop(record.get(id), record.get(target), record.get(content), record.get(channel),
                 record.get(created));

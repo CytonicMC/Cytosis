@@ -1,9 +1,8 @@
-package net.cytonic.cytosis.data.containers.snooper;
-
-import net.kyori.adventure.key.Key;
+package net.cytonic.cytosis.snooper;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.kyori.adventure.key.Key;
 
 /**
  * Represents a channel or pathway a message can be sent to.

@@ -293,12 +293,12 @@ public class NatsManager implements Bootstrappable {
         connection.createDispatcher().subscribe(Subjects.CHAT_BROADCAST, msg -> {
             CooldownUpdatePacket packet = Packet.deserialize(msg.getData(), CooldownUpdatePacket.class);
             NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
-            if (packet.getTarget() == CooldownUpdatePacket.CooldownTarget.PERSONAL) {
-                cooldownManager.setPersonal(packet.getUserUuid(), packet.getNamespace(), packet.getExpiry());
-            } else if (packet.getTarget() == CooldownUpdatePacket.CooldownTarget.GLOBAL) {
-                cooldownManager.setGlobal(packet.getNamespace(), packet.getExpiry());
+            if (packet.target() == CooldownUpdatePacket.CooldownTarget.PERSONAL) {
+                cooldownManager.setPersonal(packet.userUuid(), packet.namespace(), packet.expiry());
+            } else if (packet.target() == CooldownUpdatePacket.CooldownTarget.GLOBAL) {
+                cooldownManager.setGlobal(packet.namespace(), packet.expiry());
             } else {
-                throw new IllegalArgumentException("Unsupported target: " + packet.getTarget());
+                throw new IllegalArgumentException("Unsupported target: " + packet.target());
             }
             msg.ack();
         });

@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.menus.snooper;
+package net.cytonic.cytosis.snooper;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

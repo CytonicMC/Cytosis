@@ -1,25 +1,15 @@
 package net.cytonic.cytosis.data.packets;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.key.Key;
 
 import java.time.Instant;
 import java.util.UUID;
 
 /**
- * A class that represents a nats packet for updating cooldowns
+ * A class that represents a packet for updating cooldowns
  */
-@Getter
-@Setter
-@AllArgsConstructor
-public class CooldownUpdatePacket implements Packet {
-    private CooldownTarget target;
-    private Key namespace;
-    private Instant expiry;
-    private UUID userUuid;
-
+public record CooldownUpdatePacket(CooldownTarget target, Key namespace, Instant expiry,
+                                   UUID userUuid) implements Packet {
     /**
      * An enum that represents a target for a cooldown.
      */
