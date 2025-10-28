@@ -7,7 +7,7 @@ import java.util.UUID;
 import lombok.experimental.UtilityClass;
 
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
-import net.cytonic.cytosis.data.containers.snooper.SnoopsContainer;
+import net.cytonic.cytosis.data.containers.SnoopsContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;

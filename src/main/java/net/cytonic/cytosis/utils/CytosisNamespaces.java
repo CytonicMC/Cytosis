@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
 
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
-import net.cytonic.cytosis.data.containers.snooper.SnoopsContainer;
+import net.cytonic.cytosis.data.containers.SnoopsContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.nicknames.NicknameManager;
