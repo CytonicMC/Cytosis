@@ -14,7 +14,7 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase.PlayerEntry;
 import net.cytonic.cytosis.data.GlobalDatabase.PunishmentEntry;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
+import net.cytonic.cytosis.data.packets.servers.PlayerChangeServerPacket;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.BiMap;
@@ -134,7 +134,7 @@ public class CytonicNetwork implements Bootstrappable {
      *
      * @param container The container received over NATS or some message broker
      */
-    public void processPlayerServerChange(PlayerChangeServerContainer container) {
+    public void processPlayerServerChange(PlayerChangeServerPacket container) {
         networkPlayersOnServers.remove(container.player());
         networkPlayersOnServers.put(container.player(), container.newServer());
     }

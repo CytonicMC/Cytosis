@@ -9,10 +9,6 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
-import net.cytonic.cytosis.data.containers.servers.SendPlayerToServerContainer;
-import net.cytonic.cytosis.data.containers.servers.SendToServerTypeContainer;
-import net.cytonic.cytosis.data.containers.servers.ServerSendReponse;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -24,6 +20,10 @@ import net.cytonic.cytosis.data.packets.friends.FriendApiResponse;
 import net.cytonic.cytosis.data.packets.friends.FriendRequest;
 import net.cytonic.cytosis.data.packets.friends.FriendResponse;
 import net.cytonic.cytosis.data.packets.friends.OrganicFriendResponse;
+import net.cytonic.cytosis.data.packets.servers.PlayerChangeServerPacket;
+import net.cytonic.cytosis.data.packets.servers.SendPlayerToServerPacket;
+import net.cytonic.cytosis.data.packets.servers.SendToServerTypePacket;
+import net.cytonic.cytosis.data.packets.servers.ServerSendReponsePacket;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
@@ -419,8 +419,7 @@ public class NatsManager implements Bootstrappable {
 
     private void listenForPlayerServerChange() {
         connection.createDispatcher(msg -> {
-            PlayerChangeServerContainer container = PlayerChangeServerContainer.deserialize(new String(msg.getData()));
-            network.processPlayerServerChange(container);
+            network.processPlayerServerChange(Packet.deserialize(msg.getData(), PlayerChangeServerPacket.class));
         }).subscribe(Subjects.PLAYER_SERVER_CHANGE);
     }
 
@@ -682,9 +681,9 @@ public class NatsManager implements Bootstrappable {
      * @param component The kick message displayed
      */
     public void kickPlayer(UUID player, KickReason reason, Component component) {
-        PlayerKickPacket container = new PlayerKickPacket(player, reason,
+        PlayerKickPacket packet = new PlayerKickPacket(player, reason,
                 JSONComponentSerializer.json().serialize(component));
-        publish(Subjects.PLAYER_KICK, container.toString().getBytes());
+        publish(Subjects.PLAYER_KICK, packet.serialize());
     }
 
     /**
@@ -695,7 +694,7 @@ public class NatsManager implements Bootstrappable {
      */
     public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
         request(Subjects.PLAYER_SEND,
-                new SendPlayerToServerContainer(player, server.id(), instance).serialize().getBytes(),
+                new SendPlayerToServerPacket(player, server.id(), instance).serialize(),
                 (message, throwable) -> {
                     if (Cytosis.getPlayer(player).isEmpty()) {
                         return;
@@ -705,7 +704,7 @@ public class NatsManager implements Bootstrappable {
                         p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", server.id()));
                     }
 
-                    ServerSendReponse response = ServerSendReponse.parse(message.getData());
+                    ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
 
                     if (!response.success()) {
                         p.sendMessage(
@@ -719,7 +718,7 @@ public class NatsManager implements Bootstrappable {
 
     public void sendPlayerToServer(UUID player, String serverID, @Nullable UUID instance) {
         request(Subjects.PLAYER_SEND,
-                new SendPlayerToServerContainer(player, serverID, instance).serialize().getBytes(),
+                new SendPlayerToServerPacket(player, serverID, instance).serialize(),
                 (message, throwable) -> {
                     if (Cytosis.getPlayer(player).isEmpty()) {
                         return;
@@ -729,7 +728,7 @@ public class NatsManager implements Bootstrappable {
                         p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", serverID));
                     }
 
-                    ServerSendReponse response = ServerSendReponse.parse(message.getData());
+                    ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
 
                     if (!response.success()) {
                         p.sendMessage(
@@ -746,7 +745,7 @@ public class NatsManager implements Bootstrappable {
     }
 
     public void sendPlayerToGenericServer(UUID player, String group, String id, @Nullable String displayname) {
-        request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypeContainer(player, group, id).serialize(),
+        request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypePacket(player, group, id).serialize(),
                 (message, throwable) -> {
                     if (Cytosis.getPlayer(player).isEmpty()) {
                         return;
@@ -759,7 +758,7 @@ public class NatsManager implements Bootstrappable {
                                 + "! <red>(%s)</red>", throwable);
                     }
 
-                    ServerSendReponse response = ServerSendReponse.parse(message.getData());
+                    ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
 
                     if (!response.success()) {
                         p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>",

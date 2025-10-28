@@ -1,27 +1,14 @@
 package net.cytonic.cytosis.data.containers;
 
-import net.cytonic.cytosis.Cytosis;
+import lombok.With;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 
-// pms get handled differently
+@With
 public record IgnoredChatChannelContainer(boolean all, boolean party, boolean league, boolean admin, boolean mod,
-                                          boolean staff) implements Cloneable {
+                                          boolean staff) {
 
-    public static final IgnoredChatChannelContainer NONE = new IgnoredChatChannelContainer(false, false, false, false,
-        false, false);
-
-    public static IgnoredChatChannelContainer fromJson(String json) {
-        return Cytosis.GSON.fromJson(json, IgnoredChatChannelContainer.class);
-    }
-
-    @Override
-    public String toString() {
-        return toJson();
-    }
-
-    public String toJson() {
-        return Cytosis.GSON.toJson(this);
-    }
+    public static final IgnoredChatChannelContainer NONE =
+            new IgnoredChatChannelContainer(false, false, false, false, false, false);
 
     public boolean getForChannel(ChatChannel channel) {
         return switch (channel) {
@@ -45,35 +32,5 @@ public record IgnoredChatChannelContainer(boolean all, boolean party, boolean le
             case STAFF -> withStaff(val);
             default -> NONE;
         };
-    }
-
-    public IgnoredChatChannelContainer withAdmin(boolean admin) {
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
-    }
-
-    public IgnoredChatChannelContainer withAll(boolean all) {
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
-    }
-
-    public IgnoredChatChannelContainer withLeague(boolean league) {
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
-    }
-
-    public IgnoredChatChannelContainer withMod(boolean mod) {
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
-    }
-
-    public IgnoredChatChannelContainer withParty(boolean party) {
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
-    }
-
-    public IgnoredChatChannelContainer withStaff(boolean staff) {
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
-    }
-
-    @Override
-    public Object clone() {
-        // primitives are passed by value not reference
-        return new IgnoredChatChannelContainer(all, party, league, admin, mod, staff);
     }
 }
