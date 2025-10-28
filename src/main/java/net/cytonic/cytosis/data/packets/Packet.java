@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.containers;
+package net.cytonic.cytosis.data.packets;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonParseException;
@@ -40,11 +40,11 @@ public interface Packet {
         try {
             T packet = Cytosis.GSON.fromJson(json, clazz);
             if (packet == null) {
-                throw new JsonParseException("Received invalid packet" + clazz.getSimpleName() + " '" + json + "'");
+                throw new JsonParseException("Received invalid packet " + clazz.getSimpleName() + " '" + json + "'");
             }
             return Cytosis.GSON.fromJson(json, clazz);
         } catch (Exception e) {
-            throw new JsonParseException("Received invalid packet" + clazz.getSimpleName() + " '" + json + "'", e);
+            throw new JsonParseException("Received invalid packet " + clazz.getSimpleName() + " '" + json + "'", e);
         }
     }
 

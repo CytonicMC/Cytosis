@@ -4,7 +4,7 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.containers.CooldownUpdatePacket;
+import net.cytonic.cytosis.data.packets.CooldownUpdatePacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;

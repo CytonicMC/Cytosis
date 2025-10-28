@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.containers;
+package net.cytonic.cytosis.data.packets;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
