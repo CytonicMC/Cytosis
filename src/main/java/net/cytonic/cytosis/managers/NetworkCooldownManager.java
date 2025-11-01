@@ -1,24 +1,19 @@
 package net.cytonic.cytosis.managers;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.Nullable;
-
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.containers.CooldownUpdateContainer;
+import net.cytonic.cytosis.data.packets.CooldownUpdatePacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
+import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A class that handles network-wide cooldowns that sync across servers
@@ -114,10 +109,10 @@ public class NetworkCooldownManager implements Bootstrappable {
         redis.removeFromHash(toPersonalKey(uuid), id.asString());
 
         if (notify) {
-            CooldownUpdateContainer container = new CooldownUpdateContainer(
-                CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, uuid);
+            CooldownUpdatePacket container =
+                    new CooldownUpdatePacket(CooldownUpdatePacket.CooldownTarget.PERSONAL, id, null, uuid);
 
-            nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
+            nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize());
         }
     }
 
@@ -140,9 +135,9 @@ public class NetworkCooldownManager implements Bootstrappable {
         if (!global.containsKey(id)) return;
         global.remove(id);
         if (notify) {
-            CooldownUpdateContainer container = new CooldownUpdateContainer(
-                CooldownUpdateContainer.CooldownTarget.PERSONAL, id, null, null);
-            nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
+            CooldownUpdatePacket container =
+                    new CooldownUpdatePacket(CooldownUpdatePacket.CooldownTarget.PERSONAL, id, null, null);
+            nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize());
         }
     }
 
@@ -159,9 +154,9 @@ public class NetworkCooldownManager implements Bootstrappable {
         }
         global.put(id, expire);
         redis.addToHash(RedisDatabase.GLOBAL_COOLDOWNS_KEY, id.asString(), expire.toString());
-        CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.GLOBAL,
-            id, expire, null);
-        nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
+        CooldownUpdatePacket container =
+                new CooldownUpdatePacket(CooldownUpdatePacket.CooldownTarget.GLOBAL, id, expire, null);
+        nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize());
     }
 
     /**
@@ -181,9 +176,9 @@ public class NetworkCooldownManager implements Bootstrappable {
         }
         personal.get(uuid).put(id, expire);
         redis.addToHash(toPersonalKey(uuid), id.asString(), expire.toString());
-        CooldownUpdateContainer container = new CooldownUpdateContainer(CooldownUpdateContainer.CooldownTarget.PERSONAL,
-            id, expire, uuid);
-        nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize().getBytes());
+        CooldownUpdatePacket container =
+                new CooldownUpdatePacket(CooldownUpdatePacket.CooldownTarget.PERSONAL, id, expire, uuid);
+        nats.publish(Subjects.COOLDOWN_UPDATE, container.serialize());
     }
 
     /**

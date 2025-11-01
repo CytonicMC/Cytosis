@@ -3,11 +3,8 @@ package net.cytonic.cytosis.managers;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.containers.servers.CreateInstanceContainer;
-import net.cytonic.cytosis.data.containers.servers.DeleteAllInstancesContainer;
-import net.cytonic.cytosis.data.containers.servers.DeleteInstanceContainer;
-import net.cytonic.cytosis.data.containers.servers.InstanceResponseContainer;
-import net.cytonic.cytosis.data.containers.servers.UpdateInstancesContainer;
+import net.cytonic.cytosis.data.packets.Packet;
+import net.cytonic.cytosis.data.packets.servers.*;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
@@ -27,7 +24,7 @@ public class ServerInstancingManager implements Bootstrappable {
     public static final String BEDWARS_QUADROS = "bw_quadros";
 
     public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY,
-        BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
+            BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
     private NatsManager nats;
 
     public static boolean isServerType(String type) {
@@ -48,15 +45,15 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        CreateInstanceContainer container = new CreateInstanceContainer(type, amount);
-        nats.request(Subjects.CREATE_SERVER, container.serialize(), (message, throwable) -> {
+        CreateInstancePacket packet = new CreateInstancePacket(type, amount);
+        nats.request(Subjects.CREATE_SERVER, packet.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to create server instance: " + type, throwable);
                 return;
             }
-            InstanceResponseContainer resp = InstanceResponseContainer.parse(message.getData());
-            if (!resp.success()) {
-                Logger.error("Failed to create server instance of type %s. (%s)", type, resp.message());
+            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
+            if (!response.success()) {
+                Logger.error("Failed to create server instance of type %s. (%s)", type, response.message());
             }
         });
     }
@@ -65,15 +62,15 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        DeleteAllInstancesContainer container = new DeleteAllInstancesContainer(type);
-        nats.request(Subjects.DELETE_ALL_SERVERS, container.serialize(), (message, throwable) -> {
+        DeleteAllInstancesPacket packet = new DeleteAllInstancesPacket(type);
+        nats.request(Subjects.DELETE_ALL_SERVERS, packet.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete all server instances: " + type, throwable);
                 return;
             }
-            InstanceResponseContainer resp = InstanceResponseContainer.parse(message.getData());
-            if (!resp.success()) {
-                Logger.error("Failed to delete all server instances of type %s. (%s)", type, resp.message());
+            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
+            if (!response.success()) {
+                Logger.error("Failed to delete all server instances of type %s. (%s)", type, response.message());
             }
         });
     }
@@ -89,15 +86,15 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        DeleteInstanceContainer container = new DeleteInstanceContainer(type, allocId);
-        nats.request(Subjects.DELETE_SERVER, container.serialize(), (message, throwable) -> {
+        DeleteInstancePacket packet = new DeleteInstancePacket(type, allocId);
+        nats.request(Subjects.DELETE_SERVER, packet.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete server instance: " + allocId, throwable);
                 return;
             }
-            InstanceResponseContainer resp = InstanceResponseContainer.parse(message.getData());
-            if (!resp.success()) {
-                Logger.error("Failed to delete server instance %s of type %s. (%s)", allocId, type, resp.message());
+            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
+            if (!response.success()) {
+                Logger.error("Failed to delete server instance %s of type %s. (%s)", allocId, type, response.message());
             }
         });
     }
@@ -106,15 +103,15 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        UpdateInstancesContainer container = new UpdateInstancesContainer(type);
-        nats.request(Subjects.UPDATE_SERVER, container.serialize(), (message, throwable) -> {
+        UpdateInstancesPacket packet = new UpdateInstancesPacket(type);
+        nats.request(Subjects.UPDATE_SERVER, packet.serialize(), (message, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to update server instance type: " + type, throwable);
                 return;
             }
-            InstanceResponseContainer resp = InstanceResponseContainer.parse(message.getData());
-            if (!resp.success()) {
-                Logger.error("Failed to update server instances of type %s. (%s)", type, resp.message());
+            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
+            if (!response.success()) {
+                Logger.error("Failed to update server instances of type %s. (%s)", type, response.message());
             }
         });
     }
