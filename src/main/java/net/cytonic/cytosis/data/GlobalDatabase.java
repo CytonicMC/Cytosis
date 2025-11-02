@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -761,7 +762,7 @@ public class GlobalDatabase implements Bootstrappable {
                     PreferenceData data = PreferenceData.deserialize(rs.getString("preferences"));
                     future.complete(data);
                 } else {
-                    future.completeExceptionally(new IllegalArgumentException("ResultSet is empty!"));
+                    future.complete(new PreferenceData(new HashMap<>()));
                 }
             } catch (Exception exception) {
                 future.completeExceptionally(exception);
@@ -781,7 +782,7 @@ public class GlobalDatabase implements Bootstrappable {
                 if (rs.next()) {
                     future.complete(Cytosis.GSON.fromJson(rs.getString("friends"), Utils.UUID_LIST));
                 } else {
-                    future.completeExceptionally(new IllegalArgumentException("ResultSet is empty!"));
+                    future.complete(new ArrayList<>());
                 }
             } catch (Exception exception) {
                 future.completeExceptionally(exception);
