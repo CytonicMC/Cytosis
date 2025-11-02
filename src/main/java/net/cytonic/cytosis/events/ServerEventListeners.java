@@ -64,9 +64,12 @@ public final class ServerEventListeners {
         Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NpcManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
             Npc npc = optional.get();
-            EventDispatcher.call(new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()));
-            npc.getActions()
-                .forEach((action) -> action.execute(npc, NpcInteractType.INTERACT, (CytosisPlayer) event.getPlayer()));
+            EventDispatcher.callCancellable(
+                new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()), () -> {
+                    npc.getActions()
+                        .forEach((action) -> action.execute(npc, NpcInteractType.INTERACT,
+                            (CytosisPlayer) event.getPlayer()));
+                });
         }
     }
 
@@ -214,8 +217,10 @@ public final class ServerEventListeners {
         Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NpcManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget()) {
             Npc npc = optional.get();
-            MinecraftServer.getGlobalEventHandler().call(new NpcInteractEvent(npc, player, npc.getActions()));
-            npc.getActions().forEach((action) -> action.execute(npc, NpcInteractType.ATTACK, player));
+            MinecraftServer.getGlobalEventHandler()
+                .callCancellable(new NpcInteractEvent(npc, player, npc.getActions()), () -> {
+                    npc.getActions().forEach((action) -> action.execute(npc, NpcInteractType.ATTACK, player));
+                });
         }
     }
 }
