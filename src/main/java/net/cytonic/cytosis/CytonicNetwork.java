@@ -172,7 +172,7 @@ public class CytonicNetwork implements Bootstrappable {
     }
 
     private void importBans() {
-        for (PunishmentEntry pe : gdb.loadMutes()) {
+        for (PunishmentEntry pe : gdb.loadBans()) {
             if (pe.expiry().isBefore(Instant.now())) {
                 this.gdb.unbanPlayer(pe.player());
                 RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
