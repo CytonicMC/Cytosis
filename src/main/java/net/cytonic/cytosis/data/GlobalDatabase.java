@@ -176,19 +176,6 @@ public class GlobalDatabase implements Bootstrappable {
     public void createWorldTable() {
         try {
             getConnection().prepareStatement("""
-                CREATE TABLE IF NOT EXISTS cytonic_preferences (
-                    uuid VARCHAR(36) PRIMARY KEY,
-                    preferences TEXT
-                )
-                """).executeUpdate();
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst creating the `cytonic_preferences` table.", e);
-        }
-    }
-
-    public void createPreferencesTable() {
-        try {
-            getConnection().prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_worlds (
                     world_name TEXT,
                     world_type TEXT,
@@ -202,6 +189,19 @@ public class GlobalDatabase implements Bootstrappable {
                 """).executeUpdate();
         } catch (SQLException e) {
             Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
+        }
+    }
+
+    public void createPreferencesTable() {
+        try {
+            getConnection().prepareStatement("""
+                CREATE TABLE IF NOT EXISTS cytonic_preferences (
+                    uuid VARCHAR(36) PRIMARY KEY,
+                    preferences TEXT
+                )
+                """).executeUpdate();
+        } catch (SQLException e) {
+            Logger.error("An error occurred whilst creating the `cytonic_preferences` table.", e);
         }
     }
 
