@@ -7,7 +7,7 @@ plugins {
     id("com.gradleup.shadow") version "9.2.2"
     id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
-    id("io.freefair.lombok") version "9.0.0"
+    id("io.freefair.lombok") version "9.1.0"
     id("checkstyle")
 }
 
