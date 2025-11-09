@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.packets;
 
-import net.cytonic.cytosis.data.enums.KickReason;
-
 import java.util.UUID;
+
+import net.cytonic.cytosis.data.enums.KickReason;
 
 /**
  * The packet for when a player gets kicked
@@ -12,4 +12,5 @@ import java.util.UUID;
  * @param kickMessage the message to send to the player when they are kicked
  */
 public record PlayerKickPacket(UUID uuid, KickReason reason, String kickMessage) implements Packet {
+
 }

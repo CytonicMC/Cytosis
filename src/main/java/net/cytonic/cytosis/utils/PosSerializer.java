@@ -35,8 +35,9 @@ public final class PosSerializer {
      * {@link Pos} object with all coordinates set to 0 is returned.
      */
     public static Pos deserialize(String serializedPos) {
-        if (serializedPos == null || serializedPos.isEmpty())
+        if (serializedPos == null || serializedPos.isEmpty()) {
             return new Pos(0, 0, 0, 180, 0);
+        }
 
         serializedPos = serializedPos.replace("}", "");
         String[] parts = serializedPos.split("[=,\\s]+");

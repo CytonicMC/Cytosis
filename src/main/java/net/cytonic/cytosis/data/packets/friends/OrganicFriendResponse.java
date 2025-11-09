@@ -1,8 +1,9 @@
 package net.cytonic.cytosis.data.packets.friends;
 
-import net.cytonic.cytosis.data.packets.Packet;
-
 import java.util.UUID;
 
+import net.cytonic.cytosis.data.packets.Packet;
+
 public record OrganicFriendResponse(UUID sender, UUID recipient) implements Packet {
+
 }

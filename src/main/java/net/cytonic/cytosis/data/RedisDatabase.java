@@ -24,13 +24,11 @@ import net.cytonic.cytosis.logging.Logger;
 @CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
 public class RedisDatabase implements Bootstrappable {
 
-    private final String prefix;
-
     /**
      * Cached global cooldowns
      */
     public static final String GLOBAL_COOLDOWNS_KEY = "global_cooldowns";
-
+    private final String prefix;
     private final JedisPooled jedis;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
         .uncaughtExceptionHandler(
@@ -120,8 +118,8 @@ public class RedisDatabase implements Bootstrappable {
     /**
      * Remove a key value pair from a hash
      *
-     * @param hash   the name of the hash
-     * @param key the field in the hash
+     * @param hash the name of the hash
+     * @param key  the field in the hash
      */
     public void removeFromHash(String hash, String key) {
         jedis.hdel(prefix + hash, key);
@@ -140,8 +138,8 @@ public class RedisDatabase implements Bootstrappable {
     /**
      * Gets the specified field from the specified hash
      *
-     * @param hash   The hash to query
-     * @param key the field to query from the hash
+     * @param hash The hash to query
+     * @param key  the field to query from the hash
      * @return the value stored in the hash
      */
     public String getFromHash(String hash, String key) {
@@ -245,6 +243,5 @@ public class RedisDatabase implements Bootstrappable {
     public String getFromGlobalHash(String hash, String key) {
         return jedis.hget(hash, key);
     }
-
 
 }

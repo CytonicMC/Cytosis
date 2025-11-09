@@ -1,9 +1,10 @@
 package net.cytonic.cytosis.data.packets;
 
-import net.cytonic.cytosis.data.objects.CytonicServer;
+import java.time.Instant;
+
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
+import net.cytonic.cytosis.data.objects.CytonicServer;
 
 public record ServerStatusPacket(String type, String ip, String id, int port, @Nullable Instant last_seen,
                                  String group) implements Packet {

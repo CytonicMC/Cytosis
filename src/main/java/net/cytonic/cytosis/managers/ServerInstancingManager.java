@@ -4,7 +4,11 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.packets.Packet;
-import net.cytonic.cytosis.data.packets.servers.*;
+import net.cytonic.cytosis.data.packets.servers.CreateInstancePacket;
+import net.cytonic.cytosis.data.packets.servers.DeleteAllInstancesPacket;
+import net.cytonic.cytosis.data.packets.servers.DeleteInstancePacket;
+import net.cytonic.cytosis.data.packets.servers.InstanceResponsePacket;
+import net.cytonic.cytosis.data.packets.servers.UpdateInstancesPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
@@ -24,7 +28,7 @@ public class ServerInstancingManager implements Bootstrappable {
     public static final String BEDWARS_QUADROS = "bw_quadros";
 
     public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY,
-            BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
+        BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
     private NatsManager nats;
 
     public static boolean isServerType(String type) {

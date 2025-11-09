@@ -1,6 +1,18 @@
 package net.cytonic.cytosis.managers;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
@@ -18,17 +30,6 @@ import net.cytonic.cytosis.snooper.SnooperChannel;
 import net.cytonic.cytosis.snooper.SnooperRecieveEvent;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @CytosisComponent(dependsOn = {MysqlDatabase.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {
@@ -103,7 +104,7 @@ public class SnooperManager implements Bootstrappable {
                     continue;
                 }
                 if (!player.getPreference(CytosisNamespaces.LISTENING_SNOOPS).snoops()
-                        .contains(channel.id().asString())) {
+                    .contains(channel.id().asString())) {
                     continue;
                 }
 
@@ -165,7 +166,7 @@ public class SnooperManager implements Bootstrappable {
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.with(channel));
         player.sendMessage(
-                Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
+            Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
     }
 
     public void blind(CytosisPlayer player, @NotNull String channel) {
@@ -176,7 +177,7 @@ public class SnooperManager implements Bootstrappable {
         }
         player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.without(channel));
         player.sendMessage(
-                Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
+            Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
     }
 
     /**
@@ -187,7 +188,7 @@ public class SnooperManager implements Bootstrappable {
      */
     public Set<String> getAllChannels(CytosisPlayer player) {
         return registry.channels.values().stream().filter(c -> player.canRecieveSnoop(c.recipients()))
-                .map(channel -> channel.id().asString()).collect(Collectors.toSet());
+            .map(channel -> channel.id().asString()).collect(Collectors.toSet());
     }
 
     @Nullable
