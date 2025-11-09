@@ -4,7 +4,8 @@
     "password": "",
     "host": "",
     "port": 3306,
-    "name": ""
+    "name": "",
+    "global_name": ""
   },
   "server": {
     "secret": "",

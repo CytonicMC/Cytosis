@@ -1,13 +1,38 @@
 package net.cytonic.cytosis.messaging;
 
-import io.nats.client.*;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import io.nats.client.Connection;
+import io.nats.client.ConnectionListener;
+import io.nats.client.Dispatcher;
+import io.nats.client.ErrorListener;
+import io.nats.client.Message;
+import io.nats.client.Nats;
+import io.nats.client.Options;
+import io.nats.client.Subscription;
 import lombok.SneakyThrows;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventDispatcher;
+import net.minestom.server.sound.SoundEvent;
+import org.jetbrains.annotations.Nullable;
+
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
@@ -15,7 +40,12 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.Tuple;
-import net.cytonic.cytosis.data.packets.*;
+import net.cytonic.cytosis.data.packets.CooldownUpdatePacket;
+import net.cytonic.cytosis.data.packets.Packet;
+import net.cytonic.cytosis.data.packets.PlayerKickPacket;
+import net.cytonic.cytosis.data.packets.PlayerLoginLogoutPacket;
+import net.cytonic.cytosis.data.packets.PlayerRankUpdatePacket;
+import net.cytonic.cytosis.data.packets.ServerStatusPacket;
 import net.cytonic.cytosis.data.packets.friends.FriendApiResponse;
 import net.cytonic.cytosis.data.packets.friends.FriendRequest;
 import net.cytonic.cytosis.data.packets.friends.FriendResponse;
@@ -28,39 +58,30 @@ import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.*;
+import net.cytonic.cytosis.managers.ChatManager;
+import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.NetworkCooldownManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventDispatcher;
-import net.minestom.server.sound.SoundEvent;
-import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import static io.nats.client.ConnectionListener.Events.*;
+import static io.nats.client.ConnectionListener.Events.CONNECTED;
+import static io.nats.client.ConnectionListener.Events.RECONNECTED;
+import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
 @CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class})
 public class NatsManager implements Bootstrappable {
 
     private static final Component FRIEND_LINE = Msg.darkAqua(
-            "<st>                                                                                 ");
+        "<st>                                                                                 ");
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
+    private CytosisSettings cytosisSettings;
     private RankManager rankManager;
     private FriendManager friendManager;
     private PreferenceManager preferenceManager;
@@ -76,6 +97,7 @@ public class NatsManager implements Bootstrappable {
         this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.globalDatabase = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        this.cytosisSettings = Cytosis.CONTEXT.getComponent(CytosisSettings.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
             setup();
@@ -100,16 +122,17 @@ public class NatsManager implements Bootstrappable {
 
     @SneakyThrows
     public void setup() {
+        NatsConfig natsConfig = cytosisSettings.getNatsConfig();
         Options options = Options.builder().server(
-                        "nats://" + CytosisSettings.NATS_USERNAME + ":" + CytosisSettings.NATS_PASSWORD + "@"
-                                + CytosisSettings.NATS_HOSTNAME + ":" + CytosisSettings.NATS_PORT)
-                .connectionListener(setupConnectionListener()).errorListener(new ErrorListener() {
-                    @Override
-                    public void errorOccurred(Connection conn, String error) {
-                        Logger.error("An error occurred in a NATS action: %s in connection %s", error,
-                                conn.getServerInfo().getClientId());
-                    }
-                }).build();
+                "nats://" + natsConfig.getUser() + ":" + natsConfig.getPassword() + "@"
+                    + natsConfig.getHost() + ":" + natsConfig.getPort())
+            .connectionListener(setupConnectionListener()).errorListener(new ErrorListener() {
+                @Override
+                public void errorOccurred(Connection conn, String error) {
+                    Logger.error("An error occurred in a NATS action: %s in connection %s", error,
+                        conn.getServerInfo().getClientId());
+                }
+            }).build();
         Nats.connectAsynchronously(options, true);
     }
 
@@ -160,8 +183,8 @@ public class NatsManager implements Bootstrappable {
 
     public void sendStartup() {
         byte[] data = new ServerStatusPacket(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
-                CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
-                Cytosis.CONTEXT.getServerGroup().group()).serialize();
+            CytosisContext.SERVER_ID, cytosisSettings.getServerConfig().getPort(), Instant.now(),
+            Cytosis.CONTEXT.getServerGroup().group()).serialize();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
             try {
                 Logger.info("Registering server with Cydian!");
@@ -174,8 +197,8 @@ public class NatsManager implements Bootstrappable {
 
     public void sendShutdown() {
         byte[] data = new ServerStatusPacket(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
-                CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
-                Cytosis.CONTEXT.getServerGroup().group()).serialize();
+            CytosisContext.SERVER_ID, cytosisSettings.getServerConfig().getPort(), Instant.now(),
+            Cytosis.CONTEXT.getServerGroup().group()).serialize();
         // send it sync, so the connection doesn't get closed
         publish(Subjects.SERVER_SHUTDOWN, data);
     }
@@ -208,7 +231,7 @@ public class NatsManager implements Bootstrappable {
                 if (player.getUuid().equals(request.recipient())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(
-                            Msg.mm("<red>You declined ").append(sender).append(Msg.mm("<red>'s friend request!")));
+                        Msg.mm("<red>You declined ").append(sender).append(Msg.mm("<red>'s friend request!")));
                     player.sendMessage(FRIEND_LINE);
                 } else if (player.getUuid().equals(request.sender())) {
                     player.sendMessage(FRIEND_LINE);
@@ -236,7 +259,7 @@ public class NatsManager implements Bootstrappable {
                 if (player.getUuid().equals(request.recipient())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(
-                            Msg.mm("<aqua>You accepted ").append(sender).append(Msg.mm("<aqua>'s friend request!")));
+                        Msg.mm("<aqua>You accepted ").append(sender).append(Msg.mm("<aqua>'s friend request!")));
                     player.sendMessage(FRIEND_LINE);
 
                     // this server gets the authority to add them as a friend in the database
@@ -269,12 +292,12 @@ public class NatsManager implements Bootstrappable {
                 if (player.getUuid().equals(request.recipient())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(
-                            Msg.aqua("Your friend request from ").append(sender).append(Msg.aqua(" has expired!")));
+                        Msg.aqua("Your friend request from ").append(sender).append(Msg.aqua(" has expired!")));
                     player.sendMessage(FRIEND_LINE);
                 } else if (player.getUuid().equals(request.sender())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(
-                            Msg.aqua("Your friend request to ").append(target).append(Msg.aqua(" has expired!")));
+                        Msg.aqua("Your friend request to ").append(target).append(Msg.aqua(" has expired!")));
                     player.sendMessage(FRIEND_LINE);
                 }
             }
@@ -338,15 +361,15 @@ public class NatsManager implements Bootstrappable {
                 if (request.recipient().equals(player.getUuid())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(sender.append(
-                            Msg.mm("<aqua> sent you a friend request! You have 5 minutes to accept it! ").append(Msg.mm(
-                                    "<green><b><click:run_command:/friend accept " + request.sender()
-                                            + ">[Accept]</click></b></green> <red><b><click:run_command:/friend decline "
-                                            + request.sender() + ">[Decline]</click></b></red>"))));
+                        Msg.mm("<aqua> sent you a friend request! You have 5 minutes to accept it! ").append(Msg.mm(
+                            "<green><b><click:run_command:/friend accept " + request.sender()
+                                + ">[Accept]</click></b></green> <red><b><click:run_command:/friend decline "
+                                + request.sender() + ">[Decline]</click></b></red>"))));
                     player.sendMessage(FRIEND_LINE);
                 } else if (request.sender().equals(player.getUuid())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(Msg.mm("<aqua>You send a friend request to ").append(target)
-                            .append(Msg.mm("<aqua>! They have 5 minutes to accept it!")));
+                        .append(Msg.mm("<aqua>! They have 5 minutes to accept it!")));
                     player.sendMessage(FRIEND_LINE);
                 }
             }
@@ -372,7 +395,7 @@ public class NatsManager implements Bootstrappable {
                 } else if (player.getUuid().equals(tuple.getFirst())) {
                     player.sendMessage(FRIEND_LINE);
                     player.sendMessage(
-                            Msg.mm("<aqua>You removed ").append(target).append(Msg.mm(" from your friend list!")));
+                        Msg.mm("<aqua>You removed ").append(target).append(Msg.mm(" from your friend list!")));
                     player.sendMessage(FRIEND_LINE);
                 }
             }
@@ -392,8 +415,8 @@ public class NatsManager implements Bootstrappable {
                 }
                 if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
                     player.sendMessage(
-                            Msg.network("Server %s of type %s:%s has been started!", packet.id(), packet.group(),
-                                    packet.type()));
+                        Msg.network("Server %s of type %s:%s has been started!", packet.id(), packet.group(),
+                            packet.type()));
                 }
             });
         }).subscribe(Subjects.SERVER_REGISTER);
@@ -406,8 +429,8 @@ public class NatsManager implements Bootstrappable {
                 }
                 if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
                     player.sendMessage(
-                            Msg.network("Server %s of type %s:%s has been shut down!", packet.id(), packet.group(),
-                                    packet.type()));
+                        Msg.network("Server %s of type %s:%s has been shut down!", packet.id(), packet.group(),
+                            packet.type()));
                 }
             });
         }).subscribe(Subjects.SERVER_SHUTDOWN);
@@ -440,7 +463,7 @@ public class NatsManager implements Bootstrappable {
                         //todo: add permission to message people
                         if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
                             player.playSound(
-                                    Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                         }
                         player.sendMessage(component);
                         Cytosis.CONTEXT.getComponent(ChatManager.class).openPrivateMessage(player, message.sender());
@@ -461,10 +484,10 @@ public class NatsManager implements Bootstrappable {
             if (!chatChannel.isSupportsSelectiveRecipients()) {
                 Cytosis.getOnlinePlayers().forEach(player -> {
                     if (player.canUseChannel(chatChannel) && !player.getPreference(
-                            CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(chatChannel)) {
+                        CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(chatChannel)) {
                         if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
                             player.playSound(
-                                    Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
+                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                         }
                         player.sendMessage(component);
                     }
@@ -531,13 +554,13 @@ public class NatsManager implements Bootstrappable {
 
             if (response.code().equalsIgnoreCase("ALREADY_SENT")) {
                 p.sendMessage(Msg.whoops("You have already sent a friend request to ").append(recipient)
-                        .append(Msg.mm("<gray>!")));
+                    .append(Msg.mm("<gray>!")));
             } else {
                 p.sendMessage(Msg.serverError("Failed to send your friend request to ").append(recipient)
-                        .append(Msg.mm("<gray>! Error: " + response.message())));
+                    .append(Msg.mm("<gray>! Error: " + response.message())));
                 Logger.error(
-                        "Failed to send " + request.sender() + "'s friend request to " + request.recipient() + "!. Error: "
-                                + response.message() + " | Code: " + response.code());
+                    "Failed to send " + request.sender() + "'s friend request to " + request.recipient() + "!. Error: "
+                        + response.message() + " | Code: " + response.code());
             }
         });
     }
@@ -553,20 +576,20 @@ public class NatsManager implements Bootstrappable {
 
     public void acceptFriendRequest(UUID requestId) {
         request(Subjects.FRIEND_ACCEPT_BY_ID, new FriendResponse(requestId).serialize(),
-                (m, t) -> handleAccept(m.getData(), t, null, null));
+            (m, t) -> handleAccept(m.getData(), t, null, null));
     }
 
     public void acceptFriendRequest(UUID sender, UUID recipient) {
         request(Subjects.FRIEND_ACCEPT, new OrganicFriendResponse(sender, recipient).serialize(),
-                (m, t) -> handleAccept(m.getData(), t, recipient, sender));
+            (m, t) -> handleAccept(m.getData(), t, recipient, sender));
     }
 
     private void handleAccept(byte[] response, @Nullable Throwable throwable, @Nullable UUID recipient,
-                              @Nullable UUID sender) {
+        @Nullable UUID sender) {
         if (throwable != null) {
             if (recipient != null) {
                 Cytosis.getPlayer(recipient)
-                        .ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process your friend request!")));
+                    .ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process your friend request!")));
             }
             Logger.error("Internal error upon processing a friend acceptance.", throwable);
         }
@@ -581,33 +604,33 @@ public class NatsManager implements Bootstrappable {
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                    Msg.whoops("You don't have an active friend request from ").append(senderComp)
-                            .append(Msg.mm("<gray>!"))));
+                Msg.whoops("You don't have an active friend request from ").append(senderComp)
+                    .append(Msg.mm("<gray>!"))));
         }
 
         if (recipient != null) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                    Msg.serverError("Failed to process accepting your friend request: " + api.message())));
+                Msg.serverError("Failed to process accepting your friend request: " + api.message())));
         }
         Logger.info("Failed to accept friend request: " + api.code());
     }
 
     public void declineFriendRequest(UUID requestId) {
         request(Subjects.FRIEND_DECLINE_BY_ID, new FriendResponse(requestId).serialize(),
-                (m, t) -> handleDecline(m.getData(), t, null, null));
+            (m, t) -> handleDecline(m.getData(), t, null, null));
     }
 
     public void declineFriendRequest(UUID sender, UUID recipient) {
         request(Subjects.FRIEND_DECLINE, new OrganicFriendResponse(sender, recipient).serialize(),
-                (m, t) -> handleDecline(m.getData(), t, recipient, sender));
+            (m, t) -> handleDecline(m.getData(), t, recipient, sender));
     }
 
     private void handleDecline(byte[] response, @Nullable Throwable throwable, @Nullable UUID recipient,
-                               @Nullable UUID sender) {
+        @Nullable UUID sender) {
         if (throwable != null) {
             if (recipient != null) {
                 Cytosis.getPlayer(recipient).ifPresent(
-                        player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request!")));
+                    player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request!")));
             }
             Logger.error("Internal error upon proccessing a friend decline.", throwable);
         }
@@ -619,8 +642,8 @@ public class NatsManager implements Bootstrappable {
 
         if (api.message().equalsIgnoreCase("NOT_FOUND")) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                    Msg.whoops("You don't have an active friend request from ").append(senderComp)
-                            .append(Msg.mm("<gray>!"))));
+                Msg.whoops("You don't have an active friend request from ").append(senderComp)
+                    .append(Msg.mm("<gray>!"))));
         }
 
         if (api.success()) {
@@ -629,7 +652,7 @@ public class NatsManager implements Bootstrappable {
 
         if (recipient != null) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                    Msg.serverError("Failed to process declining your friend request: " + api.message())));
+                Msg.serverError("Failed to process declining your friend request: " + api.message())));
         }
         Logger.info("Failed to accept friend request: " + api.code());
     }
@@ -648,7 +671,7 @@ public class NatsManager implements Bootstrappable {
 
             try {
                 List<ServerStatusPacket> containers = Cytosis.GSON.fromJson(new String(m.getData()),
-                        Utils.SERVER_LIST);
+                    Utils.SERVER_LIST);
                 for (ServerStatusPacket container : containers) {
                     network.getServers().put(container.id(), container.server());
                     Logger.info("Loaded server '" + container.id() + "' from Cydian!");
@@ -682,7 +705,7 @@ public class NatsManager implements Bootstrappable {
      */
     public void kickPlayer(UUID player, KickReason reason, Component component) {
         PlayerKickPacket packet = new PlayerKickPacket(player, reason,
-                JSONComponentSerializer.json().serialize(component));
+            JSONComponentSerializer.json().serialize(component));
         publish(Subjects.PLAYER_KICK, packet.serialize());
     }
 
@@ -694,50 +717,50 @@ public class NatsManager implements Bootstrappable {
      */
     public void sendPlayerToServer(UUID player, CytonicServer server, @Nullable UUID instance) {
         request(Subjects.PLAYER_SEND,
-                new SendPlayerToServerPacket(player, server.id(), instance).serialize(),
-                (message, throwable) -> {
-                    if (Cytosis.getPlayer(player).isEmpty()) {
-                        return;
-                    }
-                    Player p = Cytosis.getPlayer(player).get();
-                    if (throwable != null) {
-                        p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", server.id()));
-                    }
+            new SendPlayerToServerPacket(player, server.id(), instance).serialize(),
+            (message, throwable) -> {
+                if (Cytosis.getPlayer(player).isEmpty()) {
+                    return;
+                }
+                Player p = Cytosis.getPlayer(player).get();
+                if (throwable != null) {
+                    p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", server.id()));
+                }
 
-                    ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
+                ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
 
-                    if (!response.success()) {
-                        p.sendMessage(
-                                Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(),
-                                        response.message()));
-                    } else {
-                        p.sendMessage(Msg.network("Sending you to %s!", server.id()));
-                    }
-                });
+                if (!response.success()) {
+                    p.sendMessage(
+                        Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", server.id(),
+                            response.message()));
+                } else {
+                    p.sendMessage(Msg.network("Sending you to %s!", server.id()));
+                }
+            });
     }
 
     public void sendPlayerToServer(UUID player, String serverID, @Nullable UUID instance) {
         request(Subjects.PLAYER_SEND,
-                new SendPlayerToServerPacket(player, serverID, instance).serialize(),
-                (message, throwable) -> {
-                    if (Cytosis.getPlayer(player).isEmpty()) {
-                        return;
-                    }
-                    Player p = Cytosis.getPlayer(player).get();
-                    if (throwable != null) {
-                        p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", serverID));
-                    }
+            new SendPlayerToServerPacket(player, serverID, instance).serialize(),
+            (message, throwable) -> {
+                if (Cytosis.getPlayer(player).isEmpty()) {
+                    return;
+                }
+                Player p = Cytosis.getPlayer(player).get();
+                if (throwable != null) {
+                    p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!", serverID));
+                }
 
-                    ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
+                ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
 
-                    if (!response.success()) {
-                        p.sendMessage(
-                                Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", serverID,
-                                        response.message()));
-                    } else {
-                        p.sendMessage(Msg.network("Sending you to %s!", serverID));
-                    }
-                });
+                if (!response.success()) {
+                    p.sendMessage(
+                        Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>", serverID,
+                            response.message()));
+                } else {
+                    p.sendMessage(Msg.network("Sending you to %s!", serverID));
+                }
+            });
     }
 
     public void sendPlayerRankUpdate(UUID uuid, PlayerRank rank) {
@@ -746,28 +769,28 @@ public class NatsManager implements Bootstrappable {
 
     public void sendPlayerToGenericServer(UUID player, String group, String id, @Nullable String displayname) {
         request(Subjects.PLAYER_SEND_GENERIC, new SendToServerTypePacket(player, group, id).serialize(),
-                (message, throwable) -> {
-                    if (Cytosis.getPlayer(player).isEmpty()) {
-                        return;
-                    }
-                    Player p = Cytosis.getPlayer(player).get();
-                    if (throwable != null) {
-                        p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!",
-                                displayname == null ? "the a server" : displayname));
-                        Logger.error("An error occured whilst sending " + player + " to a generic " + group + ":" + id
-                                + "! <red>(%s)</red>", throwable);
-                    }
+            (message, throwable) -> {
+                if (Cytosis.getPlayer(player).isEmpty()) {
+                    return;
+                }
+                Player p = Cytosis.getPlayer(player).get();
+                if (throwable != null) {
+                    p.sendMessage(Msg.serverError("An error occured whilst sending you to %s!",
+                        displayname == null ? "the a server" : displayname));
+                    Logger.error("An error occured whilst sending " + player + " to a generic " + group + ":" + id
+                        + "! <red>(%s)</red>", throwable);
+                }
 
-                    ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
+                ServerSendReponsePacket response = Packet.deserialize(message.getData(), ServerSendReponsePacket.class);
 
-                    if (!response.success()) {
-                        p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>",
-                                displayname == null ? "the a server" : displayname, response.message()));
-                    } else {
-                        p.sendMessage(
-                                Msg.network("Sending you to %s!", displayname == null ? "the a server" : displayname));
-                    }
-                });
+                if (!response.success()) {
+                    p.sendMessage(Msg.serverError("An error occured whilst sending you to %s! <red>(%s)</red>",
+                        displayname == null ? "the a server" : displayname, response.message()));
+                } else {
+                    p.sendMessage(
+                        Msg.network("Sending you to %s!", displayname == null ? "the a server" : displayname));
+                }
+            });
     }
 
     public void sendChatMessage(ChatMessage chatMessage) {

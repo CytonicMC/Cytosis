@@ -34,10 +34,12 @@ public class FileManager implements Bootstrappable {
             createConfigFile();
             GsonConfigurationLoader loader = Cytosis.GSON_CONFIGURATION_LOADER.file(CONFIG_PATH.toFile()).build();
             ConfigurationNode node = loader.load();
-            ConfigurationTransformation transformation = ConfigurationTransformation.builder().build();
+            ConfigurationTransformation.Versioned transformation = ConfigurationTransformation.versionedBuilder()
+                .addVersion(1, configurationNode -> configurationNode.node("version").set(0))
+                .build();
             transformation.apply(node);
             loader.save(node);
-            CytosisSettings.importConfig(node);
+            Cytosis.CONTEXT.registerComponent(node.get(CytosisSettings.class));
         } catch (Exception exception) {
             Logger.error("Failed to parse config file!", exception);
         }

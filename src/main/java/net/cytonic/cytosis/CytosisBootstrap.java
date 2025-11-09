@@ -1,10 +1,22 @@
 package net.cytonic.cytosis;
 
+import java.lang.reflect.Constructor;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewFrame;
+import net.minestom.server.Auth;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandManager;
+import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
+import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
+
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.events.EventHandler;
@@ -14,17 +26,6 @@ import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
-import net.minestom.server.Auth;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.command.CommandManager;
-import net.minestom.server.instance.InstanceManager;
-import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
-import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
-
-import java.lang.reflect.Constructor;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Main bootstrap class responsible for initializing and starting the Cytosis server. This class orchestrates the entire
@@ -96,9 +97,9 @@ public class CytosisBootstrap {
         loaders.addAll(PluginClassLoader.LOADERS);
 
         ClassGraph graph = new ClassGraph()
-                .acceptPackages("net.cytonic")
-                .enableAllInfo()
-                .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+            .acceptPackages("net.cytonic")
+            .enableAllInfo()
+            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         try (ScanResult result = graph.scan()) {
             result.getSubclasses(View.class).loadClasses().forEach(foundClass -> {
@@ -133,22 +134,21 @@ public class CytosisBootstrap {
         Logger.info("Initializing file manager");
         cytosisContext.registerComponent(new FileManager());
         Logger.info("Loading Cytosis Settings");
-        CytosisSettings.loadEnvironmentVariables();
-        CytosisSettings.loadCommandArgs();
     }
 
     /**
      * Initializes and configures the Minestom server components required for the application.
      */
     private void initMinestom() {
-        cytosisContext.registerComponent(MinecraftServer.init(new Auth.Velocity(CytosisSettings.SERVER_SECRET)));
+        cytosisContext.registerComponent(MinecraftServer.init(new Auth.Velocity(cytosisContext.getComponent(
+            CytosisSettings.class).getServerConfig().getSecret())));
         MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
         MinecraftServer.setBrandName("Cytosis");
         MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
 
         Logger.info("Starting instance managers.");
         InstanceManager minestomInstanceManager = cytosisContext.registerComponent(
-                MinecraftServer.getInstanceManager());
+            MinecraftServer.getInstanceManager());
         Logger.info("Starting connection manager.");
         cytosisContext.registerComponent(MinecraftServer.getConnectionManager());
         Logger.info("Starting command manager.");
@@ -168,16 +168,17 @@ public class CytosisBootstrap {
         BlockPlacementUtils.init();
         Logger.info("Adding a singed command packet handler");
         MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
-                MinecraftServer.getPacketListenerManager()
-                        .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(),
-                                p.getPlayerConnection().getConnectionState()));
+            MinecraftServer.getPacketListenerManager()
+                .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(),
+                    p.getPlayerConnection().getConnectionState()));
 
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
     }
 
     private void startServer() {
-        Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
-        cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", CytosisSettings.SERVER_PORT);
+        int port = cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getPort();
+        Logger.info("Server started on port " + port);
+        cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", port);
         MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception: ", e));
     }
 }

@@ -53,11 +53,12 @@ public class MysqlDatabase implements Bootstrappable {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
-        this.host = CytosisSettings.DATABASE_HOST;
-        this.port = CytosisSettings.DATABASE_PORT;
-        this.database = prefix + CytosisSettings.DATABASE_NAME;
-        this.username = CytosisSettings.DATABASE_USER;
-        this.password = CytosisSettings.DATABASE_PASSWORD;
+        CytosisSettings settings = Cytosis.CONTEXT.getComponent(CytosisSettings.class);
+        this.host = settings.getDatabaseConfig().getHost();
+        this.port = settings.getDatabaseConfig().getPort();
+        this.database = prefix + settings.getDatabaseConfig().getName();
+        this.username = settings.getDatabaseConfig().getUser();
+        this.password = settings.getDatabaseConfig().getPassword();
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -303,7 +304,8 @@ public class MysqlDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
+                    Cytosis.CONTEXT.getComponent(CytosisSettings.class)
+                        .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
                     future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");
@@ -339,7 +341,8 @@ public class MysqlDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    CytosisSettings.SERVER_SPAWN_POS = PosSerializer.deserialize(rs.getString("spawn_point"));
+                    Cytosis.CONTEXT.getComponent(CytosisSettings.class)
+                        .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
                     future.complete(world);
                 } else {
                     Logger.error("The result set is empty!");
