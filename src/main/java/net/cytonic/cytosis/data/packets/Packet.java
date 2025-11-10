@@ -2,8 +2,9 @@ package net.cytonic.cytosis.data.packets;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonParseException;
-import net.cytonic.cytosis.Cytosis;
 import org.jetbrains.annotations.NotNull;
+
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * Represents a packet that can be serialized and deserialized
