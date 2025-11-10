@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data.containers;
 
 import lombok.With;
+
 import net.cytonic.cytosis.data.enums.ChatChannel;
 
 @With
@@ -8,7 +9,7 @@ public record IgnoredChatChannelContainer(boolean all, boolean party, boolean le
                                           boolean staff) {
 
     public static final IgnoredChatChannelContainer NONE =
-            new IgnoredChatChannelContainer(false, false, false, false, false, false);
+        new IgnoredChatChannelContainer(false, false, false, false, false, false);
 
     public boolean getForChannel(ChatChannel channel) {
         return switch (channel) {
