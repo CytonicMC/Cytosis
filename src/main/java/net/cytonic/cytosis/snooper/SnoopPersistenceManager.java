@@ -1,22 +1,28 @@
 package net.cytonic.cytosis.snooper;
 
-import lombok.SneakyThrows;
-import net.cytonic.cytosis.data.MysqlDatabase;
-import net.cytonic.cytosis.logging.Logger;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.jetbrains.annotations.Nullable;
-import org.jooq.*;
-import org.jooq.Record;
-import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+
+import lombok.SneakyThrows;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jetbrains.annotations.Nullable;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.SelectConditionStep;
+import org.jooq.Table;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
+
+import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.logging.Logger;
 
 public class SnoopPersistenceManager {
 
@@ -72,7 +78,7 @@ public class SnoopPersistenceManager {
     }
 
     public CompletableFuture<List<QueriedSnoop>> query(String id, byte permission, @Nullable Instant start,
-                                                       @Nullable Instant end, boolean ascending, @Nullable String search) {
+        @Nullable Instant end, boolean ascending, @Nullable String search) {
         return CompletableFuture.supplyAsync(() -> {
             SelectConditionStep<Record> query = db.select().from(table)
                 .where(DSL.bitAnd(target, permission).ne((byte) 0))

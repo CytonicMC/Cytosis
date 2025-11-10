@@ -842,7 +842,6 @@ public class GlobalDatabase implements Bootstrappable {
         });
     }
 
-
     public record PunishmentEntry(UUID player, Instant expiry, String reason) {
 
     }

@@ -25,13 +25,11 @@ import net.cytonic.cytosis.logging.Logger;
 @CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
 public class RedisDatabase implements Bootstrappable {
 
-    private final String prefix;
-
     /**
      * Cached global cooldowns
      */
     public static final String GLOBAL_COOLDOWNS_KEY = "global_cooldowns";
-
+    private final String prefix;
     private final JedisPooled jedis;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
         .uncaughtExceptionHandler(
@@ -247,6 +245,5 @@ public class RedisDatabase implements Bootstrappable {
     public String getFromGlobalHash(String hash, String key) {
         return jedis.hget(hash, key);
     }
-
 
 }

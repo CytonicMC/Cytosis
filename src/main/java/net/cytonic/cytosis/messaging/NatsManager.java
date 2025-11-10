@@ -124,8 +124,8 @@ public class NatsManager implements Bootstrappable {
     public void setup() {
         NatsConfig natsConfig = cytosisSettings.getNatsConfig();
         Options options = Options.builder().server(
-                "nats://" + natsConfig.getUser() + ":" + natsConfig.getPassword() + "@"
-                    + natsConfig.getHost() + ":" + natsConfig.getPort())
+                "nats://" + CytosisSettings.NATS_USERNAME + ":" + CytosisSettings.NATS_PASSWORD + "@"
+                    + CytosisSettings.NATS_HOSTNAME + ":" + CytosisSettings.NATS_PORT)
             .connectionListener(setupConnectionListener()).errorListener(new ErrorListener() {
                 @Override
                 public void errorOccurred(Connection conn, String error) {
@@ -183,7 +183,7 @@ public class NatsManager implements Bootstrappable {
 
     public void sendStartup() {
         byte[] data = new ServerStatusPacket(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
-            CytosisContext.SERVER_ID, cytosisSettings.getServerConfig().getPort(), Instant.now(),
+            CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()).serialize();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
             try {
@@ -197,7 +197,7 @@ public class NatsManager implements Bootstrappable {
 
     public void sendShutdown() {
         byte[] data = new ServerStatusPacket(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
-            CytosisContext.SERVER_ID, cytosisSettings.getServerConfig().getPort(), Instant.now(),
+            CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()).serialize();
         // send it sync, so the connection doesn't get closed
         publish(Subjects.SERVER_SHUTDOWN, data);

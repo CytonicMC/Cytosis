@@ -180,8 +180,8 @@ public final class Cytosis {
             return;
         }
 
-        Logger.info("Loading world '%s'", worldName);
-        CONTEXT.getComponent(GlobalDatabase.class).getWorld(worldName)
+        Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
+        CONTEXT.getComponent(GlobalDatabase.class).getWorld(CytosisSettings.SERVER_WORLD_NAME)
             .whenComplete((polarWorld, throwable) -> {
                 if (throwable != null) {
                     Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",
