@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.minestom.server.event.trait.CancellableEvent;
+import net.minestom.server.event.trait.PlayerEvent;
 
 import net.cytonic.cytosis.npcs.Npc;
 import net.cytonic.cytosis.npcs.NpcAction;
@@ -14,7 +15,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 @SuppressWarnings("unused")
 @RequiredArgsConstructor
 @Getter
-public class NpcInteractEvent implements CancellableEvent {
+public class NpcInteractEvent implements CancellableEvent, PlayerEvent {
 
     private final Npc npc;
     private final CytosisPlayer player;
