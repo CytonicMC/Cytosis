@@ -5,7 +5,6 @@ plugins {
     `java-library`
     id("java")
     id("com.gradleup.shadow") version "9.2.2"
-    id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.1.0"
     id("checkstyle")
@@ -83,7 +82,7 @@ tasks.withType<Javadoc> {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
 
     val javadocOptions = options as CoreJavadocOptions
-    javadocOptions.addStringOption("source", "21")
+    javadocOptions.addStringOption("source", "25")
     javadocOptions.encoding = "UTF-8"
 }
 
