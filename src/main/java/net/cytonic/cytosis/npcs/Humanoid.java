@@ -23,7 +23,6 @@ import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import org.jetbrains.annotations.NotNull;
 
-import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Utils;
 
 /**
@@ -76,7 +75,6 @@ public class Humanoid extends EntityCreature implements Npc {
             null, 0, true);
         player.sendPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
         super.updateNewViewer(player);
-        player.sendPackets(MetadataPacketBuilder.empty(getEntityId()).setByte(17, (byte) 127).build());
 
         var team = new TeamsPacket("NPC-" + getUuid(),
             new TeamsPacket.CreateTeamAction(Component.empty(), (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
@@ -84,10 +82,10 @@ public class Humanoid extends EntityCreature implements Npc {
                 Utils.list(username)));
 
         player.sendPacket(team);
-        // glowing
-        if (glowing) {
-            super.editEntityMeta(PlayerMeta.class, meta -> meta.setHasGlowingEffect(true));
-        }
+        super.editEntityMeta(PlayerMeta.class, meta -> {
+            meta.setHasGlowingEffect(glowing);
+            meta.setDisplayedSkinParts((byte) 127);
+        });
     }
 
     @Override
