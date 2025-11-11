@@ -8,7 +8,7 @@ dependencydownload = "2.0.0"
 gson = "2.13.2"
 guava = "33.5.0-jre"
 jedis = "7.0.0"
-minestom = "2025.10.05-1.21.8"
+minestom = "2025.10.31-1.21.10"
 jnats = "2.24.0"
 jooq = "3.20.8"
 log4j = "2.25.2"
@@ -16,12 +16,13 @@ minestompvp = "-SNAPSHOT"
 mysql = "9.5.0"
 okhttp = "5.3.0"
 opentelemetry = "1.56.0"
-polar = "1.14.7"
+polar = "1.15.0"
 invui = "1.0-SNAPSHOT"
 anvilInput = "1.0-SNAPSHOT"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.4"
 mixin = "0.16.5+mixin.0.8.7"
+fastutil = "8.5.18"
 
 [libraries]
 minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
@@ -48,6 +49,7 @@ opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
 dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
 mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]

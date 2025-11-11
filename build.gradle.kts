@@ -43,6 +43,7 @@ dependencies {
     api(libs.jooq)
     api(libs.mixin)
     api(libs.minimessage)
+    api(libs.fastutil)
 
 
     // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
@@ -72,6 +73,7 @@ dependencies {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
     runtimeDownloadOnly(libs.mixin)
+    runtimeDownloadOnly(libs.fastutil)
 
     // Dependency loading
     implementation(libs.dependencydownload)
