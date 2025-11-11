@@ -7,14 +7,16 @@ import me.devnatan.inventoryframework.ViewType;
 import me.devnatan.inventoryframework.context.CloseContext;
 import me.devnatan.inventoryframework.context.RenderContext;
 import me.devnatan.inventoryframework.state.MutableState;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
-import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
+import net.cytonic.cytosis.utils.Msg;
+
 public class NicknameEntryMenu extends View {
+
     private final AnvilInput anvilInput = AnvilInput.createAnvilInput();
     private final MutableState<Boolean> intentionallyClosed = mutableState(false);
 
@@ -45,8 +47,8 @@ public class NicknameEntryMenu extends View {
             String input = anvilInput.get(slotClickContext);
             if (!checkValid(input)) {
                 slotClickContext.getPlayer().sendMessage(Msg.whoops("""
-                        Your nickname must be between 3 and 16 characters long, and\s
-                        only contain letters, numbers, and underscores."""));
+                    Your nickname must be between 3 and 16 characters long, and\s
+                    only contain letters, numbers, and underscores."""));
                 return;
             }
             intentionallyClosed.set(true, slotClickContext);

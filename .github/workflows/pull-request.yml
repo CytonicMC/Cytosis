@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '25'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -23,7 +23,7 @@ jobs:
         run: gradle --no-daemon javadoc
 
       - name: Upload jar as artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: cytosis
           path: build/libs/cytosis.jar
