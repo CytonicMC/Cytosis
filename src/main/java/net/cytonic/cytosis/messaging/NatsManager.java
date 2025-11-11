@@ -309,7 +309,7 @@ public class NatsManager implements Bootstrappable {
     }
 
     private void listenForCooldownUpdates() {
-        connection.createDispatcher().subscribe(Subjects.CHAT_BROADCAST, msg -> {
+        connection.createDispatcher().subscribe(Subjects.COOLDOWN_UPDATE, msg -> {
             CooldownUpdatePacket packet = Packet.deserialize(msg.getData(), CooldownUpdatePacket.class);
             NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
             if (packet.target() == CooldownUpdatePacket.CooldownTarget.PERSONAL) {
