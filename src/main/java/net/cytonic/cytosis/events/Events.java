@@ -8,6 +8,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoadedEvent;
+import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerPacketOutEvent;
 
@@ -27,8 +28,9 @@ import net.cytonic.cytosis.utils.events.PlayerJoinEventResponse;
 @SuppressWarnings({"unused", "UnstableApiUsage"})
 public class Events {
 
-    public static final List<Consumer<PlayerLeaveNetworkEvent>> NETWORK_LEAVE = new ArrayList<>();
-    public static final List<Consumer<PlayerJoinNetworkEvent>> NETWORK_JOIN = new ArrayList<>();
+    private static final List<Consumer<PlayerLeaveNetworkEvent>> NETWORK_LEAVE = new ArrayList<>();
+    private static final List<Consumer<PlayerJoinNetworkEvent>> NETWORK_JOIN = new ArrayList<>();
+    private static final List<Consumer<PlayerMoveEvent>> MOVE = new ArrayList<>();
     private static final List<Consumer<AsyncPlayerConfigurationEvent>> CONFIG = new ArrayList<>();
     private static final List<Consumer<PlayerLoadedEvent>> JOIN = new ArrayList<>();
     private static final List<Consumer<PlayerDisconnectEvent>> DISCONNECT = new ArrayList<>();
@@ -193,6 +195,10 @@ public class Events {
     public static void onNetworkLeave(Consumer<PlayerLeaveNetworkEvent> event) {
         NETWORK_LEAVE.add(event);
     }
+    
+    public static void onMove(Consumer<PlayerMoveEvent> consumer) {
+        MOVE.add(consumer);
+    }
 
     @Listener
     public void onEvent(final PlayerJoinNetworkEvent event) {
@@ -227,6 +233,11 @@ public class Events {
     @Listener
     private void onEvent(final PlayerPacketOutEvent event) {
         PACKET_OUT.forEach(consumer -> consumer.accept(event));
+    }
+
+    @Listener
+    private void onEvent(final PlayerMoveEvent event) {
+        MOVE.forEach(consumer -> consumer.accept(event));
     }
 
     @Listener
