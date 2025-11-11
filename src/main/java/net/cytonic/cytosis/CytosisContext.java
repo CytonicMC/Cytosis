@@ -158,7 +158,9 @@ public class CytosisContext {
     }
 
     public CytonicServer currentServer() {
-        return new CytonicServer(Utils.getServerIP(), SERVER_ID, CytosisSettings.SERVER_PORT, getServerGroup().type(),
+        return new CytonicServer(Utils.getServerIP(), SERVER_ID,
+            getComponent(CytosisSettings.class).getServerConfig().getPort(),
+            getServerGroup().type(),
             getServerGroup().group());
     }
 

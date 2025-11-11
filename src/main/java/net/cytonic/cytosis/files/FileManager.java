@@ -37,7 +37,7 @@ public class FileManager implements Bootstrappable {
             ConfigurationTransformation transformation = ConfigurationTransformation.builder().build();
             transformation.apply(node);
             loader.save(node);
-            CytosisSettings.importConfig(node);
+            Cytosis.CONTEXT.registerComponent(node.get(CytosisSettings.class));
         } catch (Exception exception) {
             Logger.error("Failed to parse config file!", exception);
         }

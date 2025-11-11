@@ -134,15 +134,14 @@ public class CytosisBootstrap {
         Logger.info("Initializing file manager");
         cytosisContext.registerComponent(new FileManager());
         Logger.info("Loading Cytosis Settings");
-        CytosisSettings.loadEnvironmentVariables();
-        CytosisSettings.loadCommandArgs();
     }
 
     /**
      * Initializes and configures the Minestom server components required for the application.
      */
     private void initMinestom() {
-        cytosisContext.registerComponent(MinecraftServer.init(new Auth.Velocity(CytosisSettings.SERVER_SECRET)));
+        cytosisContext.registerComponent(MinecraftServer.init(new Auth.Velocity(cytosisContext.getComponent(
+            CytosisSettings.class).getServerConfig().getSecret())));
         MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
         MinecraftServer.setBrandName("Cytosis");
         MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
@@ -177,8 +176,9 @@ public class CytosisBootstrap {
     }
 
     private void startServer() {
-        Logger.info("Server started on port " + CytosisSettings.SERVER_PORT);
-        cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", CytosisSettings.SERVER_PORT);
+        int port = cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getPort();
+        Logger.info("Server started on port " + port);
+        cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", port);
         MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception: ", e));
     }
 }

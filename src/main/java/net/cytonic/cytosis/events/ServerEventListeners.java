@@ -121,7 +121,8 @@ public final class ServerEventListeners {
         if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
             event.setSpawningInstance(Cytosis.CONTEXT.getComponent(InstanceContainer.class));
         }
-        player.setRespawnPoint(CytosisSettings.SERVER_SPAWN_POS);
+        player.setRespawnPoint(
+            Cytosis.CONTEXT.getComponent(CytosisSettings.class).getServerConfig().getSpawnPos());
 
         // load things as easily as possible
         Cytosis.CONTEXT.getComponent(FriendManager.class).loadFriends(player.getUuid());

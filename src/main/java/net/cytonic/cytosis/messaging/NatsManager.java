@@ -32,6 +32,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.KickReason;
@@ -80,6 +81,7 @@ public class NatsManager implements Bootstrappable {
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
+    private CytosisSettings cytosisSettings;
     private RankManager rankManager;
     private FriendManager friendManager;
     private PreferenceManager preferenceManager;
@@ -95,6 +97,7 @@ public class NatsManager implements Bootstrappable {
         this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
         this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
         this.globalDatabase = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        this.cytosisSettings = Cytosis.CONTEXT.getComponent(CytosisSettings.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
             setup();
@@ -119,9 +122,10 @@ public class NatsManager implements Bootstrappable {
 
     @SneakyThrows
     public void setup() {
+        NatsConfig natsConfig = cytosisSettings.getNatsConfig();
         Options options = Options.builder().server(
-                "nats://" + CytosisSettings.NATS_USERNAME + ":" + CytosisSettings.NATS_PASSWORD + "@"
-                    + CytosisSettings.NATS_HOSTNAME + ":" + CytosisSettings.NATS_PORT)
+                "nats://" + natsConfig.getUser() + ":" + natsConfig.getPassword() + "@"
+                    + natsConfig.getHost() + ":" + natsConfig.getPort())
             .connectionListener(setupConnectionListener()).errorListener(new ErrorListener() {
                 @Override
                 public void errorOccurred(Connection conn, String error) {
@@ -179,7 +183,7 @@ public class NatsManager implements Bootstrappable {
 
     public void sendStartup() {
         byte[] data = new ServerStatusPacket(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
-            CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
+            CytosisContext.SERVER_ID, cytosisSettings.getServerConfig().getPort(), Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()).serialize();
         Thread.ofVirtual().name("NATS Startup Publisher").start(() -> {
             try {
@@ -193,7 +197,7 @@ public class NatsManager implements Bootstrappable {
 
     public void sendShutdown() {
         byte[] data = new ServerStatusPacket(Cytosis.CONTEXT.getServerGroup().type(), Utils.getServerIP(),
-            CytosisContext.SERVER_ID, CytosisSettings.SERVER_PORT, Instant.now(),
+            CytosisContext.SERVER_ID, cytosisSettings.getServerConfig().getPort(), Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()).serialize();
         // send it sync, so the connection doesn't get closed
         publish(Subjects.SERVER_SHUTDOWN, data);

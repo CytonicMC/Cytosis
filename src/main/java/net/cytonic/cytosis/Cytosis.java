@@ -171,7 +171,8 @@ public final class Cytosis {
      */
     public static void loadWorld() {
         InstanceContainer defaultInstance = CONTEXT.getComponent(InstanceContainer.class);
-        if (CytosisSettings.SERVER_WORLD_NAME.isEmpty()) {
+        String worldName = CONTEXT.getComponent(CytosisSettings.class).getServerConfig().getWorldName();
+        if (worldName.isEmpty()) {
             Logger.info("Generating basic world");
             defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
             defaultInstance.setChunkSupplier(LightingChunk::new);
@@ -179,8 +180,8 @@ public final class Cytosis {
             return;
         }
 
-        Logger.info("Loading world '" + CytosisSettings.SERVER_WORLD_NAME + "'");
-        CONTEXT.getComponent(GlobalDatabase.class).getWorld(CytosisSettings.SERVER_WORLD_NAME)
+        Logger.info("Loading world '" + worldName + "'");
+        CONTEXT.getComponent(GlobalDatabase.class).getWorld(worldName)
             .whenComplete((polarWorld, throwable) -> {
                 if (throwable != null) {
                     Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",
