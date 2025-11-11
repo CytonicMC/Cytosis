@@ -169,8 +169,7 @@ public class CytosisBootstrap {
         Logger.info("Adding a singed command packet handler");
         MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
             MinecraftServer.getPacketListenerManager()
-                .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection(),
-                    p.getPlayerConnection().getConnectionState()));
+                .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection()));
 
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
     }

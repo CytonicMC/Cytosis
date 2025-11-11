@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
@@ -159,12 +158,12 @@ public class MetadataPacketBuilder {
     }
 
     public MetadataPacketBuilder setTextComponent(int index, Component value) {
-        entries.put(index, Metadata.Chat(value));
+        entries.put(index, Metadata.Component(value));
         return this;
     }
 
     public MetadataPacketBuilder setOptionalTextComponent(int index, Component value) {
-        entries.put(index, Metadata.OptChat(value));
+        entries.put(index, Metadata.OptComponent(value));
         return this;
     }
 
@@ -223,13 +222,8 @@ public class MetadataPacketBuilder {
     /**
      * @param value The value of the state in the block state registry!
      */
-    public MetadataPacketBuilder setOptionalBlockState(int index, Integer value) {
+    public MetadataPacketBuilder setOptionalBlockState(int index, Block value) {
         entries.put(index, Metadata.OptBlockState(value));
-        return this;
-    }
-
-    public MetadataPacketBuilder setNbt(int index, BinaryTag value) {
-        entries.put(index, Metadata.NBT(value));
         return this;
     }
 

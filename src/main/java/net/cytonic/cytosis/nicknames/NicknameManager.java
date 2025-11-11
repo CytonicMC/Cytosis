@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.kyori.adventure.text.Component;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
@@ -126,9 +127,8 @@ public class NicknameManager implements Bootstrappable {
         }
 
         target.sendPackets(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
-            new SpawnEntityPacket(player.getEntityId(), masked, EntityType.PLAYER.id(), player.getPosition(),
-                player.getPosition()
-                    .yaw(), 0, (short) 0, (short) 0, (short) 0),
+            new SpawnEntityPacket(player.getEntityId(), masked, EntityType.PLAYER, player.getPosition(),
+                player.getPosition().yaw(), 0, Vec.ZERO),
             MetadataPacketBuilder.builder(player.getMetadataPacket())
                 .setByte(17, (byte) 127)
                 .build());
@@ -171,9 +171,9 @@ public class NicknameManager implements Bootstrappable {
             // remove the old player info and entity
             viewer.sendPackets(new PlayerInfoRemovePacket(masked), new DestroyEntitiesPacket(player.getEntityId()));
             viewer.sendPackets(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
-                new SpawnEntityPacket(player.getEntityId(), player.getUuid(), EntityType.PLAYER.id(),
+                new SpawnEntityPacket(player.getEntityId(), player.getUuid(), EntityType.PLAYER,
                     player.getPosition(), player.getPosition()
-                    .yaw(), 0, (short) 0, (short) 0, (short) 0),
+                    .yaw(), 0, Vec.ZERO),
                 MetadataPacketBuilder.builder(player.getMetadataPacket())
                     .setByte(17, (byte) 127)
                     .build());

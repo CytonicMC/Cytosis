@@ -15,7 +15,7 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
-import net.minestom.server.entity.metadata.PlayerMeta;
+import net.minestom.server.entity.metadata.avatar.PlayerMeta;
 import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
