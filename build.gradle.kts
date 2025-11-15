@@ -4,10 +4,10 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.gradleup.shadow") version "8.3.7"
-    id("com.github.harbby.gradle.serviceloader") version ("1.1.9")
-    id("dev.vankka.dependencydownload.plugin") version "1.3.1"
-    id("io.freefair.lombok") version "8.14"
+    id("com.gradleup.shadow") version "9.2.2"
+    id("dev.vankka.dependencydownload.plugin") version "2.0.0"
+    id("io.freefair.lombok") version "9.1.0"
+    id("checkstyle")
 }
 
 group = "net.cytonic"
@@ -15,9 +15,14 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
+    maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
+        content { // This filtering is optional, but recommended
+            includeModule("net.minestom", "minestom")
+            includeModule("net.minestom", "testing")
+        }
+    }
 }
 
 dependencies {
@@ -30,13 +35,15 @@ dependencies {
     api(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
-    api(libs.stomui) {
-        exclude(group = "net.minestom", module = "minestom-snapshots")
-    }
+    api(libs.invui)
+    api(libs.anvilInput)
     api(libs.configurate)
     api(libs.classgraph)
     api(libs.jnats)
     api(libs.jooq)
+    api(libs.mixin)
+    api(libs.minimessage)
+    api(libs.fastutil)
 
 
     // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
@@ -58,14 +65,15 @@ dependencies {
     runtimeDownloadOnly(libs.polar)
     runtimeDownloadOnly(libs.jedis)
     runtimeDownloadOnly(libs.guava)
-    runtimeDownloadOnly(libs.stomui) {
-        exclude(group = "net.minestom", module = "minestom-snapshots")
-    }
+    runtimeDownloadOnly(libs.invui)
+    runtimeDownloadOnly(libs.anvilInput)
     runtimeDownloadOnly(libs.configurate)
     runtimeDownloadOnly(libs.classgraph)
     runtimeDownloadOnly(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom-snapshots")
     }
+    runtimeDownloadOnly(libs.mixin)
+    runtimeDownloadOnly(libs.fastutil)
 
     // Dependency loading
     implementation(libs.dependencydownload)
@@ -76,7 +84,7 @@ tasks.withType<Javadoc> {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
 
     val javadocOptions = options as CoreJavadocOptions
-    javadocOptions.addStringOption("source", "21")
+    javadocOptions.addStringOption("source", "25")
     javadocOptions.encoding = "UTF-8"
 }
 
@@ -96,11 +104,14 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
             """
             package net.cytonic.cytosis.utils;
             
+            /**
+            * Holds information on the current build of Cytosis. This code is auto-generated at build.
+            */
             public class BuildInfo {
                 public static final String BUILD_VERSION = "${project.version}";
                 public static final String GIT_COMMIT = "${"git rev-parse HEAD".runCommand()}";
                 public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
-                public static final boolean DEPENDENCIES_BUNDLED=${bundled};
+                public static final boolean DEPENDENCIES_BUNDLED = ${bundled};
             }
             """.trimIndent()
         )
@@ -126,8 +137,13 @@ tasks.register("thinJar") {
 }
 
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
+    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
 
     mergeServiceFiles()
     archiveFileName.set("cytosis.jar")
@@ -167,6 +183,7 @@ thinShadow.configure {
 }
 
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
+    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
@@ -312,10 +329,63 @@ tasks.withType<Zip> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.withType<ShadowJar> {
+    // prevents issues with security exceptions
+    exclude("META-INF/**/*.SF")
+    exclude("META-INF/**/*.DSA")
+    exclude("META-INF/**/*.RSA")
+}
+
 java {
     withSourcesJar()
     withJavadocJar()
 
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+// Checkstyle configuration
+checkstyle {
+    toolVersion = "12.1.2"
+    configFile = file("${rootDir}/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+    maxErrors = 0
+}
+
+tasks.withType<Checkstyle>().configureEach {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(file("$projectDir/build/reports/checkstyle/${name}.html"))
+    }
+
+    // Always generate reports, even on failure
+    isIgnoreFailures = true
+}
+
+// Configure checkstyle tasks
+tasks.named<Checkstyle>("checkstyleMain") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.named<Checkstyle>("checkstyleTest") {
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+// Make check task depend on checkstyle
+tasks.named("check") {
+    dependsOn("checkstyleMain", "checkstyleTest")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 }
 

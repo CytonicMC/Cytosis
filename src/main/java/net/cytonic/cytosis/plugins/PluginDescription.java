@@ -1,17 +1,18 @@
 package net.cytonic.cytosis.plugins;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import lombok.Getter;
-import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
-
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import javax.annotation.Nullable;
+import lombok.Getter;
+
+import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,7 +31,8 @@ public class PluginDescription {
     private final Map<String, PluginDependency> dependencies;
     private final Path source;
 
-    public PluginDescription(String id, @Nullable String name, @Nullable String version, @Nullable String description, @Nullable List<String> authors, Collection<PluginDependency> dependencies, Path source) {
+    public PluginDescription(String id, @Nullable String name, @Nullable String version, @Nullable String description,
+        @Nullable List<String> authors, Collection<PluginDependency> dependencies, Path source) {
         this.id = checkNotNull(id, "id");
         this.name = Strings.emptyToNull(name);
         this.version = Strings.emptyToNull(version);
@@ -66,14 +68,8 @@ public class PluginDescription {
 
     @Override
     public String toString() {
-        return "VelocityPluginDescription{"
-                + "id='" + id + '\''
-                + ", name='" + name + '\''
-                + ", version='" + version + '\''
-                + ", description='" + description + '\''
-                + ", authors=" + authors
-                + ", dependencies=" + dependencies
-                + ", source=" + source
-                + '}';
+        return "VelocityPluginDescription{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", version='" + version
+            + '\'' + ", description='" + description + '\'' + ", authors=" + authors + ", dependencies=" + dependencies
+            + ", source=" + source + '}';
     }
 }

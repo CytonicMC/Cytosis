@@ -2,11 +2,12 @@ package net.cytonic.cytosis.data.objects.preferences;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.Nullable;
+
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.utils.Utils;
-import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -30,13 +31,15 @@ public class JsonPreference<T> extends NamespacedPreference<T> {
         super(namespaceID, value);
     }
 
-    public JsonPreference(Key namespaceID, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer, JsonPreferenceDeserializer<T> deserializer) {
+    public JsonPreference(Key namespaceID, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer,
+        JsonPreferenceDeserializer<T> deserializer) {
         super(namespaceID, type, value);
         this.serializer = serializer;
         this.deserializer = deserializer;
     }
 
-    public JsonPreference(TypedNamespace<T> namespaceID, @Nullable T value, JsonPreferenceSerializer<T> serializer, JsonPreferenceDeserializer<T> deserializer) {
+    public JsonPreference(TypedNamespace<T> namespaceID, @Nullable T value, JsonPreferenceSerializer<T> serializer,
+        JsonPreferenceDeserializer<T> deserializer) {
         super(namespaceID, value);
         this.serializer = serializer;
         this.deserializer = deserializer;

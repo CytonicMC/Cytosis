@@ -1,18 +1,20 @@
 package net.cytonic.cytosis.plugins.annotations;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import lombok.Getter;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import javax.annotation.Nullable;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+
 @Getter
 public class SerializedDescription {
+
     public static final Pattern ID_PATTERN = Pattern.compile("[a-z][a-z0-9-_]{0,63}");
 
     // @Nullable is used here to make GSON skip these in the serialized file
@@ -24,7 +26,8 @@ public class SerializedDescription {
     private final @Nullable List<Dependency> dependencies;
     private final String main;
 
-    private SerializedDescription(String id, String name, String version, String description, List<String> authors, List<Dependency> dependencies, String main) {
+    private SerializedDescription(String id, String name, String version, String description, List<String> authors,
+        List<Dependency> dependencies, String main) {
         Preconditions.checkNotNull(id, "id");
         Preconditions.checkArgument(ID_PATTERN.matcher(id).matches(), "id is not valid");
         this.id = id;
@@ -41,7 +44,13 @@ public class SerializedDescription {
         for (net.cytonic.cytosis.plugins.annotations.Dependency dependency : plugin.dependencies()) {
             dependencies.add(new Dependency(dependency.id(), dependency.optional()));
         }
-        return new SerializedDescription(plugin.name(), plugin.name(), plugin.version(), plugin.description(), List.of(plugin.authors()), dependencies, qualifiedName);
+        return new SerializedDescription(plugin.name(), plugin.name(), plugin.version(), plugin.description(),
+            List.of(plugin.authors()), dependencies, qualifiedName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, version, description, authors, dependencies);
     }
 
     @Override
@@ -53,38 +62,29 @@ public class SerializedDescription {
             return false;
         }
         SerializedDescription that = (SerializedDescription) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(version, that.version) && Objects.equals(description, that.description) && Objects.equals(authors, that.authors) && Objects.equals(dependencies, that.dependencies) && Objects.equals(main, that.main);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, version, description, authors, dependencies);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(version, that.version)
+            && Objects.equals(description, that.description) && Objects.equals(authors, that.authors) && Objects.equals(
+            dependencies, that.dependencies) && Objects.equals(main, that.main);
     }
 
     @Override
     public String toString() {
-        return "SerializedPluginDescription{"
-                + "id='" + id + '\''
-                + ", name='" + name + '\''
-                + ", version='" + version + '\''
-                + ", description='" + description + '\''
-                + ", authors=" + authors
-                + ", dependencies=" + dependencies
-                + ", main='" + main + '\''
-                + '}';
+        return "SerializedPluginDescription{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", version='" + version
+            + '\'' + ", description='" + description + '\'' + ", authors=" + authors + ", dependencies=" + dependencies
+            + ", main='" + main + '\'' + '}';
     }
 
     /**
      * Represents a dependency.
+     *
+     * @param optional If the plugin can be loaded without this dependency
+     * @param id       the ID of the plugin that is depended on
      */
     public record Dependency(String id, boolean optional) {
 
         @Override
-        public String toString() {
-            return "Dependency{"
-                    + "id='" + id + '\''
-                    + ", optional=" + optional
-                    + '}';
+        public @NotNull String toString() {
+            return "Dependency{" + "id='" + id + '\'' + ", optional=" + optional + '}';
         }
     }
 }

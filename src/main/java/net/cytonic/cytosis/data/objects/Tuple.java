@@ -1,12 +1,13 @@
 package net.cytonic.cytosis.data.objects;
 
+import java.util.Objects;
+import java.util.UUID;
+
 import com.google.gson.reflect.TypeToken;
-import net.cytonic.cytosis.Cytosis;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.UUID;
+import net.cytonic.cytosis.Cytosis;
 
 /**
  * A class that holds a tuple (Two things)
@@ -16,6 +17,7 @@ import java.util.UUID;
  * @author Foxikle
  */
 public class Tuple<F, S> {
+
     /**
      * A {@link TypeToken} for {@link Tuple} holding two {@link UUID}s
      */
@@ -72,6 +74,18 @@ public class Tuple<F, S> {
     }
 
     /**
+     * Hashes this object
+     *
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(first);
+        result = 31 * result + Objects.hashCode(second);
+        return result;
+    }
+
+    /**
      * Tests if this touple is equal to another
      *
      * @param o the other object
@@ -93,18 +107,6 @@ public class Tuple<F, S> {
         }
 
         return Objects.equals(second, pair.second);
-    }
-
-    /**
-     * Hashes this object
-     *
-     * @return the hash code
-     */
-    @Override
-    public int hashCode() {
-        int result = Objects.hashCode(first);
-        result = 31 * result + Objects.hashCode(second);
-        return result;
     }
 
     /**
@@ -132,7 +134,7 @@ public class Tuple<F, S> {
      * @return the first object
      */
     public F getFirst() {
-        return (F) first;
+        return first;
     }
 
     /**
@@ -141,6 +143,6 @@ public class Tuple<F, S> {
      * @return the second object
      */
     public S getSecond() {
-        return (S) second;
+        return second;
     }
 }

@@ -1,40 +1,44 @@
 package net.cytonic.cytosis.npcs;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import lombok.Setter;
-import net.cytonic.cytosis.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.*;
-import net.minestom.server.entity.metadata.PlayerMeta;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityCreature;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerSkin;
+import net.minestom.server.entity.metadata.avatar.PlayerMeta;
 import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import net.cytonic.cytosis.utils.Utils;
 
 /**
- * A class representing a Player NPC. To create one use the builder methods in {@link NPC}
+ * A class representing a Player NPC. To create one use the builder methods in {@link Npc}
  */
 @SuppressWarnings("UnstableApiUsage")
-public class Humanoid extends EntityCreature implements NPC {
+public class Humanoid extends EntityCreature implements Npc {
 
     private final String username;
-    private final List<NPCAction> actions = new ArrayList<>();
+    private final List<NpcAction> actions = new ArrayList<>();
+    private final boolean damagable = false;
     private List<Component> lines = new ArrayList<>();
     @Setter
     private PlayerSkin skin;
     private boolean glowing = false;
     private NamedTextColor glowingColor = NamedTextColor.WHITE;
-    private boolean damagable = false;
 
     /**
      * Creates a new Humanoid from uuid, username, and skin
@@ -56,7 +60,7 @@ public class Humanoid extends EntityCreature implements NPC {
      */
     public Humanoid(UUID uuid) {
         super(EntityType.PLAYER, uuid);
-        this.username = "npc-" + uuid.toString().substring(0, 12) + "";
+        this.username = "npc-" + uuid.toString().substring(0, 12);
         this.skin = null;
     }
 
@@ -67,23 +71,21 @@ public class Humanoid extends EntityCreature implements NPC {
         if (skin.textures() != null && skin.signature() != null) {
             properties.add(new PlayerInfoUpdatePacket.Property("textures", skin.textures(), skin.signature()));
         }
-        var entry = new PlayerInfoUpdatePacket.Entry(getUuid(), username, properties, false,
-                0, GameMode.SURVIVAL, null, null, 0);
+        var entry = new PlayerInfoUpdatePacket.Entry(getUuid(), username, properties, false, 0, GameMode.SURVIVAL, null,
+            null, 0, true);
         player.sendPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
         super.updateNewViewer(player);
-        player.sendPackets(new EntityMetaDataPacket(getEntityId(), Map.of(17, Metadata.Byte((byte) 127))));
 
         var team = new TeamsPacket("NPC-" + getUuid(),
-                new TeamsPacket.CreateTeamAction(Component.empty(),
-                        (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
-                        TeamsPacket.CollisionRule.NEVER, glowingColor,
-                        Component.empty(), Component.empty(), Utils.list(username)));
+            new TeamsPacket.CreateTeamAction(Component.empty(), (byte) 0x0, TeamsPacket.NameTagVisibility.NEVER,
+                TeamsPacket.CollisionRule.NEVER, glowingColor, Component.empty(), Component.empty(),
+                Utils.list(username)));
 
         player.sendPacket(team);
-        // glowing
-        if (glowing) {
-            super.editEntityMeta(PlayerMeta.class, meta -> meta.setHasGlowingEffect(true));
-        }
+        super.editEntityMeta(PlayerMeta.class, meta -> {
+            meta.setHasGlowingEffect(glowing);
+            meta.setDisplayedSkinParts((byte) 127);
+        });
     }
 
     @Override
@@ -98,23 +100,22 @@ public class Humanoid extends EntityCreature implements NPC {
     }
 
     @Override
+    public UUID getUuid() {
+        return super.getUuid();
+    }
+
+    @Override
     public void update(long time) {
         super.update(time);
     }
 
     @Override
-    public void addAction(NPCAction action) {
+    public void addAction(NpcAction action) {
         actions.add(action);
     }
 
     @Override
-    public void setGlowing(NamedTextColor color) {
-        glowing = true;
-        glowingColor = color;
-    }
-
-    @Override
-    public List<NPCAction> getActions() {
+    public List<NpcAction> getActions() {
         return actions;
     }
 
@@ -131,13 +132,14 @@ public class Humanoid extends EntityCreature implements NPC {
     }
 
     @Override
-    public NamedTextColor getGlowingColor() {
-        return glowingColor;
+    public void setGlowing(NamedTextColor color) {
+        glowing = true;
+        glowingColor = color;
     }
 
     @Override
-    public UUID getUUID() {
-        return super.getUuid();
+    public NamedTextColor getGlowingColor() {
+        return glowingColor;
     }
 
     @Override
@@ -154,7 +156,6 @@ public class Humanoid extends EntityCreature implements NPC {
                 meta.setHasNoGravity(true);
                 meta.setTranslation(new Vec(0, ((finalI + 1) * spacing), 0));
             });
-
 
             hologram.setInstance(instance, pos);
             addPassenger(hologram);

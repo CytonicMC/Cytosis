@@ -1,12 +1,11 @@
 package net.cytonic.cytosis.data.adapters;
 
+import java.io.IOException;
+import java.time.Instant;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
-import java.time.Instant;
 
 public class InstantAdapter extends TypeAdapter<Instant> {
 
@@ -23,8 +22,8 @@ public class InstantAdapter extends TypeAdapter<Instant> {
     }
 
     /**
-     * Reads one JSON value (an array, object, string, number, boolean or null) and converts it to a
-     * Java object. Returns the converted object.
+     * Reads one JSON value (an array, object, string, number, boolean or null) and converts it to a Java object.
+     * Returns the converted object.
      *
      * @param in
      * @return the converted Java object. May be {@code null}.

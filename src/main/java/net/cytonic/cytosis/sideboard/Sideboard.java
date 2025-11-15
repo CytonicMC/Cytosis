@@ -1,4 +1,5 @@
 package net.cytonic.cytosis.sideboard;
+
 /*
  * This file is part of FastBoard, licensed under the MIT License.
  *
@@ -23,17 +24,27 @@ package net.cytonic.cytosis.sideboard;
  * SOFTWARE.
  */
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.ServerPacket;
-import net.minestom.server.network.packet.server.play.*;
+import net.minestom.server.network.packet.server.play.DisplayScoreboardPacket;
+import net.minestom.server.network.packet.server.play.ResetScorePacket;
+import net.minestom.server.network.packet.server.play.ScoreboardObjectivePacket;
+import net.minestom.server.network.packet.server.play.TeamsPacket;
+import net.minestom.server.network.packet.server.play.UpdateScorePacket;
 import net.minestom.server.scoreboard.Sidebar;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This class holds the data about player sideboards (Scoreboards)
@@ -41,13 +52,15 @@ import java.util.concurrent.ThreadLocalRandom;
 @SuppressWarnings("unused")
 @Getter
 public class Sideboard {
+
     private final Player player;
     private final String id;
     private final List<Component> scores = new ArrayList<>();
     private final List<Component> lines = new ArrayList<>();
+    private final String[] objective = new String[]{"\u00A70", "\u00A71", "\u00A72", "\u00A73", "\u00A74", "\u00A75",
+        "\u00A76", "\u00A77", "\u00A78", "\u00A79", "\u00A7a", "\u00A7b", "\u00A7c", "\u00A7d", "\u00A7e", "\u00A7f"};
     private Component title = emptyLine();
     private boolean deleted = false;
-    String[] objective = new String[]{"\u00A70", "\u00A71", "\u00A72", "\u00A73", "\u00A74", "\u00A75", "\u00A76", "\u00A77", "\u00A78", "\u00A79", "\u00A7a", "\u00A7b", "\u00A7c", "\u00A7d", "\u00A7e", "\u00A7f"};
 
     /**
      * Creates a new Sideboard.
@@ -63,15 +76,50 @@ public class Sideboard {
     }
 
     /**
+     * Sends the objective packet
+     *
+     * @param mode with the mode
+     */
+    public void sendObjectivePacket(ObjectiveMode mode) {
+
+        ScoreboardObjectivePacket packet;
+        switch (mode.ordinal()) {
+            case 0 -> packet = new ScoreboardObjectivePacket(this.id, (byte) 0, this.title,
+                ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
+            case 1 -> packet = new ScoreboardObjectivePacket(this.id, (byte) 1, this.title,
+                ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
+            case 2 -> packet = new ScoreboardObjectivePacket(this.id, (byte) 2, this.title,
+                ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
+            default -> throw new IllegalArgumentException("Invalid mode: " + mode);
+        }
+
+        sendPacket(packet);
+    }
+
+    /**
+     * Sends a packet to display the objective
+     */
+    public void sendDisplayObjectivePacket() {
+        sendPacket(new DisplayScoreboardPacket((byte) 1, this.id));
+    }
+
+    private void sendPacket(ServerPacket packet) {
+        if (this.deleted) {
+            throw new IllegalStateException("This Sideboard has been deleted");
+        }
+        if (this.player.isOnline()) {
+            player.sendPacket(packet);
+        }
+    }
+
+    /**
      * Update the scoreboard title.
      *
      * @param title the new scoreboard title
      * @throws IllegalStateException if {@link #delete()} was called before
      */
     public void updateTitle(@NotNull Component title) {
-        if (this.title.equals(Objects.requireNonNull(title, "title"))) {
-            return;
-        }
+        if (this.title.equals(Objects.requireNonNull(title, "title"))) return;
 
         this.title = title;
         sendObjectivePacket(ObjectiveMode.UPDATE);
@@ -98,6 +146,20 @@ public class Sideboard {
         return this.lines.get(line);
     }
 
+    private void checkLineNumber(int line, boolean checkInRange, boolean checkMax) {
+        if (line < 0) {
+            throw new IllegalArgumentException("Line number must be positive");
+        }
+
+        if (checkInRange && line >= this.lines.size()) {
+            throw new IllegalArgumentException("Line number must be under " + this.lines.size());
+        }
+
+        if (checkMax && line >= 16) {
+            throw new IllegalArgumentException("Line number is too high: " + line);
+        }
+    }
+
     /**
      * Get how a specific line's score is displayed. On 1.20.2 or below, the value returned isn't used.
      *
@@ -122,8 +184,8 @@ public class Sideboard {
     }
 
     /**
-     * Update a single scoreboard line including how its score is displayed.
-     * The score will only be displayed on 1.20.3 and higher.
+     * Update a single scoreboard line including how its score is displayed. The score will only be displayed on 1.20.3
+     * and higher.
      *
      * @param line      the line number
      * @param text      the new line text
@@ -165,9 +227,7 @@ public class Sideboard {
     public synchronized void removeLine(int line) {
         checkLineNumber(line, false, false);
 
-        if (line >= size()) {
-            return;
-        }
+        if (line >= size()) return;
 
         List<Component> newLines = new ArrayList<>(this.lines);
         List<Component> newScores = new ArrayList<>(this.scores);
@@ -199,8 +259,8 @@ public class Sideboard {
     }
 
     /**
-     * Update the lines and how their score is displayed on the scoreboard.
-     * The scores will only be displayed for servers on 1.20.3 and higher.
+     * Update the lines and how their score is displayed on the scoreboard. The scores will only be displayed for
+     * servers on 1.20.3 and higher.
      *
      * @param lines  the new scoreboard lines
      * @param scores the set for how each line's score should be, if null will fall back to default (blank)
@@ -253,8 +313,19 @@ public class Sideboard {
     }
 
     /**
-     * Update how a specified line's score is displayed on the scoreboard. A null value will reset the displayed
-     * text back to default. The scores will only be displayed for servers on 1.20.3 and higher.
+     * Reset a line's score back to default (blank). The score will only be displayed for servers on 1.20.3 and higher.
+     *
+     * @param line the line number
+     * @throws IllegalArgumentException if the line number is not in range
+     * @throws IllegalStateException    if {@link #delete()} was call before
+     */
+    public synchronized void removeScore(int line) {
+        updateScore(line, null);
+    }
+
+    /**
+     * Update how a specified line's score is displayed on the scoreboard. A null value will reset the displayed text
+     * back to default. The scores will only be displayed for servers on 1.20.3 and higher.
      *
      * @param line the line number
      * @param text the text to be displayed as the score. if null, no score will be displayed
@@ -268,19 +339,47 @@ public class Sideboard {
     }
 
     /**
-     * Reset a line's score back to default (blank). The score will only be displayed for servers on 1.20.3 and higher.
+     * Sends a score packet
      *
-     * @param line the line number
-     * @throws IllegalArgumentException if the line number is not in range
-     * @throws IllegalStateException    if {@link #delete()} was call before
+     * @param score  The score
+     * @param action the action
      */
-    public synchronized void removeScore(int line) {
-        updateScore(line, null);
+    public void sendScorePacket(int score, ScoreboardAction action) {
+        sendModernScorePacket(score, action);
     }
 
     /**
-     * Update how all lines' scores are displayed. A value of null will reset the displayed text back to default.
-     * The scores will only be displayed for servers on 1.20.3 and higher.
+     * Gets a score from a line by number
+     *
+     * @param line the line
+     * @return the score
+     */
+    public int getScoreByLine(int line) {
+        return this.lines.size() - line - 1;
+    }
+
+    /**
+     * Sends a score packet
+     *
+     * @param score  The score
+     * @param action the action
+     */
+    private void sendModernScorePacket(int score, ScoreboardAction action) {
+        String objName = objective[score];
+
+        ServerPacket packet;
+
+        if (action == ScoreboardAction.REMOVE) {
+            packet = new ResetScorePacket(objName, this.id);
+        } else {
+            packet = new UpdateScorePacket(objName, this.id, score, null, Sidebar.NumberFormat.blank());
+        }
+        sendPacket(packet);
+    }
+
+    /**
+     * Update how all lines' scores are displayed. A value of null will reset the displayed text back to default. The
+     * scores will only be displayed for servers on 1.20.3 and higher.
      *
      * @param texts the set of texts to be displayed as the scores
      * @throws IllegalArgumentException if the size of the texts does not match the current size of the board
@@ -291,8 +390,8 @@ public class Sideboard {
     }
 
     /**
-     * Update how all lines' scores are displayed.  A null value will reset the displayed
-     * text back to default (blank). Only available on 1.20.3+ servers.
+     * Update how all lines' scores are displayed.  A null value will reset the displayed text back to default (blank).
+     * Only available on 1.20.3+ servers.
      *
      * @param texts the set of texts to be displayed as the scores
      * @throws IllegalArgumentException if the size of the texts does not match the current size of the board
@@ -326,8 +425,8 @@ public class Sideboard {
     }
 
     /**
-     * Delete this FastBoard, and will remove the scoreboard for the associated player if he is online.
-     * After this, all uses of {@link #updateLines} and {@link #updateTitle} will throw an {@link IllegalStateException}
+     * Delete this FastBoard, and will remove the scoreboard for the associated player if he is online. After this, all
+     * uses of {@link #updateLines} and {@link #updateTitle} will throw an {@link IllegalStateException}
      *
      * @throws IllegalStateException if this was already called before
      */
@@ -339,127 +438,6 @@ public class Sideboard {
 
         sendObjectivePacket(ObjectiveMode.REMOVE);
         this.deleted = true;
-    }
-
-    /**
-     * Send a line change packet
-     *
-     * @param score the score to change
-     */
-    public void sendLineChange(int score) {
-        Component line = getLineByScore(score);
-        sendTeamPacket(score, TeamMode.UPDATE, line, Component.empty());
-    }
-
-    /**
-     * Get an empty line
-     *
-     * @return an empty line
-     */
-    public Component emptyLine() {
-        return Component.empty();
-    }
-
-    private void checkLineNumber(int line, boolean checkInRange, boolean checkMax) {
-        if (line < 0) {
-            throw new IllegalArgumentException("Line number must be positive");
-        }
-
-        if (checkInRange && line >= this.lines.size()) {
-            throw new IllegalArgumentException("Line number must be under " + this.lines.size());
-        }
-
-        if (checkMax && line >= 16) {
-            throw new IllegalArgumentException("Line number is too high: " + line);
-        }
-    }
-
-    /**
-     * Gets a score from a line by number
-     *
-     * @param line the line
-     * @return the score
-     */
-    public int getScoreByLine(int line) {
-        return this.lines.size() - line - 1;
-    }
-
-    /**
-     * Gets a line by the score number
-     *
-     * @param score The score
-     * @return The line by the score
-     */
-    public Component getLineByScore(int score) {
-        return getLineByScore(this.lines, score);
-    }
-
-    /**
-     * gets a line by score
-     *
-     * @param lines The existing lines
-     * @param score The score
-     * @return The Line
-     */
-    public Component getLineByScore(List<Component> lines, int score) {
-        return score < lines.size() ? lines.get(lines.size() - score - 1) : null;
-    }
-
-    /**
-     * Sends the objective packet
-     *
-     * @param mode with the mode
-     */
-    public void sendObjectivePacket(ObjectiveMode mode) {
-
-        ScoreboardObjectivePacket packet;
-        switch (mode.ordinal()) {
-            case 0 ->
-                    packet = new ScoreboardObjectivePacket(this.id, (byte) 0, this.title, ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
-            case 1 ->
-                    packet = new ScoreboardObjectivePacket(this.id, (byte) 1, this.title, ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
-            case 2 ->
-                    packet = new ScoreboardObjectivePacket(this.id, (byte) 2, this.title, ScoreboardObjectivePacket.Type.INTEGER, Sidebar.NumberFormat.blank());
-            default -> throw new IllegalArgumentException("Invalid mode: " + mode);
-        }
-
-        sendPacket(packet);
-    }
-
-    /**
-     * Sends a packet to display the objective
-     */
-    public void sendDisplayObjectivePacket() {
-        sendPacket(new DisplayScoreboardPacket((byte) 1, this.id));
-    }
-
-    /**
-     * Sends a score packet
-     *
-     * @param score  The score
-     * @param action the action
-     */
-    public void sendScorePacket(int score, ScoreboardAction action) {
-        sendModernScorePacket(score, action);
-    }
-
-    /**
-     * Sends a score packet
-     *
-     * @param score  The score
-     * @param action the action
-     */
-    private void sendModernScorePacket(int score, ScoreboardAction action) {
-        String objName = objective[score];
-
-        ServerPacket packet;
-
-        if (action == ScoreboardAction.REMOVE) {
-            packet = new ResetScorePacket(objName, this.id);
-        } else {
-            packet = new UpdateScorePacket(objName, this.id, score, null, Sidebar.NumberFormat.blank());
-        }
-        sendPacket(packet);
     }
 
     /**
@@ -481,14 +459,18 @@ public class Sideboard {
      * @param suffix the suffix
      */
     public void sendTeamPacket(int score, TeamMode mode, Component prefix, Component suffix) {
-        if (mode == TeamMode.ADD_PLAYERS || mode == TeamMode.REMOVE_PLAYERS) throw new UnsupportedOperationException();
+        if (mode == TeamMode.ADD_PLAYERS || mode == TeamMode.REMOVE_PLAYERS) {
+            throw new UnsupportedOperationException();
+        }
         TeamsPacket.Action action;
 
         switch (mode) {
-            case CREATE ->
-                    action = new TeamsPacket.CreateTeamAction(Component.empty(), (byte) 2, TeamsPacket.NameTagVisibility.ALWAYS, TeamsPacket.CollisionRule.ALWAYS, NamedTextColor.WHITE, prefix, suffix, List.of(objective[score]));
-            case UPDATE ->
-                    action = new TeamsPacket.UpdateTeamAction(Component.empty(), (byte) 2, TeamsPacket.NameTagVisibility.ALWAYS, TeamsPacket.CollisionRule.ALWAYS, NamedTextColor.WHITE, prefix, suffix);
+            case CREATE -> action = new TeamsPacket.CreateTeamAction(Component.empty(), (byte) 2,
+                TeamsPacket.NameTagVisibility.ALWAYS, TeamsPacket.CollisionRule.ALWAYS, NamedTextColor.WHITE, prefix,
+                suffix, List.of(objective[score]));
+            case UPDATE -> action = new TeamsPacket.UpdateTeamAction(Component.empty(), (byte) 2,
+                TeamsPacket.NameTagVisibility.ALWAYS, TeamsPacket.CollisionRule.ALWAYS, NamedTextColor.WHITE, prefix,
+                suffix);
             case REMOVE -> action = new TeamsPacket.RemoveTeamAction();
             case null, default -> throw new UnsupportedOperationException();
         }
@@ -496,9 +478,44 @@ public class Sideboard {
         sendPacket(new TeamsPacket(this.id + ':' + score, action));
     }
 
-    private void sendPacket(ServerPacket packet) {
-        if (this.deleted) throw new IllegalStateException("This Sideboard has been deleted");
-        if (this.player.isOnline()) player.sendPacket(packet);
+    /**
+     * Send a line change packet
+     *
+     * @param score the score to change
+     */
+    public void sendLineChange(int score) {
+        Component line = getLineByScore(score);
+        sendTeamPacket(score, TeamMode.UPDATE, line, Component.empty());
+    }
+
+    /**
+     * Get an empty line
+     *
+     * @return an empty line
+     */
+    public Component emptyLine() {
+        return Component.empty();
+    }
+
+    /**
+     * Gets a line by the score number
+     *
+     * @param score The score
+     * @return The line by the score
+     */
+    public Component getLineByScore(int score) {
+        return getLineByScore(this.lines, score);
+    }
+
+    /**
+     * gets a line by score
+     *
+     * @param lines The existing lines
+     * @param score The score
+     * @return The Line
+     */
+    public Component getLineByScore(List<Component> lines, int score) {
+        return score < lines.size() ? lines.get(lines.size() - score - 1) : null;
     }
 
     /**

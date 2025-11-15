@@ -1,35 +1,38 @@
 package net.cytonic.cytosis.commands.moderation;
 
+import java.util.UUID;
+
+import net.kyori.adventure.text.Component;
+import net.minestom.server.command.builder.arguments.ArgumentStringArray;
+import net.minestom.server.command.builder.arguments.ArgumentType;
+
+import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-
-import java.util.UUID;
-
 
 public class KickCommand extends CytosisCommand {
 
     public KickCommand() {
         super("kick");
         setCondition(CommandUtils.IS_MODERATOR);
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /kick <player> [reason]")));
-        var reasonArg = ArgumentType.StringArray("reason");
+        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.red("Usage: /kick <player> [reason]")));
+        ArgumentStringArray reasonArg = ArgumentType.StringArray("reason");
         reasonArg.setDefaultValue(new String[]{"No", "reason", "specified."});
-
 
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer actor) {
                 if (!actor.isModerator()) {
-                    actor.sendMessage(Msg.mm("<red>You don't have permission to use this command!"));
+                    actor.sendMessage(Msg.red("You don't have permission to use this command!"));
                     return;
                 }
                 final String player = context.get(CommandUtils.NETWORK_PLAYERS);
@@ -41,7 +44,7 @@ public class KickCommand extends CytosisCommand {
                     return;
                 }
 
-                PlayerRank rank = Cytosis.getCytonicNetwork().getCachedPlayerRanks().get(uuid);
+                PlayerRank rank = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
                 if (rank == null) {
                     sender.sendMessage(Msg.whoops("Failed to fine %s's rank!", player));
                     return;
@@ -52,9 +55,14 @@ public class KickCommand extends CytosisCommand {
                     return;
                 }
 
-                Component snoop = actor.formattedName().append(Msg.mm("<gray> kicked ")).append(SnoopUtils.toTarget(uuid)).append(Msg.mm("<gray> for <yellow>" + reason + "</yellow>."));
-                Cytosis.getSnooperManager().sendSnoop(CytosisSnoops.PLAYER_KICK, SnoopUtils.toSnoop(snoop));
-                Cytosis.getNatsManager().kickPlayer(uuid, KickReason.COMMAND, Msg.mm("\n<red>You have been kicked. \n<aqua>Reason: " + reason));
+                Component snoop = actor.formattedName().append(Msg.grey("kicked "))
+                    .append(SnoopUtils.toTarget(uuid))
+                    .append(Msg.grey("for <yellow>" + reason + "</yellow>."));
+                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                    .sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
+                Cytosis.CONTEXT.getComponent(NatsManager.class)
+                    .kickPlayer(uuid, KickReason.COMMAND,
+                        Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason));
 
             }
         }, CommandUtils.NETWORK_PLAYERS, reasonArg);

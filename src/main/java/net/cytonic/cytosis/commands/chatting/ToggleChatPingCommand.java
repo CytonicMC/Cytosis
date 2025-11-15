@@ -6,6 +6,7 @@ import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
 
 public class ToggleChatPingCommand extends CytosisCommand {
+
     public ToggleChatPingCommand() {
         super("togglechatping");
 

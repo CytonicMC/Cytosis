@@ -1,15 +1,21 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.utils.CommandUtils;
-import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.menus.snooper.SnooperProvider;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
+import com.google.common.collect.ImmutableMap;
+import me.devnatan.inventoryframework.ViewFrame;
 import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.utils.CommandUtils;
+import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.snooper.DateRange;
+import net.cytonic.cytosis.snooper.SnooperMenu;
+import net.cytonic.cytosis.utils.Msg;
+
 public class SnooperAuditCommand extends CytosisCommand {
+
     public SnooperAuditCommand() {
         super("audit");
 
@@ -26,8 +32,9 @@ public class SnooperAuditCommand extends CytosisCommand {
         addSyntax((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = c.get(SnooperCommand.CHANNELS);
-            if (!Cytosis.getSnooperManager().getAllChannels(player).contains(rawChannel)) {
-                player.sendMessage(Msg.whoops("The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
+            if (!Cytosis.CONTEXT.getComponent(SnooperManager.class).getAllChannels(player).contains(rawChannel)) {
+                player.sendMessage(Msg.whoops(
+                    "The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;
             }
 
@@ -42,8 +49,16 @@ public class SnooperAuditCommand extends CytosisCommand {
                 ascending = false;
             }
 
-            new SnooperProvider(rawChannel, searchFor, ascending).open(player);
-
+            Cytosis.CONTEXT
+                .getComponent(ViewFrame.class)
+                .open(
+                    SnooperMenu.class,
+                    player,
+                    ImmutableMap.of(
+                        "id", rawChannel,
+                        "search", searchFor,
+                        "ascending", ascending,
+                        "date", DateRange.SEVEN_DAYS));
         }, SnooperCommand.CHANNELS, search);
     }
 }

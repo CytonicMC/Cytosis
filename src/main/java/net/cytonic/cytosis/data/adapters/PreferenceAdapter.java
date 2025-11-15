@@ -1,25 +1,31 @@
 package net.cytonic.cytosis.data.adapters;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.*;
 import net.kyori.adventure.key.Key;
 
-import java.io.IOException;
-import java.util.UUID;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.objects.TypedNamespace;
+import net.cytonic.cytosis.data.objects.preferences.FallbackPreference;
+import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
+import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
+import net.cytonic.cytosis.managers.PreferenceManager;
 
 /**
- * A type adapter for {@link Preference}, allow Gson to serialize and deserialize it easily.
- * The stored syntax is as follows: {@code {"namespace":"cytosis:some_namespace","value:"some value. Not required to be a string, but many are."}}
+ * A type adapter for {@link Preference}, allow Gson to serialize and deserialize it easily. The stored syntax is as
+ * follows:
+ * {@code {"namespace":"cytosis:some_namespace","value:"some value. Not required to be a string, but many are."}}
  *
  * @param <T> The type of the preference
  */
@@ -60,82 +66,91 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
             default -> {
                 if (pref instanceof JsonPreference<?> json) {
                     out.value(json.serialize());
-                } else
-                    throw new UnsupportedOperationException("Unsupported type: " + value.value().getClass().getName() + " for preference type " + pref.getClass().getSimpleName());
+                } else {
+                    throw new UnsupportedOperationException("Unsupported type: " + value.value().getClass()
+                        .getName() + " for preference type " + pref.getClass()
+                        .getSimpleName());
+                }
             }
         }
 
         out.endObject();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Preference<T> read(JsonReader in) throws IOException {
-        in.beginObject();
-
         Object value = null;
         String rawID = null;
 
+        in.beginObject();
         while (in.hasNext()) {
             String name = in.nextName();
             if (name.equals("value")) {
-                if (in.peek() == JsonToken.NULL) {
-                    in.nextNull();
-                } else if (in.peek() == JsonToken.STRING) {
-                    value = in.nextString();
-                } else if (in.peek() == JsonToken.NUMBER) {
-                    value = in.nextDouble();  // Use nextDouble() for general number handling
-                } else if (in.peek() == JsonToken.BOOLEAN) {
-                    value = in.nextBoolean();
-                }
+                value = readValue(in);
             } else if (name.equals("id")) {
                 rawID = in.nextString();
-            } else in.skipValue();
+            } else {
+                in.skipValue();
+            }
         }
-
         in.endObject();
 
-        if (rawID == null) throw new JsonParseException("Preference deserialization failed: No group found");
+        if (rawID == null) {
+            throw new JsonParseException("Preference deserialization failed: No group found");
+        }
 
         Key id = Key.key(rawID);
+        Class<T> type = (Class<T>) Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+            .getPreferenceRegistry()
+            .getTypeFromNamespace(id);
 
-        // the easist and fastest way
-        Class<T> type = (Class<T>) Cytosis.getPreferenceManager().getPreferenceRegistry().getTypeFromNamespace(id);
-        PreferenceRegistry.Entry<T> preference;
-        try {
-            preference = Cytosis.getPreferenceManager().getPreferenceRegistry().get(new TypedNamespace<>(id, type));
-        } catch (IllegalArgumentException e) {
-            // Create a FallbackPreference instead of returning null
-            return new FallbackPreference<>(new TypedNamespace<>(id, (Class<T>) String.class), String.valueOf(value));
-        }
+        return buildPreference(id, type, value);
+    }
 
-        if (preference.preference() instanceof JsonPreference<T> json) {
-            if (value == null) {
-                // this is fine
-                return new JsonPreference<>(id, type, null);
+    private Object readValue(JsonReader in) throws IOException {
+        return switch (in.peek()) {
+            case NULL -> {
+                in.nextNull();
+                yield null;
             }
-            return new JsonPreference<>(id, type, json.deserialize(value.toString())); // should already be a string....
+            case STRING -> in.nextString();
+            case NUMBER -> in.nextDouble();
+            case BOOLEAN -> in.nextBoolean();
+            default -> {
+                in.skipValue();
+                yield null;
+            }
+        };
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Preference<T> buildPreference(Key id, Class<T> type, Object value) {
+        try {
+            PreferenceRegistry.Entry<T> preference = Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+                .getPreferenceRegistry()
+                .get(new TypedNamespace<>(id, type));
+
+            if (preference.preference() instanceof JsonPreference<T> json) {
+                return new JsonPreference<>(id, type,
+                    value == null ? null : json.deserialize(value.toString()));
+            }
+        } catch (IllegalArgumentException e) {
+            return new FallbackPreference<>(new TypedNamespace<>(id, (Class<T>) String.class),
+                String.valueOf(value));
         }
 
-        // Convert value to the correct type if it's not null
-        if (type == UUID.class && value != null) {
-            assert value instanceof String;
-            value = UUID.fromString((String) value);
-        } else if (type.isEnum() && value != null) {
-            assert value instanceof String;
-            value = Enum.valueOf((Class<Enum>) type, (String) value);
-        } else if (type == Boolean.class && value != null) {
-            if (value instanceof String s) {          // legacy data: "true"/"false"
+        if (value != null) {
+            if (type == UUID.class) {
+                value = UUID.fromString((String) value);
+            } else if (type.isEnum()) {
+                value = Enum.valueOf((Class<Enum>) type, (String) value);
+            } else if (type == Boolean.class && value instanceof String s) {
                 value = Boolean.valueOf(s);
-            } else if (value instanceof Boolean) {    // current data: true/false
-                // already the correct type – do nothing
-            } else throw new JsonParseException("Expected boolean or string, got " + value.getClass());
+            }
         }
-        TypedNamespace<T> tn = new TypedNamespace<>(id, type);
-        return new NamespacedPreference<>(tn, type.cast(value));
+
+        return new NamespacedPreference<>(new TypedNamespace<>(id, type), type.cast(value));
     }
 
     /**

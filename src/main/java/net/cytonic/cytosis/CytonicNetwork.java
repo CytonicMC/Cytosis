@@ -1,32 +1,41 @@
 package net.cytonic.cytosis;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import net.cytonic.cytosis.data.MysqlDatabase;
-import net.cytonic.cytosis.data.RedisDatabase;
-import net.cytonic.cytosis.data.containers.servers.PlayerChangeServerContainer;
-import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.BanData;
-import net.cytonic.cytosis.data.objects.BiMap;
-import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.logging.Logger;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.GlobalDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase.PlayerEntry;
+import net.cytonic.cytosis.data.GlobalDatabase.PunishmentEntry;
+import net.cytonic.cytosis.data.RedisDatabase;
+import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.BanData;
+import net.cytonic.cytosis.data.objects.BiMap;
+import net.cytonic.cytosis.data.objects.CytonicServer;
+import net.cytonic.cytosis.data.packets.servers.PlayerChangeServerPacket;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.utils.Utils;
+
 
 /**
  * A class that holds data about the status of the Cytonic network
  */
 @Getter
 @NoArgsConstructor
-public class CytonicNetwork {
+@CytosisComponent(dependsOn = {RankManager.class, RedisDatabase.class, GlobalDatabase.class})
+public class CytonicNetwork implements Bootstrappable {
+
     private final BiMap<UUID, String> lifetimePlayers = new BiMap<>();
     private final BiMap<UUID, String> lifetimeFlattened = new BiMap<>(); // uuid, lowercased name
-    private final Map<UUID, PlayerRank> cachedPlayerRanks = new ConcurrentHashMap<>(); // <player, rank> ** This is for reference and should not be used to set data **
+    //          ** This is for reference and should not be used to set data **
+    private final Map<UUID, PlayerRank> cachedPlayerRanks = new ConcurrentHashMap<>(); // <player, rank>
     private final BiMap<UUID, String> onlinePlayers = new BiMap<>();
     private final BiMap<UUID, String> onlineFlattened = new BiMap<>(); // uuid, lowercased name
     private final Map<String, CytonicServer> servers = new ConcurrentHashMap<>(); // online servers
@@ -34,96 +43,22 @@ public class CytonicNetwork {
     private final Map<UUID, BanData> bannedPlayers = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> mutedPlayers = new ConcurrentHashMap<>();
 
-    /**
-     * Imports data from Redis and Cydian
-     */
-    public void importData() {
-        Cytosis.getNatsManager().fetchServers();
-        RedisDatabase redis = Cytosis.getDatabaseManager().getRedisDatabase();
-        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
-        onlinePlayers.clear();
-        onlineFlattened.clear();
-        servers.clear();
-        networkPlayersOnServers.clear();
+    private CytosisContext cytosisContext;
+    private GlobalDatabase gdb;
 
-        redis.getHash("online_players").forEach((rawUUID, name) -> {
-            UUID uuid = UUID.fromString(rawUUID);
-            onlinePlayers.put(uuid, name);
-            onlineFlattened.put(uuid, name.toLowerCase());
-        });
-
-        redis.getHash("player_servers").forEach((id, server) -> networkPlayersOnServers.put(UUID.fromString(id), server));
-
-
-        PreparedStatement players = db.prepare("SELECT * FROM cytonic_players");
-        db.query(players).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading players!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    lifetimePlayers.put(UUID.fromString(rs.getString("uuid")), rs.getString("name"));
-                    lifetimeFlattened.put(UUID.fromString(rs.getString("uuid")), rs.getString("name").toLowerCase());
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading players!", e);
-            }
-        });
-
-        PreparedStatement ranks = db.prepare("SELECT * FROM cytonic_ranks");
-        db.query(ranks).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading ranks!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    cachedPlayerRanks.put(UUID.fromString(rs.getString("uuid")), PlayerRank.valueOf(rs.getString("rank_id")));
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading ranks!", e);
-            }
-        });
-
-        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans");
-        db.query(bans).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading bans!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    Instant expiry = Instant.parse(rs.getString("to_expire"));
-                    if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unbanPlayer(UUID.fromString(rs.getString("uuid")));
-                    } else {
-                        BanData banData = new BanData(rs.getString("reason"), expiry, true);
-                        bannedPlayers.put(UUID.fromString(rs.getString("uuid")), banData);
-                    }
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading bans!", e);
-            }
-        });
-
-        PreparedStatement mutes = db.prepare("SELECT * FROM cytonic_mutes");
-        db.query(mutes).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading mutes!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    Instant expiry = Instant.parse(rs.getString("to_expire"));
-                    if (expiry.isBefore(Instant.now())) {
-                        Cytosis.getDatabaseManager().getMysqlDatabase().unmutePlayer(UUID.fromString(rs.getString("uuid")));
-                    } else mutedPlayers.put(UUID.fromString(rs.getString("uuid")), true);
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading mutes!", e);
-            }
-        });
+    @Override
+    public void init() {
+        this.cytosisContext = Cytosis.CONTEXT;
+        this.gdb = cytosisContext.getComponent(GlobalDatabase.class);
+        importData();
+        getServers()
+            .put(CytosisContext.SERVER_ID,
+                new CytonicServer(Utils.getServerIP(),
+                    CytosisContext.SERVER_ID,
+                    cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getPort(),
+                    cytosisContext.getServerGroup().type(),
+                    cytosisContext.getServerGroup().group())
+            );
     }
 
     /**
@@ -140,72 +75,24 @@ public class CytonicNetwork {
         // the player has not played before
         cachedPlayerRanks.putIfAbsent(uuid, PlayerRank.DEFAULT);
 
-        MysqlDatabase db = Cytosis.getDatabaseManager().getMysqlDatabase();
-
-        PreparedStatement rank = db.prepare("SELECT * FROM cytonic_ranks WHERE uuid = ?");
-        try {
-            rank.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            // this is a problem, and an error should 100% be thrown here and interrrupt something
-            throw new RuntimeException(e);
-        }
-
-
-        // update it to see if the player's rank changed since the server started
-        db.query(rank).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
+        gdb.getPlayerRank(uuid).thenAccept(playerRank -> {
+                cachedPlayerRanks.put(uuid, playerRank);
+                cytosisContext.getComponent(RedisDatabase.class)
+                    .addToGlobalHash("player_ranks", uuid.toString(), playerRank.name());
+            })
+            .exceptionally((throwable) -> {
                 Logger.error("An error occurred whilst loading ranks!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    cachedPlayerRanks.put(uuid, PlayerRank.valueOf(rs.getString("rank_id")));
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading ranks!", e);
-            }
+                return null;
+            });
+
+        gdb.isBanned(uuid).thenAccept(banData -> bannedPlayers.put(uuid, banData)).exceptionally(throwable -> {
+            Logger.error("An error occurred whilst loading bans!", throwable);
+            return null;
         });
 
-        PreparedStatement bans = db.prepare("SELECT * FROM cytonic_bans WHERE uuid = ?");
-        try {
-            bans.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            // this is a problem, and an error should 100% be thrown here and interrrupt something
-            throw new RuntimeException(e);
-        }
-        db.query(bans).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading bans!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    bannedPlayers.put(uuid, new BanData(rs.getString("reason"), Instant.parse(rs.getString("to_expire")), true));
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException("An error occurred whilst loading bans!", e);
-            }
-        });
-
-        PreparedStatement muted = db.prepare("SELECT * FROM cytonic_mutes WHERE uuid = ?");
-        try {
-            muted.setString(1, uuid.toString());
-        } catch (SQLException e) {
-            // this is a problem, and an error should 100% be thrown here and interrrupt something
-            throw new RuntimeException(e);
-        }
-        db.query(muted).whenComplete((rs, throwable) -> {
-            if (throwable != null) {
-                Logger.error("An error occurred whilst loading mutes!", throwable);
-                return;
-            }
-            try {
-                while (rs.next()) {
-                    mutedPlayers.put(uuid, true);
-                }
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst loading mutes!", e);
-            }
+        gdb.isMuted(uuid).thenAccept(aBoolean -> mutedPlayers.put(uuid, aBoolean)).exceptionally(throwable -> {
+            Logger.error("An error occurred whilst loading mutes!", throwable);
+            return null;
         });
     }
 
@@ -247,8 +134,63 @@ public class CytonicNetwork {
      *
      * @param container The container received over NATS or some message broker
      */
-    public void processPlayerServerChange(PlayerChangeServerContainer container) {
+    public void processPlayerServerChange(PlayerChangeServerPacket container) {
         networkPlayersOnServers.remove(container.player());
         networkPlayersOnServers.put(container.player(), container.newServer());
+    }
+
+    /**
+     * Imports data from Redis and Cydian
+     */
+    public void importData() {
+        RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
+        onlinePlayers.clear();
+        onlineFlattened.clear();
+        servers.clear();
+        networkPlayersOnServers.clear();
+
+        redis.getHash("online_players").forEach((rawuuid, name) -> {
+            UUID uuid = UUID.fromString(rawuuid);
+            onlinePlayers.put(uuid, name);
+            onlineFlattened.put(uuid, name.toLowerCase());
+        });
+
+        redis.getHash("player_servers")
+            .forEach((id, server) -> networkPlayersOnServers.put(UUID.fromString(id), server));
+
+        importPlayers();
+        importBans();
+        importMutes();
+    }
+
+    private void importPlayers() {
+        for (PlayerEntry p : gdb.loadPlayers()) {
+            lifetimePlayers.put(p.uuid(), p.username());
+            lifetimeFlattened.put(p.uuid(), p.username().toLowerCase());
+            cachedPlayerRanks.put(p.uuid(), p.rank());
+        }
+    }
+
+    private void importBans() {
+        for (PunishmentEntry pe : gdb.loadBans()) {
+            if (pe.expiry().isBefore(Instant.now())) {
+                this.gdb.unbanPlayer(pe.player());
+                RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
+                redis.removeFromGlobalHash("banned_players", pe.player().toString());
+            } else {
+                BanData banData = new BanData(pe.reason(), pe.expiry(), true);
+                bannedPlayers.put(pe.player(), banData);
+            }
+        }
+    }
+
+    private void importMutes() {
+        for (PunishmentEntry pe : gdb.loadMutes()) {
+            if (pe.expiry().isBefore(Instant.now())) {
+                this.gdb.unmutePlayer(pe.player());
+            } else {
+                mutedPlayers.put(pe.player(), true);
+            }
+        }
     }
 }

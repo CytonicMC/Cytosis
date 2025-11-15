@@ -1,14 +1,16 @@
 package net.cytonic.cytosis.sideboard;
 
-import net.cytonic.cytosis.player.CytosisPlayer;
+import java.util.List;
+
 import net.kyori.adventure.text.Component;
 
-import java.util.List;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 /**
  * An interface for creating sideboards.
  */
 public interface SideboardCreator {
+
     /**
      * Creates the sideboard for the player
      *
@@ -19,6 +21,7 @@ public interface SideboardCreator {
 
     /**
      * A method to create the lines for the sideboard
+     *
      * @param player The player
      * @return The list of components
      */
@@ -26,6 +29,7 @@ public interface SideboardCreator {
 
     /**
      * Creates the title for the sideboard
+     *
      * @param player The player
      * @return The title in Component form
      */

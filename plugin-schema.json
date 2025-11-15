@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cytosis Plugin Schema",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "description",
+    "authors",
+    "dependencies",
+    "main"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-_]{0,63}$",
+      "description": "The id of the plugin"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the plugin"
+    },
+    "version": {
+      "type": "string",
+      "description": "The version of the plugin"
+    },
+    "description": {
+      "type": "string",
+      "description": "A short description of the plugin"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "The list of authors"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-_]{0,63}$"
+      },
+      "description": "List of plugin IDs this plugin depends on"
+    },
+    "main": {
+      "type": "string",
+      "description": "The main class of the plugin"
+    }
+  }
+}

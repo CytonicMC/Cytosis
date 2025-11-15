@@ -11,6 +11,7 @@ import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 @Getter
 @Setter
 public class PlayerListEntry {
+
     private Component name;
     private PlayerInfoUpdatePacket.Property favicon;
     private int priority;
@@ -30,7 +31,8 @@ public class PlayerListEntry {
 
     /**
      * Creates a new player list entry with the favicon set to {@link PlayerListFavicon#GREY}
-     * @param name The name of the entry
+     *
+     * @param name     The name of the entry
      * @param priority The ordering of the entry
      */
     public PlayerListEntry(Component name, int priority) {
@@ -44,7 +46,8 @@ public class PlayerListEntry {
      *
      * @param name     The name of the entry
      * @param priority The ordering of the entry
-     * @param favicon  Effectively the {@link PlayerListFavicon} of the entry, but its a {@link PlayerInfoUpdatePacket.Property}
+     * @param favicon  Effectively the {@link PlayerListFavicon} of the entry, but its a
+     *                 {@link PlayerInfoUpdatePacket.Property}
      */
     public PlayerListEntry(Component name, int priority, PlayerInfoUpdatePacket.Property favicon) {
         this.name = name;
@@ -54,7 +57,8 @@ public class PlayerListEntry {
 
     /**
      * Creates a new player list entry with the favicon set to {@link PlayerListFavicon#GREY}
-     * @param name The name of the entry
+     *
+     * @param name     The name of the entry
      * @param priority The ordering of the entry
      */
     public PlayerListEntry(String name, int priority) {
@@ -65,8 +69,9 @@ public class PlayerListEntry {
 
     /**
      * Creates a new player list entry
-     * @param name The name of the entry
-     * @param favicon The {@link PlayerListFavicon} of the entry
+     *
+     * @param name     The name of the entry
+     * @param favicon  The {@link PlayerListFavicon} of the entry
      * @param priority The ordering of the entry
      */
     public PlayerListEntry(String name, PlayerListFavicon favicon, int priority) {

@@ -1,5 +1,13 @@
 package net.cytonic.cytosis.utils.polar;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
+
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import net.kyori.adventure.nbt.BinaryTagIO;
@@ -9,21 +17,15 @@ import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
- * THIS CODE HAS BEEN CREATED BY THE MINESTOM CONTRIBUTORS AND HAS BEEN MODIFIED FOR CYTOSIS.
- * ALL CREDIT GOES TO THE HARDING WORKING INDIVIDUALS THAT HAVE CONTRIBUTED TO MINESTOM.
- * Implements a thread-safe reader and writer for Minecraft region files.
+ * THIS CODE HAS BEEN CREATED BY THE MINESTOM CONTRIBUTORS AND HAS BEEN MODIFIED FOR CYTOSIS. ALL CREDIT GOES TO THE
+ * HARDING WORKING INDIVIDUALS THAT HAVE CONTRIBUTED TO MINESTOM. Implements a thread-safe reader and writer for
+ * Minecraft region files.
  *
  * @see <a href="https://minecraft.wiki/w/Region_file_format">Region file format</a>
- * @see <a href="https://github.com/Minestom/Hephaistos/blob/master/common/src/main/kotlin/org/jglrxavpok/hephaistos/mca/RegionFile.kt">Hephaistos implementation</a>
+ * @see <a
+ * href="https://github.com/Minestom/Hephaistos/blob/master/common/src/main/kotlin/org/jglrxavpok/hephaistos/mca/RegionFile.kt">Hephaistos
+ * implementation</a>
  */
 final class AccessibleRegionFile implements AutoCloseable {
 
@@ -31,7 +33,8 @@ final class AccessibleRegionFile implements AutoCloseable {
     private static final int SECTOR_SIZE = 4096;
     private static final int SECTOR_1MB = 1024 * 1024 / SECTOR_SIZE;
     private static final int HEADER_LENGTH = MAX_ENTRY_COUNT * 2 * 4; // 2 4-byte fields per entry
-    private static final int CHUNK_HEADER_LENGTH = 4 + 1; // Length + Compression type (todo non constant to support custom compression)
+    private static final int CHUNK_HEADER_LENGTH =
+        4 + 1; // Length + Compression type (todo non constant to support custom compression)
 
     private static final int COMPRESSION_ZLIB = 2;
 
@@ -53,19 +56,53 @@ final class AccessibleRegionFile implements AutoCloseable {
         return "r." + regionX + "." + regionZ + ".mca";
     }
 
-    public boolean hasChunkData(int chunkX, int chunkZ) {
-        lock.lock();
-        try {
-            return locations[getChunkIndex(chunkX, chunkZ)] != 0;
-        } finally {
-            lock.unlock();
+    private void readHeader() throws IOException {
+        file.seek(0);
+        if (file.length() < HEADER_LENGTH) {
+            // new file, fill in data
+            file.write(new byte[HEADER_LENGTH]);
+        }
+
+        //todo: addPadding()
+
+        final long totalSectors =
+            ((file.length() - 1) / SECTOR_SIZE) + 1; // Round up, last sector does not need to be full size
+        for (int i = 0; i < totalSectors; i++) {
+            freeSectors.add(true);
+        }
+        freeSectors.set(0, false); // First sector is locations
+        freeSectors.set(1, false); // Second sector is timestamps
+
+        // Read locations
+        file.seek(0);
+        for (int i = 0; i < MAX_ENTRY_COUNT; i++) {
+            int location = locations[i] = file.readInt();
+            if (location != 0) {
+                markLocation(location, false);
+            }
+        }
+
+        // Read timestamps
+        for (int i = 0; i < MAX_ENTRY_COUNT; i++) {
+            timestamps[i] = file.readInt();
+        }
+    }
+
+    private void markLocation(int location, boolean free) {
+        int sectorCount = location & 0xFF;
+        int sectorStart = location >> 8;
+        Check.stateCondition(sectorStart + sectorCount > freeSectors.size(), "Invalid sector count");
+        for (int i = sectorStart; i < sectorStart + sectorCount; i++) {
+            freeSectors.set(i, free);
         }
     }
 
     public @Nullable CompoundBinaryTag readChunkData(int chunkX, int chunkZ) throws IOException {
         lock.lock();
         try {
-            if (!hasChunkData(chunkX, chunkZ)) return null;
+            if (!hasChunkData(chunkX, chunkZ)) {
+                return null;
+            }
 
             int location = locations[getChunkIndex(chunkX, chunkZ)];
             file.seek((long) (location >> 8) * SECTOR_SIZE); // Move to start of first sector
@@ -89,6 +126,19 @@ final class AccessibleRegionFile implements AutoCloseable {
         } finally {
             lock.unlock();
         }
+    }
+
+    public boolean hasChunkData(int chunkX, int chunkZ) {
+        lock.lock();
+        try {
+            return locations[getChunkIndex(chunkX, chunkZ)] != 0;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private int getChunkIndex(int chunkX, int chunkZ) {
+        return (CoordConversion.chunkToRegionLocal(chunkZ) << 5) | CoordConversion.chunkToRegionLocal(chunkX);
     }
 
     public void writeChunkData(int chunkX, int chunkZ, @NotNull CompoundBinaryTag data) throws IOException {
@@ -133,54 +183,6 @@ final class AccessibleRegionFile implements AutoCloseable {
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        file.close();
-    }
-
-    private int getChunkIndex(int chunkX, int chunkZ) {
-        return (CoordConversion.chunkToRegionLocal(chunkZ) << 5) | CoordConversion.chunkToRegionLocal(chunkX);
-    }
-
-    private void readHeader() throws IOException {
-        file.seek(0);
-        if (file.length() < HEADER_LENGTH) {
-            // new file, fill in data
-            file.write(new byte[HEADER_LENGTH]);
-        }
-
-        //todo: addPadding()
-
-        final long totalSectors = ((file.length() - 1) / SECTOR_SIZE) + 1; // Round up, last sector does not need to be full size
-        for (int i = 0; i < totalSectors; i++) freeSectors.add(true);
-        freeSectors.set(0, false); // First sector is locations
-        freeSectors.set(1, false); // Second sector is timestamps
-
-        // Read locations
-        file.seek(0);
-        for (int i = 0; i < MAX_ENTRY_COUNT; i++) {
-            int location = locations[i] = file.readInt();
-            if (location != 0) {
-                markLocation(location, false);
-            }
-        }
-
-        // Read timestamps
-        for (int i = 0; i < MAX_ENTRY_COUNT; i++) {
-            timestamps[i] = file.readInt();
-        }
-    }
-
-    private void writeHeader() throws IOException {
-        file.seek(0);
-        for (int location : locations) {
-            file.writeInt(location);
-        }
-        for (int timestamp : timestamps) {
-            file.writeInt(timestamp);
-        }
-    }
-
     private int findFreeSectors(int length) {
         for (int start = 0; start < freeSectors.size() - length; start++) {
             boolean found = true;
@@ -190,7 +192,9 @@ final class AccessibleRegionFile implements AutoCloseable {
                     break;
                 }
             }
-            if (found) return start - length;
+            if (found) {
+                return start - length;
+            }
         }
         return -1;
     }
@@ -208,12 +212,18 @@ final class AccessibleRegionFile implements AutoCloseable {
         return (int) (eof / SECTOR_SIZE);
     }
 
-    private void markLocation(int location, boolean free) {
-        int sectorCount = location & 0xFF;
-        int sectorStart = location >> 8;
-        Check.stateCondition(sectorStart + sectorCount > freeSectors.size(), "Invalid sector count");
-        for (int i = sectorStart; i < sectorStart + sectorCount; i++) {
-            freeSectors.set(i, free);
+    private void writeHeader() throws IOException {
+        file.seek(0);
+        for (int location : locations) {
+            file.writeInt(location);
         }
+        for (int timestamp : timestamps) {
+            file.writeInt(timestamp);
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        file.close();
     }
 }

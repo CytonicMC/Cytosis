@@ -1,30 +1,31 @@
 package net.cytonic.cytosis.nicknames;
 
+import me.devnatan.AnvilInput;
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfigBuilder;
+import me.devnatan.inventoryframework.ViewType;
+import me.devnatan.inventoryframework.context.CloseContext;
+import me.devnatan.inventoryframework.context.RenderContext;
+import me.devnatan.inventoryframework.state.MutableState;
+import net.minestom.server.command.CommandManager;
+import net.minestom.server.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import eu.koboo.minestom.stomui.api.PlayerView;
-import eu.koboo.minestom.stomui.api.ViewBuilder;
-import eu.koboo.minestom.stomui.api.ViewType;
-import eu.koboo.minestom.stomui.api.component.ViewProvider;
-import eu.koboo.minestom.stomui.api.interaction.AnvilInputInteraction;
-import eu.koboo.minestom.stomui.api.item.ViewItem;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
 import net.cytonic.cytosis.utils.Msg;
-import net.minestom.server.entity.Player;
-import net.minestom.server.inventory.click.Click;
-import net.minestom.server.item.Material;
-import org.jetbrains.annotations.NotNull;
 
-public class NicknameEntryMenu extends ViewProvider implements AnvilInputInteraction {
+public class NicknameEntryMenu extends View {
 
-    private String input = "";
-    private boolean intentionallyClosed = false;
+    private final AnvilInput anvilInput = AnvilInput.createAnvilInput();
+    private final MutableState<Boolean> intentionallyClosed = mutableState(false);
 
-    public NicknameEntryMenu() {
-        super(Cytosis.VIEW_REGISTRY, ViewBuilder.of(ViewType.ANVIL).
-                disableClickTypes(Click.Double.class)
-                .title("<black>Enter a nickname")
-        );
+    @Override
+    public void onInit(@NotNull ViewConfigBuilder config) {
+        config.title(Msg.black("Enter a nickname"));
+        config.type(ViewType.ANVIL);
+        config.cancelInteractions();
+        config.use(anvilInput);
     }
 
     private static boolean checkValid(String input) {
@@ -32,51 +33,30 @@ public class NicknameEntryMenu extends ViewProvider implements AnvilInputInterac
     }
 
     @Override
-    public void onOpen(@NotNull PlayerView view, @NotNull Player player) {
-        view.getBottomInventory().clear();
-
-        ViewItem.bySlot(view, 0)
-                .material(Material.PAPER)
-                .name("")
-                .cancelClicking();
-
-        ViewItem.bySlot(view, 1)
-                .material(Material.BARRIER)
-                .name("<red>Cancel")
-                .interaction(action -> {
-                    intentionallyClosed = true;
-                    player.closeInventory();
-                    player.sendMessage(Msg.redSplash("CANCELLED!", "You cancelled the nickname setup!"));
-                    Cytosis.getCommandManager().execute(player, "nick setup skin SKIP");
-                });
-
-        ViewItem.bySlot(view, 2)
-                .material(Material.NAME_TAG)
-                .name(input)
-                .interaction(viewAction -> {
-                    if (!checkValid(input)) {
-                        player.sendMessage(Msg.whoops("Your nickname must be between 3 and 16 characters long, and only contain letters, numbers, and underscores."));
-                        return;
-                    }
-                    intentionallyClosed = true;
-                    NickSetupCommand.NICKNAME_DATA.computeIfPresent(player.getUuid(), (uuid, data) -> data.withNickname(input));
-                    player.sendMessage(Msg.goldSplash("UPDATED!", "Updated your nickname to: <gold>" + input + "<gray>!"));
-                    Cytosis.getCommandManager().execute(player, "nick setup name SKIP");
-                    player.closeInventory();
-                });
+    public void onClose(@NotNull CloseContext context) {
+        if (intentionallyClosed.get(context)) return;
+        context.getPlayer().sendMessage(Msg.whoops("You closed the menu!"));
+        context.setCancelled(true);
     }
 
     @Override
-    public void onClose(@NotNull PlayerView view, @NotNull Player player) {
-        if (intentionallyClosed) return;
-        player.sendMessage(Msg.whoops("You closed the menu!"));
-        open(player);
-    }
+    public void onFirstRender(@NotNull RenderContext context) {
+        context.getPlayer().getInventory().clear();
 
-    @Override
-    public void onAnvilInput(@NotNull PlayerView playerView, @NotNull Player player, @NotNull String input) {
-        this.input = input;
-        ViewItem.bySlot(playerView, 2).name(input);
+        context.slot(2).onClick(slotClickContext -> {
+            String input = anvilInput.get(slotClickContext);
+            if (!checkValid(input)) {
+                slotClickContext.getPlayer().sendMessage(Msg.whoops("""
+                    Your nickname must be between 3 and 16 characters long, and\s
+                    only contain letters, numbers, and underscores."""));
+                return;
+            }
+            intentionallyClosed.set(true, slotClickContext);
+            Player player = slotClickContext.getPlayer();
+            NickSetupCommand.NICKNAME_DATA.computeIfPresent(player.getUuid(), (uuid, data) -> data.withNickname(input));
+            player.sendMessage(Msg.goldSplash("UPDATED!", "Updated your nickname to: <gold>%s<gray>!", input));
+            Cytosis.CONTEXT.getComponent(CommandManager.class).execute(player, "nick setup name SKIP");
+            player.closeInventory();
+        });
     }
-
 }

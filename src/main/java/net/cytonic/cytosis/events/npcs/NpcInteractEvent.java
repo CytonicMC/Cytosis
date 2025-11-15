@@ -1,13 +1,25 @@
 package net.cytonic.cytosis.events.npcs;
 
-import net.cytonic.cytosis.npcs.NPC;
-import net.cytonic.cytosis.npcs.NPCAction;
-import net.cytonic.cytosis.player.CytosisPlayer;
-import net.minestom.server.event.Event;
-
 import java.util.List;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import net.minestom.server.event.trait.CancellableEvent;
+import net.minestom.server.event.trait.PlayerEvent;
+
+import net.cytonic.cytosis.npcs.Npc;
+import net.cytonic.cytosis.npcs.NpcAction;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 @SuppressWarnings("unused")
-public record NpcInteractEvent(NPC npc, CytosisPlayer player, List<NPCAction> actions) implements Event {
+@RequiredArgsConstructor
+@Getter
+public class NpcInteractEvent implements CancellableEvent, PlayerEvent {
+
+    private final Npc npc;
+    private final CytosisPlayer player;
+    private final List<NpcAction> actions;
+    @Setter
+    private boolean cancelled;
 }

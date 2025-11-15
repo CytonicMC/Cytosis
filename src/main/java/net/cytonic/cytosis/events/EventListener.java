@@ -1,11 +1,11 @@
 package net.cytonic.cytosis.events;
 
+import java.util.function.Consumer;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.event.Event;
-
-import java.util.function.Consumer;
 
 /**
  * A class that represents an event listener. It contains information about the event class, priority, and consumer.
@@ -15,13 +15,14 @@ import java.util.function.Consumer;
 @Getter
 @AllArgsConstructor
 public class EventListener<T extends Event> {
+
     private final Class<T> eventClass;
-    @Setter
-    private Consumer<T> consumer = null;
     private final boolean async;
     private final int priority;
     private final String namespace;
     private final boolean ignoreCancelled;
+    @Setter
+    private Consumer<T> consumer = null;
 
     /**
      * Constructs a new instance of {@link EventListener} with the specified namespace, priority, and consumer.
@@ -43,7 +44,8 @@ public class EventListener<T extends Event> {
     }
 
     /**
-     * Constructs a new instance of {@link EventListener} with the specified namespace, priority, and consumer. It will be executed synchronously.
+     * Constructs a new instance of {@link EventListener} with the specified namespace, priority, and consumer. It will
+     * be executed synchronously.
      *
      * @param namespace  The namespace of the event listener.
      * @param priority   The priority of the event listener.
@@ -78,7 +80,8 @@ public class EventListener<T extends Event> {
     }
 
     /**
-     * Constructs a new instance of {@link EventListener} with the specified namespace and priority. It will be executed synchronously.
+     * Constructs a new instance of {@link EventListener} with the specified namespace and priority. It will be executed
+     * synchronously.
      *
      * @param namespace  The namespace of the event listener.
      * @param priority   The priority of the event listener.
@@ -93,7 +96,6 @@ public class EventListener<T extends Event> {
         this.ignoreCancelled = false;
     }
 
-
     /**
      * Completes the EventListener's consumer with the provided event object.
      *
@@ -101,8 +103,10 @@ public class EventListener<T extends Event> {
      * @since 1.0.0
      */
     public void complete(Object event) {
-        if (!eventClass.isInstance(event))
-            throw new IllegalArgumentException("The specified event object isn't an instance of " + eventClass.getName());
+        if (!eventClass.isInstance(event)) {
+            throw new IllegalArgumentException(
+                "The specified event object isn't an instance of " + eventClass.getName());
+        }
         consumer.accept(eventClass.cast(event));
     }
 }

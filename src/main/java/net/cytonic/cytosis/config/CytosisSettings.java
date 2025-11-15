@@ -1,170 +1,230 @@
 package net.cytonic.cytosis.config;
 
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.PosSerializer;
+import java.util.function.Consumer;
+
+import lombok.Getter;
+import lombok.Setter;
 import net.minestom.server.coordinate.Pos;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.PostProcess;
+import org.spongepowered.configurate.objectmapping.meta.Required;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
+
+import net.cytonic.cytosis.utils.PosSerializer;
 
 /**
  * This class is used to store all the cached configuration values.
  */
+@Getter
+@Setter
+@ConfigSerializable
 public final class CytosisSettings {
-    // Database
-    /**
-     * Database username
-     */
-    public static String DATABASE_USER = "";
-    /**
-     * Database password
-     */
-    public static String DATABASE_PASSWORD = "";
-    /**
-     * Hostname of the database server
-     */
-    public static String DATABASE_HOST = "";
-    /**
-     * Database port
-     */
-    public static int DATABASE_PORT = 3306;
-    /**
-     * Name of the database to use
-     */
-    public static String DATABASE_NAME = "";
 
-    // server
     /**
-     * The velocity forwarding secret
+     * The latest version of the config
+     * <p>
+     * Bump version by 1 when changing config
      */
-    public static String SERVER_SECRET = "cannot-be-empty";
-    /**
-     * The port to start on
-     */
-    public static int SERVER_PORT = 25565;
-    /**
-     * The name of the world to load from the database
-     */
-    public static String SERVER_WORLD_NAME = "";
-    /**
-     * The pos for players to spawn at
-     */
-    public static Pos SERVER_SPAWN_POS = new Pos(0, 1, 0);
-    /**
-     * The redis port
-     */
-    public static int REDIS_PORT = 6379;
+    public static final int LATEST_VERSION = 1;
 
-    //Redis
     /**
-     * The redis hostname
+     * The config version
      */
-    public static String REDIS_HOST = "";
+    @Required
+    @Setting("version")
+    private int version = LATEST_VERSION;
     /**
-     * The redis password
+     * The database config
      */
-    public static String REDIS_PASSWORD = "";
-    /*
-     * The configuration for the NATS message tool
+    @Required
+    @Setting("database")
+    private DatabaseConfig databaseConfig;
+    /**
+     * The server config
      */
-    public static String NATS_HOSTNAME = "";
-    public static int NATS_PORT = 4222;
-    public static String NATS_PASSWORD = "";
-    public static String NATS_USERNAME = "";
+    @Required
+    @Setting("server")
+    private ServerConfig serverConfig;
+    /**
+     * The redis config
+     */
+    @Required
+    @Setting("redis")
+    private RedisConfig redisConfig;
+    /**
+     * The nats config
+     */
+    @Required
+    @Setting("nats")
+    private NatsConfig natsConfig;
 
-    private CytosisSettings() {
+    /**
+     * Falls back to loading settings from env and properties
+     */
+    @PostProcess
+    private void postProcess() {
+        loadStringFromEnvOrProperty("DATABASE_USER", this.getDatabaseConfig()::setUser);
+        loadStringFromEnvOrProperty("DATABASE_PASSWORD", this.getDatabaseConfig()::setPassword);
+        loadStringFromEnvOrProperty("DATABASE_HOST", this.getDatabaseConfig()::setHost);
+        loadIntFromEnvOrProperty("DATABASE_PORT", this.getDatabaseConfig()::setPort);
+        loadStringFromEnvOrProperty("DATABASE_NAME", this.getDatabaseConfig()::setName);
+        loadStringFromEnvOrProperty("GLOBAL_DATABASE", this.getDatabaseConfig()::setGlobalDatabase);
+
+        loadStringFromEnvOrProperty("SERVER_SECRET", this.getServerConfig()::setSecret);
+        loadIntFromEnvOrProperty("SERVER_PORT", this.getServerConfig()::setPort);
+        loadStringFromEnvOrProperty("SERVER_WORLD_NAME", this.getServerConfig()::setWorldName);
+        loadStringFromEnvOrProperty("SERVER_SPAWN_POINT",
+            string -> this.getServerConfig().setSpawnPos(PosSerializer.deserialize(string)));
+
+        loadStringFromEnvOrProperty("REDIS_HOST", this.getRedisConfig()::setHost);
+        loadIntFromEnvOrProperty("REDIS_PORT", this.getRedisConfig()::setPort);
+        loadStringFromEnvOrProperty("REDIS_PASSWORD", this.getRedisConfig()::setPassword);
+
+        loadStringFromEnvOrProperty("NATS_HOSTNAME", this.getNatsConfig()::setHost);
+        loadIntFromEnvOrProperty("NATS_PORT", this.getNatsConfig()::setPort);
+        loadStringFromEnvOrProperty("NATS_PASSWORD", this.getNatsConfig()::setPassword);
+
     }
 
-    /**
-     * Loads the config from a {@link ConfigurationNode}
-     *
-     * @param node The configuration node
-     */
-    public static void importConfig(ConfigurationNode node) {
-        Logger.info("Importing config!");
-        try {
-            //database
-            DATABASE_USER = node.node("database", "user").getString();
-            DATABASE_PASSWORD = node.node("database", "password").getString();
-            DATABASE_HOST = node.node("database", "host").getString();
-            DATABASE_PORT = node.node("database", "port").getInt();
-            DATABASE_NAME = node.node("database", "name").getString();
-            //server
-            SERVER_SECRET = node.node("server", "secret").getString();
-            SERVER_PORT = node.node("server", "port").getInt();
-            SERVER_WORLD_NAME = node.node("server", "world_name").getString();
-            SERVER_SPAWN_POS = node.node("server", "spawn_point").get(Pos.class);
-            //redis
-            REDIS_PORT = node.node("redis", "port").getInt();
-            REDIS_HOST = node.node("redis", "host").getString();
-            REDIS_PASSWORD = node.node("redis", "password").getString();
-            //nats
-            NATS_HOSTNAME = node.node("nats", "host").getString();
-            NATS_PASSWORD = node.node("nats", "password").getString();
-            NATS_USERNAME = node.node("nats", "username").getString();
-            NATS_PORT = node.node("nats", "port").getInt();
-        } catch (SerializationException e) {
-            Logger.error("Could not import config!", e);
-        }
-        Logger.info("Config imported!");
+    private void loadStringFromEnvOrProperty(String envKey, Consumer<String> setter) {
+        String value = System.getenv(envKey);
+        if (value == null) value = System.getProperty(envKey);
+        if (value != null) setter.accept(value);
     }
 
-    /**
-     * Load settings from environment variables
-     */
-    public static void loadEnvironmentVariables() {
-        Logger.info("Loading environment variables!");
-        // database
-        if (System.getenv("DATABASE_USER") != null) DATABASE_USER = System.getenv("DATABASE_USER");
-        if (System.getenv("DATABASE_PASSWORD") != null) DATABASE_PASSWORD = System.getenv("DATABASE_PASSWORD");
-        if (System.getenv("DATABASE_HOST") != null) DATABASE_HOST = System.getenv("DATABASE_HOST");
-        if (System.getenv("DATABASE_PORT") != null) DATABASE_PORT = Integer.parseInt(System.getenv("DATABASE_PORT"));
-        if (System.getenv("DATABASE_NAME") != null) DATABASE_NAME = System.getenv("DATABASE_NAME");
-        //server
-        if (System.getenv("SERVER_SECRET") != null) SERVER_SECRET = System.getenv("SERVER_SECRET");
-        if (System.getenv("SERVER_PORT") != null) SERVER_PORT = Integer.parseInt(System.getenv("SERVER_PORT"));
-        if (System.getenv("SERVER_WORLD_NAME") != null) SERVER_WORLD_NAME = System.getenv("SERVER_WORLD_NAME");
-        if (System.getenv("SERVER_SPAWN_POINT") != null)
-            SERVER_SPAWN_POS = PosSerializer.deserialize(System.getenv("SERVER_SPAWN_POINT"));
-        // redis
-        if (!(System.getenv("REDIS_HOST") == null)) REDIS_HOST = System.getenv("REDIS_HOST");
-        if (!(System.getenv("REDIS_PORT") == null)) REDIS_PORT = Integer.parseInt(System.getenv("REDIS_PORT"));
-        if (!(System.getenv("REDIS_PASSWORD") == null)) REDIS_PASSWORD = System.getenv("REDIS_PASSWORD");
-        // nats
-        if (System.getenv("NATS_HOSTNAME") != null) NATS_HOSTNAME = System.getenv("NATS_HOSTNAME");
-        if (System.getenv("NATS_USERNAME") != null) NATS_USERNAME = System.getenv("NATS_USERNAME");
-        if (System.getenv("NATS_PASSWORD") != null) NATS_PASSWORD = System.getenv("NATS_PASSWORD");
-        if (System.getenv("NATS_PORT") != null) NATS_PORT = Integer.parseInt(System.getenv("NATS_PORT"));
+    private void loadIntFromEnvOrProperty(String envKey, Consumer<Integer> setter) {
+        String value = System.getenv(envKey);
+        if (value == null) value = System.getProperty(envKey);
+        if (value != null) setter.accept(Integer.valueOf(value));
     }
 
-    /**
-     * Load settings from command args (System Properties)
-     */
-    public static void loadCommandArgs() {
-        Logger.info("Loading command args!");
-        // database
-        if (System.getProperty("DATABASE_USER") != null) DATABASE_USER = System.getProperty("DATABASE_USER");
-        if (System.getProperty("DATABASE_PASSWORD") != null)
-            DATABASE_PASSWORD = System.getProperty("DATABASE_PASSWORD");
-        if (System.getProperty("DATABASE_HOST") != null) DATABASE_HOST = System.getProperty("DATABASE_HOST");
-        if (System.getProperty("DATABASE_PORT") != null)
-            DATABASE_PORT = Integer.parseInt(System.getProperty("DATABASE_PORT"));
-        if (System.getProperty("DATABASE_NAME") != null) DATABASE_NAME = System.getProperty("DATABASE_NAME");
-        //server
-        if (System.getProperty("SERVER_SECRET") != null) SERVER_SECRET = System.getProperty("SERVER_SECRET");
-        if (System.getProperty("SERVER_PORT") != null)
-            SERVER_PORT = Integer.parseInt(System.getProperty("SERVER_PORT"));
-        if (System.getProperty("SERVER_WORLD_NAME") != null)
-            SERVER_WORLD_NAME = System.getProperty("SERVER_WORLD_NAME");
-        if (System.getProperty("SERVER_SPAWN_POINT") != null)
-            SERVER_SPAWN_POS = PosSerializer.deserialize(System.getProperty("SERVER_SPAWN_POINT"));
-        // redis
-        if (System.getProperty("REDIS_HOST") != null) REDIS_HOST = System.getProperty("REDIS_HOST");
-        if (System.getProperty("REDIS_PORT") != null) REDIS_PORT = Integer.parseInt(System.getProperty("REDIS_PORT"));
-        if (System.getProperty("REDIS_PASSWORD") != null) REDIS_PASSWORD = System.getProperty("REDIS_PASSWORD");
-        // nats
-        if (System.getProperty("NATS_HOSTNAME") != null) NATS_HOSTNAME = System.getProperty("NATS_HOSTNAME");
-        if (System.getProperty("NATS_USERNAME") != null) NATS_USERNAME = System.getProperty("NATS_USERNAME");
-        if (System.getProperty("NATS_PASSWORD") != null) NATS_PASSWORD = System.getProperty("NATS_PASSWORD");
-        if (System.getProperty("NATS_PORT") != null) NATS_PORT = Integer.parseInt(System.getProperty("NATS_PORT"));
+    @Getter
+    @Setter
+    @ConfigSerializable
+    public static class DatabaseConfig {
+
+        /**
+         * Database username
+         */
+        @Required
+        @Setting("user")
+        private String user;
+        /**
+         * Database password
+         */
+        @Required
+        @Setting("password")
+        private String password;
+        /**
+         * Hostname of the database server
+         */
+        @Setting("host")
+        @Required
+        private String host;
+        /**
+         * Database port
+         */
+        @Setting("port")
+        @Required
+        private int port = 3306;
+        /**
+         * Name of the database to use
+         */
+        @Setting("name")
+        @Required
+        private String name;
+        /**
+         * Name of the database to use
+         */
+        @Required
+        @Setting("global_name")
+        private String globalDatabase;
+    }
+
+    @Getter
+    @Setter
+    @ConfigSerializable
+    public static class ServerConfig {
+
+        /**
+         * The velocity forwarding secret
+         */
+        @Required
+        @Setting("secret")
+        private String secret = "cannot-be-empty";
+        /**
+         * The port to start on
+         */
+        @Required
+        @Setting("port")
+        private int port = 25565;
+        /**
+         * The name of the world to load from the database
+         */
+        @Required
+        @Setting("world_name")
+        private String worldName;
+        /**
+         * The pos for players to spawn at
+         */
+        @Required
+        @Setting("spawn_point")
+        private Pos spawnPos = new Pos(0, 1, 0);
+    }
+
+    @Getter
+    @Setter
+    @ConfigSerializable
+    public static class RedisConfig {
+
+        /**
+         * The redis hostname
+         */
+        @Required
+        @Setting("host")
+        private String host;
+        /**
+         * The redis port
+         */
+        @Required
+        @Setting("port")
+        private int port = 6379;
+        /**
+         * The redis password
+         */
+        @Required
+        @Setting("password")
+        private String password;
+    }
+
+    @Getter
+    @Setter
+    @ConfigSerializable
+    public static class NatsConfig {
+
+        /**
+         * The nats hostname
+         */
+        @Required
+        @Setting("host")
+        private String host;
+        /**
+         * The nats port
+         */
+        @Required
+        @Setting("port")
+        private int port = 4222;
+        /**
+         * The nats password
+         */
+        @Required
+        @Setting("password")
+        private String password;
+        /**
+         * The nats username
+         */
+        @Required
+        @Setting("username")
+        private String user;
     }
 }
