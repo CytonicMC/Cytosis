@@ -69,8 +69,6 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             polarLoader.setWorldAccess(new PolarExtension());
             polarLoader.saveInstance(c);
 
-            Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name)
-                .replace("_", ""));
             UUID uuid = UUID.randomUUID();
             Cytosis.CONTEXT.getComponent(GlobalDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)

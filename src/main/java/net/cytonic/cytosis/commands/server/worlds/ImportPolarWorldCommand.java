@@ -60,8 +60,6 @@ public class ImportPolarWorldCommand extends CytosisCommand {
                 return;
             }
             PolarWorld world = loader.world();
-            Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name)
-                .replace("_", ""));
             UUID uuid = UUID.randomUUID();
             Cytosis.CONTEXT.getComponent(GlobalDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)

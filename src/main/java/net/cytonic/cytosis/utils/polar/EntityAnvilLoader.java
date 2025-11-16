@@ -34,49 +34,6 @@ import net.cytonic.cytosis.logging.Logger;
 public class EntityAnvilLoader extends AnvilLoader {
     Path entitiesPath;
 
-    /*
-     * EXAMPLE NBT File
-{
-    Position: [I;-6,-2],
-    DataVersion: 4325,
-    Entities: [
-        {
-            Motion: [0.0d, 0.0d, 0.0d],
-            block_pos: [I;-84,78,-31],
-            facing: 0b,
-            Invulnerable: 0b,
-            OnGround: 0b,
-            Air: 300s,
-            fall_distance: 0.0d,
-            PortalCooldown: 0,
-            Rotation: [0.0f, 0.0f],
-            Pos: [-83.0d, 79.0d, -30.96875d],
-            Fire: -1s,
-            variant: "minecraft:finding",
-            id: "minecraft:painting",
-            UUID: [I;1176751342,1761955314,-1243494293,-854180337]
-        },
-        {
-            Motion: [0.0d, 0.0d, 0.0d],
-            block_pos: [I;-82,77,-27],
-            facing: 2b,
-            Invulnerable: 0b,
-            OnGround: 0b,
-            Air: 300s,
-            fall_distance: 0.0d,
-            PortalCooldown: 0,
-            Rotation: [180.0f, 0.0f],
-            Pos: [-82.0d, 78.0d, -26.03125d],
-            Fire: -1s,
-            variant: "minecraft:orb",
-            id: "minecraft:painting",
-            UUID: [I;-1745373502,2096123396,-1612439609,-644015223]
-        }
-    ]
-}
-     *
-     */
-
     public EntityAnvilLoader(@NotNull Path path) {
         super(path);
         this.entitiesPath = path.resolve("entities");
@@ -187,12 +144,9 @@ public class EntityAnvilLoader extends AnvilLoader {
                         return;
                     }
 
-
-                    Logger.debug("Loading entity at " + pos);
                     entity.setInstance(instance, pos).thenAccept(unused -> {
                         entity.teleport(pos);
                     });
-
                 });
 
 
@@ -246,13 +200,6 @@ public class EntityAnvilLoader extends AnvilLoader {
         }
 
         // convert the pos and rotation arrays into a Pos
-        Logger.debug(new Pos(
-                posTag[0],
-                posTag[1],
-                posTag[2],
-                rotationList[0],
-                rotationList[1]
-        ).toString());
         return new Pos(
                 posTag[0],
                 posTag[1],

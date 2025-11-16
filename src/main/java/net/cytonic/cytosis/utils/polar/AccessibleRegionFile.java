@@ -120,9 +120,7 @@ final class AccessibleRegionFile implements AutoCloseable {
             file.read(data);
 
             // Parse it as a compound tag
-            CompoundBinaryTag result = TAG_READER.read(new ByteArrayInputStream(data), compression);
-//            Logger.debug("(%d,%d) %s%n%n", chunkX, chunkZ, TagStringIO.tagStringIO().asString(result));
-            return result;
+            return TAG_READER.read(new ByteArrayInputStream(data), compression);
         } finally {
             lock.unlock();
         }
