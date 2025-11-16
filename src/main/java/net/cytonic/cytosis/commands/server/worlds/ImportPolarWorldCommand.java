@@ -17,7 +17,7 @@ import net.minestom.server.timer.TaskSchedule;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -60,16 +60,16 @@ public class ImportPolarWorldCommand extends CytosisCommand {
                 return;
             }
             PolarWorld world = loader.world();
-            Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name)
-                .replace("_", ""));
             UUID uuid = UUID.randomUUID();
-            Cytosis.CONTEXT.getComponent(MysqlDatabase.class)
+            Cytosis.CONTEXT.getComponent(GlobalDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
                 .whenComplete((result, error) -> {
                     MinecraftServer.getSchedulerManager()
                         .buildTask(() -> instanceManager.unregisterInstance(c))
                         .delay(TaskSchedule.seconds(1)).schedule();
-                    sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name)
+                    sender.sendMessage(
+                        Msg.success("Successfully imported world '%s' into the global database. UUID: %s",
+                            context.get(name)
                         .replace("_", ""), uuid.toString()));
                 });
         }, path, name, type);

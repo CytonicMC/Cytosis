@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import net.hollowcube.polar.AnvilPolar;
+import net.hollowcube.polar.PolarLoader;
 import net.hollowcube.polar.PolarWorld;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
@@ -18,10 +19,12 @@ import net.minestom.server.timer.TaskSchedule;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.polar.EntityAnvilLoader;
+import net.cytonic.cytosis.utils.polar.PolarExtension;
 
 public class ImportAnvilWorldCommand extends CytosisCommand {
 
@@ -47,10 +50,11 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
                 return;
             }
 
-            AnvilLoader loader = new AnvilLoader(readPath);
+            AnvilLoader loader = new EntityAnvilLoader(readPath);
             InstanceManager instanceManager = Cytosis.CONTEXT.getComponent(InstanceManager.class);
             InstanceContainer c = instanceManager.createInstanceContainer(loader);
             player.setInstance(c);
+
 
             PolarWorld world;
             try {
@@ -61,16 +65,20 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
                 return;
             }
 
-            Logger.debug(world.userData().length + " bytes of user data serialized for world '%s'", context.get(name)
-                .replace("_", ""));
+            PolarLoader polarLoader = new PolarLoader(world);
+            polarLoader.setWorldAccess(new PolarExtension());
+            polarLoader.saveInstance(c);
+
             UUID uuid = UUID.randomUUID();
-            Cytosis.CONTEXT.getComponent(MysqlDatabase.class)
+            Cytosis.CONTEXT.getComponent(GlobalDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
                 .whenComplete((result, error) -> {
                     MinecraftServer.getSchedulerManager()
                         .buildTask(() -> instanceManager.unregisterInstance(c))
                         .delay(TaskSchedule.seconds(1)).schedule();
-                    sender.sendMessage(Msg.success("Successfully imported world '%s'. UUID: %s", context.get(name)
+                    sender.sendMessage(
+                        Msg.success("Successfully imported world '%s' into the global database. UUID: %s",
+                            context.get(name)
                         .replace("_", ""), uuid.toString()));
                 });
         }, path, name, type);
