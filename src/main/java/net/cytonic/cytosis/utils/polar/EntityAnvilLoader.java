@@ -52,8 +52,8 @@ public class EntityAnvilLoader extends AnvilLoader {
 
         File entityFile = entitiesPath.resolve("r." + regionX + "." + regionZ + ".mca").toFile();
         if (!entityFile.exists()) return future;
-        try (AccessibleRegionFile AccessibleRegionFile = new AccessibleRegionFile(entityFile.toPath())) {
-            CompoundBinaryTag data = AccessibleRegionFile.readChunkData(chunkX, chunkZ);
+        try (AccessibleRegionFile regionFile = new AccessibleRegionFile(entityFile.toPath())) {
+            CompoundBinaryTag data = regionFile.readChunkData(chunkX, chunkZ);
             if (data != null) {
                 ListBinaryTag entitiesList = data.getList("Entities");
                 entitiesList.forEach(entityTag -> {
