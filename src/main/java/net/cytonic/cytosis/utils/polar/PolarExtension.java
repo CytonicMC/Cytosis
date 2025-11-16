@@ -1,7 +1,11 @@
 package net.cytonic.cytosis.utils.polar;
 
-import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.PosSerializer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
 import net.hollowcube.polar.PolarWorldAccess;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTagIO;
@@ -18,15 +22,13 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.registry.Holder;
+import net.minestom.server.utils.Direction;
 import net.minestom.server.utils.Rotation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.PosSerializer;
 
 public class PolarExtension implements PolarWorldAccess {
 
@@ -71,7 +73,7 @@ public class PolarExtension implements PolarWorldAccess {
             String type = binaryTag.getString("type");
             Pos pos = PosSerializer.deserializeFromTag(binaryTag.getCompound("pos"));
             if (type.equals("painting")) {
-                String orientation = binaryTag.getString("orientation");
+                String dir = binaryTag.getString("direction");
                 String variant = binaryTag.getString("variant");
                 Holder<PaintingVariant> var = MinecraftServer.getPaintingVariantRegistry().get(Key.key(variant));
                 if (var == null) {
@@ -80,21 +82,23 @@ public class PolarExtension implements PolarWorldAccess {
                 }
                 Entity entity = new Entity(EntityType.PAINTING);
                 PaintingMeta meta = (PaintingMeta) entity.getEntityMeta();
-                meta.setOrientation(PaintingMeta.Orientation.valueOf(orientation));
+                meta.setDirection(Direction.valueOf(dir));
+                meta.setHasNoGravity(true);
                 entity.set(DataComponents.PAINTING_VARIANT, var);
-                entity.setInstance(instance, pos);
+                MinecraftServer.getSchedulerManager().scheduleNextTick(() -> entity.setInstance(instance, pos));
             } else if (type.equals("item_frame") || type.equals("glow_item_frame")) {
                 boolean isglowing = type.equals("glow_item_frame");
-                String orientation = binaryTag.getString("orientation");
+                String dir = binaryTag.getString("direction");
                 String rotation = binaryTag.getString("rotation");
                 ItemStack itemStack = ItemStack.fromItemNBT(binaryTag.getCompound("item"));
 
                 Entity entity = new Entity(isglowing ? EntityType.GLOW_ITEM_FRAME : EntityType.ITEM_FRAME);
                 ItemFrameMeta meta = (ItemFrameMeta) entity.getEntityMeta();
+                meta.setHasNoGravity(true);
                 meta.setRotation(Rotation.valueOf(rotation));
-                meta.setOrientation(ItemFrameMeta.Orientation.valueOf(orientation));
+                meta.setDirection(Direction.valueOf(dir));
                 meta.setItem(itemStack);
-                entity.setInstance(instance, pos);
+                MinecraftServer.getSchedulerManager().scheduleNextTick(() -> entity.setInstance(instance, pos));
             }
         }
     }
@@ -112,7 +116,7 @@ public class PolarExtension implements PolarWorldAccess {
                 CompoundBinaryTag binaryTag = CompoundBinaryTag.builder()
                         .putString("type", "painting")
                         .put("pos", PosSerializer.serializeAsTag(entity.getPosition()))
-                        .putString("orientation", meta.getOrientation().name())
+                    .putString("direction", meta.getDirection().name())
                         .putString("variant", var.asKey().key().asString())
                         .build();
                 writeTag(userData, binaryTag);
@@ -122,7 +126,7 @@ public class PolarExtension implements PolarWorldAccess {
                 CompoundBinaryTag binaryTag = CompoundBinaryTag.builder()
                         .putString("type", isglowing ? "glow_item_frame" : "item_frame")
                         .put("pos", PosSerializer.serializeAsTag(entity.getPosition()))
-                        .putString("orientation", meta.getOrientation().name())
+                    .putString("direction", meta.getDirection().name())
                         .put("item", meta.getItem().toItemNBT())
                         .putString("rotation", meta.getRotation().name())
                         .build();

@@ -16,6 +16,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
@@ -33,13 +34,6 @@ import net.cytonic.cytosis.data.serializers.KeySerializer;
 import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.player.CytosisPlayerProvider;
-import net.cytonic.cytosis.plugins.PluginManager;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
-import net.cytonic.cytosis.utils.BlockPlacementUtils;
-import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.cytosis.utils.polar.BlockHandlerUtils;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 
 /**
@@ -86,7 +80,7 @@ public final class Cytosis {
      * @param args Runtime flags
      */
     @SuppressWarnings("unchecked")
-    public static void main(String[] args) {
+    static void main(String[] args) {
         new CytosisBootstrap(args, CONTEXT).run();
     }
 
@@ -178,12 +172,14 @@ public final class Cytosis {
      * Loads the world based on the settings
      */
     public static void loadWorld() {
-        InstanceContainer defaultInstance = CONTEXT.getComponent(InstanceContainer.class);
+
         String worldName = CONTEXT.getComponent(CytosisSettings.class).getServerConfig().getWorldName();
         if (worldName.isEmpty()) {
             Logger.info("Generating basic world");
-            defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-            defaultInstance.setChunkSupplier(LightingChunk::new);
+            InstanceContainer container = MinecraftServer.getInstanceManager().createInstanceContainer();
+            container.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+            container.setChunkSupplier(LightingChunk::new);
+            Cytosis.CONTEXT.registerComponent(container);
             Logger.info("Basic world loaded!");
             return;
         }
@@ -194,12 +190,16 @@ public final class Cytosis {
                 if (throwable != null) {
                     Logger.error("An error occurred whilst initializing the world! Reverting to a basic world",
                         throwable);
-                    defaultInstance.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
-                    defaultInstance.setChunkSupplier(LightingChunk::new);
+                    InstanceContainer container = MinecraftServer.getInstanceManager().createInstanceContainer();
+                    container.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.WHITE_STAINED_GLASS));
+                    container.setChunkSupplier(LightingChunk::new);
+                    Cytosis.CONTEXT.registerComponent(container);
                 } else {
-                    defaultInstance.setChunkLoader(new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
-                    defaultInstance.setChunkSupplier(LightingChunk::new);
-                    defaultInstance.enableAutoChunkLoad(true);
+                    InstanceManager man = MinecraftServer.getInstanceManager();
+                    InstanceContainer inst = man.createInstanceContainer(
+                        new PolarLoader(polarWorld).setWorldAccess(new PolarExtension()));
+                    inst.setChunkSupplier(LightingChunk::new);
+                    Cytosis.CONTEXT.registerComponent(inst);
                     Logger.info("World loaded!");
                 }
             });

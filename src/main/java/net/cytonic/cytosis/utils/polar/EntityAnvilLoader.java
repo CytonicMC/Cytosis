@@ -1,8 +1,16 @@
 package net.cytonic.cytosis.utils.polar;
 
-import net.cytonic.cytosis.logging.Logger;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.nbt.*;
+import net.kyori.adventure.nbt.ByteBinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.DoubleBinaryTag;
+import net.kyori.adventure.nbt.FloatBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
+import net.kyori.adventure.nbt.StringBinaryTag;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.CoordConversion;
@@ -17,12 +25,11 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.anvil.AnvilLoader;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.registry.RegistryKey;
+import net.minestom.server.utils.Direction;
 import net.minestom.server.utils.Rotation;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
+import net.cytonic.cytosis.logging.Logger;
 
 public class EntityAnvilLoader extends AnvilLoader {
     Path entitiesPath;
@@ -112,42 +119,43 @@ public class EntityAnvilLoader extends AnvilLoader {
                             Logger.error("Unknown painting variant: " + variantTag.value() + " - skipping entity");
                             return;
                         }
-                        entity.set(DataComponents.PAINTING_VARIANT, PaintingVariant.KEBAB);
+                        entity.set(DataComponents.PAINTING_VARIANT, ref);
 
                         ByteBinaryTag facingTag = (ByteBinaryTag) binaryTag.get("facing");
-                        PaintingMeta.Orientation orientation;
+                        Direction dir;
                         byte facing = facingTag.value();
                         if (facing == 0) {
-                            orientation = PaintingMeta.Orientation.SOUTH;
+                            dir = Direction.SOUTH;
                         } else if (facing == 1) {
-                            orientation = PaintingMeta.Orientation.WEST;
+                            dir = Direction.WEST;
                         } else if (facing == 2) {
-                            orientation = PaintingMeta.Orientation.NORTH;
+                            dir = Direction.NORTH;
                         } else if (facing == 3) {
-                            orientation = PaintingMeta.Orientation.EAST;
+                            dir = Direction.EAST;
                         } else {
                             Logger.warn("Unknown facing value: " + facing + " - skipping entity");
                             return;
                         }
                         PaintingMeta meta = (PaintingMeta) entity.getEntityMeta();
-                        meta.setOrientation(orientation);
+                        meta.setDirection(dir);
+                        meta.setHasNoGravity(true);
                     } else if (entityType == EntityType.ITEM_FRAME || entityType == EntityType.GLOW_ITEM_FRAME) {
                         pos = parseBlockPos(binaryTag.getIntArray("block_pos"), binaryTag.getList("Rotation"));
                         ByteBinaryTag facingTag = (ByteBinaryTag) binaryTag.get("Facing");
-                        ItemFrameMeta.Orientation orientation;
+                        Direction dir;
                         byte facing = facingTag.value();
                         if (facing == 0) {
-                            orientation = ItemFrameMeta.Orientation.DOWN;
+                            dir = Direction.DOWN;
                         } else if (facing == 1) {
-                            orientation = ItemFrameMeta.Orientation.UP;
+                            dir = Direction.UP;
                         } else if (facing == 2) {
-                            orientation = ItemFrameMeta.Orientation.NORTH;
+                            dir = Direction.NORTH;
                         } else if (facing == 3) {
-                            orientation = ItemFrameMeta.Orientation.SOUTH;
+                            dir = Direction.SOUTH;
                         } else if (facing == 4) {
-                            orientation = ItemFrameMeta.Orientation.WEST;
+                            dir = Direction.WEST;
                         } else if (facing == 5) {
-                            orientation = ItemFrameMeta.Orientation.EAST;
+                            dir = Direction.EAST;
                         } else {
                             Logger.warn("Unknown facing value: " + facing + " - skipping entity");
                             return;
@@ -170,8 +178,9 @@ public class EntityAnvilLoader extends AnvilLoader {
                             meta.setItem(i);
                         }
                         meta.setRotation(Rotation.values()[rotationTag.value()]);
-                        meta.setOrientation(orientation);
+                        meta.setDirection(dir);
                         meta.setInvisible(invisible);
+                        meta.setHasNoGravity(true);
 
                     } else {
                         Logger.warn("Unsupported entity type: " + id + " - skipping entity");
@@ -179,7 +188,7 @@ public class EntityAnvilLoader extends AnvilLoader {
                     }
 
 
-                    Logger.debug("Loading entity at " + pos.toString());
+                    Logger.debug("Loading entity at " + pos);
                     entity.setInstance(instance, pos).thenAccept(unused -> {
                         entity.teleport(pos);
                     });

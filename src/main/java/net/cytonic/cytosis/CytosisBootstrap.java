@@ -155,8 +155,8 @@ public class CytosisBootstrap {
         CommandManager commandManager = cytosisContext.registerComponent(MinecraftServer.getCommandManager());
         Logger.info("Setting console command sender.");
         cytosisContext.registerComponent(commandManager.getConsoleSender());
-        Logger.info("Creating instance container");
-        cytosisContext.registerComponent(minestomInstanceManager.createInstanceContainer());
+//        Logger.info("Creating instance container");
+//        cytosisContext.registerComponent(minestomInstanceManager.createInstanceContainer());
     }
 
     /**
