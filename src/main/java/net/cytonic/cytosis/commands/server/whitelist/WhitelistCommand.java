@@ -14,15 +14,16 @@ public class WhitelistCommand extends CytosisCommand {
         Server whitelists allow non-staff players to join the <red>Alpha</red> and <#ab2bfb>Development</#ab2bfb> \
         networks. <gray><i>Whitelists do not override bans.</i></gray>
         
-        Usages:
-        - /whitelist grant <player> [network] <i><gray>The network defaults to the current environment</gray></i>
-        - /whitelist revoke <player>
-        - /whitelist status <player>
+        Usages: <i><gray>The network defaults to the current environment</gray></i>
+        - /whitelist grant <player> [network]
+        - /whitelist revoke <player> [network]
+        - /whitelist status <player> [network]
         """);
 
     public WhitelistCommand() {
         super("whitelist");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(HELP));
+        addSubcommands(new GrantCommand(), new RevokeCommand(), new StatusCommand());
     }
 }

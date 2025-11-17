@@ -45,6 +45,7 @@ import net.cytonic.cytosis.commands.server.nomad.AllocationDetailsCommand;
 import net.cytonic.cytosis.commands.server.nomad.CreateInstanceCommand;
 import net.cytonic.cytosis.commands.server.nomad.ShutdownInstancesCommand;
 import net.cytonic.cytosis.commands.server.nomad.UpdateInstancesCommand;
+import net.cytonic.cytosis.commands.server.whitelist.WhitelistCommand;
 import net.cytonic.cytosis.commands.server.worlds.ImportWorld;
 import net.cytonic.cytosis.commands.staff.FindCommand;
 import net.cytonic.cytosis.commands.staff.FlyCommand;
@@ -89,7 +90,8 @@ public class CommandHandler implements Bootstrappable {
             new LoopCommand(), new RecalculatePermissionsCommand(), new YoinkCommand(), new ReplyCommand(),
             new SnooperCommand(), new PlayCommand(), new LobbyCommand(), new WhereAmiCommand(), new DisableCommand(),
             new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(), new NickRevealCommand(),
-            new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand());
+            new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand(),
+            new WhitelistCommand());
     }
 
     /**

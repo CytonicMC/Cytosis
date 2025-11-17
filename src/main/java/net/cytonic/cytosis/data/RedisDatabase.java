@@ -15,6 +15,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.RedisConfig;
+import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
@@ -245,5 +246,18 @@ public class RedisDatabase implements Bootstrappable {
     public String getFromGlobalHash(String hash, String key) {
         return jedis.hget(hash, key);
     }
+
+    public Set<String> getSet(String key, Environment environment) {
+        return jedis.smembers(environment.getPrefix() + key);
+    }
+
+    public void removeFromSet(String key, String toRemove, Environment environment) {
+        jedis.srem(environment.getPrefix() + key, toRemove);
+    }
+
+    public void addToSet(String key, String toAdd, Environment environment) {
+        jedis.sadd(environment.getPrefix() + key, toAdd);
+    }
+
 
 }
