@@ -79,7 +79,6 @@ public final class Cytosis {
      *
      * @param args Runtime flags
      */
-    @SuppressWarnings("unchecked")
     static void main(String[] args) {
         new CytosisBootstrap(args, CONTEXT).run();
     }
