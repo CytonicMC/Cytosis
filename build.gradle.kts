@@ -33,7 +33,7 @@ dependencies {
     api(libs.jedis)
     api(libs.guava)
     api(libs.minestompvp) {
-        exclude(group = "net.minestom", module = "minestom-snapshots")
+        exclude(group = "net.minestom", module = "minestom")
     }
     api(libs.invui)
     api(libs.anvilInput)
@@ -70,7 +70,7 @@ dependencies {
     runtimeDownloadOnly(libs.configurate)
     runtimeDownloadOnly(libs.classgraph)
     runtimeDownloadOnly(libs.minestompvp) {
-        exclude(group = "net.minestom", module = "minestom-snapshots")
+        exclude(group = "net.minestom", module = "minestom")
     }
     runtimeDownloadOnly(libs.mixin)
     runtimeDownloadOnly(libs.fastutil)

@@ -31,7 +31,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 polar = { module = "dev.hollowcube:polar", version.ref = "polar" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-minestompvp = { module = "com.github.TogAr2:MinestomPvP", version.ref = "minestompvp" }
+minestompvp = { module = "com.github.Takasaki-Studio-Games:MinestomPvP", version.ref = "minestompvp" }
 invui = { module = "me.devnatan:minestomInventoryFramework", version.ref = "invui" }
 anvilInput = { module = "me.devnatan:minestomAnvilInput", version.ref = "anvilInput" }
 configurate = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
