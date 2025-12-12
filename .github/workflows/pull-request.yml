@@ -23,7 +23,7 @@ jobs:
         run: gradle --no-daemon javadoc
 
       - name: Upload jar as artifact
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: cytosis
           path: build/libs/cytosis.jar
