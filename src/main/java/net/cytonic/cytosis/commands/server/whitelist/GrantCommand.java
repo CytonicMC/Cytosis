@@ -13,10 +13,12 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.environments.EnvironmentManager;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
@@ -73,6 +75,9 @@ public class GrantCommand extends CytosisCommand {
             return;
         }
         redis.addToSet("player_whitelist", uuid.toString(), environment);
+        Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WHITELIST,
+            Msg.snoop(player.trueFormattedName().append(Msg.grey(
+                " Added %s to the whitelist! <yellow><b><click:copy_to_clipboard:%s>[UUID]", msg, uuid.toString()))));
         player.sendMessage(Msg.success("Successfully added '%s' to the whitelist!", msg));
     }
 }

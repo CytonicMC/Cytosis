@@ -65,12 +65,14 @@ public class SnoopPersistenceManager {
     public CompletableFuture<Void> persistSnoop(SnooperChannel channel, Component component) {
         return CompletableFuture.supplyAsync(() -> {
             String message = MiniMessage.miniMessage()
-                .stripTags(PlainTextComponentSerializer.plainText().serialize(component));
+                .stripTags(PlainTextComponentSerializer.plainText().serialize(component))
+                .replaceAll("[\\uE000-\\uF8FF]", ""); // strip any custom chars since mysql will throw a fit
             try {
                 db.insertInto(table, target, content, this.channel)
                     .values(channel.recipients(), message, channel.id().asString()).execute();
             } catch (Exception e) {
                 Logger.warn("Failed to persist snooper channel!");
+                e.printStackTrace(System.err);
             }
 
             return null;
