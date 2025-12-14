@@ -56,4 +56,10 @@ public class CytosisSnoops {
         Key.key("cytosis:kick"), MODERATOR);
 
 
+    /**
+     * Used whenever a staff member modifies the network whitelist
+     */
+    public static final SnooperChannel PLAYER_WHITELIST = new SnooperChannel("cytosis.snooper.player.whitelist",
+        Key.key("cytosis:whitelist"), ALL_STAFF);
+
 }

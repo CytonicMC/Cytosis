@@ -63,6 +63,7 @@ public class SnooperManager implements Bootstrappable {
         registerChannel(CytosisSnoops.CHANGE_RANK);
         registerChannel(CytosisSnoops.PLAYER_NICKNAME);
         registerChannel(CytosisSnoops.PLAYER_SERVER_CHANGE);
+        registerChannel(CytosisSnoops.PLAYER_WHITELIST);
     }
 
     public void loadChannelsFromRedis() {
@@ -142,7 +143,7 @@ public class SnooperManager implements Bootstrappable {
     }
 
     /**
-     * Sends a COMPELTED message to a channel. This means the component supplied is sent as is.
+     * Sends a COMPLETED message to a channel. This means the component supplied is sent as is.
      * <strong>DO NOT LOG THESE MESSAGES</strong>, the snooper API already logs any message sent.
      * (The formatting is stripped, to save space.)
      *
@@ -196,7 +197,7 @@ public class SnooperManager implements Bootstrappable {
         return registry.getChannel(namespaceID);
     }
 
-    private class SnooperRegistry {
+    private static class SnooperRegistry {
 
         private final Map<Key, SnooperChannel> channels = new ConcurrentHashMap<>();
 
