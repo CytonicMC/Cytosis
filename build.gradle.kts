@@ -189,7 +189,7 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
 
     mergeServiceFiles()
     archiveFileName.set("cytosis.jar")
-    archiveClassifier.set("")
+    archiveClassifier.set("all")
     destinationDirectory.set(layout.buildDirectory.dir("libs"))
 
     exclude("META-INF/*.SF")
@@ -298,7 +298,13 @@ publishing {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-            from(components["java"])
+            artifact(thinShadow) {
+                classifier = ""
+            }
+
+            artifact(fatShadow) {
+                classifier = "all"
+            }
         }
     }
 }
