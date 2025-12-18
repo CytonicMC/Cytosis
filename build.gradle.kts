@@ -159,6 +159,27 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
     }
+
+    archiveBaseName.set(project.name)
+}
+
+tasks.jar {
+    enabled = false
+}
+
+artifacts {
+    archives(thinShadow)
+}
+
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(thinShadow)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(thinShadow)
+    }
 }
 
 val apiArtifacts by configurations.creating {
@@ -189,7 +210,7 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
 
     mergeServiceFiles()
     archiveFileName.set("cytosis.jar")
-    archiveClassifier.set("")
+    archiveClassifier.set("all")
     destinationDirectory.set(layout.buildDirectory.dir("libs"))
 
     exclude("META-INF/*.SF")
@@ -226,17 +247,8 @@ tasks.register<Copy>("copyShadowJarToSecondary") {
     }
 }
 
-tasks.jar {
-    manifest {
-        attributes["Signing-Required"] = "false"
-    }
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-}
-
 tasks.shadowJar {
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
+    enabled = false
 }
 
 tasks.register<Copy>("copyJarForDocker") {
@@ -251,16 +263,6 @@ tasks.register<Copy>("copyJarToSecondary") {
         from(thinShadow.get().archiveFile)
         into(providers.gradleProperty("server_dir2"))
     }
-}
-
-val javadocJar = tasks.register<Jar>("javadocJar") {
-    archiveClassifier.set("javadoc")
-    from(tasks.javadoc)
-}
-
-val sourcesJar = tasks.register<Jar>("sourcesJar") {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allJava)
 }
 
 publishing {
@@ -299,6 +301,10 @@ publishing {
             artifactId = project.name
             version = project.version.toString()
             from(components["java"])
+
+            artifact(fatShadow) {
+                classifier = "all"
+            }
         }
     }
 }
