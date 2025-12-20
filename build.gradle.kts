@@ -265,6 +265,10 @@ tasks.register<Copy>("copyJarToSecondary") {
     }
 }
 
+tasks.publish {
+    dependsOn(fatShadow)
+}
+
 publishing {
     repositories {
         maven {
