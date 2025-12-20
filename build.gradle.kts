@@ -269,6 +269,10 @@ tasks.publish {
     dependsOn(fatShadow)
 }
 
+tasks.withType<GenerateModuleMetadata> {
+    dependsOn(fatShadow)
+}
+
 publishing {
     repositories {
         maven {
