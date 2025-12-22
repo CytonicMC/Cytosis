@@ -12,7 +12,6 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase.PlayerEntry;
-import net.cytonic.cytosis.data.GlobalDatabase.PunishmentEntry;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
@@ -159,8 +158,6 @@ public class CytonicNetwork implements Bootstrappable {
             .forEach((id, server) -> networkPlayersOnServers.put(UUID.fromString(id), server));
 
         importPlayers();
-        importBans();
-        importMutes();
     }
 
     private void importPlayers() {
@@ -168,28 +165,19 @@ public class CytonicNetwork implements Bootstrappable {
             lifetimePlayers.put(p.uuid(), p.username());
             lifetimeFlattened.put(p.uuid(), p.username().toLowerCase());
             cachedPlayerRanks.put(p.uuid(), p.rank());
-        }
-    }
 
-    private void importBans() {
-        for (PunishmentEntry pe : gdb.loadBans()) {
-            if (pe.expiry().isBefore(Instant.now())) {
-                this.gdb.unbanPlayer(pe.player());
+            if (p.banData() != null && p.banData().expiry() != null && p.banData().expiry().isBefore(Instant.now())) {
+                this.gdb.unbanPlayer(p.uuid());
                 RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
-                redis.removeFromGlobalHash("banned_players", pe.player().toString());
+                redis.removeFromGlobalHash("banned_players", p.uuid().toString());
             } else {
-                BanData banData = new BanData(pe.reason(), pe.expiry(), true);
-                bannedPlayers.put(pe.player(), banData);
+                bannedPlayers.put(p.uuid(), p.banData());
             }
-        }
-    }
 
-    private void importMutes() {
-        for (PunishmentEntry pe : gdb.loadMutes()) {
-            if (pe.expiry().isBefore(Instant.now())) {
-                this.gdb.unmutePlayer(pe.player());
+            if (p.muteExpiry() != null && p.muteExpiry().isBefore(Instant.now())) {
+                this.gdb.unmutePlayer(p.uuid());
             } else {
-                mutedPlayers.put(pe.player(), true);
+                mutedPlayers.put(p.uuid(), true);
             }
         }
     }

@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.data;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,13 +13,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import lombok.Getter;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
@@ -45,13 +46,7 @@ import net.cytonic.cytosis.utils.Utils;
 public class GlobalDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
-    private final String host;
-    private final int port;
-    private final String database;
-    private final String username;
-    private final String password;
-    @Getter
-    private Connection connection;
+    private final HikariDataSource dataSource;
 
     /**
      * Creates and initializes a new MysqlDatabase
@@ -61,16 +56,37 @@ public class GlobalDatabase implements Bootstrappable {
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
         CytosisSettings settings = Cytosis.get(CytosisSettings.class);
-        this.host = settings.getDatabaseConfig().getHost();
-        this.port = settings.getDatabaseConfig().getPort();
-        this.database = settings.getDatabaseConfig().getGlobalDatabase();
-        this.username = settings.getDatabaseConfig().getUser();
-        this.password = settings.getDatabaseConfig().getPassword();
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            Logger.error("Failed to load database driver", e);
-        }
+        // Configure HikariCP
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
+            settings.getDatabaseConfig().getHost(),
+            settings.getDatabaseConfig().getPort(),
+            settings.getDatabaseConfig().getGlobalDatabase()));
+        config.setUsername(settings.getDatabaseConfig().getUser());
+        config.setPassword(settings.getDatabaseConfig().getPassword());
+
+        // HikariCP optimizations
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        config.setMaximumPoolSize(10); // Adjust depending on our needs
+        config.setMinimumIdle(2);
+        config.setConnectionTimeout(30000); // 30 seconds
+        config.setIdleTimeout(600000); // 10 minutes
+        config.setMaxLifetime(1800000); // 30 minutes
+        config.setPoolName("CytosisPool");
+
+        // MySQL specific optimizations
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("useServerPrepStmts", "true");
+        config.addDataSourceProperty("useLocalSessionState", "true");
+        config.addDataSourceProperty("rewriteBatchedStatements", "true");
+        config.addDataSourceProperty("cacheResultSetMetadata", "true");
+        config.addDataSourceProperty("cacheServerConfiguration", "true");
+        config.addDataSourceProperty("elideSetAutoCommits", "true");
+        config.addDataSourceProperty("maintainTimeStats", "false");
+
+        this.dataSource = new HikariDataSource(config);
     }
 
     @Override
@@ -90,9 +106,10 @@ public class GlobalDatabase implements Bootstrappable {
     public void connect() {
         if (!isConnected()) {
             try {
-                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database
-                    + "?autoReconnect=true&allowPublicKeyRetrieval=true", username, password);
-                Logger.info("Successfully connected to the Global MySQL Database!");
+                // Test the connection
+                try (Connection conn = dataSource.getConnection()) {
+                    Logger.info("Successfully connected to the Environmental MySQL Database!");
+                }
             } catch (SQLException e) {
                 Logger.error("Invalid Database Credentials!", e);
                 MinecraftServer.stopCleanly();
@@ -106,21 +123,27 @@ public class GlobalDatabase implements Bootstrappable {
      * @return if the database is connected
      */
     public boolean isConnected() {
-        return (connection != null);
+        return dataSource != null && !dataSource.isClosed();
     }
 
     /**
-     * Disconnects from the database server
+     * Disconnects from the database server (closes the pool)
      */
     public void disconnect() {
         if (isConnected()) {
-            try {
-                connection.close();
-                Logger.info("Global Database connection closed!");
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst disconnecting from the global database.", e);
-            }
+            dataSource.close();
+            Logger.info("Database connection pool closed!");
         }
+    }
+
+    /**
+     * Gets a connection from the pool
+     *
+     * @return A connection from the pool
+     * @throws SQLException if a connection cannot be obtained
+     */
+    private Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 
     /**
@@ -133,14 +156,32 @@ public class GlobalDatabase implements Bootstrappable {
         createMutesTable();
         createPreferencesTable();
         createFriendTable();
+
+        createOptimizedIndexes();
+    }
+
+    private void createOptimizedIndexes() {
+        String[] indexes = {
+            "CREATE INDEX IF NOT EXISTS idx_bans_expiry ON cytonic_bans(to_expire)",
+            "CREATE INDEX IF NOT EXISTS idx_mutes_expiry ON cytonic_mutes(to_expire)",
+            "CREATE INDEX IF NOT EXISTS idx_players_name ON cytonic_players(name)",
+        };
+
+        for (String sql : indexes) {
+            try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+                ps.execute();
+            } catch (Exception e) {
+                Logger.error("Failed to create index", e);
+            }
+        }
     }
 
     /**
      * Creates the bans table
      */
     private void createBansTable() {
-        try {
-            getConnection().prepareStatement("""
+        try (Connection conn = getConnection()) {
+            conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_bans (
                     uuid VARCHAR(36),
                     to_expire VARCHAR(100),
@@ -157,8 +198,8 @@ public class GlobalDatabase implements Bootstrappable {
      * Creates the player data table
      */
     private void createPlayersTable() {
-        try {
-            getConnection().prepareStatement("""
+        try (Connection conn = getConnection()) {
+            conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_players (
                     uuid VARCHAR(36),
                     `rank` VARCHAR(16),
@@ -175,8 +216,8 @@ public class GlobalDatabase implements Bootstrappable {
      * Creates the world table
      */
     public void createWorldTable() {
-        try {
-            getConnection().prepareStatement("""
+        try (Connection conn = getConnection()) {
+            conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_worlds (
                     world_name TEXT,
                     world_type TEXT,
@@ -194,8 +235,8 @@ public class GlobalDatabase implements Bootstrappable {
     }
 
     public void createPreferencesTable() {
-        try {
-            getConnection().prepareStatement("""
+        try (Connection conn = getConnection()) {
+            conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_preferences (
                     uuid VARCHAR(36) PRIMARY KEY,
                     preferences TEXT
@@ -207,8 +248,8 @@ public class GlobalDatabase implements Bootstrappable {
     }
 
     public void createFriendTable() {
-        try {
-            getConnection().prepareStatement("""
+        try (Connection conn = getConnection()) {
+            conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_friends (
                     uuid VARCHAR(36),
                     friends TEXT,
@@ -224,8 +265,8 @@ public class GlobalDatabase implements Bootstrappable {
      * Creates the bans table
      */
     private void createMutesTable() {
-        try {
-            getConnection().prepareStatement("""
+        try (Connection conn = getConnection()) {
+            conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_mutes (
                     uuid VARCHAR(36),
                     to_expire VARCHAR(100),
@@ -250,9 +291,9 @@ public class GlobalDatabase implements Bootstrappable {
             if (!isConnected()) {
                 throw new IllegalStateException("The database must be connected to mute players.");
             }
-            try {
+            try (Connection conn = getConnection()) {
                 Cytosis.get(CytonicNetwork.class).getMutedPlayers().put(uuid, true);
-                PreparedStatement ps = getConnection().prepareStatement(
+                PreparedStatement ps = conn.prepareStatement(
                     "INSERT IGNORE INTO cytonic_mutes (uuid, to_expire) VALUES (?,?)");
                 ps.setString(1, uuid.toString());
                 ps.setString(2, toExpire.toString());
@@ -278,8 +319,8 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_mutes WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
@@ -313,9 +354,9 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
+            try (Connection conn = getConnection()) {
                 Cytosis.get(CytonicNetwork.class).getMutedPlayers().remove(uuid);
-                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
                 future.complete(null);
@@ -341,8 +382,8 @@ public class GlobalDatabase implements Bootstrappable {
             throw new IllegalStateException("The database must have an open connection to fetch a player's rank!");
         }
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("SELECT `rank` FROM cytonic_players WHERE uuid = ?");
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("SELECT `rank` FROM cytonic_players WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
@@ -372,8 +413,8 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("""
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("""
                     INSERT INTO cytonic_players (uuid, `rank`)
                     VALUES (?,?)
                     ON DUPLICATE KEY UPDATE `rank` = VALUES(rank)
@@ -408,8 +449,8 @@ public class GlobalDatabase implements Bootstrappable {
             if (!isConnected()) {
                 throw new IllegalStateException("The database must be connected to ban players.");
             }
-            try {
-                PreparedStatement ps = getConnection().prepareStatement(
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement(
                     "INSERT IGNORE INTO cytonic_bans (uuid, to_expire, reason) VALUES (?,?,?)");
                 ps.setString(1, uuid.toString());
                 ps.setString(2, toExpire.toString());
@@ -442,8 +483,8 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<BanData> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM cytonic_bans WHERE uuid = ?");
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
@@ -484,8 +525,8 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM cytonic_bans WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
 
@@ -513,8 +554,8 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<UUID> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM cytonic_players WHERE name = ?");
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_players WHERE name = ?");
                 ps.setString(1, name);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
@@ -543,8 +584,8 @@ public class GlobalDatabase implements Bootstrappable {
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = getConnection().prepareStatement("""
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("""
                     INSERT IGNORE INTO cytonic_players (name, uuid, `rank`)
                     VALUES (?,?,?) ON DUPLICATE KEY UPDATE name = ?
                     """);
@@ -572,8 +613,8 @@ public class GlobalDatabase implements Bootstrappable {
         world.setCompression(PolarWorld.CompressionType.ZSTD);
 
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement("""
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("""
                     INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid)
                     VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)
                     """);
@@ -605,7 +646,7 @@ public class GlobalDatabase implements Bootstrappable {
             throw new IllegalStateException("The database must have an open connection to fetch a world!");
         }
         worker.submit(() -> {
-            try (PreparedStatement ps = connection.prepareStatement(
+            try (PreparedStatement ps = getConnection().prepareStatement(
                 "SELECT * FROM cytonic_worlds WHERE world_name = ?")) {
                 ps.setString(1, worldName);
                 ResultSet rs = ps.executeQuery();
@@ -641,7 +682,7 @@ public class GlobalDatabase implements Bootstrappable {
             throw new IllegalStateException("The database must have an open connection to fetch a world!");
         }
         worker.submit(() -> {
-            try (PreparedStatement ps = connection.prepareStatement(
+            try (PreparedStatement ps = getConnection().prepareStatement(
                 "SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
@@ -671,7 +712,7 @@ public class GlobalDatabase implements Bootstrappable {
                 "The database must have an open connection to fetch the extra data from a world!");
         }
         worker.submit(() -> {
-            try (PreparedStatement ps = connection.prepareStatement(
+            try (PreparedStatement ps = getConnection().prepareStatement(
                 "SELECT extra_data FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
                 ps.setString(1, worldName);
                 ps.setString(2, worldType);
@@ -697,7 +738,7 @@ public class GlobalDatabase implements Bootstrappable {
             throw new IllegalStateException("The database must have an open connection to fetch a world!");
         }
         worker.submit(() -> {
-            try (PreparedStatement ps = connection.prepareStatement(
+            try (PreparedStatement ps = getConnection().prepareStatement(
                 "SELECT world_name FROM cytonic_worlds WHERE world_name = ?")) {
                 ps.setString(1, worldName);
                 ResultSet rs = ps.executeQuery();
@@ -711,41 +752,40 @@ public class GlobalDatabase implements Bootstrappable {
         return future;
     }
 
-    public List<PunishmentEntry> loadBans() {
-        List<PunishmentEntry> list = new ArrayList<>();
-        try {
-            ResultSet rs = connection.prepareStatement("SELECT * FROM cytonic_bans").executeQuery();
-            while (rs.next()) {
-                list.add(new PunishmentEntry(UUID.fromString(rs.getString("uuid")),
-                    Instant.parse(rs.getString("to_expire")), rs.getString("reason")));
-            }
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst loading bans!", e);
-        }
-        return list;
-    }
-
-    public List<PunishmentEntry> loadMutes() {
-        List<PunishmentEntry> list = new ArrayList<>();
-        try {
-            ResultSet rs = connection.prepareStatement("SELECT * FROM cytonic_mutes").executeQuery();
-            while (rs.next()) {
-                list.add(new PunishmentEntry(UUID.fromString(rs.getString("uuid")),
-                    Instant.parse(rs.getString("to_expire")), ""));
-            }
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst loading mutes!", e);
-        }
-        return list;
-    }
-
     public List<PlayerEntry> loadPlayers() {
         List<PlayerEntry> list = new ArrayList<>();
-        try {
-            ResultSet rs = connection.prepareStatement("SELECT * FROM cytonic_players").executeQuery();
+        try (Connection conn = getConnection()) {
+            ResultSet rs = conn.prepareStatement("""
+                SELECT
+                    p.uuid,
+                    p.name,
+                    p.rank,
+                    b.reason as ban_reason,
+                    b.to_expire as ban_expiry,
+                    m.to_expire as mute_expiry
+                FROM cytonic_players p
+                LEFT JOIN cytonic_bans b ON p.uuid = b.uuid
+                LEFT JOIN cytonic_mutes m ON p.uuid = m.uuid
+                """).executeQuery();
             while (rs.next()) {
-                list.add(new PlayerEntry(UUID.fromString(rs.getString("uuid")),
-                    rs.getString("name"), PlayerRank.valueOf(rs.getString("rank"))));
+                UUID uuid = UUID.fromString(rs.getString("uuid"));
+                String name = rs.getString("name");
+                PlayerRank rank = PlayerRank.valueOf(rs.getString("rank"));
+
+                // Ban data (if exists)
+                BanData banData = null;
+                String banReason = rs.getString("ban_reason");
+                if (banReason != null) {
+                    Instant banExpiry = Instant.parse(rs.getString("ban_expiry"));
+                    banData = new BanData(banReason, banExpiry, true);
+                }
+
+                Instant muteExpiry = null;
+                if (rs.getString("mute_expiry") != null) {
+                    muteExpiry = Instant.parse(rs.getString("mute_expiry"));
+                }
+
+                list.add(new PlayerEntry(uuid, name, rank, banData, muteExpiry));
             }
         } catch (SQLException e) {
             Logger.error("An error occurred whilst loading players!", e);
@@ -756,8 +796,8 @@ public class GlobalDatabase implements Bootstrappable {
     public CompletableFuture<PreferenceData> loadPlayerPreferences(UUID player) {
         CompletableFuture<PreferenceData> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement load = connection.prepareStatement(
+            try (Connection conn = getConnection()) {
+                PreparedStatement load = conn.prepareStatement(
                     "SELECT * FROM cytonic_preferences WHERE uuid = ?");
                 load.setString(1, player.toString());
                 ResultSet rs = load.executeQuery();
@@ -777,8 +817,8 @@ public class GlobalDatabase implements Bootstrappable {
     public CompletableFuture<List<UUID>> loadFriends(UUID player) {
         CompletableFuture<List<UUID>> future = new CompletableFuture<>();
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement(
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement(
                     "SELECT * FROM cytonic_friends WHERE uuid = ?");
                 ps.setString(1, player.toString());
                 ResultSet rs = ps.executeQuery();
@@ -797,8 +837,8 @@ public class GlobalDatabase implements Bootstrappable {
     public void updateFriends(UUID player, List<UUID> friends) {
         worker.submit(() -> {
 
-            try {
-                PreparedStatement ps = connection.prepareStatement("""
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement("""
                     INSERT INTO cytonic_friends (uuid, friends)
                     VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?
                     """);
@@ -816,8 +856,8 @@ public class GlobalDatabase implements Bootstrappable {
 
     public void addNewPlayerPreferences(UUID player, PreferenceData data) {
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement(
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO cytonic_preferences VALUES(?,?)");
                 ps.setString(1, player.toString());
                 ps.setString(2, data.serialize());
@@ -830,8 +870,8 @@ public class GlobalDatabase implements Bootstrappable {
 
     public void persistPlayerPreferences(UUID player, PreferenceData data) {
         worker.submit(() -> {
-            try {
-                PreparedStatement ps = connection.prepareStatement(
+            try (Connection conn = getConnection()) {
+                PreparedStatement ps = conn.prepareStatement(
                     "UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?");
                 ps.setString(1, player.toString());
                 ps.setString(2, data.serialize());
@@ -842,11 +882,8 @@ public class GlobalDatabase implements Bootstrappable {
         });
     }
 
-    public record PunishmentEntry(UUID player, Instant expiry, String reason) {
-
-    }
-
-    public record PlayerEntry(UUID uuid, String username, PlayerRank rank) {
+    public record PlayerEntry(UUID uuid, String username, PlayerRank rank, @Nullable BanData banData,
+                              @Nullable Instant muteExpiry) {
 
     }
 }

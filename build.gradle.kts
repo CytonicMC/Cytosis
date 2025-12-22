@@ -44,6 +44,7 @@ dependencies {
     api(libs.mixin)
     api(libs.minimessage)
     api(libs.fastutil)
+    api(libs.hikaricp)
 
 
     // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
@@ -74,6 +75,8 @@ dependencies {
     }
     runtimeDownloadOnly(libs.mixin)
     runtimeDownloadOnly(libs.fastutil)
+    runtimeDownloadOnly(libs.hikaricp)
+
 
     // Dependency loading
     implementation(libs.dependencydownload)

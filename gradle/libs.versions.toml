@@ -23,6 +23,7 @@ reflections = "0.10.2"
 lombokwarningfix = "4.0.4"
 mixin = "0.16.5+mixin.0.8.7"
 fastutil = "8.5.18"
+hikaricp = "7.0.2"
 
 [libraries]
 minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
@@ -50,6 +51,7 @@ opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporte
 dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
 mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]
