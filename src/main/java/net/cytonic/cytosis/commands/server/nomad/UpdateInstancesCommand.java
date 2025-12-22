@@ -25,7 +25,7 @@ public class UpdateInstancesCommand extends CytosisCommand {
             }
 
             String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
-            Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).updateServers(type);
+            Cytosis.get(ServerInstancingManager.class).updateServers(type);
             sender.sendMessage(Msg.success(
                 "Dispatched the update of every %s instance! It may be a while until every instance has been updated!",
                 niceName));

@@ -20,7 +20,7 @@ public class GetPersonalCommand extends CytosisCommand {
     public GetPersonalCommand() {
         super("personal");
         setDefaultExecutor(CooldownCommand.HELP_EXECUTOR);
-        NetworkCooldownManager ncm = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
+        NetworkCooldownManager ncm = Cytosis.get(NetworkCooldownManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((sender, ctx, suggestion) -> {
             for (Key preference : ncm.getAllKeys()) {

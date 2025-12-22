@@ -23,8 +23,8 @@ public class FriendCommand extends CytosisCommand {
         .setSuggestionCallback((sender, context, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
 
-                CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-                List<UUID> friends = Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid());
+                CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
+                List<UUID> friends = Cytosis.get(FriendManager.class).getFriends(player.getUuid());
 
                 for (String networkPlayer : network.getOnlinePlayers().getValues()) {
                     if (networkPlayer.equalsIgnoreCase(player.getUsername())) {

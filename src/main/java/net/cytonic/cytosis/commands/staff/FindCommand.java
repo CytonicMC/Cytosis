@@ -30,7 +30,7 @@ public class FindCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (sender instanceof final CytosisPlayer player) {
                 String playerName = context.get(CommandUtils.NETWORK_PLAYERS);
-                CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+                CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
                 UUID uuid = network.getLifetimeFlattened().getByValue(playerName.toLowerCase());
                 if (!network.getOnlinePlayers().containsKey(uuid)) {
                     player.sendMessage(

@@ -31,11 +31,11 @@ public class FriendAcceptCommand extends CytosisCommand {
                 return;
             }
 
-            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
             String name = network.getLifetimePlayers().getByKey(target);
             Component targetComp = network.getCachedPlayerRanks().get(target).getPrefix().append(Component.text(name));
 
-            if (Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
+            if (Cytosis.get(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
                 player.sendMessage(Msg.whoops("You are already friends with ").append(targetComp)
                     .append(Msg.mm("<gray>!")));
                 return;

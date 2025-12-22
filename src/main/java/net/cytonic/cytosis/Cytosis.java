@@ -79,7 +79,7 @@ public final class Cytosis {
      *
      * @param args Runtime flags
      */
-    public static void main(String[] args) {
+    static void main(String[] args) {
         new CytosisBootstrap(args, CONTEXT).run();
     }
 
@@ -202,5 +202,9 @@ public final class Cytosis {
                     Logger.info("World loaded!");
                 }
             });
+    }
+
+    public static <ComponentType> ComponentType get(Class<ComponentType> clazz) {
+        return CONTEXT.getComponent(clazz);
     }
 }

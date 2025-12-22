@@ -51,7 +51,7 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             }
 
             AnvilLoader loader = new EntityAnvilLoader(readPath);
-            InstanceManager instanceManager = Cytosis.CONTEXT.getComponent(InstanceManager.class);
+            InstanceManager instanceManager = Cytosis.get(InstanceManager.class);
             InstanceContainer c = instanceManager.createInstanceContainer(loader);
             player.setInstance(c);
 
@@ -70,7 +70,7 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             polarLoader.saveInstance(c);
 
             UUID uuid = UUID.randomUUID();
-            Cytosis.CONTEXT.getComponent(GlobalDatabase.class)
+            Cytosis.get(GlobalDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
                 .whenComplete((result, error) -> {
                     MinecraftServer.getSchedulerManager()

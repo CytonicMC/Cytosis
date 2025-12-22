@@ -39,9 +39,9 @@ public class FriendManager implements Bootstrappable {
      */
     @Override
     public void init() {
-        this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-        this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        this.network = Cytosis.get(CytonicNetwork.class);
+        this.natsManager = Cytosis.get(NatsManager.class);
+        this.db = Cytosis.get(GlobalDatabase.class);
     }
 
     /**

@@ -44,7 +44,7 @@ public class KickCommand extends CytosisCommand {
                     return;
                 }
 
-                PlayerRank rank = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
+                PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
                 if (rank == null) {
                     sender.sendMessage(Msg.whoops("Failed to fine %s's rank!", player));
                     return;
@@ -58,9 +58,9 @@ public class KickCommand extends CytosisCommand {
                 Component snoop = actor.formattedName().append(Msg.grey("kicked "))
                     .append(SnoopUtils.toTarget(uuid))
                     .append(Msg.grey("for <yellow>" + reason + "</yellow>."));
-                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                Cytosis.get(SnooperManager.class)
                     .sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
-                Cytosis.CONTEXT.getComponent(NatsManager.class)
+                Cytosis.get(NatsManager.class)
                     .kickPlayer(uuid, KickReason.COMMAND,
                         Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason));
 

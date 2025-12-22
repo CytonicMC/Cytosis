@@ -35,8 +35,8 @@ public class FriendAddCommand extends CytosisCommand {
                 return;
             }
 
-            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-            NicknameManager nicknameManager = Cytosis.CONTEXT.getComponent(NicknameManager.class);
+            CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
+            NicknameManager nicknameManager = Cytosis.get(NicknameManager.class);
 
             boolean nicked = nicknameManager.isNicked(target);
             String name = network.getLifetimePlayers().getByKey(target);
@@ -52,14 +52,14 @@ public class FriendAddCommand extends CytosisCommand {
                 return;
             }
 
-            if (!Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+            if (!Cytosis.get(PreferenceManager.class)
                 .getPlayerPreference(target, CytosisPreferences.ACCEPT_FRIEND_REQUESTS) || nicked) {
                 player.sendMessage(Msg.whoops("").append(targetComp)
                     .append(Msg.mm("<gray> is not accepting friend requests!")));
                 return;
             }
 
-            if (Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
+            if (Cytosis.get(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
                 player.sendMessage(Msg.whoops("You are already friends with ").append(targetComp)
                     .append(Msg.mm("<gray>!")));
                 return;

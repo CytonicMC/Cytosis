@@ -25,7 +25,7 @@ public class StatusCommand extends CytosisCommand {
 
     public StatusCommand() {
         super("status");
-        Environment env = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment();
+        Environment env = Cytosis.get(EnvironmentManager.class).getEnvironment();
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("You must specify a player!")));
 
@@ -61,12 +61,12 @@ public class StatusCommand extends CytosisCommand {
     }
 
     private void hasWhiteList(UUID uuid, String msg, CytosisPlayer player, Environment environment) {
-        PlayerRank rank = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
+        PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
         if (rank != null && rank.isStaff()) {
             player.sendMessage(Msg.whoops("'%s' bypasses the whitelist!", msg));
             return;
         }
-        RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        RedisDatabase redis = Cytosis.get(RedisDatabase.class);
         if (redis.getSet("player_whitelist", environment).contains(uuid.toString())) {
             player.sendMessage(Msg.greenSplash("HIT!", "'%s' is whitelisted on the %s Network!", msg,
                 Utils.captializeFirstLetters(environment.name().toLowerCase())));

@@ -60,7 +60,7 @@ public class GlobalDatabase implements Bootstrappable {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
-        CytosisSettings settings = Cytosis.CONTEXT.getComponent(CytosisSettings.class);
+        CytosisSettings settings = Cytosis.get(CytosisSettings.class);
         this.host = settings.getDatabaseConfig().getHost();
         this.port = settings.getDatabaseConfig().getPort();
         this.database = settings.getDatabaseConfig().getGlobalDatabase();
@@ -251,7 +251,7 @@ public class GlobalDatabase implements Bootstrappable {
                 throw new IllegalStateException("The database must be connected to mute players.");
             }
             try {
-                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getMutedPlayers().put(uuid, true);
+                Cytosis.get(CytonicNetwork.class).getMutedPlayers().put(uuid, true);
                 PreparedStatement ps = getConnection().prepareStatement(
                     "INSERT IGNORE INTO cytonic_mutes (uuid, to_expire) VALUES (?,?)");
                 ps.setString(1, uuid.toString());
@@ -314,7 +314,7 @@ public class GlobalDatabase implements Bootstrappable {
         CompletableFuture<Void> future = new CompletableFuture<>();
         worker.submit(() -> {
             try {
-                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getMutedPlayers().remove(uuid);
+                Cytosis.get(CytonicNetwork.class).getMutedPlayers().remove(uuid);
                 PreparedStatement ps = getConnection().prepareStatement("DELETE FROM cytonic_mutes WHERE uuid = ?");
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
@@ -382,7 +382,7 @@ public class GlobalDatabase implements Bootstrappable {
                 ps.setString(2, rank.name());
                 ps.executeUpdate();
 
-                Cytosis.CONTEXT.getComponent(RedisDatabase.class)
+                Cytosis.get(RedisDatabase.class)
                     .addToGlobalHash("player_ranks", uuid.toString(), rank.name());
 
                 future.complete(null);
@@ -416,7 +416,7 @@ public class GlobalDatabase implements Bootstrappable {
                 ps.setString(3, reason);
                 ps.executeUpdate();
 
-                RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+                RedisDatabase redis = Cytosis.get(RedisDatabase.class);
                 BanData data = new BanData(reason, toExpire, true);
                 redis.addToGlobalHash("banned_players", uuid.toString(), Cytosis.GSON.toJson(data));
 
@@ -489,7 +489,7 @@ public class GlobalDatabase implements Bootstrappable {
                 ps.setString(1, uuid.toString());
                 ps.executeUpdate();
 
-                RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+                RedisDatabase redis = Cytosis.get(RedisDatabase.class);
                 redis.removeFromGlobalHash("banned_players", uuid.toString());
 
                 future.complete(null);
@@ -611,7 +611,7 @@ public class GlobalDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.CONTEXT.getComponent(CytosisSettings.class)
+                    Cytosis.get(CytosisSettings.class)
                         .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
                     future.complete(world);
                 } else {
@@ -648,7 +648,7 @@ public class GlobalDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.CONTEXT.getComponent(CytosisSettings.class)
+                    Cytosis.get(CytosisSettings.class)
                         .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
                     future.complete(world);
                 } else {

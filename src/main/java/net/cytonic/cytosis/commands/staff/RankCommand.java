@@ -60,7 +60,7 @@ public class RankCommand extends CytosisCommand {
                 return;
             }
 
-            Cytosis.CONTEXT.getComponent(GlobalDatabase.class).getPlayerRank(target).thenAccept(rank -> {
+            Cytosis.get(GlobalDatabase.class).getPlayerRank(target).thenAccept(rank -> {
                 if (!PlayerRank.canChangeRank(player.getRank(), rank, newRank)) {
                     sender.sendMessage(Msg.whoops("You cannot do this!"));
                     return;
@@ -78,16 +78,16 @@ public class RankCommand extends CytosisCommand {
         if (!(sender instanceof CytosisPlayer player)) return;
         actor = player.trueFormattedName();
 
-        String usr = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
+        String usr = Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
         Component usrComp = oldRank.getPrefix().append(Component.text(usr, oldRank.getTeamColor()));
 
         Component snoop = actor.append(Msg.mm("<gray> changed ")).append(usrComp).append(Msg.mm("<gray>'s rank to "))
             .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))
             .append(Msg.mm("<gray>."));
 
-        Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
-        Cytosis.CONTEXT.getComponent(GlobalDatabase.class).setPlayerRank(uuid, rank).thenAccept(unused -> {
-            Cytosis.CONTEXT.getComponent(NatsManager.class).sendPlayerRankUpdate(uuid, rank);
+        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
+        Cytosis.get(GlobalDatabase.class).setPlayerRank(uuid, rank).thenAccept(unused -> {
+            Cytosis.get(NatsManager.class).sendPlayerRankUpdate(uuid, rank);
             sender.sendMessage(Msg.mm("<green>Successfully updated " + usr + "'s rank!"));
         }).exceptionally(throwable -> {
             sender.sendMessage(Msg.mm(

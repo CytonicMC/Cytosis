@@ -33,7 +33,7 @@ public class DefaultCreator implements SideboardCreator {
     public List<Component> lines(CytosisPlayer player) {
         try {
             return List.of(Msg.mm("<gray>" + CytosisContext.SERVER_ID),
-                Msg.mm("<green>Players: " + Cytosis.CONTEXT.getComponent(CytonicNetwork.class)
+                Msg.mm("<green>Players: " + Cytosis.get(CytonicNetwork.class)
                     .getOnlinePlayers()
                     .size()), Msg.mm(""), Msg.mm("Cytosis v" + Cytosis.VERSION), Msg.mm(""), Msg.mm("<green>Rank: ")
                     .append(Component.text(player.getRank()

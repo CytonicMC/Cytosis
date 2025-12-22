@@ -49,11 +49,11 @@ public class MysqlDatabase implements Bootstrappable {
      * Creates and initializes a new MysqlDatabase
      */
     public MysqlDatabase() {
-        String prefix = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment().getPrefix();
+        String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
-        CytosisSettings settings = Cytosis.CONTEXT.getComponent(CytosisSettings.class);
+        CytosisSettings settings = Cytosis.get(CytosisSettings.class);
         this.host = settings.getDatabaseConfig().getHost();
         this.port = settings.getDatabaseConfig().getPort();
         this.database = prefix + settings.getDatabaseConfig().getName();
@@ -304,7 +304,7 @@ public class MysqlDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.CONTEXT.getComponent(CytosisSettings.class)
+                    Cytosis.get(CytosisSettings.class)
                         .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
                     future.complete(world);
                 } else {
@@ -341,7 +341,7 @@ public class MysqlDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.CONTEXT.getComponent(CytosisSettings.class)
+                    Cytosis.get(CytosisSettings.class)
                         .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
                     future.complete(world);
                 } else {

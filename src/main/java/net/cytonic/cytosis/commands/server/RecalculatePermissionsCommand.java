@@ -11,7 +11,7 @@ public class RecalculatePermissionsCommand extends CytosisCommand {
         super("recalculatepermissions", "recalcperms");
         setDefaultExecutor((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            Cytosis.CONTEXT.getComponent(CommandHandler.class).recalculateCommands(player);
+            Cytosis.get(CommandHandler.class).recalculateCommands(player);
         });
     }
 }

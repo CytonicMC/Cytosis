@@ -38,7 +38,7 @@ public class ShutdownInstancesCommand extends CytosisCommand {
             }
 
             String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
-            Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).deleteAllServerInstances(type);
+            Cytosis.get(ServerInstancingManager.class).deleteAllServerInstances(type);
             sender.sendMessage(Msg.success("Dispatched the deletion of all %s instances!", niceName));
         }, typeArg);
     }

@@ -35,7 +35,7 @@ public class BroadcastCommand extends CytosisCommand {
                 if (context.get(serverArgument).equalsIgnoreCase("this")) {
                     Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
                 } else if (context.get(serverArgument).equalsIgnoreCase("all")) {
-                    Cytosis.CONTEXT.getComponent(NatsManager.class).sendBroadcast(broadcast);
+                    Cytosis.get(NatsManager.class).sendBroadcast(broadcast);
                 }
             }
         }, serverArgument, broadcastArgument);

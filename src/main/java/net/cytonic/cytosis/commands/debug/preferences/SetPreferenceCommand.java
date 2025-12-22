@@ -20,7 +20,7 @@ public class SetPreferenceCommand extends CytosisCommand {
 
     public SetPreferenceCommand() {
         super("set");
-        PreferenceManager pm = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+        PreferenceManager pm = Cytosis.get(PreferenceManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
             for (Key preference : pm.getPreferenceRegistry().namespaces()) {

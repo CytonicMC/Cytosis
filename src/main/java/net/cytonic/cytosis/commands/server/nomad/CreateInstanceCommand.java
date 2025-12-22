@@ -39,7 +39,7 @@ public class CreateInstanceCommand extends CytosisCommand {
             }
             int quantity = context.get(quantityArg);
             String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
-            Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).createServerInstances(type, quantity);
+            Cytosis.get(ServerInstancingManager.class).createServerInstances(type, quantity);
             sender.sendMessage(
                 Msg.success("Dispatched the creation of new %s instance! It may take up to 30s to fully start up.",
                     niceName));

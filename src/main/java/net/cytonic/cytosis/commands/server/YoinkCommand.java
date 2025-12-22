@@ -28,7 +28,7 @@ public class YoinkCommand extends CytosisCommand {
 
         var playerArgument = ArgumentType.Word("player");
         playerArgument.setSuggestionCallback(
-            (cmds, cmdc, suggestion) -> Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers()
+            (cmds, cmdc, suggestion) -> Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
                 .getValues()
                 .forEach(v -> suggestion.addEntry(new SuggestionEntry(v))));
         playerArgument.setCallback((sender, exception) -> sender.sendMessage(
@@ -38,7 +38,7 @@ public class YoinkCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
 
             String playerName = context.get(playerArgument);
-            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
             UUID uuid = network.getLifetimeFlattened().getByValue(playerName.toLowerCase());
             if (uuid == null) {
                 sender.sendMessage(Msg.whoops("The player " + playerName + " doesn't exist!"));
@@ -55,7 +55,7 @@ public class YoinkCommand extends CytosisCommand {
                 return;
             }
 
-            NatsManager natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
+            NatsManager natsManager = Cytosis.get(NatsManager.class);
             natsManager.sendPlayerToServer(uuid, Cytosis.CONTEXT.currentServer(), null);
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())

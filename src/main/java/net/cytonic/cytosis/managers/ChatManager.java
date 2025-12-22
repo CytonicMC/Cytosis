@@ -42,8 +42,8 @@ public class ChatManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
-        this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
+        this.preferenceManager = Cytosis.get(PreferenceManager.class);
+        this.natsManager = Cytosis.get(NatsManager.class);
     }
 
     /**
@@ -125,17 +125,17 @@ public class ChatManager implements Bootstrappable {
         }
 
         UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
-        PlayerRank recipientRank = Cytosis.CONTEXT.getComponent(RankManager.class).getPlayerRank(uuid).orElseThrow();
+        PlayerRank recipientRank = Cytosis.get(RankManager.class).getPlayerRank(uuid).orElseThrow();
 
         Component recipient = recipientRank.getPrefix()
-            .append(Component.text(Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers()
+            .append(Component.text(Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .getByKey(uuid), recipientRank.getTeamColor()));
 
         Component component = Msg.mm("<dark_aqua>From <reset>")
             .append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername())))
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.CONTEXT.getComponent(MysqlDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
+        Cytosis.get(MysqlDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
         natsManager
             .sendChatMessage(new ChatMessage(List.of(uuid), ChatChannel.PRIVATE_MESSAGE, JSONComponentSerializer.json()
                 .serialize(component), player.getUuid()));

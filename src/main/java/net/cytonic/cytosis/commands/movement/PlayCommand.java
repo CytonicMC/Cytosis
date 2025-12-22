@@ -18,7 +18,7 @@ public class PlayCommand extends CytosisCommand {
         });
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            NatsManager natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
+            NatsManager natsManager = Cytosis.get(NatsManager.class);
             switch (context.get(word).toLowerCase()) {
                 case "gg", "gilded", "gilded_gorge" -> natsManager
                     .sendPlayerToGenericServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");

@@ -161,7 +161,7 @@ public class HumanoidBuilder {
     public Humanoid build() {
         npc.setInstance(instanceContainer, pos);
         npc.createHolograms();
-        Cytosis.CONTEXT.getComponent(NpcManager.class).addNpc(npc);
+        Cytosis.get(NpcManager.class).addNpc(npc);
         return npc;
     }
 }

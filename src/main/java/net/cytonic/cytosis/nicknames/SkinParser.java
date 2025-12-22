@@ -17,7 +17,7 @@ public class SkinParser {
 
     @SuppressWarnings("unchecked")
     public static Tuple<String, String>[] parseSkinData() {
-        File file = Cytosis.CONTEXT.getComponent(FileManager.class)
+        File file = Cytosis.get(FileManager.class)
             .extractResource("skins.json", Path.of("skins.json"));
         InputStreamReader reader = null;
         try {

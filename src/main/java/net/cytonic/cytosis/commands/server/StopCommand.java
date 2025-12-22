@@ -29,7 +29,7 @@ public class StopCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (context.get(confirmArgument).equalsIgnoreCase("confirm")) {
                 if (Cytosis.IS_NOMAD) {
-                    Cytosis.CONTEXT.getComponent(ServerInstancingManager.class).deleteThisServerInstance();
+                    Cytosis.get(ServerInstancingManager.class).deleteThisServerInstance();
                     sender.sendMessage(Msg.success("Dispatched the shutdown of this instance!"));
                     return;
                 }

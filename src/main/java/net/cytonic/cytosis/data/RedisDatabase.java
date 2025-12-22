@@ -41,11 +41,11 @@ public class RedisDatabase implements Bootstrappable {
      * Initializes the connection to redis using the loaded settings and the Jedis client
      */
     public RedisDatabase() {
-        RedisConfig settings = Cytosis.CONTEXT.getComponent(CytosisSettings.class).getRedisConfig();
+        RedisConfig settings = Cytosis.get(CytosisSettings.class).getRedisConfig();
         HostAndPort hostAndPort = new HostAndPort(settings.getHost(), settings.getPort());
         JedisClientConfig config = DefaultJedisClientConfig.builder().password(settings.getPassword()).build();
         this.jedis = new JedisPooled(hostAndPort, config);
-        prefix = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment().getPrefix();
+        prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
     }
 
     @Override

@@ -30,9 +30,9 @@ public class DisableCommand extends CytosisCommand {
         setDefaultExecutor((sender, context) -> sender.sendMessage(Msg.whoops("Invalid Syntax! /disable <cmd>")));
 
         addSyntax((sender, context) -> {
-            CommandDisablingManager commandDisablingManager = Cytosis.CONTEXT.getComponent(
+            CommandDisablingManager commandDisablingManager = Cytosis.get(
                 CommandDisablingManager.class);
-            CommandManager commandManager = Cytosis.CONTEXT.getComponent(CommandManager.class);
+            CommandManager commandManager = Cytosis.get(CommandManager.class);
             String rawCommand = context.get(cmd);
 
             if (commandManager.getCommand(rawCommand) instanceof CytosisCommand command) {

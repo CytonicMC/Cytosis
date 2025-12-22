@@ -9,7 +9,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 
 public class CooldownCommand extends CytosisCommand {
 
-    public static final CommandExecutor HELP_EXECUTOR = (sender, context) -> Cytosis.CONTEXT.getComponent(
+    public static final CommandExecutor HELP_EXECUTOR = (sender, context) -> Cytosis.get(
         CommandManager.class).execute(sender, "cooldown help");
 
     public CooldownCommand() {

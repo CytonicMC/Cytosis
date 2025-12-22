@@ -32,7 +32,7 @@ import net.cytonic.cytosis.utils.SnoopUtils;
  */
 public class BanCommand extends CytosisCommand {
 
-    private final GlobalDatabase gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+    private final GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
 
     /**
      * Creates the command and sets the consumers
@@ -116,7 +116,7 @@ public class BanCommand extends CytosisCommand {
 
     private void handleSuccessfulBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
         BanData banData = new BanData(reason, dur, true);
-        Cytosis.CONTEXT.getComponent(NatsManager.class)
+        Cytosis.get(NatsManager.class)
             .kickPlayer(uuid, KickReason.BANNED, Msg.formatBanMessage(banData));
 
         String durationText = DurationParser.unparseFull(dur);
@@ -130,7 +130,7 @@ public class BanCommand extends CytosisCommand {
         Component snoop = actor.formattedName().append(Msg.grey(" banned ")).append(SnoopUtils.toTarget(uuid))
             .append(Msg.grey(" for %s with the reason %s", durationText, reason));
 
-        Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_BAN, Msg.snoop(snoop));
+        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_BAN, Msg.snoop(snoop));
     }
 
     private Void handleBanCheckError(CommandSender sender, String player, Throwable throwable) {
