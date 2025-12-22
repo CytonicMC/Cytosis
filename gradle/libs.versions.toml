@@ -21,7 +21,7 @@ invui = "1.0-SNAPSHOT"
 anvilInput = "1.0-SNAPSHOT"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.4"
-mixin = "0.16.5+mixin.0.8.7"
+mixin = "0.17.0+mixin.0.8.7"
 fastutil = "8.5.18"
 
 [libraries]
