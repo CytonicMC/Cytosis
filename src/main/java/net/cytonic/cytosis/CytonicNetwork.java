@@ -162,16 +162,19 @@ public class CytonicNetwork implements Bootstrappable {
 
     private void importPlayers() {
         for (PlayerEntry p : gdb.loadPlayers()) {
+            Logger.debug(p.toString());
             lifetimePlayers.put(p.uuid(), p.username());
             lifetimeFlattened.put(p.uuid(), p.username().toLowerCase());
             cachedPlayerRanks.put(p.uuid(), p.rank());
 
-            if (p.banData() != null && p.banData().expiry() != null && p.banData().expiry().isBefore(Instant.now())) {
-                this.gdb.unbanPlayer(p.uuid());
-                RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
-                redis.removeFromGlobalHash("banned_players", p.uuid().toString());
-            } else {
-                bannedPlayers.put(p.uuid(), p.banData());
+            if (p.banData() != null) {
+                if (p.banData().expiry() != null && p.banData().expiry().isBefore(Instant.now())) {
+                    this.gdb.unbanPlayer(p.uuid());
+                    RedisDatabase redis = cytosisContext.getComponent(RedisDatabase.class);
+                    redis.removeFromGlobalHash("banned_players", p.uuid().toString());
+                } else {
+                    bannedPlayers.put(p.uuid(), p.banData());
+                }
             }
 
             if (p.muteExpiry() != null && p.muteExpiry().isBefore(Instant.now())) {

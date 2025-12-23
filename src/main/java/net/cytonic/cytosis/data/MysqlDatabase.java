@@ -137,7 +137,7 @@ public class MysqlDatabase implements Bootstrappable {
      * @return A connection from the pool
      * @throws SQLException if a connection cannot be obtained
      */
-    private Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 

@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.snooper;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -38,7 +39,11 @@ public class SnoopPersistenceManager {
     private final Field<Timestamp> created = DSL.field("created", Timestamp.class);
 
     public SnoopPersistenceManager(MysqlDatabase db) {
-        this.db = DSL.using(db.getConnection(), SQLDialect.MYSQL);
+        try {
+            this.db = DSL.using(db.getConnection(), SQLDialect.MYSQL);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         // make sure the tables exist
         createTables();
