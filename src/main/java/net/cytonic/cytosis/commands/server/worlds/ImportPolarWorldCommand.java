@@ -52,7 +52,7 @@ public class ImportPolarWorldCommand extends CytosisCommand {
                 Logger.error("Failed to load world!", e);
                 player.sendMessage(Msg.serverError("Failed to load world! (%s)", e.getMessage()));
             }
-            InstanceManager instanceManager = Cytosis.CONTEXT.getComponent(InstanceManager.class);
+            InstanceManager instanceManager = Cytosis.get(InstanceManager.class);
             InstanceContainer c = instanceManager.createInstanceContainer(loader);
             player.setInstance(c);
             if (loader == null) {
@@ -61,7 +61,7 @@ public class ImportPolarWorldCommand extends CytosisCommand {
             }
             PolarWorld world = loader.world();
             UUID uuid = UUID.randomUUID();
-            Cytosis.CONTEXT.getComponent(GlobalDatabase.class)
+            Cytosis.get(GlobalDatabase.class)
                 .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
                 .whenComplete((result, error) -> {
                     MinecraftServer.getSchedulerManager()

@@ -19,7 +19,7 @@ public class SnooperCommand extends CytosisCommand {
         CHANNELS.setSuggestionCallback((commandSender, commandContext, suggestion) -> {
             if (!(commandSender instanceof CytosisPlayer player)) return;
             CommandUtils.filterEntries(commandContext.get(CHANNELS),
-                Cytosis.CONTEXT.getComponent(SnooperManager.class).getAllChannels(player)
+                Cytosis.get(SnooperManager.class).getAllChannels(player)
                     .stream().map(SuggestionEntry::new)
                     .toList()).forEach(suggestion::addEntry);
         });
@@ -29,7 +29,7 @@ public class SnooperCommand extends CytosisCommand {
         super("snooper");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor(
-            (sender, ctx) -> Cytosis.CONTEXT.getComponent(CommandManager.class).execute(sender, "snooper help"));
+            (sender, ctx) -> Cytosis.get(CommandManager.class).execute(sender, "snooper help"));
         addSubcommand(new SnooperHelpCommand());
         addSubcommand(new SnooperListenCommand());
         addSubcommand(new SnooperBlindCommand());

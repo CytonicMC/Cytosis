@@ -42,7 +42,7 @@ public class ServerInstancingManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
+        this.nats = Cytosis.get(NatsManager.class);
     }
 
     public void createServerInstances(String type, int amount) {

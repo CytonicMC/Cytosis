@@ -21,12 +21,12 @@ public class PlayerUtils {
         if (input == null) {
             return null;
         }
-        UUID cached = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimeFlattened()
+        UUID cached = Cytosis.get(CytonicNetwork.class).getLifetimeFlattened()
             .getByValue(input.toLowerCase());
         if (cached != null) {
             return cached;
         }
-        return Cytosis.CONTEXT.getComponent(NicknameManager.class).deanonymizePlayer(input);
+        return Cytosis.get(NicknameManager.class).deanonymizePlayer(input);
     }
 
     /**
@@ -36,6 +36,6 @@ public class PlayerUtils {
      * @return the player's name, or null if the player could not be resolved.
      */
     public static @Nullable String resolveName(UUID uuid) {
-        return Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
+        return Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
     }
 }

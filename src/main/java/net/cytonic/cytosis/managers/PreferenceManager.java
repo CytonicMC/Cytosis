@@ -47,7 +47,7 @@ public class PreferenceManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        this.db = Cytosis.get(GlobalDatabase.class);
 
         PREFERENCE_REGISTRY.write(CytosisNamespaces.ACCEPT_FRIEND_REQUESTS, CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
         PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
@@ -72,7 +72,7 @@ public class PreferenceManager implements Bootstrappable {
         db.loadPlayerPreferences(uuid).thenAccept(data -> {
             preferenceData.put(uuid, data);
             data.get(CytosisPreferences.LISTENING_SNOOPS).snoops().forEach(s -> {
-                if (Cytosis.CONTEXT.getComponent(SnooperManager.class).getChannel(Key.key(s)) == null) {
+                if (Cytosis.get(SnooperManager.class).getChannel(Key.key(s)) == null) {
                     // big problem if null
                     Logger.warn(
                         "Player " + uuid + " is listening to the channel '" + s + "', but it isn't registered!");

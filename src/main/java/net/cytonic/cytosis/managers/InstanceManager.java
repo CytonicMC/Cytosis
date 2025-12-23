@@ -25,7 +25,7 @@ public class InstanceManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        this.db = Cytosis.get(GlobalDatabase.class);
     }
 
     public CompletableFuture<Instance> loadDatabaseWorld(String databaseName, @Nullable UUID uuid) {
@@ -39,7 +39,7 @@ public class InstanceManager implements Bootstrappable {
             InstanceContainer container = new InstanceContainer(uuid == null ? UUID.randomUUID() : uuid,
                 DimensionType.OVERWORLD);
             container.setChunkLoader(new PolarLoader(world).setWorldAccess(new PolarExtension()));
-            Cytosis.CONTEXT.getComponent(net.minestom.server.instance.InstanceManager.class)
+            Cytosis.get(net.minestom.server.instance.InstanceManager.class)
                 .registerInstance(container);
             future.complete(container);
         });
@@ -56,7 +56,7 @@ public class InstanceManager implements Bootstrappable {
 
             InstanceContainer container = new InstanceContainer(UUID.randomUUID(), DimensionType.OVERWORLD);
             container.setChunkLoader(new PolarLoader(world).setWorldAccess(new PolarExtension()));
-            Cytosis.CONTEXT.getComponent(net.minestom.server.instance.InstanceManager.class)
+            Cytosis.get(net.minestom.server.instance.InstanceManager.class)
                 .registerInstance(container);
             future.complete(container);
         });

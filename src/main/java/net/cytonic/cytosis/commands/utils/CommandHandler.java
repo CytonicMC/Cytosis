@@ -68,7 +68,7 @@ public class CommandHandler implements Bootstrappable {
 
     @Override
     public void init() {
-        this.commandManager = Cytosis.CONTEXT.getComponent(CommandManager.class);
+        this.commandManager = Cytosis.get(CommandManager.class);
     }
 
     /**

@@ -101,7 +101,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
         }
 
         Key id = Key.key(rawID);
-        Class<T> type = (Class<T>) Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+        Class<T> type = (Class<T>) Cytosis.get(PreferenceManager.class)
             .getPreferenceRegistry()
             .getTypeFromNamespace(id);
 
@@ -127,7 +127,7 @@ public class PreferenceAdapter<T> extends TypeAdapter<Preference<?>> implements 
     @SuppressWarnings("rawtypes")
     private Preference<T> buildPreference(Key id, Class<T> type, Object value) {
         try {
-            PreferenceRegistry.Entry<T> preference = Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+            PreferenceRegistry.Entry<T> preference = Cytosis.get(PreferenceManager.class)
                 .getPreferenceRegistry()
                 .get(new TypedNamespace<>(id, type));
 

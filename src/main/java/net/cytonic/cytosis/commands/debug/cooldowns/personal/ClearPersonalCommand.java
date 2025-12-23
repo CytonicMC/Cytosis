@@ -17,7 +17,7 @@ public class ClearPersonalCommand extends CytosisCommand {
     public ClearPersonalCommand() {
         super("personal");
         setDefaultExecutor(CooldownCommand.HELP_EXECUTOR);
-        NetworkCooldownManager cooldown = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
+        NetworkCooldownManager cooldown = Cytosis.get(NetworkCooldownManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((sender, ctx, suggestion) -> {
             for (Key preference : cooldown.getAllKeys()) {

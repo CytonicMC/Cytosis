@@ -32,7 +32,7 @@ public class SnooperAuditCommand extends CytosisCommand {
         addSyntax((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = c.get(SnooperCommand.CHANNELS);
-            if (!Cytosis.CONTEXT.getComponent(SnooperManager.class).getAllChannels(player).contains(rawChannel)) {
+            if (!Cytosis.get(SnooperManager.class).getAllChannels(player).contains(rawChannel)) {
                 player.sendMessage(Msg.whoops(
                     "The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
                 return;

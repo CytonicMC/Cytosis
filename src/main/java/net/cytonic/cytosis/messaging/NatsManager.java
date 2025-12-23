@@ -93,11 +93,11 @@ public class NatsManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.rankManager = Cytosis.CONTEXT.getComponent(RankManager.class);
-        this.preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
-        this.network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
-        this.globalDatabase = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
-        this.cytosisSettings = Cytosis.CONTEXT.getComponent(CytosisSettings.class);
+        this.rankManager = Cytosis.get(RankManager.class);
+        this.preferenceManager = Cytosis.get(PreferenceManager.class);
+        this.network = Cytosis.get(CytonicNetwork.class);
+        this.globalDatabase = Cytosis.get(GlobalDatabase.class);
+        this.cytosisSettings = Cytosis.get(CytosisSettings.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
             setup();
@@ -108,7 +108,7 @@ public class NatsManager implements Bootstrappable {
 
         MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
             // these have to be slightly delayed to avoid initialization order issues
-            this.friendManager = Cytosis.CONTEXT.getComponent(FriendManager.class);
+            this.friendManager = Cytosis.get(FriendManager.class);
             sendStartup();
         });
     }
@@ -315,7 +315,7 @@ public class NatsManager implements Bootstrappable {
     private void listenForCooldownUpdates() {
         connection.createDispatcher().subscribe(Subjects.COOLDOWN_UPDATE, msg -> {
             CooldownUpdatePacket packet = Packet.deserialize(msg.getData(), CooldownUpdatePacket.class);
-            NetworkCooldownManager cooldownManager = Cytosis.CONTEXT.getComponent(NetworkCooldownManager.class);
+            NetworkCooldownManager cooldownManager = Cytosis.get(NetworkCooldownManager.class);
             if (packet.target() == CooldownUpdatePacket.CooldownTarget.PERSONAL) {
                 cooldownManager.setPersonal(packet.userUuid(), packet.namespace(), packet.expiry());
             } else if (packet.target() == CooldownUpdatePacket.CooldownTarget.GLOBAL) {
@@ -466,7 +466,7 @@ public class NatsManager implements Bootstrappable {
                                 Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
                         }
                         player.sendMessage(component);
-                        Cytosis.CONTEXT.getComponent(ChatManager.class).openPrivateMessage(player, message.sender());
+                        Cytosis.get(ChatManager.class).openPrivateMessage(player, message.sender());
                     }
                 });
                 return;

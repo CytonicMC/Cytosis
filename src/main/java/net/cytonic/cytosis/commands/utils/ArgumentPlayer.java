@@ -31,7 +31,7 @@ public class ArgumentPlayer extends Argument<CytosisPlayer> {
         CytosisPlayer player = Cytosis.getPlayer(input).orElse(null);
         if (player == null) {
             // not known by this name
-            player = Cytosis.CONTEXT.getComponent(NicknameManager.class).getPlayerByNickname(input);
+            player = Cytosis.get(NicknameManager.class).getPlayerByNickname(input);
         }
         return player;
     }

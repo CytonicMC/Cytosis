@@ -107,7 +107,7 @@ public interface Logger {
                 <b>Error Logged on server '" + CytosisContext.SERVER_ID + "'</b></red><newline><gray> Message: %s""",
             message);
         try {
-            Cytosis.CONTEXT.getComponent(SnooperManager.class)
+            Cytosis.get(SnooperManager.class)
                 .sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
         } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
             Logger.warn("Failed to log error via snooper!");
@@ -136,7 +136,7 @@ public interface Logger {
                 + message
                 + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
         try {
-            Cytosis.CONTEXT.getComponent(SnooperManager.class)
+            Cytosis.get(SnooperManager.class)
                 .sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
         } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
             Logger.warn("Failed to log error via snooper!");

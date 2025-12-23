@@ -38,7 +38,7 @@ public class ClearchatCommand extends CytosisCommand {
                 }
                 Component snoop = player.formattedName()
                     .append(Msg.mm("<gray> cleared the chat in server " + CytosisContext.SERVER_ID + "."));
-                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                Cytosis.get(SnooperManager.class)
                     .sendSnoop(CytosisSnoops.CHAT_CLEAR, Msg.snoop(snoop));
             } else {
                 sender.sendMessage(Msg.mm("<red>Only players may execute this command :("));

@@ -22,10 +22,10 @@ public class FriendRemoveCommand extends CytosisCommand {
         ArgumentWord playerArg = ArgumentType.Word("player");
         playerArg.setSuggestionCallback((sender, context, suggestion) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            for (UUID networkPlayer : Cytosis.CONTEXT.getComponent(FriendManager.class)
+            for (UUID networkPlayer : Cytosis.get(FriendManager.class)
                 .getFriends(player.getUuid())) {
                 suggestion.addEntry(new SuggestionEntry(
-                    Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers()
+                    Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                         .getByKey(networkPlayer)));
             }
         });
@@ -43,12 +43,12 @@ public class FriendRemoveCommand extends CytosisCommand {
                 return;
             }
 
-            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
             String name = network.getLifetimePlayers().getByKey(target);
             Component targetComp = network.getCachedPlayerRanks().get(target).getPrefix()
                 .append(Component.text(name));
 
-            if (!Cytosis.CONTEXT.getComponent(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
+            if (!Cytosis.get(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
                 player.sendMessage(
                     Msg.whoops("The player ").append(targetComp).append(Msg.grey(" is not on your friends list!")));
                 return;

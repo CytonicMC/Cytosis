@@ -11,7 +11,7 @@ import net.cytonic.cytosis.events.ServerEventListeners;
 public class MetricsHooks {
 
     public static void init() {
-        MetricsManager mm = Cytosis.CONTEXT.getComponent(MetricsManager.class);
+        MetricsManager mm = Cytosis.get(MetricsManager.class);
 
         //online players
         mm.createLongGauge("players.online", "Currently online players", "Players",

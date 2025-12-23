@@ -23,8 +23,8 @@ public class CommandDisablingManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        this.nats = Cytosis.get(NatsManager.class);
+        this.redis = Cytosis.get(RedisDatabase.class);
         loadRemotes();
         setupConsumers();
     }
@@ -95,7 +95,7 @@ public class CommandDisablingManager implements Bootstrappable {
     }
 
     private void sendCommandDisable(byte[] message) {
-        Cytosis.CONTEXT.getComponent(NatsManager.class).publish("cytosis.commands.disabled", message);
+        Cytosis.get(NatsManager.class).publish("cytosis.commands.disabled", message);
     }
 
     /**
@@ -112,7 +112,7 @@ public class CommandDisablingManager implements Bootstrappable {
 
     @Nullable
     private CytosisCommand parseCommand(String rawCommand) {
-        if (Cytosis.CONTEXT.getComponent(CommandManager.class).getCommand(rawCommand) instanceof CytosisCommand cc) {
+        if (Cytosis.get(CommandManager.class).getCommand(rawCommand) instanceof CytosisCommand cc) {
             return cc;
         }
         return null;

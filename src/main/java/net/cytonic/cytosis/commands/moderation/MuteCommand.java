@@ -32,7 +32,7 @@ public class MuteCommand extends CytosisCommand {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching players..."));
             }
-            Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers()
+            Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .forEach((uuid, name) -> suggestion.addEntry(new SuggestionEntry(name)));
         });
         ArgumentWord durationArg = ArgumentType.Word("duration");
@@ -60,12 +60,12 @@ public class MuteCommand extends CytosisCommand {
     }
 
     private void mutePlayer(CytosisPlayer actor, String target, Instant duration) {
-        CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+        CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
         if (!network.getLifetimePlayers().containsValue(target)) {
             actor.sendMessage(Msg.red("The player " + target + " doesn't exist!"));
             return;
         }
-        GlobalDatabase db = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        GlobalDatabase db = Cytosis.get(GlobalDatabase.class);
         UUID uuid = network.getLifetimeFlattened().getByValue(target.toLowerCase());
         db.isMuted(uuid).whenComplete((muted, throwable1) -> {
             if (throwable1 != null) {
@@ -91,7 +91,7 @@ public class MuteCommand extends CytosisCommand {
                     .append(SnoopUtils.toTarget(uuid))
                     .append(Msg.grey(" for " + DurationParser.unparseFull(duration) + "."));
 
-                Cytosis.CONTEXT.getComponent(SnooperManager.class)
+                Cytosis.get(SnooperManager.class)
                     .sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
                 db.mutePlayer(uuid, duration).whenComplete((ignored, throwable3) -> {
                     if (throwable3 != null) {

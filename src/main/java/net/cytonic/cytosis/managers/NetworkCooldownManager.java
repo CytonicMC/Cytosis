@@ -36,8 +36,8 @@ public class NetworkCooldownManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
-        this.nats = Cytosis.CONTEXT.getComponent(NatsManager.class);
+        this.redis = Cytosis.get(RedisDatabase.class);
+        this.nats = Cytosis.get(NatsManager.class);
         importFromRedis();
     }
 

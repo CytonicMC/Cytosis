@@ -23,8 +23,8 @@ public class VanishCommand extends CytosisCommand {
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, iognored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            VanishManager vanishManager = Cytosis.CONTEXT.getComponent(VanishManager.class);
-            PreferenceManager preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+            VanishManager vanishManager = Cytosis.get(VanishManager.class);
+            PreferenceManager preferenceManager = Cytosis.get(PreferenceManager.class);
 
             if (preferenceManager.getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
                 player.sendMessage(Msg.splash("UNVANISHED!", "cec4c6", "Vanish is now disabled!"));

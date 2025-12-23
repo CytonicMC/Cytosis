@@ -35,7 +35,7 @@ public class TimeCommand extends CytosisCommand {
             suggestion.addEntry(new SuggestionEntry("freeze"));
         });
         setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.red("Usage: /time (time)")));
-        InstanceContainer defaultInstance = Cytosis.CONTEXT.getComponent(InstanceContainer.class);
+        InstanceContainer defaultInstance = Cytosis.get(InstanceContainer.class);
         addSyntax((sender, context) -> {
             long timeToSet = defaultInstance.getTime();
             switch (context.get(timeArgument).toLowerCase()) {

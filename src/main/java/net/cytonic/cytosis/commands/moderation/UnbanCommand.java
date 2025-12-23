@@ -30,7 +30,7 @@ public class UnbanCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer actor)) return;
 
             final String player = context.get(playerArg);
-            CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+            CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
             if (!network.getLifetimePlayers().containsValue(player)) {
                 sender.sendMessage(Msg.whoops("The player %s doesn't exist!", player));
                 return;
@@ -44,8 +44,8 @@ public class UnbanCommand extends CytosisCommand {
             Component snoop = actor.formattedName().append(Msg.mm("<gray> unbanned ")).append(SnoopUtils.toTarget(uuid))
                 .append(Msg.mm("<gray>."));
 
-            Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNBAN, Msg.snoop(snoop));
-            Cytosis.CONTEXT.getComponent(GlobalDatabase.class).unbanPlayer(uuid);
+            Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNBAN, Msg.snoop(snoop));
+            Cytosis.get(GlobalDatabase.class).unbanPlayer(uuid);
 
             sender.sendMessage(Msg.greenSplash("UNBANNED!", "%s was successfully unbanned!", player));
         }, playerArg);
@@ -56,9 +56,9 @@ public class UnbanCommand extends CytosisCommand {
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
                 player.sendActionBar(Msg.mm("<green>Fetching banned players..."));
-                Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getBannedPlayers()
+                Cytosis.get(CytonicNetwork.class).getBannedPlayers()
                     .forEach((uuid, ignored1) -> suggestion.addEntry(
-                        new SuggestionEntry(Cytosis.CONTEXT.getComponent(CytonicNetwork.class)
+                        new SuggestionEntry(Cytosis.get(CytonicNetwork.class)
                             .getLifetimePlayers()
                             .getByKey(uuid))));
             }

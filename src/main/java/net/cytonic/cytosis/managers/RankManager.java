@@ -41,9 +41,9 @@ public class RankManager implements Bootstrappable {
      */
     @Override
     public void init() {
-        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
-        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
-        this.gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        this.redis = Cytosis.get(RedisDatabase.class);
+        this.db = Cytosis.get(MysqlDatabase.class);
+        this.gdb = Cytosis.get(GlobalDatabase.class);
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager()).collisionRule(
                     TeamsPacket.CollisionRule.NEVER)
@@ -68,7 +68,7 @@ public class RankManager implements Bootstrappable {
             }
             player.setRankUnsafe(playerRank);
             rankMap.put(player.getUuid(), playerRank);
-            Cytosis.CONTEXT.getComponent(CytonicNetwork.class).updateCachedPlayerRank(player.getUuid(), playerRank);
+            Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(player.getUuid(), playerRank);
             Thread.ofVirtual().start(() -> redis
                 .addToGlobalHash("player_ranks", player.getUuid()
                     .toString(), playerRank.name()));
@@ -94,7 +94,7 @@ public class RankManager implements Bootstrappable {
         rankMap.put(player.getUuid(), rank);
         player.setRankUnsafe(rank);
         setupCosmetics(player, rank);
-        Cytosis.CONTEXT.getComponent(CytonicNetwork.class).updateCachedPlayerRank(player.getUuid(), rank);
+        Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(player.getUuid(), rank);
         player.refreshCommands();
         Thread.ofVirtual().start(() -> redis
             .addToGlobalHash("player_ranks", player.getUuid().toString(), rank.name()));
@@ -120,7 +120,7 @@ public class RankManager implements Bootstrappable {
     public void setupCosmetics(CytosisPlayer player, PlayerRank rank) {
         teamMap.get(rank).addMember(player.getUsername());
         player.set(DataComponents.CUSTOM_NAME, rank.getPrefix().append(player.getName()));
-        Cytosis.CONTEXT.getComponent(CommandHandler.class).recalculateCommands(player);
+        Cytosis.get(CommandHandler.class).recalculateCommands(player);
         if (player.isVanished()) {
             player.setVanished(true); // ranks can mess up the visuals sometimes
         }
@@ -151,7 +151,7 @@ public class RankManager implements Bootstrappable {
                 // we need to load it for next time!
                 gdb.getPlayerRank(player).thenAccept(playerRank -> {
                     rankMap.put(player, playerRank);
-                    Cytosis.CONTEXT.getComponent(CytonicNetwork.class).updateCachedPlayerRank(player, playerRank);
+                    Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(player, playerRank);
                     redis
                         .addToGlobalHash("player_ranks", player.toString(), playerRank.name());
                 });

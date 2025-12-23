@@ -19,7 +19,7 @@ public class GetPreferenceCommand extends CytosisCommand {
 
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : Cytosis.CONTEXT.getComponent(PreferenceManager.class).getPreferenceRegistry()
+            for (Key preference : Cytosis.get(PreferenceManager.class).getPreferenceRegistry()
                 .namespaces()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
@@ -31,7 +31,7 @@ public class GetPreferenceCommand extends CytosisCommand {
                 return;
             }
             Key node = Key.key(context.get(nodeArg));
-            PreferenceManager manager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+            PreferenceManager manager = Cytosis.get(PreferenceManager.class);
             Preference<?> preference = manager.getPreferenceRegistry().unsafeGet(node);
             if (preference == null) {
                 player.sendMessage(

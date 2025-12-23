@@ -11,7 +11,7 @@ public class FriendListCommand extends CytosisCommand {
         super("list");
         setDefaultExecutor((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            Cytosis.CONTEXT.getComponent(FriendManager.class).listFriends(player);
+            Cytosis.get(FriendManager.class).listFriends(player);
         });
     }
 

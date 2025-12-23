@@ -68,7 +68,7 @@ public class VanishManager {
     public void disableVanish(CytosisPlayer player) {
         vanished.remove(player.getUuid());
 
-        Cytosis.CONTEXT.getComponent(RankManager.class).setupCosmetics(player, player.getRank());
+        Cytosis.get(RankManager.class).setupCosmetics(player, player.getRank());
         PacketSendingUtils.broadcastPlayPacket(player.getMetadataPacket());
         player.updateViewableRule(p -> true);
         EventDispatcher.call(new VanishToggleEvent(false, player));

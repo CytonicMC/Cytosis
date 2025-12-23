@@ -31,9 +31,9 @@ public class EnableCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             String rawCommand = context.get(cmd);
-            CommandDisablingManager commandDisablingManager = Cytosis.CONTEXT.getComponent(
+            CommandDisablingManager commandDisablingManager = Cytosis.get(
                 CommandDisablingManager.class);
-            CommandManager commandManager = Cytosis.CONTEXT.getComponent(CommandManager.class);
+            CommandManager commandManager = Cytosis.get(CommandManager.class);
 
             if (commandManager.getCommand(rawCommand) instanceof CytosisCommand command) {
                 if (context.get(global)) {

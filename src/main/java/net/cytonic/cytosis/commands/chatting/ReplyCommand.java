@@ -21,7 +21,7 @@ public class ReplyCommand extends CytosisCommand {
 
             final String msg = String.join(" ", context.get(msgArgument));
 
-            ChatManager chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
+            ChatManager chatManager = Cytosis.get(ChatManager.class);
             if (!chatManager.hasOpenPrivateChannel(player)) {
                 player.sendMessage(Msg.whoops("You don't have an open conversation!"));
                 return;

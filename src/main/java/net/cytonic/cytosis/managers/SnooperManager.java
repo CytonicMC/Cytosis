@@ -47,8 +47,8 @@ public class SnooperManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.natsManager = Cytosis.CONTEXT.getComponent(NatsManager.class);
-        this.persistenceManager = new SnoopPersistenceManager(Cytosis.CONTEXT.getComponent(MysqlDatabase.class));
+        this.natsManager = Cytosis.get(NatsManager.class);
+        this.persistenceManager = new SnoopPersistenceManager(Cytosis.get(MysqlDatabase.class));
 
         Logger.info("Loading snooper channels from redis");
         loadChannelsFromRedis();
@@ -67,7 +67,7 @@ public class SnooperManager implements Bootstrappable {
     }
 
     public void loadChannelsFromRedis() {
-        stored = Cytosis.CONTEXT.getComponent(RedisDatabase.class).getSet("cytosis:snooper_channels");
+        stored = Cytosis.get(RedisDatabase.class).getSet("cytosis:snooper_channels");
         for (String channel : stored) {
             try {
                 registerChannel(SnooperChannel.deserialize(channel));
@@ -87,7 +87,7 @@ public class SnooperManager implements Bootstrappable {
         registry.registerChannel(channel);
         if (!stored.contains(channel.serialize())) {
             // we should put it in redis!
-            Cytosis.CONTEXT.getComponent(RedisDatabase.class).addValue("cytosis:snooper_channels", channel.serialize());
+            Cytosis.get(RedisDatabase.class).addValue("cytosis:snooper_channels", channel.serialize());
             stored.add(channel.serialize());
         }
 

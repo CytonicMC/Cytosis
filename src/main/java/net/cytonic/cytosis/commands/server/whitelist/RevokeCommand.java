@@ -27,7 +27,7 @@ public class RevokeCommand extends CytosisCommand {
 
     public RevokeCommand() {
         super("revoke");
-        Environment env = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment();
+        Environment env = Cytosis.get(EnvironmentManager.class).getEnvironment();
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("You must specify a player!")));
 
@@ -63,19 +63,19 @@ public class RevokeCommand extends CytosisCommand {
     }
 
     private void removeWhiteList(UUID uuid, String msg, CytosisPlayer player, Environment environment) {
-        PlayerRank rank = Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
+        PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
         if (rank != null && rank.isStaff()) {
             player.sendMessage(Msg.whoops("'%s' bypasses the whitelist!", msg));
             return;
         }
-        RedisDatabase redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        RedisDatabase redis = Cytosis.get(RedisDatabase.class);
         if (!redis.getSet("player_whitelist", environment).contains(uuid.toString())) {
             player.sendMessage(Msg.whoops("'%s' is not whitelisted on the %s Network!", msg,
                 Utils.captializeFirstLetters(environment.name().toLowerCase())));
             return;
         }
         redis.removeFromSet("player_whitelist", uuid.toString(), environment);
-        Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WHITELIST,
+        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_WHITELIST,
             Msg.snoop(player.trueFormattedName().append(Msg.grey(
                 " Removed %s from the whitelist! <yellow><b><click:copy_to_clipboard:%s>[UUID]", msg,
                 uuid.toString()))));

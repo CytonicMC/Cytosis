@@ -28,7 +28,7 @@ public class SnooperTestCommand extends CytosisCommand {
         addSyntax((s, ctx) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = ctx.getRaw(SnooperCommand.CHANNELS);
-            SnooperManager snooperManager = Cytosis.CONTEXT.getComponent(SnooperManager.class);
+            SnooperManager snooperManager = Cytosis.get(SnooperManager.class);
             SnooperChannel realChannel = snooperManager.getChannel(Key.key(rawChannel));
             if (realChannel == null) {
                 s.sendMessage(Msg.whoops("The channel '" + rawChannel + "' doesn't exist!"));

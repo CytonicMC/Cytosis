@@ -10,7 +10,7 @@ import net.cytonic.cytosis.Cytosis;
 public class SnoopUtils {
 
     public static Component toTarget(UUID uuid) {
-        CytonicNetwork network = Cytosis.CONTEXT.getComponent(CytonicNetwork.class);
+        CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
         return network.getCachedPlayerRanks().get(uuid).getPrefix()
             .append(Component.text(network.getLifetimePlayers().getByKey(uuid)));
     }

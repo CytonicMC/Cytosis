@@ -53,7 +53,7 @@ public class ChatChannelCommand extends CytosisCommand {
                     default -> throw new IllegalStateException("Unexpected value: " + context.get(chatChannelArgument)
                         .toLowerCase());
                 };
-                if (!chatChannel.equals(Cytosis.CONTEXT.getComponent(ChatManager.class).getChannel(player.getUuid()))) {
+                if (!chatChannel.equals(Cytosis.get(ChatManager.class).getChannel(player.getUuid()))) {
                     message(player, chatChannel);
                 } else {
                     player.sendMessage(Msg.mm("<RED>You are already in this channel!"));
@@ -67,7 +67,7 @@ public class ChatChannelCommand extends CytosisCommand {
     private void message(CytosisPlayer player, ChatChannel channel) {
         if (channel == ChatChannel.ADMIN || channel == ChatChannel.MOD || channel == ChatChannel.STAFF) {
             if (player.canUseChannel(channel)) {
-                Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(player.getUuid(), channel);
+                Cytosis.get(ChatManager.class).setChannel(player.getUuid(), channel);
                 player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN)
                     .append(Component.text(channel.name(), NamedTextColor.GOLD))
                     .append(Component.text(" channel.", NamedTextColor.GREEN)));
@@ -75,7 +75,7 @@ public class ChatChannelCommand extends CytosisCommand {
             return;
         }
         if (channel == ChatChannel.ALL) {
-            Cytosis.CONTEXT.getComponent(ChatManager.class).setChannel(player.getUuid(), ChatChannel.ALL);
+            Cytosis.get(ChatManager.class).setChannel(player.getUuid(), ChatChannel.ALL);
             player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN)
                 .append(Component.text("ALL", NamedTextColor.GOLD))
                 .append(Component.text(" channel.", NamedTextColor.GREEN)));

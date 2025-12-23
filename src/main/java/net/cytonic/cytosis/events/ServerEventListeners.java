@@ -61,7 +61,7 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onInteract(PlayerEntityInteractEvent event) {
-        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NpcManager.class).findNpc(event.getTarget().getUuid());
+        Optional<Npc> optional = Cytosis.get(NpcManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
             Npc npc = optional.get();
             EventDispatcher.callCancellable(
@@ -97,7 +97,7 @@ public final class ServerEventListeners {
     private void onPacketOut(PlayerPacketOutEvent e) {
         if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
         if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
-        if (!Cytosis.CONTEXT.getComponent(VanishManager.class).getVanished().containsValue(packet.entityId())) return;
+        if (!Cytosis.get(VanishManager.class).getVanished().containsValue(packet.entityId())) return;
 
         MetadataPacketBuilder builder = MetadataPacketBuilder.builder(packet);
 
@@ -119,14 +119,14 @@ public final class ServerEventListeners {
     private void onConfig(AsyncPlayerConfigurationEvent event) {
         final Player player = event.getPlayer();
         if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
-            event.setSpawningInstance(Cytosis.CONTEXT.getComponent(InstanceContainer.class));
+            event.setSpawningInstance(Cytosis.get(InstanceContainer.class));
         }
         player.setRespawnPoint(
-            Cytosis.CONTEXT.getComponent(CytosisSettings.class).getServerConfig().getSpawnPos());
+            Cytosis.get(CytosisSettings.class).getServerConfig().getSpawnPos());
 
         // load things as easily as possible
-        Cytosis.CONTEXT.getComponent(FriendManager.class).loadFriends(player.getUuid());
-        Cytosis.CONTEXT.getComponent(PreferenceManager.class).loadPlayerPreferences(player.getUuid());
+        Cytosis.get(FriendManager.class).loadFriends(player.getUuid());
+        Cytosis.get(PreferenceManager.class).loadPlayerPreferences(player.getUuid());
     }
 
     @Listener
@@ -137,22 +137,22 @@ public final class ServerEventListeners {
         Logger.info(
             player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
                 .getRemoteAddress());
-        MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
-        GlobalDatabase gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
+        MysqlDatabase db = Cytosis.get(MysqlDatabase.class);
+        GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
 
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
         gdb.addPlayer(player);
-        Cytosis.CONTEXT.getComponent(SideboardManager.class).addPlayer(player);
-        Cytosis.CONTEXT.getComponent(PlayerListManager.class).setupPlayer(player);
-        Cytosis.CONTEXT.getComponent(RankManager.class).addPlayer(player);
-        Cytosis.CONTEXT.getComponent(CommandHandler.class).recalculateCommands(player);
+        Cytosis.get(SideboardManager.class).addPlayer(player);
+        Cytosis.get(PlayerListManager.class).setupPlayer(player);
+        Cytosis.get(RankManager.class).addPlayer(player);
+        Cytosis.get(CommandHandler.class).recalculateCommands(player);
         if (player.getPreference(CytosisPreferences.VANISHED)) {
             player.setVanished(true);
         }
         try {
             if (player.getPreference(CytosisPreferences.NICKNAME_DATA) != null) {
-                Cytosis.CONTEXT.getComponent(NicknameManager.class).loadNickedPlayer(player);
+                Cytosis.get(NicknameManager.class).loadNickedPlayer(player);
             }
         } catch (Exception e) {
             Logger.error("Failed to load nickname data for " + player.getUsername() + " (" + player.getUuid() + ")", e);
@@ -164,7 +164,7 @@ public final class ServerEventListeners {
         }
         if (!player.hasPlayedBefore() && Cytosis.CONTEXT.isMetricsEnabled()) {
             // add a new player who hasn't played before
-            Cytosis.CONTEXT.getComponent(MetricsManager.class)
+            Cytosis.get(MetricsManager.class)
                 .addToLongCounter("players.unique", 1, Attributes.empty());
         }
     }
@@ -174,15 +174,15 @@ public final class ServerEventListeners {
     private void onChat(PlayerChatEvent event) {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         event.setCancelled(true);
-        GlobalDatabase gdb = Cytosis.CONTEXT.getComponent(GlobalDatabase.class);
-        MysqlDatabase db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
+        GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
+        MysqlDatabase db = Cytosis.get(MysqlDatabase.class);
         gdb.isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst checking if the player is muted!", throwable);
                 return;
             }
             if (!isMuted) {
-                ChatManager chatManager = Cytosis.CONTEXT.getComponent(ChatManager.class);
+                ChatManager chatManager = Cytosis.get(ChatManager.class);
                 db.addChat(player.getUuid(), event.getRawMessage());
                 String originalMessage = event.getRawMessage();
                 ChatChannel channel = chatManager.getChannel(player.getUuid());
@@ -203,11 +203,11 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onQuit(PlayerDisconnectEvent event) {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
-        Cytosis.CONTEXT.getComponent(SideboardManager.class).removePlayer(player);
-        Cytosis.CONTEXT.getComponent(FriendManager.class).unloadPlayer(player.getUuid());
-        if (Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+        Cytosis.get(SideboardManager.class).removePlayer(player);
+        Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
+        if (Cytosis.get(PreferenceManager.class)
             .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
-            Cytosis.CONTEXT.getComponent(VanishManager.class).disableVanish(player);
+            Cytosis.get(VanishManager.class).disableVanish(player);
         }
     }
 
@@ -215,7 +215,7 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onAttack(EntityAttackEvent event) {
         if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-        Optional<Npc> optional = Cytosis.CONTEXT.getComponent(NpcManager.class).findNpc(event.getTarget().getUuid());
+        Optional<Npc> optional = Cytosis.get(NpcManager.class).findNpc(event.getTarget().getUuid());
         if (optional.isPresent() && optional.get() == event.getTarget()) {
             Npc npc = optional.get();
             MinecraftServer.getGlobalEventHandler()

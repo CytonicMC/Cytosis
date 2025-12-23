@@ -18,7 +18,7 @@ public class NickResetCommand extends CytosisCommand {
                 player.sendMessage(Msg.whoops("You are not currently nicked!"));
                 return;
             }
-            Cytosis.CONTEXT.getComponent(NicknameManager.class).disableNickname(player.getUuid());
+            Cytosis.get(NicknameManager.class).disableNickname(player.getUuid());
             player.sendMessage(Msg.splash("UNNICKED!", "#BE9025",
                 "Your apparent name, rank, and skin have been reset to your nomal self."));
         });

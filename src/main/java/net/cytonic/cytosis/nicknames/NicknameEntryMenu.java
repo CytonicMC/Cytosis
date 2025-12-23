@@ -55,7 +55,7 @@ public class NicknameEntryMenu extends View {
             Player player = slotClickContext.getPlayer();
             NickSetupCommand.NICKNAME_DATA.computeIfPresent(player.getUuid(), (uuid, data) -> data.withNickname(input));
             player.sendMessage(Msg.goldSplash("UPDATED!", "Updated your nickname to: <gold>%s<gray>!", input));
-            Cytosis.CONTEXT.getComponent(CommandManager.class).execute(player, "nick setup name SKIP");
+            Cytosis.get(CommandManager.class).execute(player, "nick setup name SKIP");
             player.closeInventory();
         });
     }

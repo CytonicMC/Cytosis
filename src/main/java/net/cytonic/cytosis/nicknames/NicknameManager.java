@@ -67,9 +67,9 @@ public class NicknameManager implements Bootstrappable {
 
     @Override
     public void init() {
-        this.rankManager = Cytosis.CONTEXT.getComponent(RankManager.class);
-        this.db = Cytosis.CONTEXT.getComponent(MysqlDatabase.class);
-        this.redis = Cytosis.CONTEXT.getComponent(RedisDatabase.class);
+        this.rankManager = Cytosis.get(RankManager.class);
+        this.db = Cytosis.get(MysqlDatabase.class);
+        this.redis = Cytosis.get(RedisDatabase.class);
     }
 
     public boolean isNicked(UUID player) {
@@ -94,7 +94,7 @@ public class NicknameManager implements Bootstrappable {
             .append(
                 Msg.aqua(" (Skin: %s)!", Msg.stripTags(translateSkin(player, data.value()).replace("My", "Their"))));
 
-        Cytosis.CONTEXT.getComponent(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_NICKNAME, Msg.snoop(msg));
+        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_NICKNAME, Msg.snoop(msg));
     }
 
     /**
@@ -181,7 +181,7 @@ public class NicknameManager implements Bootstrappable {
     }
 
     public void loadNickedPlayer(CytosisPlayer player) {
-        NicknameData data = Cytosis.CONTEXT.getComponent(PreferenceManager.class)
+        NicknameData data = Cytosis.get(PreferenceManager.class)
             .getPlayerPreference(player.getUuid(), CytosisNamespaces.NICKNAME_DATA);
         UUID maskedUuid = player.getPreference(CytosisNamespaces.NICKED_UUID);
         if (maskedUuid == null) {

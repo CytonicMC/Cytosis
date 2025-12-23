@@ -22,7 +22,7 @@ public class ServerAlertsCommand extends CytosisCommand {
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, ignored) -> {
             if (sender instanceof CytosisPlayer player) {
-                PreferenceManager preferenceManager = Cytosis.CONTEXT.getComponent(PreferenceManager.class);
+                PreferenceManager preferenceManager = Cytosis.get(PreferenceManager.class);
                 if (!preferenceManager
                     .getPlayerPreference(player.getUuid(), CytosisPreferences.SERVER_ALERTS)) {
                     player.sendMessage(Msg.mm("<green>Server alerts are now enabled!"));

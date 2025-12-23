@@ -57,17 +57,17 @@ public class CommandUtils {
     static {
         LIFETIME_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
             List<SuggestionEntry> options = new ArrayList<>();
-            Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getLifetimePlayers()
+            Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
-            Cytosis.CONTEXT.getComponent(NicknameManager.class).getNetworkNicknames()
+            Cytosis.get(NicknameManager.class).getNetworkNicknames()
                 .forEach(s -> options.add(new SuggestionEntry(s)));
             filterEntries(ctx.get(LIFETIME_PLAYERS), options).forEach(suggestion::addEntry);
         });
         NETWORK_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
             List<SuggestionEntry> options = new ArrayList<>();
-            Cytosis.CONTEXT.getComponent(CytonicNetwork.class).getOnlinePlayers()
+            Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
                 .forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
-            Cytosis.CONTEXT.getComponent(NicknameManager.class).getNetworkNicknames()
+            Cytosis.get(NicknameManager.class).getNetworkNicknames()
                 .forEach(s -> options.add(new SuggestionEntry(s)));
             filterEntries(ctx.get(NETWORK_PLAYERS), options).forEach(suggestion::addEntry);
         });
