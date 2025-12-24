@@ -162,7 +162,6 @@ public class CytonicNetwork implements Bootstrappable {
 
     private void importPlayers() {
         for (PlayerEntry p : gdb.loadPlayers()) {
-            Logger.debug(p.toString());
             lifetimePlayers.put(p.uuid(), p.username());
             lifetimeFlattened.put(p.uuid(), p.username().toLowerCase());
             cachedPlayerRanks.put(p.uuid(), p.rank());

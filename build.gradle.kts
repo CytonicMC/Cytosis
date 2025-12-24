@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.time.Instant
 
 plugins {
     `maven-publish`
@@ -7,6 +8,8 @@ plugins {
     id("com.gradleup.shadow") version "9.3.0"
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.1.0"
+    id("net.kyori.blossom") version "2.2.0"
+    id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
 }
 
@@ -93,32 +96,16 @@ tasks.withType<Javadoc> {
 
 var bundled = false
 
-val generateBuildInfo = tasks.register("generateBuildInfo") {
-
-    val outputDir = file("$projectDir/build/generated/sources/buildinfo")
-    val packageDir = File(outputDir, "net/cytonic/cytosis/utils")
-    val buildInfoFile = File(packageDir, "BuildInfo.java")
-
-    doLast {
-        packageDir.mkdirs()
-        outputDir.mkdirs()
-        buildInfoFile.createNewFile()
-        buildInfoFile.writeText(
-            """
-            package net.cytonic.cytosis.utils;
-            
-            /**
-            * Holds information on the current build of Cytosis. This code is auto-generated at build.
-            */
-            public class BuildInfo {
-                public static final String BUILD_VERSION = "${project.version}";
-                public static final String GIT_COMMIT = "${"git rev-parse HEAD".runCommand()}";
-                public static final java.time.Instant BUILT_AT = java.time.Instant.ofEpochMilli(${System.currentTimeMillis()}L);
-                public static final boolean DEPENDENCIES_BUNDLED = ${bundled};
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("buildVersion", project.version.toString())
+                property("gitCommit", indraGit.commit().get().name())
+                property("builtAt", Instant.now().toString())
+                property("dependenciesBundled", bundled.toString())
             }
-            """.trimIndent()
-        )
-        println("Generated BuildInfo.java at $buildInfoFile")
+        }
     }
 }
 
@@ -318,28 +305,6 @@ publishing {
             }
         }
     }
-}
-
-// Add generated source directory to Java compilation
-tasks.compileJava {
-    dependsOn(generateBuildInfo)
-    source(generateBuildInfo.map { layout.buildDirectory.dir("generated/sources/buildinfo").get() })
-}
-
-sourceSets.main {
-    java.srcDir(layout.buildDirectory.dir("generated/sources/buildinfo"))
-}
-
-// Helper function to run shell commands
-fun String.runCommand(): String {
-    val isWindows = System.getProperty("os.name").lowercase().contains("win")
-    val process = if (isWindows) {
-        ProcessBuilder("cmd", "/c", this)
-    } else {
-        ProcessBuilder("sh", "-c", this)
-    }.start()
-
-    return process.inputStream.bufferedReader().readText().trim()
 }
 
 tasks.withType<Zip> {

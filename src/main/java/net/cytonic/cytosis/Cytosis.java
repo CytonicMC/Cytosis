@@ -79,7 +79,7 @@ public final class Cytosis {
      *
      * @param args Runtime flags
      */
-    static void main(String[] args) {
+    public static void main(String[] args) {
         new CytosisBootstrap(args, CONTEXT).run();
     }
 
