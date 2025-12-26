@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import java.time.Instant
 
 plugins {
     `maven-publish`
@@ -102,8 +101,8 @@ sourceSets {
             javaSources {
                 property("buildVersion", project.version.toString())
                 property("gitCommit", indraGit.commit().get().name())
-                property("builtAt", Instant.now().toString())
-                property("dependenciesBundled", bundled.toString())
+                properties.put("builtAt", System.currentTimeMillis())
+                properties.put("dependenciesBundled", bundled)
             }
         }
     }
