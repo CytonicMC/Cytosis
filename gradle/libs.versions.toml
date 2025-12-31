@@ -12,7 +12,7 @@ minestom = "2025.12.20-1.21.11"
 jnats = "2.24.1"
 jooq = "3.20.10"
 log4j = "2.25.3"
-minestompvp = "-SNAPSHOT"
+minestompvp = "2025.12.29-1.21.11"
 mysql = "9.5.0"
 okhttp = "5.3.2"
 opentelemetry = "1.57.0"
@@ -32,7 +32,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 polar = { module = "dev.hollowcube:polar", version.ref = "polar" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-minestompvp = { module = "com.github.Takasaki-Studio-Games:MinestomPvP", version.ref = "minestompvp" }
+minestompvp = { module = "io.github.togar2:MinestomPvP", version.ref = "minestompvp" }
 invui = { module = "me.devnatan:minestomInventoryFramework", version.ref = "invui" }
 anvilInput = { module = "me.devnatan:minestomAnvilInput", version.ref = "anvilInput" }
 configurate = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
