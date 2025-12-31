@@ -93,7 +93,7 @@ tasks.withType<Javadoc> {
     javadocOptions.encoding = "UTF-8"
 }
 
-var bundled = false
+val bundled = gradle.startParameter.taskNames.any { it.contains("fatJar") || it.contains("fatShadow") }
 
 sourceSets {
     main {
@@ -111,7 +111,6 @@ sourceSets {
 tasks.register("fatJar") { // all included
     group = "Accessory Build"
     description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
-    bundled = true
     dependsOn(fatShadow)
     finalizedBy("copyShadowJarToSecondary", "copyShadowJarToPrimary")
 }
@@ -120,7 +119,6 @@ tasks.register("thinJar") {
     group = "Accessory Build"
     description = "Builds Cytosis without including any dependencies included in the final jar. <1Mb jar sizes :)"
 
-    bundled = false
     dependsOn(thinShadow)
     finalizedBy("copyJarToSecondary", "copyJarForDocker")
 }
