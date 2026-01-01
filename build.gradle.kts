@@ -43,7 +43,6 @@ dependencies {
     api(libs.classgraph)
     api(libs.jnats)
     api(libs.jooq)
-    api(libs.mixin)
     api(libs.minimessage)
     api(libs.fastutil)
     api(libs.hikaricp)
@@ -75,7 +74,6 @@ dependencies {
     runtimeDownloadOnly(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
     }
-    runtimeDownloadOnly(libs.mixin)
     runtimeDownloadOnly(libs.fastutil)
     runtimeDownloadOnly(libs.hikaricp)
 
@@ -143,6 +141,8 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     )
     from(sourceSets.main.get().output)
 
+    configurations = listOf(dependencyDownloadOnly)
+
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
     }
@@ -169,6 +169,16 @@ configurations {
     }
 }
 
+// Create a custom configuration for only the dependency download plugin
+val dependencyDownloadOnly by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+dependencies {
+    dependencyDownloadOnly(libs.dependencydownload)
+}
+
 val apiArtifacts by configurations.creating {
     isCanBeResolved = true
     isCanBeConsumed = false
@@ -179,16 +189,6 @@ val apiJars = apiArtifacts
     .resolvedConfiguration
     .resolvedArtifacts
     .map { it.file }
-
-thinShadow.configure {
-    configurations = listOf(project.configurations.runtimeClasspath.get())
-
-    doFirst {
-        apiJars.forEach { jar ->
-            exclude { it.file == jar }
-        }
-    }
-}
 
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     dependsOn("check")
@@ -367,4 +367,3 @@ tasks.named("check") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 }
-

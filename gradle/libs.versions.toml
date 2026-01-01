@@ -21,7 +21,6 @@ invui = "1.0-SNAPSHOT"
 anvilInput = "1.0-SNAPSHOT"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.4"
-mixin = "0.17.0+mixin.0.8.7"
 fastutil = "8.5.18"
 hikaricp = "7.0.2"
 
@@ -49,7 +48,6 @@ opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
 dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
-mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 
