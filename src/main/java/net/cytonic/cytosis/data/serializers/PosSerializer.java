@@ -26,6 +26,6 @@ public class PosSerializer implements TypeSerializer<Pos> {
         if (obj == null) {
             throw new SerializationException("Cannot serialize a null pos!");
         }
-        node.set(net.cytonic.cytosis.utils.PosSerializer.serializeAsTag(obj));
+        node.set(net.cytonic.cytosis.utils.PosSerializer.serialize(obj));
     }
 }
