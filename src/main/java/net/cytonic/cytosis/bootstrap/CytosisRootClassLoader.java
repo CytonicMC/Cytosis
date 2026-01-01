@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.bootstrap.mixins;
+package net.cytonic.cytosis.bootstrap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,20 +7,12 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Class Loader that can modify class bytecode when they are loaded
  */
 public class CytosisRootClassLoader extends URLClassLoader {
 
-    public final static Logger LOGGER = LoggerFactory.getLogger(CytosisRootClassLoader.class);
     private static volatile CytosisRootClassLoader INSTANCE;
-    private AsmMixinTransformer mixinTransformer;
 
     private CytosisRootClassLoader(ClassLoader parent) {
         super("Cytosis Root ClassLoader", extractUrlsFromClasspath(), parent);
@@ -58,10 +50,6 @@ public class CytosisRootClassLoader extends URLClassLoader {
         return urls;
     }
 
-    public void initializeMixinTransformer(CytosisMixinService service) {
-        this.mixinTransformer = new AsmMixinTransformer(service);
-    }
-
     @Override
     public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> loadedClass = findLoadedClass(name);
@@ -84,16 +72,15 @@ public class CytosisRootClassLoader extends URLClassLoader {
     }
 
     private Class<?> define(String name, boolean resolve) throws IOException, ClassNotFoundException {
-        byte[] bytes = loadBytes(name, true);
+        byte[] bytes = loadBytes(name);
         Class<?> defined = defineClass(name, bytes, 0, bytes.length);
-        LOGGER.trace("Loaded with code modifiers: {}", name);
         if (resolve) {
             resolveClass(defined);
         }
         return defined;
     }
 
-    public byte[] loadBytes(String name, boolean transform) throws IOException, ClassNotFoundException {
+    public byte[] loadBytes(String name) throws IOException, ClassNotFoundException {
         if (name == null) throw new ClassNotFoundException();
         String path = name.replace(".", "/") + ".class";
 
@@ -101,25 +88,6 @@ public class CytosisRootClassLoader extends URLClassLoader {
         try (InputStream input = getResourceAsStream(path)) {
             if (input == null) throw new ClassNotFoundException("Could not find resource " + path);
             originalBytes = input.readAllBytes();
-        }
-
-        // Apply transformations if requested and transformer is available
-        if (transform && mixinTransformer != null && mixinTransformer.isValidTarget(name.replace(".", "/"))) {
-            try {
-                ClassReader reader = new ClassReader(originalBytes);
-                ClassNode classNode = new ClassNode();
-                reader.accept(classNode, 0);
-
-                // Apply mixin transformation
-                if (mixinTransformer.accept(classNode)) {
-                    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-                    classNode.accept(writer);
-                    return writer.toByteArray();
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Failed to apply mixin transformation to {}: {}", name, e.getMessage());
-                // Fall back to original bytes
-            }
         }
 
         return originalBytes;
