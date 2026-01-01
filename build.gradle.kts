@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 
 plugins {
     `maven-publish`
@@ -20,66 +21,76 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
     maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
-        content { // This filtering is optional, but recommended
+        content {
             includeModule("net.minestom", "minestom")
-            includeModule("net.minestom", "testing")
         }
     }
 }
 
 dependencies {
-    api(libs.minestom)
-    api(libs.gson)
-    api(libs.okhttp)
-    api(libs.polar)
-    api(libs.jedis)
-    api(libs.guava)
-    api(libs.minestompvp) {
+    download(libs.minestom)
+    download(libs.gson)
+    download(libs.jnats)
+    download(libs.okhttp)
+    download(libs.polar)
+    download(libs.jedis)
+    download(libs.guava)
+    download(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
     }
-    api(libs.invui)
-    api(libs.anvilInput)
-    api(libs.configurate)
-    api(libs.classgraph)
-    api(libs.jnats)
-    api(libs.jooq)
-    api(libs.minimessage)
-    api(libs.fastutil)
-    api(libs.hikaricp)
+    download(libs.invui)
+    download(libs.anvilInput)
+    download(libs.configurate)
+    download(libs.classgraph)
+    download(libs.jnats)
+    download(libs.jooq)
+    download(libs.minimessage)
+    download(libs.fastutil)
+    download(libs.hikaricp)
+    download(libs.reflections)
+    download(libs.bundles.log4j)
+    download(libs.bundles.otel)
+    download(libs.mysql)
 
-
-    // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
-    compileOnly(libs.lombokwarningfix)
-
-
-    runtimeDownload(libs.minimessage)
-    runtimeDownload(libs.mysql)
-    runtimeDownload(libs.reflections)
-    runtimeDownload(libs.bundles.log4j)
-    runtimeDownload(libs.bundles.otel)
-
-    // the compileonlyapis need to be downloaded at runtime, too.
-    runtimeDownloadOnly(libs.minestom)
-    runtimeDownloadOnly(libs.jnats)
-    runtimeDownloadOnly(libs.jooq)
-    runtimeDownloadOnly(libs.gson)
-    runtimeDownloadOnly(libs.okhttp)
-    runtimeDownloadOnly(libs.polar)
-    runtimeDownloadOnly(libs.jedis)
-    runtimeDownloadOnly(libs.guava)
-    runtimeDownloadOnly(libs.invui)
-    runtimeDownloadOnly(libs.anvilInput)
-    runtimeDownloadOnly(libs.configurate)
-    runtimeDownloadOnly(libs.classgraph)
-    runtimeDownloadOnly(libs.minestompvp) {
-        exclude(group = "net.minestom", module = "minestom")
-    }
-    runtimeDownloadOnly(libs.fastutil)
-    runtimeDownloadOnly(libs.hikaricp)
-
-
-    // Dependency loading
     implementation(libs.dependencydownload)
+
+    //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
+    compileOnly(libs.lombokwarningfix)
+}
+
+
+fun DependencyHandler.download(dependencyNotation: Any) {
+    val resolved = when (dependencyNotation) {
+        is Provider<*> -> dependencyNotation.get()
+        else -> dependencyNotation
+    }
+
+    if (resolved is Iterable<*>) {
+        resolved.forEach { dep ->
+            add("api", dep!!)
+            add("runtimeDownloadOnly", dep)
+        }
+    } else {
+        add("api", resolved)
+        add("runtimeDownloadOnly", resolved)
+    }
+}
+
+fun DependencyHandler.download(
+    dependencyNotation: Any,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+) {
+    val resolved = when (dependencyNotation) {
+        is Provider<*> -> dependencyNotation.get()
+        else -> dependencyNotation
+    }
+
+    addDependencyTo(
+        this, "api", resolved, dependencyConfiguration
+    )
+    addDependencyTo(
+        this, "runtimeDownloadOnly", resolved, dependencyConfiguration
+    )
 }
 
 tasks.withType<Javadoc> {
@@ -170,7 +181,7 @@ configurations {
 }
 
 // Create a custom configuration for only the dependency download plugin
-val dependencyDownloadOnly by configurations.creating {
+val dependencyDownloadOnly: Configuration by configurations.creating {
     isCanBeResolved = true
     isCanBeConsumed = false
 }
@@ -179,7 +190,7 @@ dependencies {
     dependencyDownloadOnly(libs.dependencydownload)
 }
 
-val apiArtifacts by configurations.creating {
+val apiArtifacts: Configuration by configurations.creating {
     isCanBeResolved = true
     isCanBeConsumed = false
     extendsFrom(configurations.getByName("api"))
