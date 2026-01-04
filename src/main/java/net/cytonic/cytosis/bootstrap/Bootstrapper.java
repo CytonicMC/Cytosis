@@ -13,13 +13,7 @@ import dev.vankka.dependencydownload.DependencyManager;
 import dev.vankka.dependencydownload.path.DependencyPathProvider;
 import dev.vankka.dependencydownload.repository.MavenRepository;
 import dev.vankka.dependencydownload.resource.DependencyDownloadResource;
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.Mixins;
-import org.spongepowered.asm.service.MixinService;
 
-import net.cytonic.cytosis.bootstrap.mixins.CytosisMixinBootstrap;
-import net.cytonic.cytosis.bootstrap.mixins.CytosisMixinService;
-import net.cytonic.cytosis.bootstrap.mixins.CytosisRootClassLoader;
 import net.cytonic.cytosis.logging.BootstrapLogger;
 import net.cytonic.cytosis.utils.BuildInfo;
 
@@ -67,14 +61,6 @@ public class Bootstrapper {
     }
 
     private static void start(String[] args) {
-        System.setProperty("mixin.bootstrapService", CytosisMixinBootstrap.class.getName());
-        System.setProperty("mixin.service", CytosisMixinService.class.getName());
-        MixinBootstrap.init();
-        Mixins.addConfiguration("mixins.cytosis.json");
-        MixinBootstrap.getPlatform().inject();
-
-        CytosisMixinService service = (CytosisMixinService) MixinService.getService();
-        CytosisRootClassLoader.getInstance().initializeMixinTransformer(service);
         Thread.currentThread().setContextClassLoader(BootstrapClasspathAppender.CLASSLOADER);
         BootstrapLogger.info("Loading Cytosis Core classes");
         try {

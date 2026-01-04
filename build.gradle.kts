@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 
 plugins {
     `maven-publish`
@@ -20,68 +21,76 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.foxikle.dev/cytonic")
     maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
-        content { // This filtering is optional, but recommended
+        content {
             includeModule("net.minestom", "minestom")
-            includeModule("net.minestom", "testing")
         }
     }
 }
 
 dependencies {
-    api(libs.minestom)
-    api(libs.gson)
-    api(libs.okhttp)
-    api(libs.polar)
-    api(libs.jedis)
-    api(libs.guava)
-    api(libs.minestompvp) {
+    download(libs.minestom)
+    download(libs.gson)
+    download(libs.jnats)
+    download(libs.okhttp)
+    download(libs.polar)
+    download(libs.jedis)
+    download(libs.guava)
+    download(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
     }
-    api(libs.invui)
-    api(libs.anvilInput)
-    api(libs.configurate)
-    api(libs.classgraph)
-    api(libs.jnats)
-    api(libs.jooq)
-    api(libs.mixin)
-    api(libs.minimessage)
-    api(libs.fastutil)
-    api(libs.hikaricp)
+    download(libs.invui)
+    download(libs.anvilInput)
+    download(libs.configurate)
+    download(libs.classgraph)
+    download(libs.jnats)
+    download(libs.jooq)
+    download(libs.minimessage)
+    download(libs.fastutil)
+    download(libs.hikaricp)
+    download(libs.reflections)
+    download(libs.bundles.log4j)
+    download(libs.bundles.otel)
+    download(libs.mysql)
 
-
-    // gets gradle to shut up about how lombok goes above and beyond (jakarta bind xml)
-    compileOnly(libs.lombokwarningfix)
-
-
-    runtimeDownload(libs.minimessage)
-    runtimeDownload(libs.mysql)
-    runtimeDownload(libs.reflections)
-    runtimeDownload(libs.bundles.log4j)
-    runtimeDownload(libs.bundles.otel)
-
-    // the compileonlyapis need to be downloaded at runtime, too.
-    runtimeDownloadOnly(libs.minestom)
-    runtimeDownloadOnly(libs.jnats)
-    runtimeDownloadOnly(libs.jooq)
-    runtimeDownloadOnly(libs.gson)
-    runtimeDownloadOnly(libs.okhttp)
-    runtimeDownloadOnly(libs.polar)
-    runtimeDownloadOnly(libs.jedis)
-    runtimeDownloadOnly(libs.guava)
-    runtimeDownloadOnly(libs.invui)
-    runtimeDownloadOnly(libs.anvilInput)
-    runtimeDownloadOnly(libs.configurate)
-    runtimeDownloadOnly(libs.classgraph)
-    runtimeDownloadOnly(libs.minestompvp) {
-        exclude(group = "net.minestom", module = "minestom")
-    }
-    runtimeDownloadOnly(libs.mixin)
-    runtimeDownloadOnly(libs.fastutil)
-    runtimeDownloadOnly(libs.hikaricp)
-
-
-    // Dependency loading
     implementation(libs.dependencydownload)
+
+    //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
+    compileOnly(libs.lombokwarningfix)
+}
+
+
+fun DependencyHandler.download(dependencyNotation: Any) {
+    val resolved = when (dependencyNotation) {
+        is Provider<*> -> dependencyNotation.get()
+        else -> dependencyNotation
+    }
+
+    if (resolved is Iterable<*>) {
+        resolved.forEach { dep ->
+            add("api", dep!!)
+            add("runtimeDownloadOnly", dep)
+        }
+    } else {
+        add("api", resolved)
+        add("runtimeDownloadOnly", resolved)
+    }
+}
+
+fun DependencyHandler.download(
+    dependencyNotation: Any,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+) {
+    val resolved = when (dependencyNotation) {
+        is Provider<*> -> dependencyNotation.get()
+        else -> dependencyNotation
+    }
+
+    addDependencyTo(
+        this, "api", resolved, dependencyConfiguration
+    )
+    addDependencyTo(
+        this, "runtimeDownloadOnly", resolved, dependencyConfiguration
+    )
 }
 
 tasks.withType<Javadoc> {
@@ -93,7 +102,7 @@ tasks.withType<Javadoc> {
     javadocOptions.encoding = "UTF-8"
 }
 
-var bundled = false
+val bundled = gradle.startParameter.taskNames.any { it.contains("fatJar") || it.contains("fatShadow") }
 
 sourceSets {
     main {
@@ -111,7 +120,6 @@ sourceSets {
 tasks.register("fatJar") { // all included
     group = "Accessory Build"
     description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
-    bundled = true
     dependsOn(fatShadow)
     finalizedBy("copyShadowJarToSecondary", "copyShadowJarToPrimary")
 }
@@ -120,7 +128,6 @@ tasks.register("thinJar") {
     group = "Accessory Build"
     description = "Builds Cytosis without including any dependencies included in the final jar. <1Mb jar sizes :)"
 
-    bundled = false
     dependsOn(thinShadow)
     finalizedBy("copyJarToSecondary", "copyJarForDocker")
 }
@@ -144,6 +151,8 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
         )
     )
     from(sourceSets.main.get().output)
+
+    configurations = listOf(dependencyDownloadOnly)
 
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
@@ -171,7 +180,17 @@ configurations {
     }
 }
 
-val apiArtifacts by configurations.creating {
+// Create a custom configuration for only the dependency download plugin
+val dependencyDownloadOnly: Configuration by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+dependencies {
+    dependencyDownloadOnly(libs.dependencydownload)
+}
+
+val apiArtifacts: Configuration by configurations.creating {
     isCanBeResolved = true
     isCanBeConsumed = false
     extendsFrom(configurations.getByName("api"))
@@ -181,16 +200,6 @@ val apiJars = apiArtifacts
     .resolvedConfiguration
     .resolvedArtifacts
     .map { it.file }
-
-thinShadow.configure {
-    configurations = listOf(project.configurations.runtimeClasspath.get())
-
-    doFirst {
-        apiJars.forEach { jar ->
-            exclude { it.file == jar }
-        }
-    }
-}
 
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     dependsOn("check")
@@ -326,7 +335,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "12.3.0"
+    toolVersion = "12.3.1"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
@@ -369,4 +378,3 @@ tasks.named("check") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 }
-

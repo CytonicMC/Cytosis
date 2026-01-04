@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import dev.vankka.dependencydownload.classpath.ClasspathAppender;
 import org.jetbrains.annotations.NotNull;
 
-import net.cytonic.cytosis.bootstrap.mixins.CytosisRootClassLoader;
 import net.cytonic.cytosis.logging.BootstrapLogger;
 
 /**

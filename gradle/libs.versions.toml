@@ -8,11 +8,11 @@ dependencydownload = "2.0.0"
 gson = "2.13.2"
 guava = "33.5.0-jre"
 jedis = "7.2.0"
-minestom = "2025.12.20-1.21.11"
+minestom = "2026.01.01-1.21.11"
 jnats = "2.24.1"
 jooq = "3.20.10"
 log4j = "2.25.3"
-minestompvp = "-SNAPSHOT"
+minestompvp = "2025.12.29-1.21.11"
 mysql = "9.5.0"
 okhttp = "5.3.2"
 opentelemetry = "1.57.0"
@@ -21,7 +21,6 @@ invui = "1.0-SNAPSHOT"
 anvilInput = "1.0-SNAPSHOT"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.4"
-mixin = "0.17.0+mixin.0.8.7"
 fastutil = "8.5.18"
 hikaricp = "7.0.2"
 
@@ -32,7 +31,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 polar = { module = "dev.hollowcube:polar", version.ref = "polar" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-minestompvp = { module = "com.github.Takasaki-Studio-Games:MinestomPvP", version.ref = "minestompvp" }
+minestompvp = { module = "io.github.togar2:MinestomPvP", version.ref = "minestompvp" }
 invui = { module = "me.devnatan:minestomInventoryFramework", version.ref = "invui" }
 anvilInput = { module = "me.devnatan:minestomAnvilInput", version.ref = "anvilInput" }
 configurate = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
@@ -49,7 +48,6 @@ opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
 dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
-mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 

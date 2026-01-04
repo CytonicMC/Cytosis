@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import lombok.NoArgsConstructor;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
-import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
@@ -23,7 +22,7 @@ import net.cytonic.cytosis.logging.Logger;
 @NoArgsConstructor
 public class FileManager implements Bootstrappable {
 
-    private static final Path CONFIG_PATH = Path.of("config.json");
+    private static final File CONFIG_FILE = new File("config.json");
 
     /**
      * Initializes the necessary files and configurations.
@@ -31,25 +30,17 @@ public class FileManager implements Bootstrappable {
     @Override
     public void init() {
         try {
-            createConfigFile();
-            GsonConfigurationLoader loader = Cytosis.GSON_CONFIGURATION_LOADER.file(CONFIG_PATH.toFile()).build();
-            ConfigurationNode node = loader.load();
-            ConfigurationTransformation transformation = ConfigurationTransformation.builder().build();
-            transformation.apply(node);
-            loader.save(node);
-            Cytosis.CONTEXT.registerComponent(node.get(CytosisSettings.class));
-        } catch (Exception exception) {
-            Logger.error("Failed to parse config file!", exception);
-        }
-    }
+            GsonConfigurationLoader loader = Cytosis.GSON_CONFIGURATION_LOADER.file(CONFIG_FILE).build();
 
-    /**
-     * Creates the config file if it doesn't exist.
-     */
-    public void createConfigFile() {
-        if (!CONFIG_PATH.toFile().exists()) {
-            Logger.info("No config file found, creating...");
-            extractResource("config.json", CONFIG_PATH);
+            if (!CONFIG_FILE.exists()) {
+                loader.save(loader.createNode().set(new CytosisSettings()));
+                Logger.info("Created new config file");
+            }
+
+            ConfigurationNode node = loader.load();
+            Cytosis.CONTEXT.registerComponent(node.get(CytosisSettings.class));
+        } catch (Exception e) {
+            Logger.error("Could not load config!", e);
         }
     }
 

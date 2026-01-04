@@ -38,25 +38,25 @@ public final class CytosisSettings {
      */
     @Required
     @Setting("database")
-    private DatabaseConfig databaseConfig;
+    private DatabaseConfig databaseConfig = new DatabaseConfig();
     /**
      * The server config
      */
     @Required
     @Setting("server")
-    private ServerConfig serverConfig;
+    private ServerConfig serverConfig = new ServerConfig();
     /**
      * The redis config
      */
     @Required
     @Setting("redis")
-    private RedisConfig redisConfig;
+    private RedisConfig redisConfig = new RedisConfig();
     /**
      * The nats config
      */
     @Required
     @Setting("nats")
-    private NatsConfig natsConfig;
+    private NatsConfig natsConfig = new NatsConfig();
 
     /**
      * Falls back to loading settings from env and properties
@@ -108,19 +108,19 @@ public final class CytosisSettings {
          */
         @Required
         @Setting("user")
-        private String user;
+        private String user = "cytonic";
         /**
          * Database password
          */
         @Required
         @Setting("password")
-        private String password;
+        private String password = "password";
         /**
          * Hostname of the database server
          */
         @Setting("host")
         @Required
-        private String host;
+        private String host = "localhost";
         /**
          * Database port
          */
@@ -132,13 +132,13 @@ public final class CytosisSettings {
          */
         @Setting("name")
         @Required
-        private String name;
+        private String name = "cytonic";
         /**
          * Name of the database to use
          */
         @Required
         @Setting("global_name")
-        private String globalDatabase;
+        private String globalDatabase = "cytonic_global";
     }
 
     @Getter
@@ -163,7 +163,7 @@ public final class CytosisSettings {
          */
         @Required
         @Setting("world_name")
-        private String worldName;
+        private String worldName = "world";
         /**
          * The pos for players to spawn at
          */
@@ -182,7 +182,7 @@ public final class CytosisSettings {
          */
         @Required
         @Setting("host")
-        private String host;
+        private String host = "localhost";
         /**
          * The redis port
          */
@@ -194,7 +194,7 @@ public final class CytosisSettings {
          */
         @Required
         @Setting("password")
-        private String password;
+        private String password = "password";
     }
 
     @Getter
@@ -207,7 +207,7 @@ public final class CytosisSettings {
          */
         @Required
         @Setting("host")
-        private String host;
+        private String host = "localhost";
         /**
          * The nats port
          */
@@ -219,12 +219,12 @@ public final class CytosisSettings {
          */
         @Required
         @Setting("password")
-        private String password;
+        private String password = "password";
         /**
          * The nats username
          */
         @Required
         @Setting("username")
-        private String user;
+        private String user = "cytonic";
     }
 }
