@@ -38,6 +38,8 @@ import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
+import net.cytonic.cytosis.parties.Party;
+import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 
 /**
@@ -360,12 +362,23 @@ public class CytosisPlayer extends CombatPlayerImpl {
         return getTrueRank().getPrefix().append(Component.text(getTrueUsername()));
     }
 
-    public boolean canUseChannel(ChatChannel channel) {
+    public boolean canSendToChannel(ChatChannel channel) {
         return switch (channel) {
             case STAFF -> isStaff();
             case MOD -> isModerator();
             case ADMIN -> isAdmin();
-            default -> true; //todo: implement parties and dms
+            case PARTY -> isInParty() && (!getParty().isMuted() || getParty().hasAuthority(this));
+            default -> true;
+        };
+    }
+
+    public boolean canReceiveFromChannel(ChatChannel channel) {
+        return switch (channel) {
+            case STAFF -> isStaff();
+            case MOD -> isModerator();
+            case ADMIN -> isAdmin();
+            case PARTY -> isInParty();
+            default -> true;
         };
     }
 
@@ -426,7 +439,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
         }
     }
 
-    public boolean canRecieveSnoop(byte flags) {
+    public boolean canReceiveSnoop(byte flags) {
         if ((flags & 0x01) != 0 && rank == PlayerRank.OWNER) {
             return true;
         }
@@ -457,6 +470,15 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
     public boolean isNicked() {
         return Cytosis.get(NicknameManager.class).isNicked(getUuid());
+    }
+
+    @Nullable
+    public Party getParty() {
+        return Cytosis.get(PartyManager.class).getPlayerParty(getUuid());
+    }
+
+    public boolean isInParty() {
+        return getParty() != null;
     }
 
     @Override

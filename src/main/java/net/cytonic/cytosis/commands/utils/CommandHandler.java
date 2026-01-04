@@ -12,6 +12,7 @@ import net.cytonic.cytosis.commands.chatting.AllChatCommand;
 import net.cytonic.cytosis.commands.chatting.ChatChannelCommand;
 import net.cytonic.cytosis.commands.chatting.IgnoreChatChannelCommand;
 import net.cytonic.cytosis.commands.chatting.MsgCommand;
+import net.cytonic.cytosis.commands.chatting.PartyChatCommand;
 import net.cytonic.cytosis.commands.chatting.ReplyCommand;
 import net.cytonic.cytosis.commands.chatting.ToggleChatPingCommand;
 import net.cytonic.cytosis.commands.debug.cooldowns.CooldownCommand;
@@ -33,6 +34,7 @@ import net.cytonic.cytosis.commands.movement.LobbyCommand;
 import net.cytonic.cytosis.commands.movement.PlayCommand;
 import net.cytonic.cytosis.commands.nicknames.NickCommand;
 import net.cytonic.cytosis.commands.nicknames.NickRevealCommand;
+import net.cytonic.cytosis.commands.party.PartyCommand;
 import net.cytonic.cytosis.commands.server.BroadcastCommand;
 import net.cytonic.cytosis.commands.server.PingCommand;
 import net.cytonic.cytosis.commands.server.RecalculatePermissionsCommand;
@@ -91,7 +93,7 @@ public class CommandHandler implements Bootstrappable {
             new SnooperCommand(), new PlayCommand(), new LobbyCommand(), new WhereAmiCommand(), new DisableCommand(),
             new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(), new NickRevealCommand(),
             new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand(),
-            new WhitelistCommand());
+            new WhitelistCommand(), new PartyCommand(), new PartyChatCommand());
     }
 
     /**

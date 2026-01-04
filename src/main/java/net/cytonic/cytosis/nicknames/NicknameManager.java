@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.MetadataDef;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.play.DestroyEntitiesPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
@@ -85,7 +86,7 @@ public class NicknameManager implements Bootstrappable {
 
         nicknames.put(playerUuid, data);
         addToTrackedNicknames(playerUuid, data.nickname());
-        sendNicknamePacketstoAll(player, masked, false);
+        sendNicknamePacketsToAll(player, masked, false);
         player.updatePreference(CytosisNamespaces.NICKNAME_DATA, data);
         player.updatePreference(CytosisNamespaces.NICKED_UUID, masked);
 
@@ -103,7 +104,7 @@ public class NicknameManager implements Bootstrappable {
      * @param player      the player to "nickname"
      * @param freshViewer if the player has no existing viewer
      */
-    public void sendNicknamePacketstoAll(CytosisPlayer player, UUID masked, boolean freshViewer) {
+    public void sendNicknamePacketsToAll(CytosisPlayer player, UUID masked, boolean freshViewer) {
         for (Player viewer : player.getViewers()) {
             sendNicknamePacketsToPlayer(player, (CytosisPlayer) viewer, masked, freshViewer);
         }
@@ -125,12 +126,11 @@ public class NicknameManager implements Bootstrappable {
             target.sendPackets(new PlayerInfoRemovePacket(player.getUuid()), // look into this
                 new DestroyEntitiesPacket(player.getEntityId()));
         }
-
         target.sendPackets(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry),
             new SpawnEntityPacket(player.getEntityId(), masked, EntityType.PLAYER, player.getPosition(),
                 player.getPosition().yaw(), 0, Vec.ZERO),
             MetadataPacketBuilder.builder(player.getMetadataPacket())
-                .setByte(17, (byte) 127)
+                .setByte(MetadataDef.Avatar.DISPLAYED_MODEL_PARTS_FLAGS.index(), (byte) 127)
                 .build());
         rankManager.setupCosmetics(player, data.rank());
     }
@@ -175,7 +175,7 @@ public class NicknameManager implements Bootstrappable {
                     player.getPosition(), player.getPosition()
                     .yaw(), 0, Vec.ZERO),
                 MetadataPacketBuilder.builder(player.getMetadataPacket())
-                    .setByte(17, (byte) 127)
+                    .setByte(MetadataDef.Avatar.DISPLAYED_MODEL_PARTS_FLAGS.index(), (byte) 127)
                     .build());
         }
     }
@@ -191,7 +191,7 @@ public class NicknameManager implements Bootstrappable {
         this.maskedUuids.put(player.getUuid(), maskedUuid);
         this.nicknames.put(player.getUuid(), data);
         addToTrackedNicknames(player.getUuid(), data.nickname());
-        sendNicknamePacketstoAll(player, maskedUuid, false);
+        sendNicknamePacketsToAll(player, maskedUuid, false);
     }
 
     @Nullable

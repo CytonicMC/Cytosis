@@ -3,6 +3,7 @@ package net.cytonic.cytosis.commands.chatting;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.Cytosis;
@@ -22,63 +23,49 @@ public class ChatChannelCommand extends CytosisCommand {
      */
     public ChatChannelCommand() {
         super("chat");
-        setDefaultExecutor((sender, commandContext) -> sender.sendMessage(
+        setDefaultExecutor((sender, _) -> sender.sendMessage(
             Component.text("You must specify a channel!", NamedTextColor.RED)));
 
-        var chatChannelArgument = ArgumentType.Word("channel")
-            .from("mod", "admin", "staff", "all", "m", "ad", "s", "a");
-        chatChannelArgument.setCallback(
-            (sender, exception) -> sender.sendMessage("The channel " + exception.getInput() + " is invalid!"));
-        chatChannelArgument.setSuggestionCallback((sender, commandContext, suggestion) -> {
+        ArgumentWord arg = ArgumentType.Word("channel")
+            .from("mod", "admin", "staff", "party", "all", "m", "ad", "s", "p", "a");
+        arg.setCallback((s, e) -> s.sendMessage(Msg.whoops("The channel %s is invalid!", e.getInput())));
+        arg.setSuggestionCallback((sender, _, suggestion) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            if (player.isModerator()) {
-                suggestion.addEntry(new SuggestionEntry("mod"));
-            }
-            if (player.isAdmin()) {
-                suggestion.addEntry(new SuggestionEntry("admin"));
-            }
-            if (player.isStaff()) {
-                suggestion.addEntry(new SuggestionEntry("staff"));
-            }
+            if (player.isModerator()) suggestion.addEntry(new SuggestionEntry("mod"));
+            if (player.isAdmin()) suggestion.addEntry(new SuggestionEntry("admin"));
+            if (player.isStaff()) suggestion.addEntry(new SuggestionEntry("staff"));
+            if (player.isInParty()) suggestion.addEntry(new SuggestionEntry("party"));
             suggestion.addEntry(new SuggestionEntry("all"));
         });
 
         addSyntax((sender, context) -> {
-            if (sender instanceof final CytosisPlayer player) {
-                ChatChannel chatChannel = switch (context.get(chatChannelArgument).toLowerCase()) {
-                    case "all", "a" -> ChatChannel.ALL;
-                    case "admin", "ad" -> ChatChannel.ADMIN;
-                    case "mod", "m" -> ChatChannel.MOD;
-                    case "staff", "s" -> ChatChannel.STAFF;
-                    default -> throw new IllegalStateException("Unexpected value: " + context.get(chatChannelArgument)
-                        .toLowerCase());
-                };
-                if (!chatChannel.equals(Cytosis.get(ChatManager.class).getChannel(player.getUuid()))) {
-                    message(player, chatChannel);
-                } else {
-                    player.sendMessage(Msg.mm("<RED>You are already in this channel!"));
-                }
-            } else {
-                sender.sendMessage(Component.text("Hey! You can't do this.", NamedTextColor.RED));
+            if (!(sender instanceof final CytosisPlayer player)) return;
+
+            ChatChannel channel = switch (context.get(arg).toLowerCase()) {
+                case "all", "a" -> ChatChannel.ALL;
+                case "admin", "ad" -> ChatChannel.ADMIN;
+                case "mod", "m" -> ChatChannel.MOD;
+                case "staff", "s" -> ChatChannel.STAFF;
+                case "party", "p" -> ChatChannel.PARTY;
+                default -> throw new IllegalStateException("Unexpected value: " + context.get(arg)
+                    .toLowerCase());
+            };
+            if (!channel.equals(player.getChatChannel())) {
+                message(player, channel);
+                return;
             }
-        }, chatChannelArgument);
+
+            player.sendMessage(Msg.whoops("You are already in the <gold>%s<gold> channel!", channel.name()));
+        }, arg);
     }
 
     private void message(CytosisPlayer player, ChatChannel channel) {
-        if (channel == ChatChannel.ADMIN || channel == ChatChannel.MOD || channel == ChatChannel.STAFF) {
-            if (player.canUseChannel(channel)) {
-                Cytosis.get(ChatManager.class).setChannel(player.getUuid(), channel);
-                player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN)
-                    .append(Component.text(channel.name(), NamedTextColor.GOLD))
-                    .append(Component.text(" channel.", NamedTextColor.GREEN)));
-            }
+        if (!player.canSendToChannel(channel)) {
+            player.sendMessage(
+                Msg.whoops("You do not have access to the <gold>%s</gold> channel right now.", channel.name()));
             return;
         }
-        if (channel == ChatChannel.ALL) {
-            Cytosis.get(ChatManager.class).setChannel(player.getUuid(), ChatChannel.ALL);
-            player.sendMessage(Component.text("You are now in the ", NamedTextColor.GREEN)
-                .append(Component.text("ALL", NamedTextColor.GOLD))
-                .append(Component.text(" channel.", NamedTextColor.GREEN)));
-        }
+        Cytosis.get(ChatManager.class).setChannel(player.getUuid(), channel);
+        player.sendMessage(Msg.mm("<green>You are now in the <gold>%s</gold> channel.", channel.name()));
     }
 }

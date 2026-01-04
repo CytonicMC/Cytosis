@@ -441,9 +441,9 @@ public class NatsManager implements Bootstrappable {
     }
 
     private void listenForPlayerServerChange() {
-        connection.createDispatcher(msg -> {
-            network.processPlayerServerChange(Packet.deserialize(msg.getData(), PlayerChangeServerPacket.class));
-        }).subscribe(Subjects.PLAYER_SERVER_CHANGE);
+        connection.createDispatcher(
+                msg -> network.processPlayerServerChange(Packet.deserialize(msg.getData(), PlayerChangeServerPacket.class)))
+            .subscribe(Subjects.PLAYER_SERVER_CHANGE);
     }
 
     private void listenForChatMessage() {
@@ -452,47 +452,32 @@ public class NatsManager implements Bootstrappable {
             ChatMessage message = ChatMessage.fromJson(data);
             ChatChannel channel = message.channel();
             ChatChannel chatChannel = message.channel();
-            Component component = JSONComponentSerializer.json().deserialize(message.serializedMessage());
 
-            if (channel == ChatChannel.PRIVATE_MESSAGE) {
-                if (message.recipients() == null || message.recipients().isEmpty()) {
-                    return;
-                }
-                Cytosis.getOnlinePlayers().forEach(player -> {
-                    if (message.recipients().contains(player.getUuid())) {
-                        //todo: add permission to message people
-                        if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
-                            player.playSound(
-                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                        }
-                        player.sendMessage(component);
-                        Cytosis.get(ChatManager.class).openPrivateMessage(player, message.sender());
-                    }
-                });
-                return;
+            Component component = Msg.fromJson(message.serializedMessage());
+
+            List<UUID> recipients;
+            if (channel.isSupportsSelectiveRecipients()) {
+                recipients = message.recipients();
+            } else {
+                recipients = Cytosis.getOnlinePlayers().stream().map(Player::getUuid).toList();
             }
 
-            if (channel == ChatChannel.INTERNAL_MESSAGE) {
-                if (message.recipients() == null || message.recipients().isEmpty()) {
-                    return;
-                }
-                for (UUID uuid : message.recipients()) {
-                    Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(component));
-                }
-            }
+            assert recipients != null;
+            if (recipients.isEmpty()) return;
 
-            if (!chatChannel.isSupportsSelectiveRecipients()) {
-                Cytosis.getOnlinePlayers().forEach(player -> {
-                    if (player.canUseChannel(chatChannel) && !player.getPreference(
-                        CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(chatChannel)) {
-                        if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
-                            player.playSound(
-                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                        }
-                        player.sendMessage(component);
-                    }
-                });
-            }
+            Sound sound = Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F);
+            recipients.forEach(uuid -> Cytosis.getPlayer(uuid).ifPresent(player -> {
+                if (!player.canReceiveFromChannel(channel)) return;
+                if (player.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(chatChannel)) return;
+
+                if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
+                    player.playSound(sound);
+                }
+                player.sendMessage(component);
+                if (channel == ChatChannel.PRIVATE_MESSAGE) {
+                    Cytosis.get(ChatManager.class).openPrivateMessage(player, message.sender());
+                }
+            }));
         }).subscribe(Subjects.CHAT_MESSAGE);
     }
 

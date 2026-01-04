@@ -55,7 +55,7 @@ public interface Packet {
      * @return the serialized byte array
      */
     default byte[] serialize() {
-        return Cytosis.GSON.toJson(this).getBytes();
+        return asString().getBytes();
     }
 
     /**
@@ -64,6 +64,6 @@ public interface Packet {
      * @return the serialized string
      */
     default String asString() {
-        return new String(serialize());
+        return Cytosis.GSON.toJson(this);
     }
 }
