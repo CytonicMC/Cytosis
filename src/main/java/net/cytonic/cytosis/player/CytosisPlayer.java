@@ -426,7 +426,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
         }
     }
 
-    public boolean canRecieveSnoop(byte flags) {
+    public boolean canReceiveSnoop(byte flags) {
         if ((flags & 0x01) != 0 && rank == PlayerRank.OWNER) {
             return true;
         }

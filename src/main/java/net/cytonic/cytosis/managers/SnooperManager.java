@@ -98,7 +98,7 @@ public class SnooperManager implements Bootstrappable {
                 if (!player.isStaff()) {
                     continue;
                 }
-                if (!player.canRecieveSnoop(channel.recipients())) {
+                if (!player.canReceiveSnoop(channel.recipients())) {
                     continue;
                 }
                 if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) {
@@ -188,7 +188,7 @@ public class SnooperManager implements Bootstrappable {
      * @return The set of channels
      */
     public Set<String> getAllChannels(CytosisPlayer player) {
-        return registry.channels.values().stream().filter(c -> player.canRecieveSnoop(c.recipients()))
+        return registry.channels.values().stream().filter(c -> player.canReceiveSnoop(c.recipients()))
             .map(channel -> channel.id().asString()).collect(Collectors.toSet());
     }
 
