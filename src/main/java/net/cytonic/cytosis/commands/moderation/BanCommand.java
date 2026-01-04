@@ -18,7 +18,8 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.objects.BanData;
-import net.cytonic.cytosis.data.packet.publishers.KickPacketPublisher;
+import net.cytonic.cytosis.data.objects.JsonComponent;
+import net.cytonic.cytosis.data.packet.packets.PlayerKickPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -116,8 +117,7 @@ public class BanCommand extends CytosisCommand {
 
     private void handleSuccessfulBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
         BanData banData = new BanData(reason, dur, true);
-        Cytosis.get(KickPacketPublisher.class)
-            .kickPlayer(uuid, KickReason.BANNED, Msg.formatBanMessage(banData));
+        new PlayerKickPacket(uuid, KickReason.BANNED, new JsonComponent(Msg.formatBanMessage(banData)));
 
         String durationText = DurationParser.unparseFull(dur);
         actor.sendMessage(Msg.mm("<green>%s was successfully banned for %s.", player, durationText));
