@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.packets;
+package net.cytonic.cytosis.data.serializers;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -9,6 +9,8 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.Serializer;
 import net.cytonic.cytosis.messaging.NatsManager;
 
 public abstract class RequestPacket<Req extends RequestPacket<Req, Resp>, Resp extends Packet<Resp>>

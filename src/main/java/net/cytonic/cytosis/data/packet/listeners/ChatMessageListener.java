@@ -12,7 +12,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
-import net.cytonic.cytosis.data.packet.packets.PacketHandler;
+import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;

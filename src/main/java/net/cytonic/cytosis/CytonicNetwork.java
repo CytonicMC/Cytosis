@@ -18,7 +18,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.data.packet.packets.PacketHandler;
+import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.data.packet.packets.servers.PlayerChangeServerPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.RankManager;

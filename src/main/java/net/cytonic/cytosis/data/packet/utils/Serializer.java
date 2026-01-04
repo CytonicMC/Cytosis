@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.packets;
+package net.cytonic.cytosis.data.packet.utils;
 
 public interface Serializer<T> {
 

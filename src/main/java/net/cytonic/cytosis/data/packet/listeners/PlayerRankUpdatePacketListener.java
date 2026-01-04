@@ -8,7 +8,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.packet.packets.PacketHandler;
+import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.data.packet.packets.PlayerRankUpdatePacket;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.messaging.Subjects;

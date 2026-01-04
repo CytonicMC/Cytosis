@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.packet.packets.servers;
 
-import net.cytonic.cytosis.data.packet.packets.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.packets.Packet;
-import net.cytonic.cytosis.data.packet.packets.Serializer;
+import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
+import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.Serializer;
 import net.cytonic.cytosis.messaging.Subjects;
 
 public class FetchServersPacket extends Packet<FetchServersPacket> {

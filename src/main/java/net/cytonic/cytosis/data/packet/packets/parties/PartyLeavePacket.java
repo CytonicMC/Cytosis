@@ -1,7 +1,8 @@
-package net.cytonic.cytosis.data.packet.packets.servers;
+package net.cytonic.cytosis.data.packet.packets.parties;
 
 import java.util.UUID;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,19 +13,18 @@ import net.cytonic.cytosis.messaging.Subjects;
 
 @Getter
 @AllArgsConstructor
-public class SendToServerTypePacket extends Packet<SendToServerTypePacket> {
+public class PartyLeavePacket extends Packet<PartyLeavePacket> {
 
+    @SerializedName("player_id")
     private final UUID player;
-    private final String group;
-    private final String type;
 
     @Override
-    protected Serializer<SendToServerTypePacket> getSerializer() {
-        return new DefaultGsonSerializer<>(SendToServerTypePacket.class);
+    protected Serializer<PartyLeavePacket> getSerializer() {
+        return new DefaultGsonSerializer<>(PartyLeavePacket.class);
     }
 
     @Override
     public String getSubject() {
-        return Subjects.PLAYER_SEND_GENERIC;
+        return Subjects.PARTY_LEAVE_REQUEST;
     }
 }

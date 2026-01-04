@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.packets;
+package net.cytonic.cytosis.data.packet.utils;
 
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;

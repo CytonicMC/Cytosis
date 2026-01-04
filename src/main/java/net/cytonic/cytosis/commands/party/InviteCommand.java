@@ -6,9 +6,9 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
+import net.cytonic.cytosis.data.packet.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.parties.PartyManager;
-import net.cytonic.cytosis.parties.packets.PartyResponsePacket;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -34,13 +34,13 @@ class InviteCommand extends CytosisCommand {
             }
 
             final UUID finalPlayerID = playerID;
-            Cytosis.get(PartyManager.class).sendInvite(player.getUuid(), playerID)
+            Cytosis.get(PartyPacketsPublisher.class).sendInvite(player.getUuid(), playerID)
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party invite: ", throwable);
                     return new PartyResponsePacket(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
-                    if (p.success()) return;
-                    switch (p.message()) {
+                    if (p.isSuccess()) return;
+                    switch (p.getMessage()) {
                         case "INTERNAL_ERROR" ->
                             s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
                         case "ERR_SEND_TO_SELF" -> s.sendMessage(Msg.whoops("You cannot invite yourself!"));
@@ -53,7 +53,7 @@ class InviteCommand extends CytosisCommand {
                                 Cytosis.get(CytonicNetwork.class).getMiniName(finalPlayerID)));
                         default -> s.sendMessage(
                             Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
-                                p.message()));
+                                p.getMessage()));
                     }
                 });
 

@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.packets;
+package net.cytonic.cytosis.data.packet.utils;
 
 import java.util.function.BiConsumer;
 
@@ -44,7 +44,7 @@ public abstract class Packet<P extends Packet<P>> {
                     Logger.error("message is null for subject " + getSubject());
                     return;
                 }
-                Logger.debug("Received packet %s %s %s", getSubject(), responseType.getSimpleName(),
+                Logger.debug("Received packet %s %s %s", message.getSubject(), responseType.getSimpleName(),
                     new String(message.getData()));
                 R response = responseSerializer.deserialize(getSubject(), new String(message.getData()));
                 consumer.accept(response, throwable);

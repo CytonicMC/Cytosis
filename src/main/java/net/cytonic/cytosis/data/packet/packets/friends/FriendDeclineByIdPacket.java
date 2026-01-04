@@ -6,9 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import net.cytonic.cytosis.data.packet.packets.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.packets.RequestPacket;
-import net.cytonic.cytosis.data.packet.packets.Serializer;
+import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
+import net.cytonic.cytosis.data.serializers.RequestPacket;
+import net.cytonic.cytosis.data.packet.utils.Serializer;
 
 @Getter
 @AllArgsConstructor

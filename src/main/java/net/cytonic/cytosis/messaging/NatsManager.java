@@ -21,11 +21,12 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
-import net.cytonic.cytosis.data.packet.packets.Packet;
-import net.cytonic.cytosis.data.packet.packets.PacketRegistry;
 import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
 import net.cytonic.cytosis.data.packet.packets.servers.HealthCheckPacket;
 import net.cytonic.cytosis.data.packet.publishers.FetchServersPublisher;
+import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.PacketData;
+import net.cytonic.cytosis.data.packet.utils.PacketRegistry;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 
@@ -137,9 +138,10 @@ public class NatsManager implements Bootstrappable {
             try {
                 Packet<P> packet = Packet.getSerializer(packetClass)
                     .deserialize(subject, new String(message.getData()));
-                Logger.debug("Received packet %s %s %s", subject, packet.getClass().getSimpleName(),
+                Logger.debug("Received packet %s %s %s", message.getSubject(), packet.getClass().getSimpleName(),
                     new String(message.getData()));
-                Cytosis.get(PacketRegistry.class).callHandlers(subject, packet);
+                PacketData packetData = new PacketData(message.getSubject());
+                Cytosis.get(PacketRegistry.class).callHandlers(subject, packet, packetData);
             } catch (Exception e) {
                 Logger.error("Error deserializing packet: " + packetClass.getSimpleName(), e);
             }

@@ -5,10 +5,10 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyManager;
-import net.cytonic.cytosis.parties.packets.PartyResponsePacket;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -32,8 +32,8 @@ class OpenInvitesCommand extends CytosisCommand {
                     return new PartyResponsePacket(false, "INTERNAL_ERROR");
                 })
                 .thenAccept(p -> {
-                    if (p.success()) return;
-                    switch (p.message()) {
+                    if (p.isSuccess()) return;
+                    switch (p.getMessage()) {
                         case "INTERNAL_ERROR" -> sender.sendMessage(
                             Msg.serverError("An error occurred whilst opening the party's invitations."));
                         case "NOT_IN_PARTY", "ERR_INVALID_PARTY" ->
@@ -41,7 +41,7 @@ class OpenInvitesCommand extends CytosisCommand {
                         case "ERR_NO_PERMISSION" -> sender.sendMessage(
                             Msg.whoops("You must be the party leader to open the party's invitations."));
                         default ->
-                            sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.message()));
+                            sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.getMessage()));
                     }
                 });
         }, stateArg);

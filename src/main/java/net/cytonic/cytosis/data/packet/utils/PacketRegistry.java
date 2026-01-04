@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.packets;
+package net.cytonic.cytosis.data.packet.utils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,21 +40,29 @@ public class PacketRegistry implements Bootstrappable {
     }
 
     private void registerHandler(Class<?> foundClass, Method method) {
-        if (method.getParameterCount() != 1) {
-            Logger.error("Method " + method.getName() + " must have exactly 1 parameter");
+        if (method.getParameterCount() != 1 && method.getParameterCount() != 2) {
+            Logger.error("Method " + method.getName()
+                + " must have exactly 1 or 2 parameters, with the second parameter being PacketData");
             return;
         }
 
-        Class<?> paramType = method.getParameterTypes()[0];
-        if (!Packet.class.isAssignableFrom(paramType)) {
-            Logger.error("Method " + method.getName() + " parameter must be a Packet type");
+        Class<?> packetParamType = method.getParameterTypes()[0];
+        if (!Packet.class.isAssignableFrom(packetParamType)) {
+            Logger.error("Method " + method.getName() + " parameter 1 must be a Packet type");
             return;
+        }
+        if (method.getParameterCount() == 2) {
+            Class<?> packetDataParamType = method.getParameterTypes()[1];
+            if (!PacketData.class.isAssignableFrom(packetDataParamType)) {
+                Logger.error("Method " + method.getName() + " parameter 2 must be PacketData");
+                return;
+            }
         }
 
         method.setAccessible(true);
 
         @SuppressWarnings("unchecked")
-        Class<? extends Packet<?>> packetType = (Class<? extends Packet<?>>) paramType;
+        Class<? extends Packet<?>> packetType = (Class<? extends Packet<?>>) packetParamType;
 
         PacketHandler annotation = method.getAnnotation(PacketHandler.class);
         String subject = annotation.subject();
@@ -73,14 +81,14 @@ public class PacketRegistry implements Bootstrappable {
 
         handlers.computeIfAbsent(subject, _ -> new HashMap<>())
             .computeIfAbsent(packetType, _ -> new ArrayList<>())
-            .add(new HandlerMethod(foundClass, method));
+            .add(new HandlerMethod(foundClass, method, method.getParameterCount() == 2));
 
         Logger.info(
             "Registered packet handler: " + method.getName() + " for " + packetType.getSimpleName() + " on subject: "
                 + subject);
     }
 
-    public <P extends Packet<P>> void callHandlers(String subject, Packet<P> packet) {
+    public <P extends Packet<P>> void callHandlers(String subject, Packet<P> packet, PacketData packetData) {
         Map<Class<? extends Packet<?>>, List<HandlerMethod>> subjectHandlers = handlers.get(subject);
         if (subjectHandlers == null) {
             return;
@@ -99,6 +107,10 @@ public class PacketRegistry implements Bootstrappable {
                     Logger.warn("Could not call handler " + handler.method.getName() + " because component "
                         + handler.handlerClass.getSimpleName() + " is not registered!");
                     continue;
+                }
+                if (handler.hasPacketData) {
+                    handler.method.invoke(instance, packet, packetData);
+                    return;
                 }
                 handler.method.invoke(instance, packet);
             } catch (Exception e) {
@@ -127,7 +139,7 @@ public class PacketRegistry implements Bootstrappable {
         return subjectHandlers.keySet().iterator().next();
     }
 
-    private record HandlerMethod(Class<?> handlerClass, Method method) {
+    private record HandlerMethod(Class<?> handlerClass, Method method, boolean hasPacketData) {
 
     }
 }

@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.packets;
+package net.cytonic.cytosis.data.packet.utils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
