@@ -54,6 +54,7 @@ import net.cytonic.cytosis.utils.Msg;
  * A class that registers Cytosis required server events
  */
 @NoArgsConstructor
+@SuppressWarnings("unused")
 public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;
@@ -181,21 +182,23 @@ public final class ServerEventListeners {
                 Logger.error("An error occurred whilst checking if the player is muted!", throwable);
                 return;
             }
-            if (!isMuted) {
-                ChatManager chatManager = Cytosis.get(ChatManager.class);
-                db.addChat(player.getUuid(), event.getRawMessage());
-                String originalMessage = event.getRawMessage();
-                ChatChannel channel = chatManager.getChannel(player.getUuid());
-                if (player.canUseChannel(channel) || channel == ChatChannel.ALL) {
-                    chatManager.sendMessage(originalMessage, channel, player);
-                } else {
-                    player.sendMessage(Msg.whoops("It looks like you can't chat in the " + channel.name()
-                        .toLowerCase() + " channel. \uD83E\uDD14"));
-                    chatManager.setChannel(player.getUuid(), ChatChannel.ALL);
-                }
+            if (isMuted) {
+                player.sendMessage(Msg.whoops("You're currently muted."));
                 return;
             }
-            player.sendMessage(Msg.whoops("You're currently muted."));
+
+            ChatManager chatManager = Cytosis.get(ChatManager.class);
+            db.addChat(player.getUuid(), event.getRawMessage());
+            String originalMessage = event.getRawMessage();
+            ChatChannel channel = chatManager.getChannel(player.getUuid());
+            if (player.canSendToChannel(channel)) {
+                chatManager.sendMessage(originalMessage, channel, player);
+            } else {
+                player.sendMessage(Msg.whoops("It looks like you can't chat in the " + channel.name()
+                    .toLowerCase() + " channel. \uD83E\uDD14"));
+                chatManager.setChannel(player.getUuid(), ChatChannel.ALL);
+            }
+
         });
     }
 
