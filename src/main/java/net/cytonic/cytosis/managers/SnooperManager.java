@@ -20,8 +20,8 @@ import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.SnoopsContainer;
-import net.cytonic.cytosis.data.packets.Packet;
-import net.cytonic.cytosis.data.packets.SnooperPacket;
+import net.cytonic.cytosis.data.objects.JsonComponent;
+import net.cytonic.cytosis.data.packet.packets.SnooperPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -92,7 +92,8 @@ public class SnooperManager implements Bootstrappable {
         }
 
         natsManager.subscribe(channel.channel(), message -> {
-            SnooperPacket container = Packet.deserialize(message.getData(), SnooperPacket.class);
+            SnooperPacket packet = SnooperPacket.getSerializer(SnooperPacket.class)
+                .deserialize(channel.channel(), new String(message.getData()));
 
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
                 if (!player.isStaff()) {
@@ -109,13 +110,13 @@ public class SnooperManager implements Bootstrappable {
                     continue;
                 }
 
-                player.sendMessage(container.message());
+                player.sendMessage(packet.getMessage().getComponent());
             }
 
             // montior the snoops on this channel
             events.forEach((event, pred) -> {
                 if (pred.test(event)) {
-                    event.onReceive(channel, container);
+                    event.onReceive(channel, packet);
                 }
             });
 
@@ -156,7 +157,7 @@ public class SnooperManager implements Bootstrappable {
                 Logger.error("error persisting snoop!: ", throwable);
             }
         });
-        natsManager.publish(channel.channel(), new SnooperPacket(message).serialize());
+        new SnooperPacket(new JsonComponent(message), channel.channel()).publish();
     }
 
     public void snoop(CytosisPlayer player, @NotNull String channel) {

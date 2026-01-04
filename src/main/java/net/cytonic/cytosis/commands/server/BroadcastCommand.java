@@ -7,7 +7,8 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.data.objects.JsonComponent;
+import net.cytonic.cytosis.data.packet.packets.BroadcastPacket;
 import net.cytonic.cytosis.utils.Msg;
 
 /**
@@ -35,7 +36,7 @@ public class BroadcastCommand extends CytosisCommand {
                 if (context.get(serverArgument).equalsIgnoreCase("this")) {
                     Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
                 } else if (context.get(serverArgument).equalsIgnoreCase("all")) {
-                    Cytosis.get(NatsManager.class).sendBroadcast(broadcast);
+                    new BroadcastPacket(new JsonComponent(broadcast)).publish();
                 }
             }
         }, serverArgument, broadcastArgument);

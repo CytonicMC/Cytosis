@@ -4,7 +4,7 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.data.packet.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -18,7 +18,7 @@ public class PlayCommand extends CytosisCommand {
         });
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            NatsManager natsManager = Cytosis.get(NatsManager.class);
+            SendPlayerToServerPacketPublisher natsManager = Cytosis.get(SendPlayerToServerPacketPublisher.class);
             switch (context.get(word).toLowerCase()) {
                 case "gg", "gilded", "gilded_gorge" -> natsManager
                     .sendPlayerToGenericServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");

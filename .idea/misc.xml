@@ -1,7 +1,8 @@
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="org.spongepowered.configurate.objectmapping.meta.PostProcess" />
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="net.cytonic.cytosis.data.packet.packets.PacketHandler" />
+      <item index="1" class="java.lang.String" itemvalue="org.spongepowered.configurate.objectmapping.meta.PostProcess" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

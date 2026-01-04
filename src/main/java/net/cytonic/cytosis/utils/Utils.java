@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
-import net.cytonic.cytosis.data.packets.ServerStatusPacket;
+import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
 import net.cytonic.cytosis.logging.Logger;
 
 /**

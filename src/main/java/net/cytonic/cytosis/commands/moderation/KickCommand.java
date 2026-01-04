@@ -13,8 +13,8 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.packet.publishers.KickPacketPublisher;
 import net.cytonic.cytosis.managers.SnooperManager;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
@@ -60,7 +60,7 @@ public class KickCommand extends CytosisCommand {
                     .append(Msg.grey("for <yellow>" + reason + "</yellow>."));
                 Cytosis.get(SnooperManager.class)
                     .sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
-                Cytosis.get(NatsManager.class)
+                Cytosis.get(KickPacketPublisher.class)
                     .kickPlayer(uuid, KickReason.COMMAND,
                         Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason));
 

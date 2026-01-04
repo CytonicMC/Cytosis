@@ -26,7 +26,8 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.data.packets.friends.FriendRequest;
+import net.cytonic.cytosis.data.packet.packets.friends.FriendApiRequestPacket;
+import net.cytonic.cytosis.data.packet.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -36,7 +37,6 @@ import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 
@@ -393,24 +393,25 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public void sendFriendRequest(UUID recipient) {
-        Cytosis.get(NatsManager.class)
-            .sendFriendRequest(new FriendRequest(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
+        Cytosis.get(FriendPacketsPublisher.class)
+            .sendFriendRequest(
+                new FriendApiRequestPacket(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 
     public void acceptFriendRequest(UUID sender) {
-        Cytosis.get(NatsManager.class).acceptFriendRequest(sender, getUuid());
+        Cytosis.get(FriendPacketsPublisher.class).sendAcceptFriendRequest(sender, getUuid());
     }
 
     public void acceptFriendRequestById(UUID requestId) {
-        Cytosis.get(NatsManager.class).acceptFriendRequest(requestId);
+        Cytosis.get(FriendPacketsPublisher.class).sendAcceptFriendRequest(requestId);
     }
 
     public void declineFriendRequest(UUID sender) {
-        Cytosis.get(NatsManager.class).declineFriendRequest(sender, getUuid());
+        Cytosis.get(FriendPacketsPublisher.class).sendDeclineFriendRequest(sender, getUuid());
     }
 
     public void declineFriendRequestById(UUID requestId) {
-        Cytosis.get(NatsManager.class).declineFriendRequest(requestId);
+        Cytosis.get(FriendPacketsPublisher.class).sendDeclineFriendRequest(requestId);
     }
 
     public boolean isVanished() {

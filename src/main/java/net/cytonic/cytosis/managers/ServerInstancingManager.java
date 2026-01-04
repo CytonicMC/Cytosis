@@ -3,15 +3,13 @@ package net.cytonic.cytosis.managers;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.packets.Packet;
-import net.cytonic.cytosis.data.packets.servers.CreateInstancePacket;
-import net.cytonic.cytosis.data.packets.servers.DeleteAllInstancesPacket;
-import net.cytonic.cytosis.data.packets.servers.DeleteInstancePacket;
-import net.cytonic.cytosis.data.packets.servers.InstanceResponsePacket;
-import net.cytonic.cytosis.data.packets.servers.UpdateInstancesPacket;
+import net.cytonic.cytosis.data.packet.packets.servers.CreateInstancePacket;
+import net.cytonic.cytosis.data.packet.packets.servers.DeleteAllInstancesPacket;
+import net.cytonic.cytosis.data.packet.packets.servers.DeleteInstancePacket;
+import net.cytonic.cytosis.data.packet.packets.servers.InstanceResponsePacket;
+import net.cytonic.cytosis.data.packet.packets.servers.UpdateInstancesPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.cytosis.messaging.Subjects;
 
 @CytosisComponent(dependsOn = {NatsManager.class})
 public class ServerInstancingManager implements Bootstrappable {
@@ -49,32 +47,29 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        CreateInstancePacket packet = new CreateInstancePacket(type, amount);
-        nats.request(Subjects.CREATE_SERVER, packet.serialize(), (message, throwable) -> {
-            if (throwable != null) {
-                Logger.error("Failed to create server instance: " + type, throwable);
-                return;
-            }
-            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
-            if (!response.success()) {
-                Logger.error("Failed to create server instance of type %s. (%s)", type, response.message());
-            }
-        });
+        new CreateInstancePacket(type, amount).publishResponse(InstanceResponsePacket.class,
+            (response, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("Failed to create server instance: " + type, throwable);
+                    return;
+                }
+                if (!response.isSuccess()) {
+                    Logger.error("Failed to create server instance of type %s. (%s)", type, response.getMessage());
+                }
+            });
     }
 
     public void deleteAllServerInstances(String type) {
         if (!isServerType(type)) {
             return;
         }
-        DeleteAllInstancesPacket packet = new DeleteAllInstancesPacket(type);
-        nats.request(Subjects.DELETE_ALL_SERVERS, packet.serialize(), (message, throwable) -> {
+        new DeleteAllInstancesPacket(type).publishResponse(InstanceResponsePacket.class, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete all server instances: " + type, throwable);
                 return;
             }
-            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
-            if (!response.success()) {
-                Logger.error("Failed to delete all server instances of type %s. (%s)", type, response.message());
+            if (!response.isSuccess()) {
+                Logger.error("Failed to delete all server instances of type %s. (%s)", type, response.getMessage());
             }
         });
     }
@@ -90,15 +85,14 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        DeleteInstancePacket packet = new DeleteInstancePacket(type, allocId);
-        nats.request(Subjects.DELETE_SERVER, packet.serialize(), (message, throwable) -> {
+        new DeleteInstancePacket(type, allocId).publishResponse(InstanceResponsePacket.class, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete server instance: " + allocId, throwable);
                 return;
             }
-            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
-            if (!response.success()) {
-                Logger.error("Failed to delete server instance %s of type %s. (%s)", allocId, type, response.message());
+            if (!response.isSuccess()) {
+                Logger.error("Failed to delete server instance %s of type %s. (%s)", allocId, type,
+                    response.getMessage());
             }
         });
     }
@@ -107,15 +101,13 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        UpdateInstancesPacket packet = new UpdateInstancesPacket(type);
-        nats.request(Subjects.UPDATE_SERVER, packet.serialize(), (message, throwable) -> {
+        new UpdateInstancesPacket(type).publishResponse(InstanceResponsePacket.class, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to update server instance type: " + type, throwable);
                 return;
             }
-            InstanceResponsePacket response = Packet.deserialize(message.getData(), InstanceResponsePacket.class);
-            if (!response.success()) {
-                Logger.error("Failed to update server instances of type %s. (%s)", type, response.message());
+            if (!response.isSuccess()) {
+                Logger.error("Failed to update server instances of type %s. (%s)", type, response.getMessage());
             }
         });
     }
