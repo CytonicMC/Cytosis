@@ -117,6 +117,16 @@ public enum PlayerRank {
         return newRole.ordinal() < currentRole.ordinal();
     }
 
+    /**
+     * a method to check if a promotion is valid
+     *
+     * @param newRole The player's new role
+     * @return Whether the promotion is valid
+     */
+    public boolean isHigherOrEqualTo(PlayerRank newRole) {
+        return newRole.ordinal() >= ordinal();
+    }
+
     public boolean isStaff() {
         return this == OWNER || this == ADMIN || this == MODERATOR || this == HELPER;
     }
