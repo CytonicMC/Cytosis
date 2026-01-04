@@ -1,8 +1,18 @@
 package net.cytonic.cytosis.data.enums;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Function;
+
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 
 /**
  * This enum holds all chat channels
@@ -12,44 +22,48 @@ public enum ChatChannel {
     /**
      * Public, single-server chat
      */
-    ALL(Component.empty(), false, false),
+    ALL(Component.empty(), false, null),
     /**
      * Private messages between two players
      */
-    PRIVATE_MESSAGE(Component.empty(), true, true),
+    PRIVATE_MESSAGE(Component.empty(), true, _ -> new ArrayList<>()/* handled by chat manager */),
     /**
      * Represents an internal chat channel used for server-specific communication. This channel is not meant to be
      * exposed to or used by regular players.
      */
-    INTERNAL_MESSAGE(Component.empty(), false, true),
+    INTERNAL_MESSAGE(Component.empty(), false, _ -> new ArrayList<>() /*also handled by chat manager*/),
+
+    PARTY(Msg.mm("<#83cae4>Party ></#83cae4> "), true, p -> {
+        if (!p.isInParty()) return new ArrayList<>();
+        return Objects.requireNonNull(p.getParty()).getAllPlayers();
+    }),
     /**
-     * Not implementated; Party chat
+     * Not implemented; League chat
      */
-    PARTY(Component.text("Party > ", NamedTextColor.GOLD), false, false),
-    /**
-     * Not implementated; League chat
-     */
-    LEAGUE(Component.text("League > ", NamedTextColor.DARK_PURPLE), true, false),
+    LEAGUE(Component.text("League > ", NamedTextColor.DARK_PURPLE), true, _ -> new ArrayList<>()),
     /**
      * A chat channel broadcast to mods on every server
      */
-    MOD(Component.text("Mod > ", NamedTextColor.DARK_GREEN), true, false),
+    MOD(Component.text("Mod > ", NamedTextColor.DARK_GREEN), true, null),
     /**
      * A chat channel broadcast to admins on every server
      */
-    ADMIN(Component.text("Admin > ", NamedTextColor.DARK_RED), true, false),
+    ADMIN(Component.text("Admin > ", NamedTextColor.DARK_RED), true, null),
     /**
      * A chat channel broadcast to all staff on every server
      */
-    STAFF(Component.text("Staff > ", NamedTextColor.LIGHT_PURPLE), true, false);
+    STAFF(Component.text("Staff > ", NamedTextColor.LIGHT_PURPLE), true, null);
 
     private final Component prefix;
     private final boolean shouldDeanonymize;
     private final boolean supportsSelectiveRecipients;
+    @Nullable
+    private final Function<CytosisPlayer, List<UUID>> recipientFunction;
 
-    ChatChannel(Component prefix, boolean shouldDeanonymize, boolean supportsSelectiveRecipients) {
+    ChatChannel(Component prefix, boolean shouldDeanonymize, @Nullable Function<CytosisPlayer, List<UUID>> recipients) {
         this.prefix = prefix;
         this.shouldDeanonymize = shouldDeanonymize;
-        this.supportsSelectiveRecipients = supportsSelectiveRecipients;
+        this.supportsSelectiveRecipients = recipients != null;
+        this.recipientFunction = recipients;
     }
 }

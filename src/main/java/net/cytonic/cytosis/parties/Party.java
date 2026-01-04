@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 @Data
 public class Party {
@@ -34,5 +35,9 @@ public class Party {
         list.addAll(moderators);
         list.add(leader);
         return list;
+    }
+
+    public boolean hasAuthority(CytosisPlayer player) {
+        return leader.equals(player.getUuid()) || moderators.contains(player.getUuid());
     }
 }

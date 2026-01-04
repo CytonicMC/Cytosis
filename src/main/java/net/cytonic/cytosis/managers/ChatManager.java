@@ -74,14 +74,10 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
-        Component channelComponent;
-        if (channel != ChatChannel.ALL) {
-            channelComponent = channel.getPrefix();
-        } else {
-            channelComponent = Component.empty();
-        }
+        Component channelComponent = channel.getPrefix();
         if (channel == ChatChannel.PRIVATE_MESSAGE) {
             handlePrivateMessage(originalMessage, player);
+            return;
         }
 
         Component message = Component.text("");
@@ -93,6 +89,12 @@ public class ChatManager implements Bootstrappable {
             message = message.append(channelComponent).append(player.formattedName())
                 .append(Component.text(":", player.getRank().getChatColor())).appendSpace()
                 .append(Component.text(originalMessage, player.getRank().getChatColor()));
+        }
+
+        List<UUID> recipients = null;
+        if (channel.isSupportsSelectiveRecipients()) {
+            assert channel.getRecipientFunction() != null;
+            recipients = channel.getRecipientFunction().apply(player);
         }
 
         if (channel == ChatChannel.ALL) {
@@ -114,7 +116,7 @@ public class ChatManager implements Bootstrappable {
             });
             return;
         }
-        natsManager.sendChatMessage(new ChatMessage(null, channel, Msg.toJson(message), player.getUuid()));
+        natsManager.sendChatMessage(new ChatMessage(recipients, channel, Msg.toJson(message), player.getUuid()));
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {
