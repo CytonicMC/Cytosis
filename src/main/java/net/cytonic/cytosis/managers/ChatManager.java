@@ -20,6 +20,8 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
+import net.cytonic.cytosis.data.objects.JsonComponent;
+import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
@@ -75,14 +77,10 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
-        Component channelComponent;
-        if (channel != ChatChannel.ALL) {
-            channelComponent = channel.getPrefix();
-        } else {
-            channelComponent = Component.empty();
-        }
+        Component channelComponent = channel.getPrefix();
         if (channel == ChatChannel.PRIVATE_MESSAGE) {
             handlePrivateMessage(originalMessage, player);
+            return;
         }
 
         Component message = Component.text("");
@@ -94,6 +92,12 @@ public class ChatManager implements Bootstrappable {
             message = message.append(channelComponent).append(player.formattedName())
                 .append(Component.text(":", player.getRank().getChatColor())).appendSpace()
                 .append(Component.text(originalMessage, player.getRank().getChatColor()));
+        }
+
+        List<UUID> recipients = null;
+        if (channel.isSupportsSelectiveRecipients()) {
+            assert channel.getRecipientFunction() != null;
+            recipients = channel.getRecipientFunction().apply(player);
         }
 
         if (channel == ChatChannel.ALL) {
@@ -115,7 +119,7 @@ public class ChatManager implements Bootstrappable {
             });
             return;
         }
-        new ChatMessagePacket(null, channel, new JsonComponent(message), player.getUuid()).publish();
+        new ChatMessagePacket(recipients, channel, new JsonComponent(message), player.getUuid()).publish();
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {

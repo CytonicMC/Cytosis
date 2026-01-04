@@ -106,30 +106,33 @@ public class PolarExtension implements PolarWorldAccess {
     @Override
     public void saveWorldData(@NotNull Instance instance, @NotNull NetworkBuffer userData) {
         final Set<EntityType> types = Set.of(EntityType.PAINTING, EntityType.ITEM_FRAME, EntityType.GLOW_ITEM_FRAME);
-        final List<Entity> entities = instance.getEntities().stream().filter(entity -> types.contains(entity.getEntityType())).toList();
+        final List<Entity> entities = instance.getEntities().stream()
+            .filter(entity -> types.contains(entity.getEntityType())).toList();
 
         userData.write(NetworkBuffer.INT, entities.size());
         for (Entity entity : entities) {
             if (entity.getEntityType() == EntityType.PAINTING) {
                 PaintingMeta meta = (PaintingMeta) entity.getEntityMeta();
-                Holder<PaintingVariant> var = entity.get(DataComponents.PAINTING_VARIANT, PaintingVariant.ALBAN); // default to something
+                Holder<PaintingVariant> var = entity.get(DataComponents.PAINTING_VARIANT,
+                    PaintingVariant.ALBAN); // default to something
                 CompoundBinaryTag binaryTag = CompoundBinaryTag.builder()
-                        .putString("type", "painting")
-                        .put("pos", PosSerializer.serializeAsTag(entity.getPosition()))
+                    .putString("type", "painting")
+                    .put("pos", PosSerializer.serializeAsTag(entity.getPosition()))
                     .putString("direction", meta.getDirection().name())
-                        .putString("variant", var.asKey().key().asString())
-                        .build();
+                    .putString("variant", var.asKey().key().asString())
+                    .build();
                 writeTag(userData, binaryTag);
-            } else if (entity.getEntityType() == EntityType.ITEM_FRAME || entity.getEntityType() == EntityType.GLOW_ITEM_FRAME) {
+            } else if (entity.getEntityType() == EntityType.ITEM_FRAME
+                || entity.getEntityType() == EntityType.GLOW_ITEM_FRAME) {
                 boolean isglowing = entity.getEntityType() == EntityType.GLOW_ITEM_FRAME;
                 ItemFrameMeta meta = (ItemFrameMeta) entity.getEntityMeta();
                 CompoundBinaryTag binaryTag = CompoundBinaryTag.builder()
-                        .putString("type", isglowing ? "glow_item_frame" : "item_frame")
-                        .put("pos", PosSerializer.serializeAsTag(entity.getPosition()))
+                    .putString("type", isglowing ? "glow_item_frame" : "item_frame")
+                    .put("pos", PosSerializer.serializeAsTag(entity.getPosition()))
                     .putString("direction", meta.getDirection().name())
-                        .put("item", meta.getItem().toItemNBT())
-                        .putString("rotation", meta.getRotation().name())
-                        .build();
+                    .put("item", meta.getItem().toItemNBT())
+                    .putString("rotation", meta.getRotation().name())
+                    .build();
                 writeTag(userData, binaryTag);
             }
         }

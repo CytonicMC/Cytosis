@@ -17,10 +17,10 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
     public IgnoreChatChannelCommand() {
         super("ignorechatchannel");
         ArgumentWord chatChannelArgument = ArgumentType.Word("channel")
-            .from("mod", "admin", "staff", "all", "m", "ad", "s", "a");
+            .from("mod", "admin", "staff", "party", "all", "m", "ad", "s", "p", "a");
         chatChannelArgument.setCallback(
             (sender, exception) -> sender.sendMessage("The channel " + exception.getInput() + " is invalid!"));
-        chatChannelArgument.setSuggestionCallback((sender, commandContext, suggestion) -> {
+        chatChannelArgument.setSuggestionCallback((sender, _, suggestion) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             addSuggestions(suggestion, player);
         });
@@ -30,6 +30,7 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
 
             ChatChannel channel = switch (context.get(chatChannelArgument).toLowerCase()) {
                 case "all", "a" -> ChatChannel.ALL;
+                case "party", "p" -> ChatChannel.PARTY;
                 case "admin", "ad" -> ChatChannel.ADMIN;
                 case "mod", "m" -> ChatChannel.MOD;
                 case "staff", "s" -> ChatChannel.STAFF;
@@ -37,7 +38,7 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
                     "Unexpected value: " + context.get(chatChannelArgument).toLowerCase());
             };
 
-            if (!player.canUseChannel(channel)) {
+            if (!player.canSendToChannel(channel)) {
                 player.sendMessage(Msg.whoops(
                     "You cannot ignore the " + channel.name().toLowerCase() + " because you don't have access to it!"));
                 return;
@@ -59,6 +60,8 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
             suggestion.addEntry(new SuggestionEntry("staff"));
             suggestion.addEntry(new SuggestionEntry("s"));
         }
+        suggestion.addEntry(new SuggestionEntry("party"));
+        suggestion.addEntry(new SuggestionEntry("p"));
         suggestion.addEntry(new SuggestionEntry("all"));
         suggestion.addEntry(new SuggestionEntry("a"));
     }

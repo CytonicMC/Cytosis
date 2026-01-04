@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -180,5 +181,21 @@ public class CytonicNetwork implements Bootstrappable {
                 mutedPlayers.put(p.uuid(), true);
             }
         }
+    }
+
+    public String getMiniName(UUID player) {
+        String name = lifetimePlayers.getByKey(player);
+        String rank = MiniMessage.miniMessage().serialize(cachedPlayerRanks.get(player).getPrefix());
+        return rank + name;
+    }
+
+    /**
+     * Gets if the specific player is connected to any server in the network
+     *
+     * @param player the player to check
+     * @return if the player is on a server connected to the network.
+     */
+    public boolean isOnline(UUID player) {
+        return onlinePlayers.containsKey(player);
     }
 }

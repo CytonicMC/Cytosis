@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.data.packet.listeners;
 
+import java.util.List;
 import java.util.UUID;
 
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
 import net.cytonic.cytosis.data.packet.packets.PacketHandler;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.messaging.Subjects;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 
@@ -23,46 +25,32 @@ public class ChatMessageListener {
 
     @PacketHandler(subject = Subjects.CHAT_MESSAGE)
     private void handleChatMessage(ChatMessagePacket packet) {
-        Component component = packet.getMessage().getComponent();
         ChatChannel channel = packet.getChannel();
-        switch (channel) {
-            case PRIVATE_MESSAGE -> {
-                if (packet.getRecipients() == null || packet.getRecipients().isEmpty()) {
-                    return;
-                }
-                packet.getRecipients().forEach(recipient ->
-                    Cytosis.getPlayer(recipient).ifPresent(player -> {
-                        if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
-                            player.playSound(
-                                Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                        }
-                        player.sendMessage(component);
-                        Cytosis.get(ChatManager.class).openPrivateMessage(player, packet.getSender());
-                    }));
-                return;
-            }
 
-            case INTERNAL_MESSAGE -> {
-                if (packet.getRecipients() == null || packet.getRecipients().isEmpty()) {
-                    return;
-                }
-                for (UUID uuid : packet.getRecipients()) {
-                    Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(component));
-                }
-                return;
+        Component component = packet.getMessage().getComponent();
+
+        List<UUID> recipients;
+        if (channel.isSupportsSelectiveRecipients()) {
+            recipients = packet.getRecipients();
+        } else {
+            recipients = Cytosis.getOnlinePlayers().stream().map(CytosisPlayer::getUuid).toList();
+        }
+
+        assert recipients != null;
+        if (recipients.isEmpty()) return;
+
+        Sound sound = Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F);
+        recipients.forEach(uuid -> Cytosis.getPlayer(uuid).ifPresent(player -> {
+            if (!player.canReceiveFromChannel(channel)) return;
+            if (player.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel)) return;
+
+            if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
+                player.playSound(sound);
             }
-        }
-        if (!channel.isSupportsSelectiveRecipients()) {
-            Cytosis.getOnlinePlayers().forEach(player -> {
-                if (player.canUseChannel(channel) && !player.getPreference(
-                    CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel)) {
-                    if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
-                        player.playSound(
-                            Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F));
-                    }
-                    player.sendMessage(component);
-                }
-            });
-        }
+            player.sendMessage(component);
+            if (channel == ChatChannel.PRIVATE_MESSAGE) {
+                Cytosis.get(ChatManager.class).openPrivateMessage(player, packet.getSender());
+            }
+        }));
     }
 }
