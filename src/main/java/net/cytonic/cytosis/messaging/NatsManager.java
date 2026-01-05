@@ -137,7 +137,7 @@ public class NatsManager implements Bootstrappable {
         subscribe(subject, message -> {
             try {
                 Packet<P> packet = Packet.getSerializer(packetClass)
-                    .deserialize(subject, new String(message.getData()));
+                    .deserialize(new String(message.getData()));
                 Logger.debug("Received packet %s %s %s", message.getSubject(), packet.getClass().getSimpleName(),
                     new String(message.getData()));
                 PacketData packetData = new PacketData(message.getSubject());

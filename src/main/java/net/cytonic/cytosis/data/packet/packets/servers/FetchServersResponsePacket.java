@@ -5,10 +5,10 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
-import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
 import net.cytonic.cytosis.messaging.Subjects;
 
 @Getter

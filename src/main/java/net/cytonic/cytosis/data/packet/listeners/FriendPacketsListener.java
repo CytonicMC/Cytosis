@@ -11,9 +11,8 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.data.packet.packets.friends.FriendPacket;
-import net.cytonic.cytosis.data.packet.packets.friends.FriendPacket.Type;
+import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -36,8 +35,6 @@ public class FriendPacketsListener implements Bootstrappable {
 
     @PacketHandler(subject = Subjects.FRIEND_ACCEPTANCE_NOTIFY)
     private void handleFriendAccept(FriendPacket packet) {
-        if (!packet.getType().equals(Type.ACCEPT)) return;
-
         Component target = createTargetComponent(packet.getRecipient());
         Component sender = createSenderComponent(packet.getSender());
 
@@ -60,7 +57,6 @@ public class FriendPacketsListener implements Bootstrappable {
 
     @PacketHandler(subject = Subjects.FRIEND_DECLINATION_NOTIFY)
     private void handleFriendDecline(FriendPacket packet) {
-        if (!packet.getType().equals(Type.DECLINE)) return;
 
         Component target = createTargetComponent(packet.getRecipient());
         Component sender = createSenderComponent(packet.getSender());
@@ -81,7 +77,6 @@ public class FriendPacketsListener implements Bootstrappable {
 
     @PacketHandler(subject = Subjects.FRIEND_EXPIRE_NOTIFY)
     private void handleFriendExpire(FriendPacket packet) {
-        if (!packet.getType().equals(Type.EXPIRE)) return;
 
         Component target = createTargetComponent(packet.getRecipient());
         Component sender = createSenderComponent(packet.getSender());
@@ -103,8 +98,6 @@ public class FriendPacketsListener implements Bootstrappable {
 
     @PacketHandler(subject = Subjects.FRIEND_REQUEST_NOTIFY)
     private void handleFriendRequest(FriendPacket packet) {
-        if (!packet.getType().equals(Type.REQUEST)) return;
-
         Component target = createTargetComponent(packet.getRecipient());
         Component sender = createSenderComponent(packet.getSender());
 
@@ -128,8 +121,6 @@ public class FriendPacketsListener implements Bootstrappable {
 
     @PacketHandler(subject = Subjects.FRIEND_REMOVE)
     private void handleFriendRemove(FriendPacket packet) {
-        if (!packet.getType().equals(Type.REMOVE)) return;
-
         Component target = createTargetComponent(packet.getRecipient());
         Component sender = createSenderComponent(packet.getSender());
 

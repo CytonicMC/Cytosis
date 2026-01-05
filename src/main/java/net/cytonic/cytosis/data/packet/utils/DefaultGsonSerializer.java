@@ -16,12 +16,12 @@ public class DefaultGsonSerializer<T> implements Serializer<T> {
     }
 
     @Override
-    public String serialize(String subject, T value) {
+    public String serialize(T value) {
         return gson.toJson(value);
     }
 
     @Override
-    public T deserialize(String subject, String json) {
+    public T deserialize(String json) {
         return gson.fromJson(json, type);
     }
 }

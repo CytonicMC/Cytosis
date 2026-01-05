@@ -6,10 +6,9 @@ import net.kyori.adventure.text.Component;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.data.packet.packets.PlayerRankUpdatePacket;
+import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.utils.Msg;
@@ -35,7 +34,6 @@ public class PlayerRankUpdatePacketListener {
         }, () -> {
             rankManager.changeRankSilently(packet.getPlayer(), packet.getRank());
             Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(packet.getPlayer(), packet.getRank());
-            Cytosis.get(GlobalDatabase.class).setPlayerRank(packet.getPlayer(), packet.getRank());
         });
     }
 }

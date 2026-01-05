@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.serializers.RequestPacket;
+import net.cytonic.cytosis.data.packet.utils.RequestPacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 import net.cytonic.cytosis.messaging.Subjects;
 

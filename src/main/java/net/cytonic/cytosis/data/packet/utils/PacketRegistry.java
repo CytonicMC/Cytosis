@@ -72,6 +72,8 @@ public class PacketRegistry implements Bootstrappable {
             try {
                 Packet<?> tempInstance = packetType.getDeclaredConstructor().newInstance();
                 subject = tempInstance.getSubject();
+            } catch (IllegalSubjectException e) {
+                Logger.error("Failed to register PacketHandler due to registering a reusable packet without a subject");
             } catch (Exception e) {
                 // Fallback to the simple class name
                 Logger.warn("Could not instantiate packet handler: " + method.getName(), e);

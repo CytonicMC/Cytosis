@@ -7,13 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.RequestPacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 import net.cytonic.cytosis.messaging.Subjects;
 
 @Getter
 @AllArgsConstructor
-public class PartyInviteAcceptPacket extends Packet<PartyInviteAcceptPacket> {
+public class PartyInviteAcceptPacket extends RequestPacket<PartyInviteAcceptPacket, PartyResponsePacket> {
 
     @SerializedName("request_id")
     private final UUID request;
@@ -26,5 +26,10 @@ public class PartyInviteAcceptPacket extends Packet<PartyInviteAcceptPacket> {
     @Override
     public String getSubject() {
         return Subjects.PARTY_INVITE_ACCEPT_REQUEST;
+    }
+
+    @Override
+    protected Class<PartyResponsePacket> getResponseType() {
+        return PartyResponsePacket.class;
     }
 }

@@ -7,11 +7,10 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.data.packet.packets.PlayerLoginLogoutPacket;
+import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.events.network.PlayerJoinNetworkEvent;
 import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
@@ -28,12 +27,10 @@ public class PlayerLoginLogoutPacketListener implements Bootstrappable {
 
     @Override
     public void init() {
-        Logger.debug("Called init");
         this.network = Cytosis.get(CytonicNetwork.class);
         this.preferenceManager = Cytosis.get(PreferenceManager.class);
         this.friendManager = Cytosis.get(FriendManager.class);
         this.rankManager = Cytosis.get(RankManager.class);
-        Logger.debug("AFTER INIT");
     }
 
     @PacketHandler(subject = Subjects.PLAYER_JOIN)

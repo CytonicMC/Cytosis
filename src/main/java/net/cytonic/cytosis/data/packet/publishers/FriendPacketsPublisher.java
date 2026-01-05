@@ -12,13 +12,12 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.packet.packets.friends.FriendAcceptByIdPacket;
 import net.cytonic.cytosis.data.packet.packets.friends.FriendApiRequestPacket;
 import net.cytonic.cytosis.data.packet.packets.friends.FriendApiResponsePacket;
-import net.cytonic.cytosis.data.packet.packets.friends.FriendDeclineByIdPacket;
+import net.cytonic.cytosis.data.packet.packets.friends.FriendIdPacket;
 import net.cytonic.cytosis.data.packet.packets.friends.FriendPacket;
-import net.cytonic.cytosis.data.packet.packets.friends.FriendPacket.Type;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -39,7 +38,7 @@ public class FriendPacketsPublisher implements Bootstrappable {
             packet.publish();
             return;
         }
-        packet.publishResponse(FriendApiResponsePacket.class, (response, throwable) -> {
+        packet.request((response, throwable) -> {
             CytosisPlayer player = playerOptional.get();
 
             if (throwable != null) {
@@ -70,12 +69,12 @@ public class FriendPacketsPublisher implements Bootstrappable {
     }
 
     public void sendAcceptFriendRequest(UUID requestId) {
-        new FriendAcceptByIdPacket(requestId).publishResponse(FriendApiResponsePacket.class,
+        new FriendIdPacket(requestId).request(Subjects.FRIEND_ACCEPT_BY_ID,
             (response, throwable) -> handleAccept(response, throwable, null, null));
     }
 
     public void sendAcceptFriendRequest(UUID sender, UUID recipient) {
-        new FriendPacket(sender, recipient, Type.ACCEPT, false).publishResponse(FriendApiResponsePacket.class,
+        new FriendPacket(sender, recipient, false).request(Subjects.FRIEND_ACCEPT,
             (response, throwable) -> handleAccept(response, throwable, recipient, sender));
     }
 
@@ -110,12 +109,12 @@ public class FriendPacketsPublisher implements Bootstrappable {
     }
 
     public void sendDeclineFriendRequest(UUID requestId) {
-        new FriendDeclineByIdPacket(requestId).publishResponse(FriendApiResponsePacket.class,
+        new FriendIdPacket(requestId).request(Subjects.FRIEND_DECLINE_BY_ID,
             (response, throwable) -> handleDecline(response, throwable, null, null));
     }
 
     public void sendDeclineFriendRequest(UUID sender, UUID recipient) {
-        new FriendPacket(sender, recipient, Type.DECLINE, false).publishResponse(FriendApiResponsePacket.class,
+        new FriendPacket(sender, recipient, false).request(Subjects.FRIEND_DECLINE,
             (response, throwable) -> handleDecline(response, throwable, recipient, sender));
     }
 
@@ -126,7 +125,7 @@ public class FriendPacketsPublisher implements Bootstrappable {
                 Cytosis.getPlayer(recipient).ifPresent(
                     player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request!")));
             }
-            Logger.error("Internal error upon proccessing a friend decline.", throwable);
+            Logger.error("Internal error upon processing a friend decline.", throwable);
         }
 
         String senderName = network.getLifetimePlayers().getByKey(sender);
@@ -151,6 +150,6 @@ public class FriendPacketsPublisher implements Bootstrappable {
     }
 
     public void sendFriendRemove(UUID sender, UUID recipient) {
-        new FriendPacket(sender, recipient, Type.REMOVE, false).publish();
+        new FriendPacket(sender, recipient, false).publish(Subjects.FRIEND_REMOVE);
     }
 }

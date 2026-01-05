@@ -16,9 +16,9 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.packet.packets.CooldownUpdatePacket;
-import net.cytonic.cytosis.data.packet.packets.CooldownUpdatePacket.CooldownTarget;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.messaging.Subjects;
 
 /**
  * A class that handles network-wide cooldowns that sync across servers
@@ -114,7 +114,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         redis.removeFromHash(toPersonalKey(uuid), id.asString());
 
         if (notify) {
-            new CooldownUpdatePacket(CooldownTarget.PERSONAL, id, null, uuid).publish();
+            new CooldownUpdatePacket(id, null, uuid).publish(Subjects.COOLDOWN_UPDATE_PERSONAL);
         }
     }
 
@@ -137,7 +137,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         if (!global.containsKey(id)) return;
         global.remove(id);
         if (notify) {
-            new CooldownUpdatePacket(CooldownTarget.GLOBAL, id, null, null).publish();
+            new CooldownUpdatePacket(id, null, null).publish(Subjects.COOLDOWN_UPDATE_GLOBAL);
         }
     }
 
@@ -165,7 +165,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         global.put(id, expire);
         redis.addToHash(RedisDatabase.GLOBAL_COOLDOWNS_KEY, id.asString(), expire.toString());
         if (publish) {
-            new CooldownUpdatePacket(CooldownTarget.GLOBAL, id, expire, null).publish();
+            new CooldownUpdatePacket(id, expire, null).publish(Subjects.COOLDOWN_UPDATE_GLOBAL);
         }
     }
 
@@ -198,7 +198,7 @@ public class NetworkCooldownManager implements Bootstrappable {
         personal.get(uuid).put(id, expire);
         redis.addToHash(toPersonalKey(uuid), id.asString(), expire.toString());
         if (publish) {
-            new CooldownUpdatePacket(CooldownTarget.PERSONAL, id, expire, uuid).publish();
+            new CooldownUpdatePacket(id, expire, uuid).publish(Subjects.COOLDOWN_UPDATE_PERSONAL);
         }
     }
 

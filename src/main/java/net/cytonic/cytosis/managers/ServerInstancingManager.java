@@ -6,10 +6,10 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.packet.packets.servers.CreateInstancePacket;
 import net.cytonic.cytosis.data.packet.packets.servers.DeleteAllInstancesPacket;
 import net.cytonic.cytosis.data.packet.packets.servers.DeleteInstancePacket;
-import net.cytonic.cytosis.data.packet.packets.servers.InstanceResponsePacket;
 import net.cytonic.cytosis.data.packet.packets.servers.UpdateInstancesPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.messaging.Subjects;
 
 @CytosisComponent(dependsOn = {NatsManager.class})
 public class ServerInstancingManager implements Bootstrappable {
@@ -47,7 +47,7 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        new CreateInstancePacket(type, amount).publishResponse(InstanceResponsePacket.class,
+        new CreateInstancePacket(type, amount).request(Subjects.CREATE_SERVER,
             (response, throwable) -> {
                 if (throwable != null) {
                     Logger.error("Failed to create server instance: " + type, throwable);
@@ -63,7 +63,7 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        new DeleteAllInstancesPacket(type).publishResponse(InstanceResponsePacket.class, (response, throwable) -> {
+        new DeleteAllInstancesPacket(type).request(Subjects.DELETE_ALL_SERVERS, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete all server instances: " + type, throwable);
                 return;
@@ -85,7 +85,7 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        new DeleteInstancePacket(type, allocId).publishResponse(InstanceResponsePacket.class, (response, throwable) -> {
+        new DeleteInstancePacket(type, allocId).request(Subjects.DELETE_SERVER, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to delete server instance: " + allocId, throwable);
                 return;
@@ -101,7 +101,7 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        new UpdateInstancesPacket(type).publishResponse(InstanceResponsePacket.class, (response, throwable) -> {
+        new UpdateInstancesPacket(type).request(Subjects.UPDATE_SERVER, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to update server instance type: " + type, throwable);
                 return;

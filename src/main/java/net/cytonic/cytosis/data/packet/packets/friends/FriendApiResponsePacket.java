@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
+import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 
@@ -18,5 +19,10 @@ public class FriendApiResponsePacket extends Packet<FriendApiResponsePacket> {
     @Override
     protected Serializer<FriendApiResponsePacket> getSerializer() {
         return new DefaultGsonSerializer<>(FriendApiResponsePacket.class);
+    }
+
+    @Override
+    public String getSubject() {
+        throw new IllegalSubjectException();
     }
 }

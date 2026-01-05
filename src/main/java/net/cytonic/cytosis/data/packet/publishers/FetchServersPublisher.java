@@ -7,7 +7,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
 import net.cytonic.cytosis.data.packet.packets.servers.FetchServersPacket;
-import net.cytonic.cytosis.data.packet.packets.servers.FetchServersResponsePacket;
 import net.cytonic.cytosis.logging.Logger;
 
 @CytosisComponent(dependsOn = CytonicNetwork.class)
@@ -15,7 +14,7 @@ import net.cytonic.cytosis.logging.Logger;
 public class FetchServersPublisher {
 
     public void sendFetchServersPacket() {
-        new FetchServersPacket().publishResponse(FetchServersResponsePacket.class, (response, throwable) -> {
+        new FetchServersPacket().request((response, throwable) -> {
             if (throwable != null) {
                 Logger.error("failed to fetch active servers!", throwable);
                 return;

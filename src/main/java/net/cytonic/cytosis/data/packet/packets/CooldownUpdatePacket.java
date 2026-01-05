@@ -8,9 +8,9 @@ import lombok.Getter;
 import net.kyori.adventure.key.Key;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
+import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
-import net.cytonic.cytosis.messaging.Subjects;
 
 /**
  * A class that represents a packet for updating cooldowns
@@ -19,7 +19,7 @@ import net.cytonic.cytosis.messaging.Subjects;
 @AllArgsConstructor
 public class CooldownUpdatePacket extends Packet<CooldownUpdatePacket> {
 
-    private final CooldownTarget target;
+
     private final Key namespace;
     private final Instant expiry;
     private final UUID userUuid;
@@ -31,20 +31,6 @@ public class CooldownUpdatePacket extends Packet<CooldownUpdatePacket> {
 
     @Override
     public String getSubject() {
-        return Subjects.COOLDOWN_UPDATE;
-    }
-
-    /**
-     * An enum that represents a target for a cooldown.
-     */
-    public enum CooldownTarget {
-        /**
-         * One per player
-         */
-        PERSONAL,
-        /**
-         * One for the entire network
-         */
-        GLOBAL
+        throw new IllegalSubjectException();
     }
 }

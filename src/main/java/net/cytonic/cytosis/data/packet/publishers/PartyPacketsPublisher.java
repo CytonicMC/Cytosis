@@ -14,6 +14,7 @@ import net.cytonic.cytosis.data.packet.packets.parties.PartyOnePlayerPacket;
 import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
 import net.cytonic.cytosis.data.packet.packets.parties.PartyStatePacket;
 import net.cytonic.cytosis.data.packet.packets.parties.PartyTwoPlayerPacket;
+import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyInvite;
 import net.cytonic.cytosis.parties.PartyManager;
@@ -36,7 +37,7 @@ public class PartyPacketsPublisher {
             partyId = party.getId();
         }
 
-        new PartyInviteSendPacket(partyId, sender, recipient).publishResponse(PartyResponsePacket.class,
+        new PartyInviteSendPacket(partyId, sender, recipient).request(Subjects.PARTY_INVITE_SEND_REQUEST,
             (response, throwable) -> {
                 if (throwable != null) {
                     future.completeExceptionally(throwable);
@@ -63,7 +64,7 @@ public class PartyPacketsPublisher {
         if (reqID == null) {
             CompletableFuture.completedFuture(new PartyResponsePacket(false, "ERR_NOT_FOUND"));
         }
-        new PartyInviteAcceptPacket(reqID).publishResponse(PartyResponsePacket.class, (response, throwable) -> {
+        new PartyInviteAcceptPacket(reqID).request(Subjects.PARTY_INVITE_SEND_REQUEST, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -82,7 +83,7 @@ public class PartyPacketsPublisher {
             return CompletableFuture.completedFuture(new PartyResponsePacket(false, "NOT_IN_PARTY"));
         }
 
-        new PartyLeavePacket(player).publishResponse(PartyResponsePacket.class, (response, throwable) -> {
+        new PartyLeavePacket(player).request(Subjects.PARTY_LEAVE_REQUEST, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -92,38 +93,35 @@ public class PartyPacketsPublisher {
         return future;
     }
 
-    public CompletableFuture<PartyResponsePacket> sendOnePlayer(UUID sender,
-        CompletableFuture<PartyResponsePacket> future, Party party, PartyOnePlayerPacket.Type type) {
-        new PartyOnePlayerPacket(party.getId(), sender, type).publishResponse(PartyResponsePacket.class,
-            (response, throwable) -> {
-                if (throwable != null) {
-                    future.completeExceptionally(throwable);
-                    return;
-                }
-                future.complete(response);
-            });
+    public CompletableFuture<PartyResponsePacket> sendOnePlayer(UUID sender, String subj,
+        CompletableFuture<PartyResponsePacket> future, Party party) {
+        new PartyOnePlayerPacket(party.getId(), sender).request(subj, (response, throwable) -> {
+            if (throwable != null) {
+                future.completeExceptionally(throwable);
+                return;
+            }
+            future.complete(response);
+        });
         return future;
     }
 
     public CompletableFuture<PartyResponsePacket> sendTwoPlayer(UUID sender, UUID player,
-        CompletableFuture<PartyResponsePacket> future, Party party, PartyTwoPlayerPacket.Type type) {
-        new PartyTwoPlayerPacket(party.getId(), player, sender, type).publishResponse(PartyResponsePacket.class,
-            (response, throwable) -> {
-                if (throwable != null) {
-                    future.completeExceptionally(throwable);
-                    return;
-                }
+        CompletableFuture<PartyResponsePacket> future, Party party, String subj) {
+        new PartyTwoPlayerPacket(party.getId(), player, sender).request(subj, (response, throwable) -> {
+            if (throwable != null) {
+                future.completeExceptionally(throwable);
+                return;
+            }
 
-                future.complete(response);
-            });
+            future.complete(response);
+        });
         return future;
     }
 
     public CompletableFuture<PartyResponsePacket> sendState(UUID sender, UUID party, boolean state,
-        PartyStatePacket.Type type) {
+        String subj) {
         CompletableFuture<PartyResponsePacket> future = new CompletableFuture<>();
-        new PartyStatePacket(sender, party, state, type).publishResponse(PartyResponsePacket.class,
-            (response, throwable) -> {
+        new PartyStatePacket(sender, party, state).request(subj, (response, throwable) -> {
                 if (throwable != null) {
                     future.completeExceptionally(throwable);
                     return;

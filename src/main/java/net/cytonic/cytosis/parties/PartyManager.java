@@ -18,10 +18,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyOnePlayerPacket;
 import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyStatePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyTwoPlayerPacket;
 import net.cytonic.cytosis.data.packet.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
@@ -537,11 +534,10 @@ public class PartyManager implements Bootstrappable {
         if (Cytosis.getPlayer(sender).isEmpty()) {
             return CompletableFuture.completedFuture(new PartyResponsePacket(false, "SENDER_NOT_FOUND"));
         }
-        PartyOnePlayerPacket.Type type =
-            Cytosis.getPlayer(sender).get().isAdmin() ? PartyOnePlayerPacket.Type.JOIN_BYPASS
-                : PartyOnePlayerPacket.Type.JOIN_COMMAND;
+        String subj = Cytosis.getPlayer(sender).get().isAdmin() ? Subjects.PARTY_JOIN_REQUEST_BYPASS
+            : Subjects.PARTY_JOIN_REQUEST_COMMAND;
 
-        return Cytosis.get(PartyPacketsPublisher.class).sendOnePlayer(sender, future, party, type);
+        return Cytosis.get(PartyPacketsPublisher.class).sendOnePlayer(sender, subj, future, party);
     }
 
     public CompletableFuture<PartyResponsePacket> kickPlayer(UUID sender, UUID player) {
@@ -553,7 +549,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
-            PartyTwoPlayerPacket.Type.KICK);
+            Subjects.PARTY_KICK_REQUEST);
     }
 
     public CompletableFuture<PartyResponsePacket> transferPlayer(UUID sender, UUID player) {
@@ -565,7 +561,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
-            .sendTwoPlayer(sender, player, future, party, PartyTwoPlayerPacket.Type.TRANSFER);
+            .sendTwoPlayer(sender, player, future, party, Subjects.PARTY_TRANSFER_REQUEST);
     }
 
     public CompletableFuture<PartyResponsePacket> promotePlayer(UUID sender, UUID player) {
@@ -577,7 +573,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
-            PartyTwoPlayerPacket.Type.PROMOTE);
+            Subjects.PARTY_PROMOTE_REQUEST);
     }
 
     public CompletableFuture<PartyResponsePacket> disbandParty(UUID sender) {
@@ -589,7 +585,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
-            .sendOnePlayer(sender, future, party, PartyOnePlayerPacket.Type.DISBAND);
+            .sendOnePlayer(sender, Subjects.PARTY_DISBAND_REQUEST, future, party);
     }
 
     public CompletableFuture<PartyResponsePacket> muteParty(UUID sender, boolean state) {
@@ -599,7 +595,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
-            .sendState(sender, party.getId(), state, PartyStatePacket.Type.MUTE);
+            .sendState(sender, party.getId(), state, Subjects.PARTY_STATE_MUTE_REQUEST);
     }
 
     public CompletableFuture<PartyResponsePacket> openParty(UUID sender, boolean state) {
@@ -609,7 +605,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
-            .sendState(sender, party.getId(), state, PartyStatePacket.Type.OPEN);
+            .sendState(sender, party.getId(), state, Subjects.PARTY_STATE_OPEN_REQUEST);
     }
 
     public CompletableFuture<PartyResponsePacket> openPartyInvites(UUID sender, boolean state) {
@@ -619,7 +615,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
-            .sendState(sender, party.getId(), state, PartyStatePacket.Type.OPEN_INVITES);
+            .sendState(sender, party.getId(), state, Subjects.PARTY_STATE_OPEN_INVITES_REQUEST);
     }
 
     public CompletableFuture<PartyResponsePacket> yoinkParty(UUID sender) {
@@ -631,7 +627,7 @@ public class PartyManager implements Bootstrappable {
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
-            .sendOnePlayer(sender, future, party, PartyOnePlayerPacket.Type.YOINK);
+            .sendOnePlayer(sender, Subjects.PARTY_YOINK_REQUEST, future, party);
     }
 
     @Nullable

@@ -93,7 +93,7 @@ public class SnooperManager implements Bootstrappable {
 
         natsManager.subscribe(channel.channel(), message -> {
             SnooperPacket packet = SnooperPacket.getSerializer(SnooperPacket.class)
-                .deserialize(channel.channel(), new String(message.getData()));
+                .deserialize(new String(message.getData()));
 
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
                 if (!player.isStaff()) {

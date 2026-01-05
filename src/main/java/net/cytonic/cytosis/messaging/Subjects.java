@@ -52,7 +52,9 @@ public class Subjects {
     public static final String CHAT_MESSAGE = "chat.message";
     public static final String CHAT_BROADCAST = "chat.broadcast";
 
-    public static final String COOLDOWN_UPDATE = "cooldown.update";
+    public static final String COOLDOWN_UPDATE_NOTIFY = "cooldown.update.*"; // personal vs global
+    public static final String COOLDOWN_UPDATE_PERSONAL = "cooldown.update.personal";
+    public static final String COOLDOWN_UPDATE_GLOBAL = "cooldown.update.global";
 
     public static final String CREATE_SERVER = "servers.create";
     public static final String DELETE_ALL_SERVERS = "servers.delete.all";
@@ -77,9 +79,9 @@ public class Subjects {
     public static final String PARTY_TRANSFER_REQUEST = "party.transfer.request";
     public static final String PARTY_TRANSFER_NOTIFY = "party.transfer.notify";
 
-    public static final String PARTY_STATE_MUTE_REQUEST = "party.state.mute.notify";
-    public static final String PARTY_STATE_OPEN_REQUEST = "party.state.open.notify";
-    public static final String PARTY_STATE_OPEN_INVITES_REQUEST = "party.state.open_invites.notify";
+    public static final String PARTY_STATE_MUTE_REQUEST = "party.state.mute.request";
+    public static final String PARTY_STATE_OPEN_REQUEST = "party.state.open.request";
+    public static final String PARTY_STATE_OPEN_INVITES_REQUEST = "party.state.open_invites.request";
     public static final String PARTY_STATE_NOTIFY = "party.state.*.notify";
 
     public static final String PARTY_YOINK_REQUEST = "party.yoink.request";

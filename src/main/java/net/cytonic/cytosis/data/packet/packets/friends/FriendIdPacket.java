@@ -7,23 +7,29 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.serializers.RequestPacket;
+import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
+import net.cytonic.cytosis.data.packet.utils.RequestPacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 
 @Getter
 @AllArgsConstructor
-public class FriendDeclineByIdPacket extends RequestPacket<FriendDeclineByIdPacket, FriendApiResponsePacket> {
+public class FriendIdPacket extends RequestPacket<FriendIdPacket, FriendApiResponsePacket> {
 
     @SerializedName("request_id")
     private final UUID requestId;
 
     @Override
-    protected Serializer<FriendDeclineByIdPacket> getSerializer() {
-        return new DefaultGsonSerializer<>(FriendDeclineByIdPacket.class);
+    protected Serializer<FriendIdPacket> getSerializer() {
+        return new DefaultGsonSerializer<>(FriendIdPacket.class);
     }
 
     @Override
     protected Class<FriendApiResponsePacket> getResponseType() {
         return FriendApiResponsePacket.class;
+    }
+
+    @Override
+    public String getSubject() {
+        throw new IllegalSubjectException();
     }
 }

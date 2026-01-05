@@ -6,13 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.RequestPacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 import net.cytonic.cytosis.messaging.Subjects;
 
 @Getter
 @AllArgsConstructor
-public class SendToServerTypePacket extends Packet<SendToServerTypePacket> {
+public class SendToServerTypePacket extends RequestPacket<SendToServerTypePacket, ServerSendReponsePacket> {
 
     private final UUID player;
     private final String group;
@@ -26,5 +26,10 @@ public class SendToServerTypePacket extends Packet<SendToServerTypePacket> {
     @Override
     public String getSubject() {
         return Subjects.PLAYER_SEND_GENERIC;
+    }
+
+    @Override
+    protected Class<ServerSendReponsePacket> getResponseType() {
+        return ServerSendReponsePacket.class;
     }
 }

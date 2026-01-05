@@ -5,14 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.RequestPacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.parties.PartyInvite;
 
 @Getter
 @AllArgsConstructor
-public class PartyInvitePacket extends Packet<PartyInvitePacket> {
+public class PartyInvitePacket extends RequestPacket<PartyInvitePacket, PartyResponsePacket> {
 
     @SerializedName("party_invite")
     private final PartyInvite partyInvite;
@@ -25,5 +25,10 @@ public class PartyInvitePacket extends Packet<PartyInvitePacket> {
     @Override
     public String getSubject() {
         return Subjects.PARTY_INVITE_SEND_NOTIFY;
+    }
+
+    @Override
+    protected Class<PartyResponsePacket> getResponseType() {
+        return PartyResponsePacket.class;
     }
 }

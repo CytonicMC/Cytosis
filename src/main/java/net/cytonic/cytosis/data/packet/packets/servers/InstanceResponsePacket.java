@@ -18,9 +18,4 @@ public class InstanceResponsePacket extends Packet<InstanceResponsePacket> {
     protected Serializer<InstanceResponsePacket> getSerializer() {
         return new DefaultGsonSerializer<>(InstanceResponsePacket.class);
     }
-
-//    @Override
-//    public String getSubject() {
-//        return Subjects.;
-//    }
 }
