@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +29,7 @@ import net.cytonic.cytosis.utils.Msg;
 @CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class, MysqlDatabase.class, CytonicNetwork.class}, priority = 10)
 public class FriendManager implements Bootstrappable {
 
-    private final Map<UUID, List<UUID>> friends = new ConcurrentHashMap<>();
+    private final Map<UUID, Set<UUID>> friends = new ConcurrentHashMap<>();
     private CytonicNetwork network;
     private GlobalDatabase db;
 
@@ -67,11 +67,11 @@ public class FriendManager implements Bootstrappable {
     }
 
     public void addCachedFriend(UUID uuid, UUID friend) {
-        List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
+        Set<UUID> list = friends.getOrDefault(uuid, new HashSet<>());
         list.add(friend);
         friends.put(uuid, list);
 
-        list = friends.getOrDefault(friend, new ArrayList<>());
+        list = friends.getOrDefault(friend, new HashSet<>());
         list.add(uuid);
         friends.put(friend, list);
     }
@@ -90,7 +90,7 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void addFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
+        Set<UUID> list = friends.getOrDefault(uuid, new HashSet<>());
         list.add(friend);
         friends.put(uuid, list);
 
@@ -114,7 +114,7 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void removeFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        List<UUID> list = friends.getOrDefault(uuid, new ArrayList<>());
+        Set<UUID> list = friends.getOrDefault(uuid, new HashSet<>());
         list.remove(friend);
         friends.put(uuid, list);
 
@@ -154,10 +154,10 @@ public class FriendManager implements Bootstrappable {
      * Gets a player's friends
      *
      * @param uuid The player
-     * @return the list of UUIDs of the player friends
+     * @return the set of UUIDs of the player friends
      */
-    public List<UUID> getFriends(UUID uuid) {
-        return friends.getOrDefault(uuid, new ArrayList<>());
+    public Set<UUID> getFriends(UUID uuid) {
+        return friends.getOrDefault(uuid, new HashSet<>());
     }
 
     /**

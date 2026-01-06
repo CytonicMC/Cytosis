@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.reflect.TypeToken;
@@ -36,6 +37,11 @@ public final class Utils {
      * A type token for a list of UUIDs
      */
     public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
+    }.getType();
+    /**
+     * A type token for a set of UUIDs
+     */
+    public final static Type UUID_SET = new TypeToken<Set<UUID>>() {
     }.getType();
 
     public static final Type SERVER_LIST = new TypeToken<List<ServerStatusPacket>>() {

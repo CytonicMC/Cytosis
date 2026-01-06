@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.commands.friends;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -20,11 +20,11 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 public class FriendCommand extends CytosisCommand {
 
     static final ArgumentWord NON_FRIEND_ARG = (ArgumentWord) ArgumentType.Word("player")
-        .setSuggestionCallback((sender, context, suggestion) -> {
+        .setSuggestionCallback((sender, _, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
 
                 CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
-                List<UUID> friends = Cytosis.get(FriendManager.class).getFriends(player.getUuid());
+                Set<UUID> friends = Cytosis.get(FriendManager.class).getFriends(player.getUuid());
 
                 for (String networkPlayer : network.getOnlinePlayers().getValues()) {
                     if (networkPlayer.equalsIgnoreCase(player.getUsername())) {
