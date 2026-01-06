@@ -117,7 +117,7 @@ public class BanCommand extends CytosisCommand {
 
     private void handleSuccessfulBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
         BanData banData = new BanData(reason, dur, true);
-        new PlayerKickPacket(uuid, KickReason.BANNED, new JsonComponent(Msg.formatBanMessage(banData)));
+        new PlayerKickPacket(uuid, KickReason.BANNED, new JsonComponent(Msg.formatBanMessage(banData))).publish();
 
         String durationText = DurationParser.unparseFull(dur);
         actor.sendMessage(Msg.mm("<green>%s was successfully banned for %s.", player, durationText));

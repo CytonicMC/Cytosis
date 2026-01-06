@@ -62,7 +62,7 @@ public class KickCommand extends CytosisCommand {
                 Cytosis.get(SnooperManager.class)
                     .sendSnoop(CytosisSnoops.PLAYER_KICK, Msg.snoop(snoop));
                 new PlayerKickPacket(uuid, KickReason.COMMAND,
-                    new JsonComponent(Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason)));
+                    new JsonComponent(Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason))).publish();
             }
         }, CommandUtils.NETWORK_PLAYERS, reasonArg);
     }
