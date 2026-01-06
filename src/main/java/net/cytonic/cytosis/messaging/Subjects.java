@@ -14,12 +14,8 @@ public class Subjects {
         .getEnvironment()
         .getPrefix();
 
-    public static String applyPrefix(String subject) {
-        if (subject.startsWith(PREFIX)) {
-            return subject;
-        }
-        return PREFIX + subject;
-    }
+    //parties
+    public static final String PARTY_JOIN_REQUEST_BYPASS = "party.join.request.bypass";
 
     public static final String SERVER_REGISTER = "servers.register";
     public static final String SERVER_SHUTDOWN = "servers.shutdown";
