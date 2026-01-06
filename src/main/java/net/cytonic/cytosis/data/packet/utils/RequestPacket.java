@@ -6,6 +6,18 @@ import java.util.function.BiConsumer;
 public abstract class RequestPacket<Req extends RequestPacket<Req, Resp>, Resp extends Packet<Resp>>
     extends Packet<Req> {
 
+    @Override
+    @Deprecated(forRemoval = true)
+    public void publish() {
+        throw new UnsupportedOperationException("publishing is not supported on RequestPackets");
+    }
+
+    @Override
+    @Deprecated(forRemoval = true)
+    public void publish(String subject) {
+        throw new UnsupportedOperationException("publishing is not supported on RequestPackets");
+    }
+
     public void request(String subject, BiConsumer<Resp, Throwable> consumer) {
         request(subject).whenComplete(consumer);
     }
