@@ -1,7 +1,8 @@
 package net.cytonic.cytosis.data.packet.listeners;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.sound.Sound;
@@ -29,11 +30,11 @@ public class ChatMessageListener {
 
         Component component = packet.getMessage().getComponent();
 
-        List<UUID> recipients;
+        Set<UUID> recipients;
         if (channel.isSupportsSelectiveRecipients()) {
             recipients = packet.getRecipients();
         } else {
-            recipients = Cytosis.getOnlinePlayers().stream().map(CytosisPlayer::getUuid).toList();
+            recipients = Cytosis.getOnlinePlayers().stream().map(CytosisPlayer::getUuid).collect(Collectors.toSet());
         }
 
         assert recipients != null;

@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.commands.chatting;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
@@ -74,7 +74,7 @@ public class MsgCommand extends CytosisCommand {
             .append(actor.getRank().getPrefix().append(Msg.mm(actor.getUsername())).append(Msg.mm("<dark_aqua> » ")))
             .append(Component.text(message, NamedTextColor.WHITE));
         Cytosis.get(MysqlDatabase.class).addPlayerMessage(actor.getUuid(), recipient, message);
-        new ChatMessagePacket(List.of(recipient), ChatChannel.PRIVATE_MESSAGE, new JsonComponent(component),
+        new ChatMessagePacket(Set.of(recipient), ChatChannel.PRIVATE_MESSAGE, new JsonComponent(component),
             actor.getUuid()).publish();
         actor.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(targetRank.getPrefix().append(
                 Msg.mm(Cytosis.get(CytonicNetwork.class).getLifetimeFlattened().getByKey(recipient))))

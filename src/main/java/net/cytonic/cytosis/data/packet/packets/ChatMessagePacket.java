@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.data.packet.packets;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.Getter;
@@ -22,7 +22,7 @@ import net.cytonic.cytosis.messaging.Subjects;
 @Getter
 public class ChatMessagePacket extends Packet<ChatMessagePacket> {
 
-    private final @Nullable List<UUID> recipients;
+    private final @Nullable Set<UUID> recipients;
     private final ChatChannel channel;
     private final JsonComponent message;
     private final @Nullable UUID sender;
@@ -33,7 +33,7 @@ public class ChatMessagePacket extends Packet<ChatMessagePacket> {
      * @param message    The message
      * @param sender     The player who sent the message
      */
-    public ChatMessagePacket(@Nullable List<UUID> recipients, ChatChannel channel, JsonComponent message,
+    public ChatMessagePacket(@Nullable Set<UUID> recipients, ChatChannel channel, JsonComponent message,
         @Nullable UUID sender) {
         this.recipients = recipients;
         this.channel = channel;

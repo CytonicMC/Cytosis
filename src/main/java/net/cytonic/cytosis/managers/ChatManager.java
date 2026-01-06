@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -18,8 +18,6 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.JsonComponent;
-import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
 import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
 import net.cytonic.cytosis.messaging.NatsManager;
@@ -77,6 +75,11 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
+        if (!player.canSendToChannel(channel)) {
+            player.sendMessage(Msg.whoops("You cannot currently send messages on the <gold>%s</gold> channel.",
+                channel.name()));
+            return;
+        }
         Component channelComponent = channel.getPrefix();
         if (channel == ChatChannel.PRIVATE_MESSAGE) {
             handlePrivateMessage(originalMessage, player);
@@ -94,7 +97,7 @@ public class ChatManager implements Bootstrappable {
                 .append(Component.text(originalMessage, player.getRank().getChatColor()));
         }
 
-        List<UUID> recipients = null;
+        Set<UUID> recipients = null;
         if (channel.isSupportsSelectiveRecipients()) {
             assert channel.getRecipientFunction() != null;
             recipients = channel.getRecipientFunction().apply(player);
@@ -141,7 +144,7 @@ public class ChatManager implements Bootstrappable {
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
         Cytosis.get(MysqlDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
-        new ChatMessagePacket(List.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
+        new ChatMessagePacket(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
             new JsonComponent(component), player.getUuid()).publish();
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE)));

@@ -1,8 +1,8 @@
 package net.cytonic.cytosis.data.enums;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -26,21 +26,21 @@ public enum ChatChannel {
     /**
      * Private messages between two players
      */
-    PRIVATE_MESSAGE(Component.empty(), true, _ -> new ArrayList<>()/* handled by chat manager */),
+    PRIVATE_MESSAGE(Component.empty(), true, _ -> new HashSet<>()/* handled by chat manager */),
     /**
      * Represents an internal chat channel used for server-specific communication. This channel is not meant to be
      * exposed to or used by regular players.
      */
-    INTERNAL_MESSAGE(Component.empty(), false, _ -> new ArrayList<>() /*also handled by chat manager*/),
+    INTERNAL_MESSAGE(Component.empty(), false, _ -> new HashSet<>() /*also handled by chat manager*/),
 
     PARTY(Msg.mm("<#83cae4>Party ></#83cae4> "), true, p -> {
-        if (!p.isInParty()) return new ArrayList<>();
+        if (!p.isInParty()) return new HashSet<>();
         return Objects.requireNonNull(p.getParty()).getAllPlayers();
     }),
     /**
      * Not implemented; League chat
      */
-    LEAGUE(Component.text("League > ", NamedTextColor.DARK_PURPLE), true, _ -> new ArrayList<>()),
+    LEAGUE(Component.text("League > ", NamedTextColor.DARK_PURPLE), true, _ -> new HashSet<>()),
     /**
      * A chat channel broadcast to mods on every server
      */
@@ -58,9 +58,9 @@ public enum ChatChannel {
     private final boolean shouldDeanonymize;
     private final boolean supportsSelectiveRecipients;
     @Nullable
-    private final Function<CytosisPlayer, List<UUID>> recipientFunction;
+    private final Function<CytosisPlayer, Set<UUID>> recipientFunction;
 
-    ChatChannel(Component prefix, boolean shouldDeanonymize, @Nullable Function<CytosisPlayer, List<UUID>> recipients) {
+    ChatChannel(Component prefix, boolean shouldDeanonymize, @Nullable Function<CytosisPlayer, Set<UUID>> recipients) {
         this.prefix = prefix;
         this.shouldDeanonymize = shouldDeanonymize;
         this.supportsSelectiveRecipients = recipients != null;

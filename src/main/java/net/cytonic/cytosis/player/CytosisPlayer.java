@@ -3,7 +3,7 @@ package net.cytonic.cytosis.player;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import io.github.togar2.pvp.player.CombatPlayerImpl;
@@ -261,7 +261,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      *
      * @return the player's friends
      */
-    public List<UUID> getFriends() {
+    public Set<UUID> getFriends() {
         return Cytosis.get(FriendManager.class).getFriends(getUuid());
     }
 
