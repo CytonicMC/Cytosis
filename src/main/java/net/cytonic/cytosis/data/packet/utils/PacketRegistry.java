@@ -118,7 +118,7 @@ public class PacketRegistry implements Bootstrappable {
             } catch (Exception e) {
                 Logger.error(
                     "Error calling packet handler for " + packet.getClass().getSimpleName() + " on subject " + subject,
-                    e);
+                    e.getCause());
             }
         }
     }
