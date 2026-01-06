@@ -10,6 +10,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 
 class KickCommand extends CytosisCommand {
 
@@ -20,19 +21,13 @@ class KickCommand extends CytosisCommand {
 
         addSyntax((s, context) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            String rawPlayer = context.get(PartyCommand.PARTY_PLAYER);
-            UUID playerID;
-            try {
-                playerID = UUID.fromString(rawPlayer);
-            } catch (IllegalArgumentException ignored) {
-                playerID = Cytosis.get(CytonicNetwork.class).getOnlineFlattened().getByValue(rawPlayer.toLowerCase());
-            }
+            final UUID playerID = PlayerUtils.resolveUuid(context.get(PartyCommand.PARTY_PLAYER));
             if (playerID == null) {
-                s.sendMessage(Msg.whoops("Could not find the player '%s'", rawPlayer));
+                s.sendMessage(
+                    Msg.whoops("Could not find the player '%s'", context.get(PartyCommand.PARTY_PLAYER)));
                 return;
             }
 
-            final UUID finalPlayerID = playerID;
             Cytosis.get(PartyManager.class).kickPlayer(player.getUuid(), playerID)
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party join: ", throwable);
@@ -45,7 +40,7 @@ class KickCommand extends CytosisCommand {
                         case "NOT_IN_PARTY" -> s.sendMessage(Msg.whoops("You are not in a party!"));
                         case "ERR_TARGET_NOT_IN_PARTY", "INVALID_PARTY" -> s.sendMessage(
                             Msg.whoops("%s<gray> is not in the party.",
-                                Cytosis.get(CytonicNetwork.class).getMiniName(finalPlayerID)));
+                                Cytosis.get(CytonicNetwork.class).getMiniName(playerID)));
                         case "ERR_CANNOT_KICK_SELF" ->
                             s.sendMessage(Msg.whoops("You cannot kick yourself. Use '/party leave' instead."));
                         case "ERR_CANNOT_KICK_LEADER" ->

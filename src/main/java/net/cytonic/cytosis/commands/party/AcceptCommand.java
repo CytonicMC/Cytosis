@@ -2,7 +2,6 @@ package net.cytonic.cytosis.commands.party;
 
 import java.util.UUID;
 
-import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -11,6 +10,7 @@ import net.cytonic.cytosis.data.packet.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 
 class AcceptCommand extends CytosisCommand {
 
@@ -20,15 +20,12 @@ class AcceptCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            String rawPlayer = context.get(CommandUtils.NETWORK_PLAYERS);
-            UUID playerID;
-            try {
-                playerID = UUID.fromString(rawPlayer);
-            } catch (IllegalArgumentException ignored) {
-                playerID = Cytosis.get(CytonicNetwork.class).getOnlineFlattened().getByValue(rawPlayer.toLowerCase());
-            }
+
+            //todo: do something about deanonymizing players
+            final UUID playerID = PlayerUtils.resolveUuid(context.get(CommandUtils.NETWORK_PLAYERS));
             if (playerID == null) {
-                sender.sendMessage(Msg.whoops("Could not find the player '%s'", rawPlayer));
+                sender.sendMessage(
+                    Msg.whoops("Could not find the player '%s'", context.get(CommandUtils.NETWORK_PLAYERS)));
                 return;
             }
 
