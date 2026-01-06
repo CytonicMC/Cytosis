@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
-import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.ReusablePacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 
 @Getter
 @AllArgsConstructor
-public class PartyResponsePacket extends Packet<PartyResponsePacket> {
+public class PartyResponsePacket extends ReusablePacket<PartyResponsePacket> {
 
     private final boolean success;
     private final String message;
@@ -18,10 +17,5 @@ public class PartyResponsePacket extends Packet<PartyResponsePacket> {
     @Override
     protected Serializer<PartyResponsePacket> getSerializer() {
         return new DefaultGsonSerializer<>(PartyResponsePacket.class);
-    }
-
-    @Override
-    public String getSubject() {
-        throw new IllegalSubjectException();
     }
 }

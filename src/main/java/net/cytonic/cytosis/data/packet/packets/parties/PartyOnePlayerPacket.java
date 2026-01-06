@@ -8,14 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
-import net.cytonic.cytosis.data.packet.utils.RequestPacket;
+import net.cytonic.cytosis.data.packet.utils.ReusableRequestPacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class PartyOnePlayerPacket extends RequestPacket<PartyOnePlayerPacket, PartyResponsePacket> {
+public class PartyOnePlayerPacket extends ReusableRequestPacket<PartyOnePlayerPacket, PartyResponsePacket> {
 
     @SerializedName("party_id")
     private final UUID party;
@@ -25,11 +24,6 @@ public class PartyOnePlayerPacket extends RequestPacket<PartyOnePlayerPacket, Pa
     @Override
     protected Serializer<PartyOnePlayerPacket> getSerializer() {
         return new DefaultGsonSerializer<>(PartyOnePlayerPacket.class);
-    }
-
-    @Override
-    public String getSubject() {
-        throw new IllegalSubjectException();
     }
 
     @Override

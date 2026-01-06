@@ -35,7 +35,7 @@ public class FriendPacketsPublisher implements Bootstrappable {
     public void sendFriendRequest(FriendApiRequestPacket packet) {
         Optional<CytosisPlayer> playerOptional = Cytosis.getPlayer(packet.getSender());
         if (playerOptional.isEmpty()) {
-            packet.publish();
+            packet.request();
             return;
         }
         packet.request((response, throwable) -> {
@@ -74,7 +74,7 @@ public class FriendPacketsPublisher implements Bootstrappable {
     }
 
     public void sendAcceptFriendRequest(UUID sender, UUID recipient) {
-        new FriendPacket(sender, recipient, false).request(Subjects.FRIEND_ACCEPT,
+        new FriendPacket(sender, recipient).request(Subjects.FRIEND_ACCEPT,
             (response, throwable) -> handleAccept(response, throwable, recipient, sender));
     }
 
@@ -114,7 +114,7 @@ public class FriendPacketsPublisher implements Bootstrappable {
     }
 
     public void sendDeclineFriendRequest(UUID sender, UUID recipient) {
-        new FriendPacket(sender, recipient, false).request(Subjects.FRIEND_DECLINE,
+        new FriendPacket(sender, recipient).request(Subjects.FRIEND_DECLINE,
             (response, throwable) -> handleDecline(response, throwable, recipient, sender));
     }
 
@@ -150,6 +150,6 @@ public class FriendPacketsPublisher implements Bootstrappable {
     }
 
     public void sendFriendRemove(UUID sender, UUID recipient) {
-        new FriendPacket(sender, recipient, false).publish(Subjects.FRIEND_REMOVE);
+        new FriendPacket(sender, recipient).request(Subjects.FRIEND_REMOVE);
     }
 }

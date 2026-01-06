@@ -8,8 +8,7 @@ import lombok.Getter;
 import net.kyori.adventure.key.Key;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
-import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
-import net.cytonic.cytosis.data.packet.utils.Packet;
+import net.cytonic.cytosis.data.packet.utils.ReusablePacket;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 
 /**
@@ -17,7 +16,7 @@ import net.cytonic.cytosis.data.packet.utils.Serializer;
  */
 @Getter
 @AllArgsConstructor
-public class CooldownUpdatePacket extends Packet<CooldownUpdatePacket> {
+public class CooldownUpdatePacket extends ReusablePacket<CooldownUpdatePacket> {
 
 
     private final Key namespace;
@@ -27,10 +26,5 @@ public class CooldownUpdatePacket extends Packet<CooldownUpdatePacket> {
     @Override
     protected Serializer<CooldownUpdatePacket> getSerializer() {
         return new DefaultGsonSerializer<>(CooldownUpdatePacket.class);
-    }
-
-    @Override
-    public String getSubject() {
-        throw new IllegalSubjectException();
     }
 }
