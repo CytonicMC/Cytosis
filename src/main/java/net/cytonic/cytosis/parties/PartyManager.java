@@ -34,7 +34,6 @@ public class PartyManager implements Bootstrappable {
     @Getter
     private final Map<UUID, Party> parties = new ConcurrentHashMap<>();
     private final CytonicNetwork cn = Cytosis.get(CytonicNetwork.class);
-    private final NatsManager nc = Cytosis.get(NatsManager.class);
 
     public void trackParty(Party party) {
         parties.put(party.getId(), party);

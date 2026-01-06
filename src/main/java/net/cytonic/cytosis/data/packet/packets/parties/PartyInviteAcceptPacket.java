@@ -32,4 +32,5 @@ public class PartyInviteAcceptPacket extends RequestPacket<PartyInviteAcceptPack
     protected Class<PartyResponsePacket> getResponseType() {
         return PartyResponsePacket.class;
     }
+
 }

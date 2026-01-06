@@ -56,9 +56,8 @@ public class Subjects {
     public static final String DELETE_ALL_SERVERS = "servers.delete.all";
     public static final String DELETE_SERVER = "servers.delete";
     public static final String UPDATE_SERVER = "servers.update";
-    //parties
-    public static final String PARTY_JOIN_REQUEST_BYPASS = "party.join.notify";
-    public static final String PARTY_JOIN_REQUEST_COMMAND = "party.join.notify";
+    public static final String PARTY_JOIN_REQUEST_COMMAND = "party.join.request.command";
+    public static final String PARTY_TRANSFER_NOTIFY = "party.transfer.notify.*";
     public static final String PARTY_JOIN_NOTIFY = "party.join.notify";
 
     public static final String PARTY_LEAVE_REQUEST = "party.leave.request";
@@ -73,7 +72,16 @@ public class Subjects {
     public static final String PARTY_KICK_NOTIFY = "party.kick.notify";
 
     public static final String PARTY_TRANSFER_REQUEST = "party.transfer.request";
-    public static final String PARTY_TRANSFER_NOTIFY = "party.transfer.notify";
+
+    public static String applyPrefix(String subject) {
+        if (subject.startsWith("_INBOX")) { // prevent replies from being inadvertently prefixed
+            return subject;
+        }
+        if (subject.startsWith(PREFIX)) {
+            return subject;
+        }
+        return PREFIX + subject;
+    }
 
     public static final String PARTY_STATE_MUTE_REQUEST = "party.state.mute.request";
     public static final String PARTY_STATE_OPEN_REQUEST = "party.state.open.request";

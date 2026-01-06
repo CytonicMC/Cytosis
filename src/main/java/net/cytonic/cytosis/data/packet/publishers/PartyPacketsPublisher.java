@@ -64,7 +64,7 @@ public class PartyPacketsPublisher {
         if (reqID == null) {
             CompletableFuture.completedFuture(new PartyResponsePacket(false, "ERR_NOT_FOUND"));
         }
-        new PartyInviteAcceptPacket(reqID).request(Subjects.PARTY_INVITE_SEND_REQUEST, (response, throwable) -> {
+        new PartyInviteAcceptPacket(reqID).request(Subjects.PARTY_INVITE_ACCEPT_REQUEST, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -121,13 +121,13 @@ public class PartyPacketsPublisher {
     public CompletableFuture<PartyResponsePacket> sendState(UUID sender, UUID party, boolean state,
         String subj) {
         CompletableFuture<PartyResponsePacket> future = new CompletableFuture<>();
-        new PartyStatePacket(sender, party, state).request(subj, (response, throwable) -> {
-                if (throwable != null) {
-                    future.completeExceptionally(throwable);
-                    return;
-                }
-                future.complete(response);
-            });
+        new PartyStatePacket(party, sender, state).request(subj, (response, throwable) -> {
+            if (throwable != null) {
+                future.completeExceptionally(throwable);
+                return;
+            }
+            future.complete(response);
+        });
         return future;
     }
 }

@@ -63,7 +63,7 @@ public class PartyPacketsListener {
 
     @PacketHandler(subject = Subjects.PARTY_TRANSFER_NOTIFY)
     private void handlePartyTransfer(PartyTwoPlayerPacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[2];
+        String subject = packetData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
 
         switch (subject) {

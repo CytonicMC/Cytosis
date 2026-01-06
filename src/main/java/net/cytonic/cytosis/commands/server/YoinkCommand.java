@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.commands.server;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
@@ -28,7 +28,7 @@ public class YoinkCommand extends CytosisCommand {
 
         var playerArgument = ArgumentType.Word("player");
         playerArgument.setSuggestionCallback(
-            (cmds, cmdc, suggestion) -> Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
+            (_, _, suggestion) -> Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
                 .getValues()
                 .forEach(v -> suggestion.addEntry(new SuggestionEntry(v))));
         playerArgument.setCallback((sender, exception) -> sender.sendMessage(
@@ -60,7 +60,7 @@ public class YoinkCommand extends CytosisCommand {
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
                 .append(Msg.mm("<gray> pulled you to their server!"));
-            new ChatMessagePacket(List.of(uuid), ChatChannel.INTERNAL_MESSAGE, new JsonComponent(component),
+            new ChatMessagePacket(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE, new JsonComponent(component),
                 null).publish();
         }), playerArgument);
     }
