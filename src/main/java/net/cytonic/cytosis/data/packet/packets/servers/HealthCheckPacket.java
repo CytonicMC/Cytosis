@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
+import net.cytonic.cytosis.data.packet.utils.IllegalSubjectException;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
 
@@ -11,7 +12,15 @@ import net.cytonic.cytosis.data.packet.utils.Serializer;
 @AllArgsConstructor
 public class HealthCheckPacket extends Packet<HealthCheckPacket> {
 
-    private transient final String subject;
+    @Override
+    public String getSubject() {
+        throw new IllegalSubjectException();
+    }
+
+    @Override
+    public byte[] getData() {
+        return new byte[0];
+    }
 
     @Override
     protected Serializer<HealthCheckPacket> getSerializer() {

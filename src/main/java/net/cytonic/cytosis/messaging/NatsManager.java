@@ -138,7 +138,7 @@ public class NatsManager implements Bootstrappable {
             try {
                 Packet<P> packet = Packet.getSerializer(packetClass)
                     .deserialize(new String(message.getData()));
-                Logger.debug("Received packet %s %s %s", message.getSubject(), packet.getClass().getSimpleName(),
+                Logger.debug("\nReceived packet %s %s %s\n\n", message.getSubject(), packet.getClass().getSimpleName(),
                     new String(message.getData()));
                 PacketData packetData = new PacketData(message.getSubject());
                 Cytosis.get(PacketRegistry.class).callHandlers(subject, packet, packetData);
@@ -154,7 +154,7 @@ public class NatsManager implements Bootstrappable {
         }
         Dispatcher dispatcher = connection.createDispatcher();
         healthCheck = dispatcher.subscribe(Subjects.applyPrefix(Subjects.HEALTH_CHECK),
-            msg -> new HealthCheckPacket(msg.getReplyTo()).publish());
+            msg -> new HealthCheckPacket().publish(msg.getReplyTo()));
     }
 
     /**
