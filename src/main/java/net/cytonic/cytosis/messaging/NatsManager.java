@@ -138,8 +138,6 @@ public class NatsManager implements Bootstrappable {
             try {
                 Packet<P> packet = Packet.getSerializer(packetClass)
                     .deserialize(new String(message.getData()));
-                Logger.debug("\nReceived packet %s %s %s\n\n", message.getSubject(), packet.getClass().getSimpleName(),
-                    new String(message.getData()));
                 PacketData packetData = new PacketData(message.getSubject());
                 Cytosis.get(PacketRegistry.class).callHandlers(subject, packet, packetData);
             } catch (Exception e) {
