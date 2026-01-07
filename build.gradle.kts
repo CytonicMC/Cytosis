@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.gradleup.shadow") version "9.3.0"
+    id("com.gradleup.shadow") version "9.3.1"
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.1.0"
     id("net.kyori.blossom") version "2.2.0"
