@@ -1,7 +1,7 @@
 metadata.format.version = "1.1"
 
 [versions]
-minimessage = "4.26.1"
+adventure = "4.26.1"
 classgraph = "4.8.184"
 configurate = "4.2.0"
 dependencydownload = "2.0.0"
@@ -36,7 +36,8 @@ invui = { module = "me.devnatan:minestomInventoryFramework", version.ref = "invu
 anvilInput = { module = "me.devnatan:minestomAnvilInput", version.ref = "anvilInput" }
 configurate = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "minimessage" }
+minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
 mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }

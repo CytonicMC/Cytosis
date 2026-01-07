@@ -18,13 +18,13 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.JsonComponent;
-import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.objects.ChatMessageProtocolObject;
 
 /**
  * This class handles chat messages and channels
@@ -122,7 +122,7 @@ public class ChatManager implements Bootstrappable {
             });
             return;
         }
-        new ChatMessagePacket(recipients, channel, new JsonComponent(message), player.getUuid()).publish();
+        new ChatMessageProtocolObject.Packet(recipients, channel, new JsonComponent(message), player.getUuid()).publish();
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {
@@ -144,7 +144,7 @@ public class ChatManager implements Bootstrappable {
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
         Cytosis.get(MysqlDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
-        new ChatMessagePacket(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
+        new ChatMessageProtocolObject.Packet(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
             new JsonComponent(component), player.getUuid()).publish();
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE)));

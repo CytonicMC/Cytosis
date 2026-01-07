@@ -13,13 +13,13 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.packet.packets.PlayerKickPacket;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 public class KickCommand extends CytosisCommand {
 

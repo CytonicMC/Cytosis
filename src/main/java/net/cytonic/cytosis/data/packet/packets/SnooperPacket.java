@@ -3,10 +3,10 @@ package net.cytonic.cytosis.data.packet.packets;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.packet.utils.DefaultGsonSerializer;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.Serializer;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 @Getter
 @AllArgsConstructor

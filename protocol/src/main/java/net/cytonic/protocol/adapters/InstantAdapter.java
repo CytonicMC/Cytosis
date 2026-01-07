@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.adapters;
+package net.cytonic.protocol.adapters;
 
 import java.io.IOException;
 import java.time.Instant;

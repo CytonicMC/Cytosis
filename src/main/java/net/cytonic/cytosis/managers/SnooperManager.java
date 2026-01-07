@@ -20,7 +20,6 @@ import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.SnoopsContainer;
-import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.packet.packets.SnooperPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
@@ -30,6 +29,7 @@ import net.cytonic.cytosis.snooper.SnooperChannel;
 import net.cytonic.cytosis.snooper.SnooperRecieveEvent;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 @CytosisComponent(dependsOn = {MysqlDatabase.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {

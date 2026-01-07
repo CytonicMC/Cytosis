@@ -13,11 +13,11 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.objects.JsonComponent;
-import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
 import net.cytonic.cytosis.data.packet.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.objects.ChatMessageProtocolObject;
 
 public class YoinkCommand extends CytosisCommand {
 
@@ -60,8 +60,8 @@ public class YoinkCommand extends CytosisCommand {
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
                 .append(Msg.mm("<gray> pulled you to their server!"));
-            new ChatMessagePacket(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE, new JsonComponent(component),
-                null).publish();
+            new ChatMessageProtocolObject.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE,
+                new JsonComponent(component), null).publish();
         }), playerArgument);
     }
 }

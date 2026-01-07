@@ -27,6 +27,12 @@ repositories {
     }
 }
 
+
+val dependencyDownloadOnly: Configuration by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
 dependencies {
     download(libs.minestom)
     download(libs.gson)
@@ -53,11 +59,13 @@ dependencies {
     download(libs.mysql)
 
     implementation(libs.dependencydownload)
+    dependencyDownloadOnly(libs.dependencydownload)
+    implementation(project(":protocol"))//todo publish along with cytosis
+    dependencyDownloadOnly(project(":protocol"))//todo publish along with cytosis
 
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
 }
-
 
 fun DependencyHandler.download(dependencyNotation: Any) {
     val resolved = when (dependencyNotation) {
@@ -178,16 +186,6 @@ configurations {
         outgoing.artifacts.clear()
         outgoing.artifact(thinShadow)
     }
-}
-
-// Create a custom configuration for only the dependency download plugin
-val dependencyDownloadOnly: Configuration by configurations.creating {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-}
-
-dependencies {
-    dependencyDownloadOnly(libs.dependencydownload)
 }
 
 val apiArtifacts: Configuration by configurations.creating {

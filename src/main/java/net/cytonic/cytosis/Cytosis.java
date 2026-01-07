@@ -24,12 +24,11 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.adapters.InstantAdapter;
-import net.cytonic.cytosis.data.adapters.JsonComponentAdapter;
-import net.cytonic.cytosis.data.adapters.KeyAdapter;
+import net.cytonic.protocol.adapters.InstantAdapter;
+import net.cytonic.protocol.adapters.JsonComponentAdapter;
+import net.cytonic.protocol.adapters.KeyAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
-import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.serializers.KeySerializer;
@@ -37,6 +36,7 @@ import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 /**
  * The main class for Cytosis

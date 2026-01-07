@@ -1,38 +1,42 @@
-package net.cytonic.cytosis.data.packet.listeners;
+package net.cytonic.cytosis.protocol.listeners;
 
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import lombok.NoArgsConstructor;
+import com.google.errorprone.annotations.Keep;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.sound.SoundEvent;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.packet.packets.ChatMessagePacket;
-import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.managers.ChatManager;
-import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.protocol.Notifiable;
+import net.cytonic.protocol.ProtocolObject;
+import net.cytonic.protocol.objects.ChatMessageProtocolObject;
+import net.cytonic.protocol.objects.ChatMessageProtocolObject.Packet;
 
-@CytosisComponent
-@NoArgsConstructor
-public class ChatMessageListener {
+@Keep
+public class ChatMessageNotifyListener implements Notifiable<ChatMessageProtocolObject.Packet> {
 
-    @PacketHandler(subject = Subjects.CHAT_MESSAGE)
-    private void handleChatMessage(ChatMessagePacket packet) {
-        ChatChannel channel = packet.getChannel();
+    @Override
+    public ProtocolObject<Packet, ?> getProtocolObject() {
+        return new ChatMessageProtocolObject();
+    }
 
-        Component component = packet.getMessage().getComponent();
+    @Override
+    public void onMessage(Packet message) {
+        ChatChannel channel = ChatChannel.valueOf(message.channel());
+
+        Component component = message.message().getComponent();
 
         Set<UUID> recipients;
         if (channel.isSupportsSelectiveRecipients()) {
-            recipients = packet.getRecipients();
+            recipients = message.recipients();
         } else {
             recipients = Cytosis.getOnlinePlayers().stream().map(CytosisPlayer::getUuid).collect(Collectors.toSet());
         }
@@ -50,7 +54,7 @@ public class ChatMessageListener {
             }
             player.sendMessage(component);
             if (channel == ChatChannel.PRIVATE_MESSAGE) {
-                Cytosis.get(ChatManager.class).openPrivateMessage(player, packet.getSender());
+                Cytosis.get(ChatManager.class).openPrivateMessage(player, message.sender());
             }
         }));
     }

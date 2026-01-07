@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.adapters;
+package net.cytonic.protocol.adapters;
 
 import java.io.IOException;
 
@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import lombok.NoArgsConstructor;
 
-import net.cytonic.cytosis.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 @NoArgsConstructor
 public class JsonComponentAdapter extends TypeAdapter<JsonComponent> {

@@ -18,7 +18,6 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.objects.BanData;
-import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.packet.packets.PlayerKickPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
@@ -27,6 +26,7 @@ import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 /**
  * A command that allows authorized players to ban players.
