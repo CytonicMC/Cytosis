@@ -39,18 +39,18 @@ public class ProtocolHelper {
     }
 
     private static void registerNotifiable() {
-        List<Notifiable<?>> notifiableList = new ArrayList<>();
-        ClassGraphUtils.getImplementedClasses(Notifiable.class, PACKAGE).forEach(notifiableList::add);
-        notifiableList.forEach(ProtocolHelper::registerNotifiable);
+        List<NotifyListener<?>> notifyListenerList = new ArrayList<>();
+        ClassGraphUtils.getImplementedClasses(NotifyListener.class, PACKAGE).forEach(notifyListenerList::add);
+        notifyListenerList.forEach(ProtocolHelper::registerNotifiable);
     }
 
-    private static <T> void registerNotifiable(Notifiable<T> notifiable) {
-        Serializer<?> serializer = notifiable.getProtocolObject().getSerializer();
-        NatsAPI.INSTANCE.subscribe(notifiable.getSubject(), (message) -> {
+    private static <T> void registerNotifiable(NotifyListener<T> notifyListener) {
+        ProtocolObject<?, ?> protocolObject = notifyListener.getProtocolObject();
+        NatsAPI.INSTANCE.subscribe(notifyListener.getSubject(), (message) -> {
             try {
                 //noinspection unchecked
-                T data = (T) serializer.deserialize(new String(message.getData()));
-                notifiable.onMessage(data);
+                T data = (T) protocolObject.deserializeFromString(new String(message.getData()));
+                notifyListener.onMessage(data);
             } catch (Exception e) {
                 log.error("Failed to handle message", e);
             }

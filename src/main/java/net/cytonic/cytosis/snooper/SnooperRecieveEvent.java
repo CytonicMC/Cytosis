@@ -1,9 +1,9 @@
 package net.cytonic.cytosis.snooper;
 
-import net.cytonic.cytosis.data.packet.packets.SnooperPacket;
+import net.cytonic.protocol.notifyPackets.SnooperNotifyPacket;
 
 @FunctionalInterface
 public interface SnooperRecieveEvent {
 
-    void onReceive(SnooperChannel channel, SnooperPacket packet);
+    void onReceive(SnooperChannel channel, SnooperNotifyPacket.Packet packet);
 }

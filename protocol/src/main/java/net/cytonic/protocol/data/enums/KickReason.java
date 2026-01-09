@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.enums;
+package net.cytonic.protocol.data.enums;
 
 import lombok.Getter;
 
@@ -29,7 +29,7 @@ public enum KickReason {
     /**
      * Creates a new KickReason
      *
-     * @param rescuable if a proxy should try to rescue a player, or terminate connection completely
+     * @param rescuable if a proxy should try to rescue a player or terminate the connection completely
      */
     KickReason(boolean rescuable) {
         this.rescuable = rescuable;

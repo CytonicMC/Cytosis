@@ -17,7 +17,7 @@ import net.cytonic.cytosis.data.packet.publishers.SendPlayerToServerPacketPublis
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.objects.ChatMessageProtocolObject;
+import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket;
 
 public class YoinkCommand extends CytosisCommand {
 
@@ -60,7 +60,7 @@ public class YoinkCommand extends CytosisCommand {
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
                 .append(Msg.mm("<gray> pulled you to their server!"));
-            new ChatMessageProtocolObject.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE,
+            new ChatMessageNotifyPacket.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE,
                 new JsonComponent(component), null).publish();
         }), playerArgument);
     }

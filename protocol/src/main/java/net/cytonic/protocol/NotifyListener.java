@@ -1,6 +1,6 @@
 package net.cytonic.protocol;
 
-public interface Notifiable<T> extends Subject, Serializable<T> {
+public interface NotifyListener<T> extends Subject, Serializable<T> {
 
     ProtocolObject<T, ?> getProtocolObject();
 

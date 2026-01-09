@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.messaging;
 
+import java.time.Instant;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -18,17 +19,21 @@ import net.minestom.server.MinecraftServer;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
-import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
+import net.cytonic.cytosis.data.packet.packets.servers.FetchServersPacket;
 import net.cytonic.cytosis.data.packet.packets.servers.HealthCheckPacket;
-import net.cytonic.cytosis.data.packet.publishers.FetchServersPublisher;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.PacketData;
 import net.cytonic.cytosis.data.packet.utils.PacketRegistry;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.protocol.listeners.ServerStatusNotifyListener;
+import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
+import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket.Type;
 
 import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
@@ -51,22 +56,50 @@ public class NatsManager implements Bootstrappable {
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
             setup();
-            Cytosis.get(FetchServersPublisher.class).sendFetchServersPacket();
+            fetchServers();
         } else {
             Logger.warn("Skipping NATS manager setup for CI test!");
         }
 
         MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
             Logger.info("Registering server with Cydian!");
-            ServerStatusPacket.createDefault(true).publish();
+            createServerStatusPacket(true).publish();
         });
     }
 
     @SneakyThrows // don't care about the error on shutdown
     @Override
     public void shutdown() {
-        ServerStatusPacket.createDefault(false).publish();
+        createServerStatusPacket(false).publish();
         connection.close();
+    }
+
+    private ServerStatusNotifyPacket.Packet createServerStatusPacket(boolean isStartup) {
+        return new ServerStatusNotifyPacket.Packet(
+            Cytosis.CONTEXT.getServerGroup().type(),
+            Utils.getServerIP(),
+            CytosisContext.SERVER_ID,
+            Cytosis.get(CytosisSettings.class).getServerConfig().getPort(),
+            Instant.now(),
+            Cytosis.CONTEXT.getServerGroup().group(),
+            isStartup ? Type.STARTUP : Type.SHUTDOWN
+        );
+    }
+
+    private void fetchServers() {
+        new FetchServersPacket().request((response, throwable) -> {
+            if (throwable != null) {
+                Logger.error("failed to fetch active servers!", throwable);
+                return;
+            }
+
+            for (ServerStatusNotifyPacket.Packet server : response.getServers()) {
+                Cytosis.get(CytonicNetwork.class).getServers()
+                    .put(server.id(), ServerStatusNotifyListener.getServer(server));
+                Logger.info("Loaded server '" + server.id() + "' from Cydian!");
+            }
+            Logger.info("Loaded " + response.getServers().size() + " active servers from Cydian!");
+        });
     }
 
     @SneakyThrows

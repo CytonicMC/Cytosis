@@ -9,7 +9,7 @@ import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.objects.BroadcastProtocolObject;
+import net.cytonic.protocol.notifyPackets.BroadcastNotifyPacket;
 
 /**
  * The class representing the broadcast command
@@ -36,7 +36,7 @@ public class BroadcastCommand extends CytosisCommand {
                 if (context.get(serverArgument).equalsIgnoreCase("this")) {
                     Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(broadcast));
                 } else if (context.get(serverArgument).equalsIgnoreCase("all")) {
-                    new BroadcastProtocolObject.Packet(new JsonComponent(broadcast)).publish();
+                    new BroadcastNotifyPacket.Packet(new JsonComponent(broadcast)).publish();
                 }
             }
         }, serverArgument, broadcastArgument);

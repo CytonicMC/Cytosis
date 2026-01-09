@@ -4,17 +4,17 @@ import com.google.errorprone.annotations.Keep;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
-import net.cytonic.protocol.Notifiable;
+import net.cytonic.protocol.NotifyListener;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.objects.CooldownUpdateProtocolObject;
-import net.cytonic.protocol.objects.CooldownUpdateProtocolObject.Packet;
+import net.cytonic.protocol.notifyPackets.CooldownUpdateNotifyPacket;
+import net.cytonic.protocol.notifyPackets.CooldownUpdateNotifyPacket.Packet;
 
 @Keep
-public class CooldownNotifyListener implements Notifiable<CooldownUpdateProtocolObject.Packet> {
+public class CooldownNotifyListener implements NotifyListener<Packet> {
 
     @Override
     public ProtocolObject<Packet, ?> getProtocolObject() {
-        return new CooldownUpdateProtocolObject();
+        return new CooldownUpdateNotifyPacket();
     }
 
     @Override

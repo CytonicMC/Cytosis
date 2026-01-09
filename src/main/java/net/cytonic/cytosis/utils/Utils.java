@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
-import net.cytonic.cytosis.data.packet.packets.ServerStatusPacket;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
@@ -44,8 +43,6 @@ public final class Utils {
     public final static Type UUID_SET = new TypeToken<Set<UUID>>() {
     }.getType();
 
-    public static final Type SERVER_LIST = new TypeToken<List<ServerStatusPacket>>() {
-    }.getType();
     /**
      * A type token for a map of namespaced preferences keyed by NamespaceID
      */

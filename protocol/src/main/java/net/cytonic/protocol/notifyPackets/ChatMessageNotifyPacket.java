@@ -1,24 +1,17 @@
-package net.cytonic.protocol.objects;
+package net.cytonic.protocol.notifyPackets;
 
 import java.util.Set;
 import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.protocol.GsonSerializer;
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.Serializer;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.objects.ChatMessageProtocolObject.Packet;
+import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket.Packet;
 
-public class ChatMessageProtocolObject extends NoResponse<Packet> {
-
-    @Override
-    public Serializer<Packet> getSerializer() {
-        return new GsonSerializer<>(Packet.class);
-    }
+public class ChatMessageNotifyPacket extends NoResponse<Packet> {
 
     @Override
     public String getSubject() {
@@ -38,7 +31,7 @@ public class ChatMessageProtocolObject extends NoResponse<Packet> {
 
         @Override
         public ProtocolObject<Packet, Void> getProtocolObject() {
-            return new ChatMessageProtocolObject();
+            return new ChatMessageNotifyPacket();
         }
     }
 }

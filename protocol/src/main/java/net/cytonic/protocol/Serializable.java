@@ -4,11 +4,11 @@ public interface Serializable<T> {
 
     Serializer<T> getSerializer();
 
-    default String translateToString(T message) {
+    default String serializeToString(T message) {
         return getSerializer().serialize(message);
     }
 
-    default T translateFromString(String string) {
+    default T deserializeFromString(String string) {
         return getSerializer().deserialize(string);
     }
 }

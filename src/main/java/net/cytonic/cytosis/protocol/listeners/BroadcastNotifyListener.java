@@ -3,17 +3,17 @@ package net.cytonic.cytosis.protocol.listeners;
 import com.google.errorprone.annotations.Keep;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.protocol.Notifiable;
+import net.cytonic.protocol.NotifyListener;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.objects.BroadcastProtocolObject;
-import net.cytonic.protocol.objects.BroadcastProtocolObject.Packet;
+import net.cytonic.protocol.notifyPackets.BroadcastNotifyPacket;
+import net.cytonic.protocol.notifyPackets.BroadcastNotifyPacket.Packet;
 
 @Keep
-public class BroadcastNotifyListener implements Notifiable<Packet> {
+public class BroadcastNotifyListener implements NotifyListener<Packet> {
 
     @Override
     public ProtocolObject<Packet, ?> getProtocolObject() {
-        return new BroadcastProtocolObject();
+        return new BroadcastNotifyPacket();
     }
 
     @Override

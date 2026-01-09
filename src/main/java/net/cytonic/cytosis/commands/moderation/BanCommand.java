@@ -16,9 +16,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.BanReason;
-import net.cytonic.cytosis.data.enums.KickReason;
 import net.cytonic.cytosis.data.objects.BanData;
-import net.cytonic.cytosis.data.packet.packets.PlayerKickPacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -26,7 +24,9 @@ import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
+import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.notifyPackets.PlayerKickNotifyPacket;
 
 /**
  * A command that allows authorized players to ban players.
@@ -117,7 +117,8 @@ public class BanCommand extends CytosisCommand {
 
     private void handleSuccessfulBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
         BanData banData = new BanData(reason, dur, true);
-        new PlayerKickPacket(uuid, KickReason.BANNED, new JsonComponent(Msg.formatBanMessage(banData))).publish();
+        new PlayerKickNotifyPacket.Packet(uuid, KickReason.BANNED,
+            new JsonComponent(Msg.formatBanMessage(banData))).publish();
 
         String durationText = DurationParser.unparseFull(dur);
         actor.sendMessage(Msg.mm("<green>%s was successfully banned for %s.", player, durationText));

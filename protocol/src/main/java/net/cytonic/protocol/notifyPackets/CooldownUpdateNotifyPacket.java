@@ -1,23 +1,16 @@
-package net.cytonic.protocol.objects;
+package net.cytonic.protocol.notifyPackets;
 
 import java.time.Instant;
 import java.util.UUID;
 
 import net.kyori.adventure.key.Key;
 
-import net.cytonic.protocol.GsonSerializer;
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.Serializer;
-import net.cytonic.protocol.objects.CooldownUpdateProtocolObject.Packet;
+import net.cytonic.protocol.notifyPackets.CooldownUpdateNotifyPacket.Packet;
 
-public class CooldownUpdateProtocolObject extends NoResponse<Packet> {
-
-    @Override
-    public Serializer<Packet> getSerializer() {
-        return new GsonSerializer<>(Packet.class);
-    }
+public class CooldownUpdateNotifyPacket extends NoResponse<Packet> {
 
     @Override
     public String getSubject() {
@@ -33,7 +26,7 @@ public class CooldownUpdateProtocolObject extends NoResponse<Packet> {
 
         @Override
         public ProtocolObject<Packet, Void> getProtocolObject() {
-            return new CooldownUpdateProtocolObject();
+            return new CooldownUpdateNotifyPacket();
         }
     }
 }
