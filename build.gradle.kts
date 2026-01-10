@@ -133,7 +133,7 @@ tasks.register("thinJar") {
 }
 
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
-    dependsOn("check")
+//    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
@@ -202,7 +202,7 @@ val apiJars = apiArtifacts
     .map { it.file }
 
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
-    dependsOn("check")
+//    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 

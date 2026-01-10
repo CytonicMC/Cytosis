@@ -25,9 +25,11 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.adapters.InstantAdapter;
+import net.cytonic.cytosis.data.adapters.JsonComponentAdapter;
 import net.cytonic.cytosis.data.adapters.KeyAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
+import net.cytonic.cytosis.data.objects.JsonComponent;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.serializers.KeySerializer;
@@ -49,12 +51,17 @@ public final class Cytosis {
         .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
         .registerTypeAdapter(Key.class, new KeyAdapter())
         .registerTypeAdapter(Instant.class, new InstantAdapter())
+        .registerTypeAdapter(JsonComponent.class, new JsonComponentAdapter())
         .registerTypeAdapterFactory(new TypedNamespaceAdapter())
         .registerTypeAdapterFactory(new PreferenceAdapter<>())
         .registerTypeAdapterFactory(new KeyAdapter())
         .enableComplexMapKeySerialization()
         .setStrictness(Strictness.LENIENT)
         .serializeNulls()
+        .create();
+
+    public static final Gson GO_GSON = GSON.newBuilder()
+        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
         .create();
 
     public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()

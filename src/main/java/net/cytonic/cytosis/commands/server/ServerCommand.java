@@ -14,8 +14,8 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.objects.CytonicServer;
+import net.cytonic.cytosis.data.packet.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -51,9 +51,8 @@ public class ServerCommand extends CytosisCommand {
                             if (server.id().equals(context.get(serverArgument))) {
                                 player.sendMessage(
                                     Component.text("Connecting to " + server.id(), NamedTextColor.GREEN));
-                                //todo: instance?
-                                Cytosis.get(NatsManager.class)
-                                    .sendPlayerToServer(player.getUuid(), server, null);
+                                Cytosis.get(SendPlayerToServerPacketPublisher.class)
+                                    .sendPlayerToServer(player.getUuid(), server);
                             }
                         }
                     } else {
