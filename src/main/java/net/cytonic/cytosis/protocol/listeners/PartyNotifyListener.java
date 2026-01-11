@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.listeners;
+package net.cytonic.cytosis.protocol.listeners;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
@@ -15,7 +15,7 @@ import net.cytonic.protocol.objects.parties.PartyStateProtocolObject;
 import net.cytonic.protocol.objects.parties.PartyTwoPlayerProtocolObject;
 
 @CytosisComponent(dependsOn = PartyManager.class)
-public class PartyPacketsListener {
+public class PartyNotifyListener {
 
     private final PartyManager pm = Cytosis.get(PartyManager.class);
 

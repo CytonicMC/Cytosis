@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.data.packet.publishers;
+package net.cytonic.cytosis.protocol.publishers;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
