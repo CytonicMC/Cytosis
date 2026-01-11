@@ -10,11 +10,15 @@ import net.cytonic.protocol.utils.NatsAPI;
 public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSerializable<R>, Subject {
 
     public Serializer<T> getSerializer() {
-        return new GsonSerializer<>(getSerializableType());
+        return new GsonSerializer<>(getSerializableType(0));
+    }
+
+    public Serializer<R> getReturnSerializer() {
+        return new GsonSerializer<>(getSerializableType(1));
     }
 
     @SuppressWarnings("unchecked")
-    public Class<T> getSerializableType() {
+    public <X> Class<X> getSerializableType(int slot) {
         Class<?> declaringClass = null;
         int typeParameterIndex = -1;
 
@@ -25,10 +29,10 @@ public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSer
                 if (genericInterface instanceof ParameterizedType paramType
                     && paramType.getRawType().equals(Serializable.class)) {
 
-                    Type actualType = paramType.getActualTypeArguments()[0];
+                    Type actualType = paramType.getActualTypeArguments()[slot];
 
                     if (actualType instanceof Class<?>) {
-                        return (Class<T>) actualType;
+                        return (Class<X>) actualType;
                     }
 
                     if (actualType instanceof TypeVariable<?> tv) {
@@ -61,9 +65,9 @@ public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSer
                 Type resolvedType = paramType.getActualTypeArguments()[typeParameterIndex];
 
                 if (resolvedType instanceof Class<?>) {
-                    return (Class<T>) resolvedType;
+                    return (Class<X>) resolvedType;
                 } else if (resolvedType instanceof ParameterizedType pt) {
-                    return (Class<T>) pt.getRawType();
+                    return (Class<X>) pt.getRawType();
                 }
             }
 
@@ -81,8 +85,6 @@ public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSer
         NatsAPI.INSTANCE.request(subject, serializeToString(message),
             bytes -> onResponse.accept(deserializeReturnFromString(new String(bytes))));
     }
-
-    public abstract Serializer<R> getReturnSerializer();
 
     public abstract String getSubject();
     //todo figure out if we want simple class names or subjects
