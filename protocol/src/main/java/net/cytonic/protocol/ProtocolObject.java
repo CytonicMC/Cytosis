@@ -3,7 +3,7 @@ package net.cytonic.protocol;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import net.cytonic.protocol.utils.NatsAPI;
 
@@ -77,13 +77,13 @@ public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSer
         throw new IllegalStateException("Could not resolve serializable type for: " + getClass().getName());
     }
 
-    public void request(T message, Consumer<R> onResponse) {
+    public void request(T message, BiConsumer<R, Throwable> onResponse) {
         request(getSubject(), message, onResponse);
     }
 
-    public void request(String subject, T message, Consumer<R> onResponse) {
+    public void request(String subject, T message, BiConsumer<R, Throwable> onResponse) {
         NatsAPI.INSTANCE.request(subject, serializeToString(message),
-            bytes -> onResponse.accept(deserializeReturnFromString(new String(bytes))));
+            (bytes, throwable) -> onResponse.accept(deserializeReturnFromString(new String(bytes)), throwable));
     }
 
     public abstract String getSubject();

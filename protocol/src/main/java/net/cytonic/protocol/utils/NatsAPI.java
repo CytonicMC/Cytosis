@@ -1,5 +1,6 @@
 package net.cytonic.protocol.utils;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import io.nats.client.Message;
@@ -13,5 +14,5 @@ public interface NatsAPI {
 
     void publish(String channel, String data);
 
-    void request(String channel, String data, Consumer<byte[]> consumer);
+    void request(String channel, String data, BiConsumer<byte[], Throwable> consumer);
 }

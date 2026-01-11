@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.protocol;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import io.nats.client.Message;
@@ -40,14 +41,11 @@ public class NatsAPIImpl implements NatsAPI, Bootstrappable {
     }
 
     @Override
-    public void request(String channel, String data, Consumer<byte[]> consumer) {
+    public void request(String channel, String data, BiConsumer<byte[], Throwable> consumer) {
+        log.info("Requesting on channel {}", channel);
         Cytosis.get(NatsManager.class).request(channel, data.getBytes(), ((message, throwable) -> {
-            if (throwable != null) {
-                log.error("An error occurred whilst requesting data!", throwable);
-                return;
-            }
             log.info("Received Nats request from request {} {}", channel, new String(message.getData()));
-            consumer.accept(message.getData());
+            consumer.accept(message.getData(), throwable);
         }));
     }
 }

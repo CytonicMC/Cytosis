@@ -1,5 +1,7 @@
 package net.cytonic.protocol;
 
+import java.util.function.BiConsumer;
+
 public interface Message<T, R> {
 
     ProtocolObject<T, R> getProtocolObject();
@@ -17,5 +19,14 @@ public interface Message<T, R> {
             return;
         }
         throw new UnsupportedOperationException("Don't implement NoResponse if you need a response!");
+    }
+
+    default void request(BiConsumer<R, Throwable> onResponse) {
+        request(getProtocolObject().getSubject(), onResponse);
+    }
+
+    @SuppressWarnings("unchecked")
+    default void request(String subject, BiConsumer<R, Throwable> onResponse) {
+        getProtocolObject().request(subject, (T) this, onResponse);
     }
 }
