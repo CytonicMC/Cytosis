@@ -26,6 +26,10 @@ public class GsonSerializer<T> implements Serializer<T> {
         .serializeNulls()
         .create();
 
+    public static final Gson GO_GSON = GSON.newBuilder()
+        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
+        .create();
+
     private final Class<T> clazz;
     private Gson gson = GSON;
 

@@ -26,8 +26,7 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.data.packet.packets.friends.FriendApiRequestPacket;
-import net.cytonic.cytosis.data.packet.publishers.FriendPacketsPublisher;
+import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -41,6 +40,7 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.protocol.objects.FriendApiProtocolObject;
 
 /**
  * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the
@@ -408,7 +408,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public void sendFriendRequest(UUID recipient) {
         Cytosis.get(FriendPacketsPublisher.class)
             .sendFriendRequest(
-                new FriendApiRequestPacket(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
+                new FriendApiProtocolObject.Packet(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 
     public void acceptFriendRequest(UUID sender) {
