@@ -87,8 +87,4 @@ public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSer
     }
 
     public abstract String getSubject();
-    //todo figure out if we want simple class names or subjects
-//    public String channel() {
-//        return getClass().getSimpleName();
-//    }
 }
