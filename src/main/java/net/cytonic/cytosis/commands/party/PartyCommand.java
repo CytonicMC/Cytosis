@@ -10,9 +10,9 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.protocol.data.objects.Party;
 
 public class PartyCommand extends CytosisCommand {
 

@@ -5,12 +5,12 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.data.objects.Party;
+import net.cytonic.protocol.responses.PartyResponse;
 
 class OpenInvitesCommand extends CytosisCommand {
 
@@ -29,11 +29,11 @@ class OpenInvitesCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             pm.openPartyInvites(player.getUuid(), context.get(stateArg)).exceptionally(throwable -> {
                     Logger.error("An error occurred whilst opening a party's invitations:", throwable);
-                    return new PartyResponsePacket(false, "INTERNAL_ERROR");
+                    return new PartyResponse(false, "INTERNAL_ERROR");
                 })
                 .thenAccept(p -> {
-                    if (p.isSuccess()) return;
-                    switch (p.getMessage()) {
+                    if (p.success()) return;
+                    switch (p.message()) {
                         case "INTERNAL_ERROR" -> sender.sendMessage(
                             Msg.serverError("An error occurred whilst opening the party's invitations."));
                         case "NOT_IN_PARTY", "ERR_INVALID_PARTY" ->
@@ -41,7 +41,7 @@ class OpenInvitesCommand extends CytosisCommand {
                         case "ERR_NO_PERMISSION" -> sender.sendMessage(
                             Msg.whoops("You must be the party leader to open the party's invitations."));
                         default ->
-                            sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.getMessage()));
+                            sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.message()));
                     }
                 });
         }, stateArg);

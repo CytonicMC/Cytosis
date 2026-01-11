@@ -5,12 +5,12 @@ import java.util.UUID;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
 import net.cytonic.cytosis.data.packet.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.protocol.responses.PartyResponse;
 
 class AcceptCommand extends CytosisCommand {
 
@@ -32,11 +32,11 @@ class AcceptCommand extends CytosisCommand {
             Cytosis.get(PartyPacketsPublisher.class).acceptInvite(player.getUuid(), playerID)
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party invite accept: ", throwable);
-                    return new PartyResponsePacket(false, "INTERNAL_ERROR");
+                    return new PartyResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
-                    if (p.isSuccess()) return;
+                    if (p.success()) return;
                     sender.sendMessage(
-                        Msg.whoops("An error occurred whilst processing your request: <red>%s</red>", p.getMessage()));
+                        Msg.whoops("An error occurred whilst processing your request: <red>%s</red>", p.message()));
                 });
 
         }, CommandUtils.NETWORK_PLAYERS);

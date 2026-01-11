@@ -5,12 +5,12 @@ import java.util.UUID;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.protocol.responses.PartyResponse;
 
 class KickCommand extends CytosisCommand {
 
@@ -31,10 +31,10 @@ class KickCommand extends CytosisCommand {
             Cytosis.get(PartyManager.class).kickPlayer(player.getUuid(), playerID)
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party join: ", throwable);
-                    return new PartyResponsePacket(false, "INTERNAL_ERROR");
+                    return new PartyResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
-                    if (p.isSuccess()) return;
-                    switch (p.getMessage()) {
+                    if (p.success()) return;
+                    switch (p.message()) {
                         case "INTERNAL_ERROR" ->
                             s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
                         case "NOT_IN_PARTY" -> s.sendMessage(Msg.whoops("You are not in a party!"));
@@ -50,7 +50,7 @@ class KickCommand extends CytosisCommand {
                         case "ERR_INVALID_PARTY" -> s.sendMessage(Msg.whoops("You don't seem to be in a party."));
                         default -> s.sendMessage(
                             Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
-                                p.getMessage()));
+                                p.message()));
                     }
                 });
 

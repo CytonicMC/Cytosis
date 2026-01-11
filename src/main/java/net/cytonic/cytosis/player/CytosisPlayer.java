@@ -26,7 +26,6 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -37,9 +36,10 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyManager;
+import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.protocol.data.objects.Party;
 import net.cytonic.protocol.objects.FriendApiProtocolObject;
 
 /**
@@ -367,7 +367,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
             case STAFF -> isStaff();
             case MOD -> isModerator();
             case ADMIN -> isAdmin();
-            case PARTY -> isInParty() && (!getParty().isMuted() || getParty().hasAuthority(this));
+            case PARTY -> isInParty() && (!getParty().isMuted() || getParty().hasAuthority(getUuid()));
             default -> true;
         };
     }

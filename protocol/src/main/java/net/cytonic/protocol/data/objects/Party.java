@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.parties;
+package net.cytonic.protocol.data.objects;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -7,9 +7,6 @@ import java.util.UUID;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-
-import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.player.CytosisPlayer;
 
 @Data
 public class Party {
@@ -26,10 +23,6 @@ public class Party {
     @SerializedName("active_invites")
     private Map<UUID, PartyInvite> activeInvites;
 
-    public static Party deserialize(byte[] data) {
-        return Cytosis.GSON.fromJson(new String(data), Party.class);
-    }
-
     public Set<UUID> getAllPlayers() {
         Set<UUID> list = new HashSet<>(members);
         list.addAll(moderators);
@@ -37,7 +30,7 @@ public class Party {
         return list;
     }
 
-    public boolean hasAuthority(CytosisPlayer player) {
-        return leader.equals(player.getUuid()) || moderators.contains(player.getUuid());
+    public boolean hasAuthority(UUID player) {
+        return leader.equals(player) || moderators.contains(player);
     }
 }

@@ -1,127 +1,122 @@
 package net.cytonic.cytosis.data.packet.listeners;
 
-import lombok.NoArgsConstructor;
-
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyCreatePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyInviteExpirePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyInvitePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyOnePlayerPacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyStatePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyTwoPlayerPacket;
-import net.cytonic.cytosis.data.packet.utils.PacketData;
-import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.parties.PartyManager;
+import net.cytonic.protocol.NotifyData;
+import net.cytonic.protocol.NotifyHandler;
+import net.cytonic.protocol.notifyPackets.parties.PartyCreateNotifyPacket;
+import net.cytonic.protocol.notifyPackets.parties.PartyInviteExpireNotifyPacket;
+import net.cytonic.protocol.notifyPackets.parties.PartyInviteNotifyPacket;
+import net.cytonic.protocol.objects.parties.PartyOnePlayerProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyStateProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyTwoPlayerProtocolObject;
 
-@NoArgsConstructor
 @CytosisComponent(dependsOn = PartyManager.class)
 public class PartyPacketsListener {
 
     private final PartyManager pm = Cytosis.get(PartyManager.class);
 
-    @PacketHandler(subject = Subjects.PARTY_JOIN_NOTIFY)
-    private void handlePartyJoin(PartyOnePlayerPacket packet) {
-        pm.trackPlayerJoin(packet.getParty(), packet.getPlayer());
+    @NotifyHandler(subject = Subjects.PARTY_JOIN_NOTIFY)
+    private void handlePartyJoin(PartyOnePlayerProtocolObject.Packet packet) {
+        pm.trackPlayerJoin(packet.party(), packet.player());
     }
 
-    @PacketHandler(subject = Subjects.PARTY_CREATE_NOTIFY)
-    private void handlePartyCreate(PartyCreatePacket packet) {
-        pm.trackParty(packet.getParty());
+    @NotifyHandler
+    private void handlePartyCreate(PartyCreateNotifyPacket.Packet packet) {
+        pm.trackParty(packet.party());
     }
 
-    @PacketHandler(subject = Subjects.PARTY_LEAVE_NOTIFY)
-    private void handlePartyLeave(PartyOnePlayerPacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[3];
+    @NotifyHandler(subject = Subjects.PARTY_LEAVE_NOTIFY)
+    private void handlePartyLeave(PartyOnePlayerProtocolObject.Packet packet, NotifyData notifyData) {
+        String subject = notifyData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
 
         switch (subject) {
-            case "command" -> pm.trackPlayerLeave(packet.getParty(), packet.getPlayer());
-            case "disconnected" -> pm.trackPlayerLeaveDisconnect(packet.getParty(), packet.getPlayer());
+            case "command" -> pm.trackPlayerLeave(packet.party(), packet.player());
+            case "disconnected" -> pm.trackPlayerLeaveDisconnect(packet.party(), packet.player());
             default -> Logger.warn("Invalid leave subject '%s'", subject);
         }
     }
 
-    @PacketHandler(subject = Subjects.PARTY_PROMOTE_NOTIFY)
-    private void handlePartyPromote(PartyTwoPlayerPacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[3];
+    @NotifyHandler(subject = Subjects.PARTY_PROMOTE_NOTIFY)
+    private void handlePartyPromote(PartyTwoPlayerProtocolObject.Packet packet, NotifyData notifyData) {
+        String subject = notifyData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
 
         switch (subject) {
-            case "moderator" -> pm.trackPromotionToModerator(packet.getParty(), packet.getSender(), packet.getPlayer());
-            case "leader" -> pm.trackPromotionToLeader(packet.getParty(), packet.getSender(), packet.getPlayer());
-            default -> Logger.warn("Received invalid promote subject: %s %s", subject, packetData.subject());
+            case "moderator" -> pm.trackPromotionToModerator(packet.party(), packet.sender(), packet.player());
+            case "leader" -> pm.trackPromotionToLeader(packet.party(), packet.sender(), packet.player());
+            default -> Logger.warn("Received invalid promote subject: %s %s", subject, notifyData.subject());
         }
     }
 
-    @PacketHandler(subject = Subjects.PARTY_KICK_NOTIFY)
-    private void handlePartyKick(PartyTwoPlayerPacket packet) {
-        pm.trackKick(packet.getParty(), packet.getSender(), packet.getPlayer());
+    @NotifyHandler(subject = Subjects.PARTY_KICK_NOTIFY)
+    private void handlePartyKick(PartyTwoPlayerProtocolObject.Packet packet) {
+        pm.trackKick(packet.party(), packet.sender(), packet.player());
     }
 
-    @PacketHandler(subject = Subjects.PARTY_TRANSFER_NOTIFY)
-    private void handlePartyTransfer(PartyTwoPlayerPacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[3];
+    @NotifyHandler(subject = Subjects.PARTY_TRANSFER_NOTIFY)
+    private void handlePartyTransfer(PartyTwoPlayerProtocolObject.Packet packet, NotifyData notifyData) {
+        String subject = notifyData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
 
         switch (subject) {
-            case "command" -> pm.trackTransferCommand(packet.getParty(), packet.getSender(), packet.getPlayer());
-            case "left" -> pm.trackTransferLeft(packet.getParty(), packet.getSender(), packet.getPlayer());
-            case "disconnected" ->
-                pm.trackTransferDisconnected(packet.getParty(), packet.getSender(), packet.getPlayer());
+            case "command" -> pm.trackTransferCommand(packet.party(), packet.sender(), packet.player());
+            case "left" -> pm.trackTransferLeft(packet.party(), packet.sender(), packet.player());
+            case "disconnected" -> pm.trackTransferDisconnected(packet.party(), packet.sender(), packet.player());
             default -> Logger.warn("Received invalid transfer subject: %s", subject);
         }
     }
 
-    @PacketHandler(subject = Subjects.PARTY_STATE_NOTIFY)
-    private void handlePartyStateChange(PartyStatePacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[2];
+    @NotifyHandler(subject = Subjects.PARTY_STATE_NOTIFY)
+    private void handlePartyStateChange(PartyStateProtocolObject.Packet packet, NotifyData notifyData) {
+        String subject = notifyData.subject().split("\\.")[2];
 
         switch (subject) {
-            case "mute" -> pm.trackPartyMuteChange(packet.getParty(), packet.getPlayer(), packet.isState());
-            case "open" -> pm.trackPartyOpenChange(packet.getParty(), packet.getPlayer(), packet.isState());
-            case "open_invites" ->
-                pm.trackPartyOpenInviteChange(packet.getParty(), packet.getPlayer(), packet.isState());
+            case "mute" -> pm.trackPartyMuteChange(packet.party(), packet.player(), packet.state());
+            case "open" -> pm.trackPartyOpenChange(packet.party(), packet.player(), packet.state());
+            case "open_invites" -> pm.trackPartyOpenInviteChange(packet.party(), packet.player(), packet.state());
             default -> Logger.warn("Received invalid state subject: %s", subject);
         }
     }
 
-    @PacketHandler(subject = Subjects.PARTY_YOINK_NOTIFY)
-    private void handlePartyYoink(PartyOnePlayerPacket packet) {
-        pm.trackYoink(packet.getParty(), packet.getPlayer());
+    @NotifyHandler(subject = Subjects.PARTY_YOINK_NOTIFY)
+    private void handlePartyYoink(PartyOnePlayerProtocolObject.Packet packet) {
+        pm.trackYoink(packet.party(), packet.player());
     }
 
-    @PacketHandler(subject = Subjects.PARTY_DISBAND_NOTIFY)
-    private void handlePartyDisband(PartyOnePlayerPacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[3];
+    @NotifyHandler(subject = Subjects.PARTY_DISBAND_NOTIFY)
+    private void handlePartyDisband(PartyOnePlayerProtocolObject.Packet packet, NotifyData notifyData) {
+        String subject = notifyData.subject().split("\\.")[3];
 
         switch (subject) {
-            case "empty" -> pm.trackEmptyPartyDisband(packet.getParty());
-            case "command" -> pm.trackPartyDisband(packet.getParty(), packet.getPlayer());
+            case "empty" -> pm.trackEmptyPartyDisband(packet.party());
+            case "command" -> pm.trackPartyDisband(packet.party(), packet.player());
             default -> Logger.warn("Received invalid disband subject: %s", subject);
         }
     }
 
-    @PacketHandler(subject = Subjects.PARTY_STATUS_NOTIFY)
-    private void handlePartyStatusChange(PartyOnePlayerPacket packet, PacketData packetData) {
-        String subject = packetData.subject().split("\\.")[2];
+    @NotifyHandler(subject = Subjects.PARTY_STATUS_NOTIFY)
+    private void handlePartyStatusChange(PartyOnePlayerProtocolObject.Packet packet, NotifyData notifyData) {
+        String subject = notifyData.subject().split("\\.")[2];
 
         switch (subject) {
-            case "disconnect" -> pm.notifyPlayerDisconnect(packet.getParty(), packet.getPlayer());
-            case "reconnect" -> pm.notifyPlayerReconnect(packet.getParty(), packet.getPlayer());
+            case "disconnect" -> pm.notifyPlayerDisconnect(packet.player(), packet.player());
+            case "reconnect" -> pm.notifyPlayerReconnect(packet.player(), packet.player());
             default -> Logger.warn("Invalid status subject '%s'", subject);
         }
     }
 
-    @PacketHandler(subject = Subjects.PARTY_INVITE_SEND_NOTIFY)
-    private void handlePartyInvite(PartyInvitePacket packet) {
-        pm.trackInviteSent(packet.getPartyInvite(), false);
+    @NotifyHandler
+    private void handlePartyInvite(PartyInviteNotifyPacket.Packet packet) {
+        pm.trackInviteSent(packet.invite(), false);
     }
 
-    @PacketHandler(subject = Subjects.PARTY_INVITE_EXPIRE_NOTIFY)
-    private void handlePartyInviteExpire(PartyInviteExpirePacket packet) {
-        pm.trackInviteExpired(packet.getRequest(), packet.getParty(), packet.getSender(), packet.getRecipient());
+    @NotifyHandler
+    private void handlePartyInviteExpire(PartyInviteExpireNotifyPacket.Packet packet) {
+        pm.trackInviteExpired(packet.recipient(), packet.party(), packet.sender(), packet.recipient());
     }
 }

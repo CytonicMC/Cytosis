@@ -7,17 +7,17 @@ import lombok.NoArgsConstructor;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyInviteAcceptPacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyInviteSendPacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyLeavePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyOnePlayerPacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyStatePacket;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyTwoPlayerPacket;
 import net.cytonic.cytosis.messaging.Subjects;
-import net.cytonic.cytosis.parties.Party;
-import net.cytonic.cytosis.parties.PartyInvite;
 import net.cytonic.cytosis.parties.PartyManager;
+import net.cytonic.protocol.data.objects.Party;
+import net.cytonic.protocol.data.objects.PartyInvite;
+import net.cytonic.protocol.objects.parties.PartyInviteAcceptProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyInviteProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyLeaveProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyOnePlayerProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyStateProtocolObject;
+import net.cytonic.protocol.objects.parties.PartyTwoPlayerProtocolObject;
+import net.cytonic.protocol.responses.PartyResponse;
 
 
 @NoArgsConstructor
@@ -26,18 +26,18 @@ public class PartyPacketsPublisher {
 
     private final PartyManager pm = Cytosis.get(PartyManager.class);
 
-    public CompletableFuture<PartyResponsePacket> sendInvite(UUID sender, UUID recipient) {
+    public CompletableFuture<PartyResponse> sendInvite(UUID sender, UUID recipient) {
         if (sender.equals(recipient)) {
-            return CompletableFuture.completedFuture(new PartyResponsePacket(false, "ERR_SEND_TO_SELF"));
+            return CompletableFuture.completedFuture(new PartyResponse(false, "ERR_SEND_TO_SELF"));
         }
-        CompletableFuture<PartyResponsePacket> future = new CompletableFuture<>();
+        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
         Party party = pm.getPlayerParty(sender);
         UUID partyId = null;
         if (party != null) {
             partyId = party.getId();
         }
 
-        new PartyInviteSendPacket(partyId, sender, recipient).request(Subjects.PARTY_INVITE_SEND_REQUEST,
+        new PartyInviteProtocolObject.Packet(partyId, sender, recipient).request(Subjects.PARTY_INVITE_SEND_REQUEST,
             (response, throwable) -> {
                 if (throwable != null) {
                     future.completeExceptionally(throwable);
@@ -49,8 +49,8 @@ public class PartyPacketsPublisher {
         return future;
     }
 
-    public CompletableFuture<PartyResponsePacket> acceptInvite(UUID player, UUID sender) {
-        CompletableFuture<PartyResponsePacket> future = new CompletableFuture<>();
+    public CompletableFuture<PartyResponse> acceptInvite(UUID player, UUID sender) {
+        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
         UUID reqID = null;
 
         for (Party p : pm.getParties().values()) {
@@ -62,9 +62,9 @@ public class PartyPacketsPublisher {
             }
         }
         if (reqID == null) {
-            CompletableFuture.completedFuture(new PartyResponsePacket(false, "ERR_NOT_FOUND"));
+            CompletableFuture.completedFuture(new PartyResponse(false, "ERR_NOT_FOUND"));
         }
-        new PartyInviteAcceptPacket(reqID).request(Subjects.PARTY_INVITE_ACCEPT_REQUEST, (response, throwable) -> {
+        new PartyInviteAcceptProtocolObject.Packet(reqID).request((response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -75,15 +75,15 @@ public class PartyPacketsPublisher {
     }
 
 
-    public CompletableFuture<PartyResponsePacket> leaveParty(UUID player) {
-        CompletableFuture<PartyResponsePacket> future = new CompletableFuture<>();
+    public CompletableFuture<PartyResponse> leaveParty(UUID player) {
+        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
 
         Party party = pm.getPlayerParty(player);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponsePacket(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
         }
 
-        new PartyLeavePacket(player).request(Subjects.PARTY_LEAVE_REQUEST, (response, throwable) -> {
+        new PartyLeaveProtocolObject.Packet(player).request(Subjects.PARTY_LEAVE_REQUEST, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -93,9 +93,9 @@ public class PartyPacketsPublisher {
         return future;
     }
 
-    public CompletableFuture<PartyResponsePacket> sendOnePlayer(UUID sender, String subj,
-        CompletableFuture<PartyResponsePacket> future, Party party) {
-        new PartyOnePlayerPacket(party.getId(), sender).request(subj, (response, throwable) -> {
+    public CompletableFuture<PartyResponse> sendOnePlayer(UUID sender, String subj,
+        CompletableFuture<PartyResponse> future, Party party) {
+        new PartyOnePlayerProtocolObject.Packet(party.getId(), sender).request(subj, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -105,9 +105,9 @@ public class PartyPacketsPublisher {
         return future;
     }
 
-    public CompletableFuture<PartyResponsePacket> sendTwoPlayer(UUID sender, UUID player,
-        CompletableFuture<PartyResponsePacket> future, Party party, String subj) {
-        new PartyTwoPlayerPacket(party.getId(), player, sender).request(subj, (response, throwable) -> {
+    public CompletableFuture<PartyResponse> sendTwoPlayer(UUID sender, UUID player,
+        CompletableFuture<PartyResponse> future, Party party, String subj) {
+        new PartyTwoPlayerProtocolObject.Packet(party.getId(), player, sender).request(subj, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;
@@ -118,10 +118,10 @@ public class PartyPacketsPublisher {
         return future;
     }
 
-    public CompletableFuture<PartyResponsePacket> sendState(UUID sender, UUID party, boolean state,
+    public CompletableFuture<PartyResponse> sendState(UUID sender, UUID party, boolean state,
         String subj) {
-        CompletableFuture<PartyResponsePacket> future = new CompletableFuture<>();
-        new PartyStatePacket(party, sender, state).request(subj, (response, throwable) -> {
+        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+        new PartyStateProtocolObject.Packet(party, sender, state).request(subj, (response, throwable) -> {
             if (throwable != null) {
                 future.completeExceptionally(throwable);
                 return;

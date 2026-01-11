@@ -6,12 +6,12 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.packet.packets.parties.PartyResponsePacket;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.protocol.responses.PartyResponse;
 
 class JoinCommand extends CytosisCommand {
 
@@ -30,14 +30,13 @@ class JoinCommand extends CytosisCommand {
                 return;
             }
 
-
             Cytosis.get(PartyManager.class).joinParty(playerID, player.getUuid())
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party join: ", throwable);
-                    return new PartyResponsePacket(false, "INTERNAL_ERROR");
+                    return new PartyResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
-                    if (p.isSuccess()) return;
-                    switch (p.getMessage()) {
+                    if (p.success()) return;
+                    switch (p.message()) {
                         case "INTERNAL_ERROR" ->
                             s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
                         case "TARGET_NOT_IN_PARTY", "INVALID_PARTY" -> s.sendMessage(Msg.whoops("%s is not in a party.",
@@ -50,7 +49,7 @@ class JoinCommand extends CytosisCommand {
                                 Cytosis.get(CytonicNetwork.class).getMiniName(playerID)));
                         default -> s.sendMessage(
                             Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
-                                p.getMessage()));
+                                p.message()));
                     }
                 });
 
