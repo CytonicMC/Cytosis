@@ -8,6 +8,7 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.NotifyListener;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
@@ -35,7 +36,7 @@ public class ServerStatusNotifyListener {
         }
 
         @Override
-        public void onMessage(Packet message) {
+        public void onMessage(Packet message, NotifyData notifyData) {
             CytonicServer server = getServer(message);
             Cytosis.get(CytonicNetwork.class).getServers().put(message.id(), server);
             Logger.info("Registered server: " + message.id());
@@ -62,7 +63,7 @@ public class ServerStatusNotifyListener {
         }
 
         @Override
-        public void onMessage(Packet message) {
+        public void onMessage(Packet message, NotifyData notifyData) {
             CytonicServer server = getServer(message);
             Cytosis.get(CytonicNetwork.class).getServers().put(message.id(), server);
             Logger.info("Shutdown server: " + message.id());
@@ -89,7 +90,7 @@ public class ServerStatusNotifyListener {
         }
 
         @Override
-        public void onMessage(Packet message) {
+        public void onMessage(Packet message, NotifyData notifyData) {
             Cytosis.get(CytonicNetwork.class).getServers().remove(message.id());
         }
     }

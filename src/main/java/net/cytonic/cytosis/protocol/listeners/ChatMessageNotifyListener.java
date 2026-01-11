@@ -15,6 +15,7 @@ import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.NotifyListener;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket;
@@ -29,7 +30,7 @@ public class ChatMessageNotifyListener implements NotifyListener<Packet> {
     }
 
     @Override
-    public void onMessage(Packet message) {
+    public void onMessage(Packet message, NotifyData notifyData) {
         ChatChannel channel = ChatChannel.valueOf(message.channel());
 
         Component component = message.message().getComponent();

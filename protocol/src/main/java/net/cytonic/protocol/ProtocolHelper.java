@@ -70,23 +70,38 @@ public class ProtocolHelper {
         public ProtocolObject<T, ?> getProtocolObject() {
             if (protocolObject == null) {
                 NotifyHandler handler = annotatedMethod.annotation();
+                Class<?> clazz = annotatedMethod.method().getParameterTypes()[0];
+
+                // Get the enclosing class (e.g., PlayerChangeServerNotifyPacket from PlayerChangeServerNotifyPacket.Packet)
+                Class<?> enclosingClass = clazz.getEnclosingClass();
+
+                if (enclosingClass == null || !ProtocolObject.class.isAssignableFrom(enclosingClass)) {
+                    throw new IllegalArgumentException(
+                        "Class " + clazz
+                            + " must be nested in a class that extends ProtocolObject, but enclosing class is: "
+                            + (enclosingClass != null ? enclosingClass.getName() : "null"));
+                }
+
+                Class<? extends ProtocolObject<?, ?>> protocolObjectClass =
+                    (Class<? extends ProtocolObject<?, ?>>) enclosingClass;
+
                 if (Objects.equals(handler.subject(), "")) {
                     try {
-                        protocolObject = ReflectionUtils.newInstance(handler.value());
+                        protocolObject = ReflectionUtils.newInstance(protocolObjectClass);
                     } catch (NoSuchMethodException e) {
-                        log.error("No such method {} found", handler.value(), e);
+                        log.error("No such constructor found for {}", protocolObjectClass, e);
                     }
                 } else {
                     LinkedHashMap<Class<?>, Object> parameters = new LinkedHashMap<>();
                     parameters.put(String.class, handler.subject());
                     try {
-                        protocolObject = ReflectionUtils.newInstance(handler.value(), parameters);
+                        protocolObject = ReflectionUtils.newInstance(protocolObjectClass, parameters);
                     } catch (NoSuchMethodException e) {
                         log.error("""
                                 No such method {} found
                                 This might be because you added a subject to @NotifyHandler when the ProtocolObject doesnt take it!
                                 at {}#{}""",
-                            handler.value(),
+                            protocolObjectClass,
                             annotatedMethod.foundClass().getName(),
                             annotatedMethod.method().getName(),
                             e);
@@ -97,12 +112,25 @@ public class ProtocolHelper {
         }
 
         @Override
-        public void onMessage(Object message) {
+        public void onMessage(Object message, NotifyData notifyData) {
             try {
                 Object instance = ReflectionUtils.newInstance(annotatedMethod.foundClass());
                 Method method = annotatedMethod.method();
                 method.setAccessible(true);
-                method.invoke(instance, message);
+                if (method.getParameterCount() == 1) {
+                    method.invoke(instance, message);
+                    return;
+                }
+
+                if (method.getParameterCount() != 2) {
+                    throw new IllegalArgumentException(
+                        "Method " + annotatedMethod.method().getName() + " must have exactly two parameters");
+                }
+                if (method.getParameterTypes()[1] != NotifyData.class) {
+                    throw new IllegalArgumentException(
+                        "Method " + annotatedMethod.method().getName() + "'s second parameter must be NotifyData");
+                }
+                method.invoke(instance, message, notifyData);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
@@ -115,7 +143,7 @@ public class ProtocolHelper {
             try {
                 //noinspection unchecked
                 T data = (T) protocolObject.deserializeFromString(new String(message.getData()));
-                notifyListener.onMessage(data);
+                notifyListener.onMessage(data, new NotifyData(message.getSubject()));
             } catch (Exception e) {
                 log.error("Failed to handle message", e);
             }

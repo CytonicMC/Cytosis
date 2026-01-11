@@ -130,7 +130,7 @@ public class CytonicNetwork implements Bootstrappable {
         return lifetimePlayers.containsKey(uuid);
     }
 
-    @NotifyHandler(value = PlayerChangeServerNotifyPacket.class)
+    @NotifyHandler
     public void processPlayerServerChange(PlayerChangeServerNotifyPacket.Packet packet) {
         networkPlayersOnServers.remove(packet.player());
         networkPlayersOnServers.put(packet.player(), packet.newServer());

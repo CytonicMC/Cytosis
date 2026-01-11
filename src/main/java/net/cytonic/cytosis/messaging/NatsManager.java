@@ -23,9 +23,6 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
-import net.cytonic.cytosis.data.packet.utils.Packet;
-import net.cytonic.cytosis.data.packet.utils.PacketData;
-import net.cytonic.cytosis.data.packet.utils.PacketRegistry;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.protocol.listeners.ServerStatusNotifyListener;
@@ -39,7 +36,7 @@ import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
-@CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class, PacketRegistry.class})
+@CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class})
 public class NatsManager implements Bootstrappable {
 
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
@@ -143,40 +140,12 @@ public class NatsManager implements Bootstrappable {
 
                 if (!started) {
                     started = true;
-                    subscribeToPackets();
                 }
             } else {
                 Logger.info("Disconnected from NATS server! (%s)", type.name());
                 connection = null;
             }
         };
-    }
-
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private void subscribeToPackets() {
-        PacketRegistry packetRegistry = Cytosis.get(PacketRegistry.class);
-        for (String subject : packetRegistry.getRegisteredSubjects()) {
-            Class<? extends Packet<?>> packetClass = packetRegistry.getPacketClassForSubject(subject);
-            if (packetClass == null) {
-                Logger.error("Unable to find packet for subject %s", subject);
-                return;
-            }
-            subscribeToPacket(subject, (Class) packetClass);
-        }
-    }
-
-    private <P extends Packet<P>> void subscribeToPacket(String subject, Class<P> packetClass) {
-        subscribe(subject, message -> {
-            try {
-                Packet<P> packet = Packet.getSerializer(packetClass)
-                    .deserialize(new String(message.getData()));
-                PacketData packetData = new PacketData(message.getSubject());
-                Cytosis.get(PacketRegistry.class).callHandlers(subject, packet, packetData);
-            } catch (Exception e) {
-                Logger.error("Error deserializing packet: " + packetClass.getSimpleName(), e);
-            }
-        });
     }
 
     public void startHealthCheck() {

@@ -9,7 +9,7 @@ public interface NotifyListener<T> extends Subject, Serializable<T> {
         return getProtocolObject().getSerializer();
     }
 
-    void onMessage(T message);
+    void onMessage(T message, NotifyData notifyData);
 
     @Override
     default String getSubject() {

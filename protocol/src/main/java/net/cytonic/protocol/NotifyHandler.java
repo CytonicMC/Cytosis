@@ -9,8 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface NotifyHandler {
 
-    Class<? extends ProtocolObject<?, ?>> value();
-
     /**
      * Sets the subject
      * <p>

@@ -10,6 +10,7 @@ import net.cytonic.cytosis.events.network.PlayerLeaveNetworkEvent;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.NotifyListener;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.PlayerLoginLogoutNotifyPacket;
@@ -31,7 +32,7 @@ public class PlayerLoginLogoutNotifyListener {
         }
 
         @Override
-        public void onMessage(Packet message) {
+        public void onMessage(Packet message, NotifyData notifyData) {
             EventDispatcher.call(new PlayerJoinNetworkEvent(message.uuid(), message.username()));
             network.addPlayer(message.username(), message.uuid());
             preferenceManager.loadPlayerPreferences(message.uuid());
@@ -49,7 +50,7 @@ public class PlayerLoginLogoutNotifyListener {
         }
 
         @Override
-        public void onMessage(Packet message) {
+        public void onMessage(Packet message, NotifyData notifyData) {
             EventDispatcher.call(new PlayerLeaveNetworkEvent(message.uuid(), message.username()));
             network.removePlayer(message.username(), message.uuid());
             preferenceManager.unloadPlayerPreferences(message.uuid());

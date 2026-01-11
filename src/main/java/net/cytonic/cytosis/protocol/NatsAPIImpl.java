@@ -29,7 +29,7 @@ public class NatsAPIImpl implements NatsAPI, Bootstrappable {
     public void subscribe(String channel, Consumer<Message> consumer) {
         log.info("Subscribing to channel {}", channel);
         Cytosis.get(NatsManager.class).subscribe(channel, message -> {
-            log.info("Received Nats Message from sub {}", new String(message.getData()));
+            log.info("Received Nats Message from sub {} {}", channel, new String(message.getData()));
             consumer.accept(message);
         });
     }
@@ -42,7 +42,7 @@ public class NatsAPIImpl implements NatsAPI, Bootstrappable {
 
     @Override
     public void request(String channel, String data, BiConsumer<byte[], Throwable> consumer) {
-        log.info("Requesting on channel {}", channel);
+        log.info("Requesting on channel {} {}", channel, data);
         Cytosis.get(NatsManager.class).request(channel, data.getBytes(), ((message, throwable) -> {
             log.info("Received Nats request from request {} {}", channel, new String(message.getData()));
             consumer.accept(message.getData(), throwable);

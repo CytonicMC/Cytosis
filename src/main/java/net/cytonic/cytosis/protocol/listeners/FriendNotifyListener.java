@@ -22,7 +22,7 @@ public class FriendNotifyListener {
     private final FriendManager friendManager = Cytosis.get(FriendManager.class);
     private final CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
 
-    @NotifyHandler(value = FriendNotifyPacket.class, subject = Subjects.FRIEND_ACCEPTANCE_NOTIFY)
+    @NotifyHandler(subject = Subjects.FRIEND_ACCEPTANCE_NOTIFY)
     private void handleFriendAccept(FriendNotifyPacket.Packet packet) {
         Component target = createTargetComponent(packet.recipient());
         Component sender = createSenderComponent(packet.sender());
@@ -44,7 +44,7 @@ public class FriendNotifyListener {
         }
     }
 
-    @NotifyHandler(value = FriendNotifyPacket.class, subject = Subjects.FRIEND_DECLINATION_NOTIFY)
+    @NotifyHandler(subject = Subjects.FRIEND_DECLINATION_NOTIFY)
     private void handleFriendDecline(FriendNotifyPacket.Packet packet) {
 
         Component target = createTargetComponent(packet.recipient());
@@ -64,7 +64,7 @@ public class FriendNotifyListener {
         }
     }
 
-    @NotifyHandler(value = FriendNotifyPacket.class, subject = Subjects.FRIEND_EXPIRE_NOTIFY)
+    @NotifyHandler(subject = Subjects.FRIEND_EXPIRE_NOTIFY)
     private void handleFriendExpire(FriendNotifyPacket.Packet packet) {
 
         Component target = createTargetComponent(packet.recipient());
@@ -85,7 +85,7 @@ public class FriendNotifyListener {
         }
     }
 
-    @NotifyHandler(value = FriendNotifyPacket.class, subject = Subjects.FRIEND_REQUEST_NOTIFY)
+    @NotifyHandler(subject = Subjects.FRIEND_REQUEST_NOTIFY)
     private void handleFriendRequest(FriendNotifyPacket.Packet packet) {
         Component target = createTargetComponent(packet.recipient());
         Component sender = createSenderComponent(packet.sender());
@@ -108,7 +108,7 @@ public class FriendNotifyListener {
         }
     }
 
-    @NotifyHandler(value = FriendNotifyPacket.class, subject = Subjects.FRIEND_REMOVE)
+    @NotifyHandler(subject = Subjects.FRIEND_REMOVE)
     private void handleFriendRemove(FriendNotifyPacket.Packet packet) {
         Component target = createTargetComponent(packet.recipient());
         Component sender = createSenderComponent(packet.sender());

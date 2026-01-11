@@ -56,6 +56,7 @@ public class Subjects {
     public static final String DELETE_ALL_SERVERS = "servers.delete.all";
     public static final String DELETE_SERVER = "servers.delete";
     public static final String UPDATE_SERVER = "servers.update";
+
     public static final String PARTY_JOIN_REQUEST_COMMAND = "party.join.request.command";
     public static final String PARTY_TRANSFER_NOTIFY = "party.transfer.notify.*";
     public static final String PARTY_JOIN_NOTIFY = "party.join.notify";

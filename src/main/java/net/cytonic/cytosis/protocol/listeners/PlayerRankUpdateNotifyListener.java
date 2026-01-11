@@ -8,6 +8,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.NotifyListener;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.PlayerRankUpdateNotifyPacket;
@@ -22,7 +23,7 @@ public class PlayerRankUpdateNotifyListener implements NotifyListener<Packet> {
     }
 
     @Override
-    public void onMessage(Packet message) {
+    public void onMessage(Packet message, NotifyData notifyData) {
         RankManager rankManager = Cytosis.get(RankManager.class);
         PlayerRank rank = PlayerRank.valueOf(message.rank());
         Cytosis.getPlayer(message.player()).ifPresentOrElse(player -> {
