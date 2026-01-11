@@ -1,18 +1,16 @@
 package net.cytonic.cytosis.managers;
 
-import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.packet.packets.servers.CreateInstancePacket;
-import net.cytonic.cytosis.data.packet.packets.servers.DeleteAllInstancesPacket;
-import net.cytonic.cytosis.data.packet.packets.servers.DeleteInstancePacket;
-import net.cytonic.cytosis.data.packet.packets.servers.UpdateInstancesPacket;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
+import net.cytonic.protocol.objects.instances.CreateInstanceProtocolObject;
+import net.cytonic.protocol.objects.instances.DeleteAllInstancesProtocolObject;
+import net.cytonic.protocol.objects.instances.DeleteInstanceProtocolObject;
+import net.cytonic.protocol.objects.instances.UpdateInstancesProtocolObject;
 
-@CytosisComponent(dependsOn = {NatsManager.class})
-public class ServerInstancingManager implements Bootstrappable {
+@CytosisComponent
+public class ServerInstancingManager {
 
     public static final String CYTOSIS = "cytosis";
     public static final String CYNDER = "cynder";
@@ -27,7 +25,6 @@ public class ServerInstancingManager implements Bootstrappable {
 
     public static final String[] TYPES = {CYTOSIS, CYNDER, GILDED_GORGE_HUB, GILDED_GORGE_INSTANCING, CYTONIC_LOBBY,
         BEDWARS_SOLOS, BEDWARS_LOBBY, BEDWARS_DUOS, BEDWARS_TRIOS, BEDWARS_QUADROS};
-    private NatsManager nats;
 
     public static boolean isServerType(String type) {
         for (String t : TYPES) {
@@ -38,23 +35,18 @@ public class ServerInstancingManager implements Bootstrappable {
         return false;
     }
 
-    @Override
-    public void init() {
-        this.nats = Cytosis.get(NatsManager.class);
-    }
-
     public void createServerInstances(String type, int amount) {
         if (!isServerType(type)) {
             return;
         }
-        new CreateInstancePacket(type, amount).request(Subjects.CREATE_SERVER,
+        new CreateInstanceProtocolObject.Packet(type, amount).request(Subjects.CREATE_SERVER,
             (response, throwable) -> {
                 if (throwable != null) {
                     Logger.error("Failed to create server instance: " + type, throwable);
                     return;
                 }
-                if (!response.isSuccess()) {
-                    Logger.error("Failed to create server instance of type %s. (%s)", type, response.getMessage());
+                if (!response.success()) {
+                    Logger.error("Failed to create server instance of type %s. (%s)", type, response.message());
                 }
             });
     }
@@ -63,15 +55,16 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        new DeleteAllInstancesPacket(type).request(Subjects.DELETE_ALL_SERVERS, (response, throwable) -> {
-            if (throwable != null) {
-                Logger.error("Failed to delete all server instances: " + type, throwable);
-                return;
-            }
-            if (!response.isSuccess()) {
-                Logger.error("Failed to delete all server instances of type %s. (%s)", type, response.getMessage());
-            }
-        });
+        new DeleteAllInstancesProtocolObject.Packet(type).request(Subjects.DELETE_ALL_SERVERS,
+            (response, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("Failed to delete all server instances: " + type, throwable);
+                    return;
+                }
+                if (!response.success()) {
+                    Logger.error("Failed to delete all server instances of type %s. (%s)", type, response.message());
+                }
+            });
     }
 
     public void deleteThisServerInstance() {
@@ -85,29 +78,30 @@ public class ServerInstancingManager implements Bootstrappable {
         if (!isServerType(type)) {
             return;
         }
-        new DeleteInstancePacket(type, allocId).request(Subjects.DELETE_SERVER, (response, throwable) -> {
-            if (throwable != null) {
-                Logger.error("Failed to delete server instance: " + allocId, throwable);
-                return;
-            }
-            if (!response.isSuccess()) {
-                Logger.error("Failed to delete server instance %s of type %s. (%s)", allocId, type,
-                    response.getMessage());
-            }
-        });
+        new DeleteInstanceProtocolObject.Packet(type, allocId).request(Subjects.DELETE_SERVER,
+            (response, throwable) -> {
+                if (throwable != null) {
+                    Logger.error("Failed to delete server instance: " + allocId, throwable);
+                    return;
+                }
+                if (!response.success()) {
+                    Logger.error("Failed to delete server instance %s of type %s. (%s)", allocId, type,
+                        response.message());
+                }
+            });
     }
 
     public void updateServers(String type) {
         if (!isServerType(type)) {
             return;
         }
-        new UpdateInstancesPacket(type).request(Subjects.UPDATE_SERVER, (response, throwable) -> {
+        new UpdateInstancesProtocolObject.Packet(type).request(Subjects.UPDATE_SERVER, (response, throwable) -> {
             if (throwable != null) {
                 Logger.error("Failed to update server instance type: " + type, throwable);
                 return;
             }
-            if (!response.isSuccess()) {
-                Logger.error("Failed to update server instances of type %s. (%s)", type, response.getMessage());
+            if (!response.success()) {
+                Logger.error("Failed to update server instances of type %s. (%s)", type, response.message());
             }
         });
     }

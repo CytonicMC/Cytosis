@@ -2,7 +2,7 @@ package net.cytonic.cytosis.commands.movement;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.packet.publishers.SendPlayerToServerPacketPublisher;
+import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
 public class LobbyCommand extends CytosisCommand {

@@ -18,12 +18,11 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.data.packet.packets.servers.PlayerChangeServerPacket;
-import net.cytonic.cytosis.data.packet.utils.PacketHandler;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.RankManager;
-import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.NotifyHandler;
+import net.cytonic.protocol.notifyPackets.PlayerChangeServerNotifyPacket;
 
 
 /**
@@ -131,10 +130,10 @@ public class CytonicNetwork implements Bootstrappable {
         return lifetimePlayers.containsKey(uuid);
     }
 
-    @PacketHandler(subject = Subjects.PLAYER_SERVER_CHANGE)
-    public void processPlayerServerChange(PlayerChangeServerPacket packet) {
-        networkPlayersOnServers.remove(packet.getPlayer());
-        networkPlayersOnServers.put(packet.getPlayer(), packet.getNewServer());
+    @NotifyHandler(value = PlayerChangeServerNotifyPacket.class)
+    public void processPlayerServerChange(PlayerChangeServerNotifyPacket.Packet packet) {
+        networkPlayersOnServers.remove(packet.player());
+        networkPlayersOnServers.put(packet.player(), packet.newServer());
     }
 
     /**

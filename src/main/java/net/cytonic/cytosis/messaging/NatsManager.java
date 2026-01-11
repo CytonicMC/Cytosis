@@ -23,8 +23,6 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
-import net.cytonic.cytosis.data.packet.packets.servers.FetchServersPacket;
-import net.cytonic.cytosis.data.packet.packets.servers.HealthCheckPacket;
 import net.cytonic.cytosis.data.packet.utils.Packet;
 import net.cytonic.cytosis.data.packet.utils.PacketData;
 import net.cytonic.cytosis.data.packet.utils.PacketRegistry;
@@ -34,6 +32,8 @@ import net.cytonic.cytosis.protocol.listeners.ServerStatusNotifyListener;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket.Type;
+import net.cytonic.protocol.objects.FetchServersProtocolObject;
+import net.cytonic.protocol.objects.HealthCheckProtocolObject;
 
 import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
@@ -87,18 +87,18 @@ public class NatsManager implements Bootstrappable {
     }
 
     private void fetchServers() {
-        new FetchServersPacket().request((response, throwable) -> {
+        new FetchServersProtocolObject.Packet().request((response, throwable) -> {
             if (throwable != null) {
                 Logger.error("failed to fetch active servers!", throwable);
                 return;
             }
 
-            for (ServerStatusNotifyPacket.Packet server : response.getServers()) {
+            for (ServerStatusNotifyPacket.Packet server : response.servers()) {
                 Cytosis.get(CytonicNetwork.class).getServers()
                     .put(server.id(), ServerStatusNotifyListener.getServer(server));
                 Logger.info("Loaded server '" + server.id() + "' from Cydian!");
             }
-            Logger.info("Loaded " + response.getServers().size() + " active servers from Cydian!");
+            Logger.info("Loaded " + response.servers().size() + " active servers from Cydian!");
         });
     }
 
@@ -185,7 +185,7 @@ public class NatsManager implements Bootstrappable {
         }
         Dispatcher dispatcher = connection.createDispatcher();
         healthCheck = dispatcher.subscribe(Subjects.applyPrefix(Subjects.HEALTH_CHECK),
-            msg -> new HealthCheckPacket().publish(msg.getReplyTo()));
+            msg -> new HealthCheckProtocolObject.Packet().publish(msg.getReplyTo()));
     }
 
     /**

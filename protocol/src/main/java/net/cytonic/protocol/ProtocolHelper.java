@@ -1,12 +1,12 @@
 package net.cytonic.protocol;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.cytonic.protocol.utils.ClassGraphUtils;
 import net.cytonic.protocol.utils.ClassGraphUtils.AnnotatedMethod;
 import net.cytonic.protocol.utils.NatsAPI;
+import net.cytonic.protocol.utils.ReflectionUtils;
 
 @Slf4j
 public class ProtocolHelper {
@@ -50,8 +51,7 @@ public class ProtocolHelper {
         notifyListenerList.forEach(ProtocolHelper::registerNotifiable);
 
         for (AnnotatedMethod<?> annotatedMethod : ClassGraphUtils.getAnnotatedMethods(NotifyHandler.class, PACKAGE)) {
-            NotifyListener<?> listener = new Listener<>((AnnotatedMethod<NotifyHandler>) annotatedMethod);
-            registerNotifiable(listener);
+            registerNotifiable(new Listener<>((AnnotatedMethod<NotifyHandler>) annotatedMethod));
         }
     }
 
@@ -69,22 +69,28 @@ public class ProtocolHelper {
         @Override
         public ProtocolObject<T, ?> getProtocolObject() {
             if (protocolObject == null) {
-                try {
-                    NotifyHandler handler = annotatedMethod.annotation();
-                    if (Objects.equals(handler.subject(), "")) {
-                        Constructor<? extends ProtocolObject<?, ?>> constructor = handler.value()
-                            .getDeclaredConstructor();
-                        constructor.setAccessible(true);
-                        protocolObject = constructor.newInstance();
+                NotifyHandler handler = annotatedMethod.annotation();
+                if (Objects.equals(handler.subject(), "")) {
+                    try {
+                        protocolObject = ReflectionUtils.newInstance(handler.value());
+                    } catch (NoSuchMethodException e) {
+                        log.error("No such method {} found", handler.value(), e);
                     }
-
-                    Constructor<? extends ProtocolObject<?, ?>> constructor = handler.value()
-                        .getDeclaredConstructor(String.class);
-                    constructor.setAccessible(true);
-                    protocolObject = constructor.newInstance(handler.subject());
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                         NoSuchMethodException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    LinkedHashMap<Class<?>, Object> parameters = new LinkedHashMap<>();
+                    parameters.put(String.class, handler.subject());
+                    try {
+                        protocolObject = ReflectionUtils.newInstance(handler.value(), parameters);
+                    } catch (NoSuchMethodException e) {
+                        log.error("""
+                                No such method {} found
+                                This might be because you added a subject to @NotifyHandler when the ProtocolObject doesnt take it!
+                                at {}#{}""",
+                            handler.value(),
+                            annotatedMethod.foundClass().getName(),
+                            annotatedMethod.method().getName(),
+                            e);
+                    }
                 }
             }
             return (ProtocolObject<T, ?>) protocolObject;
@@ -93,14 +99,11 @@ public class ProtocolHelper {
         @Override
         public void onMessage(Object message) {
             try {
-                Constructor<?> constructor = annotatedMethod.clazz().getDeclaredConstructor();
-                constructor.setAccessible(true);
-                Object instance = constructor.newInstance();
+                Object instance = ReflectionUtils.newInstance(annotatedMethod.foundClass());
                 Method method = annotatedMethod.method();
                 method.setAccessible(true);
                 method.invoke(instance, message);
-            } catch (IllegalAccessException | InvocationTargetException | InstantiationException |
-                     NoSuchMethodException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
         }

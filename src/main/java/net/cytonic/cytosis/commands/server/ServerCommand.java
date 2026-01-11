@@ -14,7 +14,7 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.data.packet.publishers.SendPlayerToServerPacketPublisher;
+import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;

@@ -111,7 +111,8 @@ public class ClassGraphUtils {
                     }
                     for (Method method : foundClass.getDeclaredMethods()) {
                         if (method.isAnnotationPresent(clazz)) {
-                            resultList.add(new AnnotatedMethod<>(foundClass, method, method.getAnnotation(clazz)));
+                            resultList.add(
+                                new AnnotatedMethod<>(clazz, foundClass, method, method.getAnnotation(clazz)));
                         }
                     }
                 } catch (Exception e) {
@@ -126,7 +127,7 @@ public class ClassGraphUtils {
     }
 
     public record AnnotatedMethod<T extends Annotation>(
-        Class<?> clazz, Method method, T annotation) {
+        Class<?> annotationClass, Class<?> foundClass, Method method, T annotation) {
 
     }
 }
