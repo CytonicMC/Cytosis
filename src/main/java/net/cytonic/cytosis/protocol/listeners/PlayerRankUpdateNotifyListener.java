@@ -10,17 +10,10 @@ import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.NotifyListener;
-import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.notifyPackets.PlayerRankUpdateNotifyPacket;
 import net.cytonic.protocol.notifyPackets.PlayerRankUpdateNotifyPacket.Packet;
 
 @Keep
 public class PlayerRankUpdateNotifyListener implements NotifyListener<Packet> {
-
-    @Override
-    public ProtocolObject<Packet, ?> getProtocolObject() {
-        return new PlayerRankUpdateNotifyPacket();
-    }
 
     @Override
     public void onMessage(Packet message, NotifyData notifyData) {

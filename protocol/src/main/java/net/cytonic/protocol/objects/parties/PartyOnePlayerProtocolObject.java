@@ -29,9 +29,5 @@ public class PartyOnePlayerProtocolObject extends ProtocolObject<Packet, PartyRe
         UUID player
     ) implements Message<Packet, PartyResponse> {
 
-        @Override
-        public ProtocolObject<Packet, PartyResponse> getProtocolObject() {
-            return new PartyOnePlayerProtocolObject();
-        }
     }
 }

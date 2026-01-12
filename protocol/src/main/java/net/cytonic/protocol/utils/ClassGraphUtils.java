@@ -94,11 +94,11 @@ public class ClassGraphUtils {
         return resultList;
     }
 
-    public static <T extends Annotation> List<AnnotatedMethod<?>> getAnnotatedMethods(Class<T> clazz,
+    public static <T extends Annotation> List<AnnotatedMethod<T>> getAnnotatedMethods(Class<T> clazz,
         String packageName) {
         ClassGraph graph = new ClassGraph().acceptPackages(packageName).enableAllInfo();
 
-        List<AnnotatedMethod<?>> resultList = new ArrayList<>();
+        List<AnnotatedMethod<T>> resultList = new ArrayList<>();
         try (ScanResult result = graph.scan()) {
             result.getClassesWithMethodAnnotation(clazz).loadClasses().forEach(foundClass -> {
                 try {

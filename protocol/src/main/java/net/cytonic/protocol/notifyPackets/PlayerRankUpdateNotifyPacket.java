@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NotifyPacket;
-import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.PlayerRankUpdateNotifyPacket.Packet;
 
 public class PlayerRankUpdateNotifyPacket extends NotifyPacket<Packet> {
@@ -16,9 +15,5 @@ public class PlayerRankUpdateNotifyPacket extends NotifyPacket<Packet> {
 
     public record Packet(UUID player, String rank) implements Message<Packet, Void> {
 
-        @Override
-        public ProtocolObject<Packet, Void> getProtocolObject() {
-            return new PlayerRankUpdateNotifyPacket();
-        }
     }
 }

@@ -27,9 +27,5 @@ public class PartyStateProtocolObject extends ProtocolObject<Packet, PartyRespon
                          @SerializedName("state") boolean state
     ) implements Message<Packet, PartyResponse> {
 
-        @Override
-        public ProtocolObject<Packet, PartyResponse> getProtocolObject() {
-            return new PartyStateProtocolObject();
-        }
     }
 }

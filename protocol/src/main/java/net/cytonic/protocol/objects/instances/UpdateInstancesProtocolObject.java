@@ -14,9 +14,5 @@ public class UpdateInstancesProtocolObject extends ProtocolObject<Packet, Instan
 
     public record Packet(String instanceType) implements Message<Packet, InstanceResponse> {
 
-        @Override
-        public ProtocolObject<Packet, InstanceResponse> getProtocolObject() {
-            return new UpdateInstancesProtocolObject();
-        }
     }
 }

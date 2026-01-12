@@ -4,7 +4,9 @@ import java.util.function.BiConsumer;
 
 public interface Message<T, R> {
 
-    ProtocolObject<T, R> getProtocolObject();
+    default ProtocolObject<T, R> getProtocolObject() {
+        return ProtocolHelper.getProtocolObject(getClass(), 0);
+    }
 
     default void publish() {
         publish(getProtocolObject().getSubject());

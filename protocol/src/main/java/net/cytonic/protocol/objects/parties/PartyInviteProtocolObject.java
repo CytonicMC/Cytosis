@@ -27,9 +27,5 @@ public class PartyInviteProtocolObject extends ProtocolObject<Packet, PartyRespo
         UUID recipient
     ) implements Message<Packet, PartyResponse> {
 
-        @Override
-        public ProtocolObject<Packet, PartyResponse> getProtocolObject() {
-            return new PartyInviteProtocolObject();
-        }
     }
 }

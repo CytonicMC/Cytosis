@@ -17,10 +17,6 @@ public class FetchServersProtocolObject extends ProtocolObject<Packet, Response>
 
     public record Packet() implements Message<Packet, Response> {
 
-        @Override
-        public ProtocolObject<Packet, Response> getProtocolObject() {
-            return new FetchServersProtocolObject();
-        }
     }
 
     public record Response(List<ServerStatusNotifyPacket.Packet> servers) {

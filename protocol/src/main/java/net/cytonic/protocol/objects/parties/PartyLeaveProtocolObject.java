@@ -18,9 +18,5 @@ public class PartyLeaveProtocolObject extends ProtocolObject<Packet, PartyRespon
 
     public record Packet(@SerializedName("player_id") UUID player) implements Message<Packet, PartyResponse> {
 
-        @Override
-        public ProtocolObject<Packet, PartyResponse> getProtocolObject() {
-            return new PartyLeaveProtocolObject();
-        }
     }
 }

@@ -18,9 +18,5 @@ public class PartyInviteAcceptProtocolObject extends ProtocolObject<Packet, Part
 
     public record Packet(@SerializedName("request_id") UUID request) implements Message<Packet, PartyResponse> {
 
-        @Override
-        public ProtocolObject<Packet, PartyResponse> getProtocolObject() {
-            return new PartyInviteAcceptProtocolObject();
-        }
     }
 }

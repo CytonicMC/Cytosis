@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.objects.FriendApiProtocolObject.Response;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,9 +24,5 @@ public class FriendApiIdProtocolObject extends
     public record Packet(@SerializedName("request_id") UUID requestId) implements
         Message<FriendApiIdProtocolObject, FriendApiProtocolObject.Response> {
 
-        @Override
-        public ProtocolObject<FriendApiIdProtocolObject, Response> getProtocolObject() {
-            return new FriendApiIdProtocolObject();
-        }
     }
 }

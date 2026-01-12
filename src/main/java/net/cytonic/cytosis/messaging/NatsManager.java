@@ -27,8 +27,8 @@ import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.protocol.listeners.ServerStatusNotifyListener;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.ProtocolHelper;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
-import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket.Type;
 import net.cytonic.protocol.objects.FetchServersProtocolObject;
 import net.cytonic.protocol.objects.HealthCheckProtocolObject;
 
@@ -49,6 +49,8 @@ public class NatsManager implements Bootstrappable {
 
     @Override
     public void init() {
+        //this needs to be here since NatsAPIImpl depends on NatsManager
+        ProtocolHelper.init();
         this.cytosisSettings = Cytosis.get(CytosisSettings.class);
 
         if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
@@ -60,27 +62,26 @@ public class NatsManager implements Bootstrappable {
 
         MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
             Logger.info("Registering server with Cydian!");
-            createServerStatusPacket(true).publish();
+            sendServerStatusPacket(true);
         });
     }
 
     @SneakyThrows // don't care about the error on shutdown
     @Override
     public void shutdown() {
-        createServerStatusPacket(false).publish();
+        sendServerStatusPacket(false);
         connection.close();
     }
 
-    private ServerStatusNotifyPacket.Packet createServerStatusPacket(boolean isStartup) {
-        return new ServerStatusNotifyPacket.Packet(
+    private void sendServerStatusPacket(boolean isStartup) {
+        new ServerStatusNotifyPacket.Packet(
             Cytosis.CONTEXT.getServerGroup().type(),
             Utils.getServerIP(),
             CytosisContext.SERVER_ID,
             Cytosis.get(CytosisSettings.class).getServerConfig().getPort(),
             Instant.now(),
-            Cytosis.CONTEXT.getServerGroup().group(),
-            isStartup ? Type.STARTUP : Type.SHUTDOWN
-        );
+            Cytosis.CONTEXT.getServerGroup().group()
+        ).publish(isStartup ? Subjects.SERVER_REGISTER : Subjects.SERVER_SHUTDOWN);
     }
 
     private void fetchServers() {

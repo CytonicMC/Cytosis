@@ -17,17 +17,10 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.NotifyListener;
-import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket;
 import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket.Packet;
 
 @Keep
 public class ChatMessageNotifyListener implements NotifyListener<Packet> {
-
-    @Override
-    public ProtocolObject<Packet, ?> getProtocolObject() {
-        return new ChatMessageNotifyPacket();
-    }
 
     @Override
     public void onMessage(Packet message, NotifyData notifyData) {

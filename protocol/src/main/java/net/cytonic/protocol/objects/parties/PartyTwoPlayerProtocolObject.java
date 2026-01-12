@@ -30,9 +30,5 @@ public class PartyTwoPlayerProtocolObject extends ProtocolObject<Packet, PartyRe
                          @SerializedName("sender_id")
                          UUID sender) implements Message<Packet, PartyResponse> {
 
-        @Override
-        public ProtocolObject<Packet, PartyResponse> getProtocolObject() {
-            return new PartyTwoPlayerProtocolObject();
-        }
     }
 }

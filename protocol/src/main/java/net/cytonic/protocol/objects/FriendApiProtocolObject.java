@@ -24,10 +24,6 @@ public class FriendApiProtocolObject extends ProtocolObject<Packet, Response> {
 
     public record Packet(UUID sender, UUID recipient, Instant expiry) implements Message<Packet, Response> {
 
-        @Override
-        public ProtocolObject<Packet, Response> getProtocolObject() {
-            return new FriendApiProtocolObject();
-        }
     }
 
     public record Response(boolean success, String code, String message) {

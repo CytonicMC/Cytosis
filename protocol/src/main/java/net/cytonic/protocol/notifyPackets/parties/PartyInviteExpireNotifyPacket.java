@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NotifyPacket;
-import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.parties.PartyInviteExpireNotifyPacket.Packet;
 
 public class PartyInviteExpireNotifyPacket extends NotifyPacket<Packet> {
@@ -27,9 +26,5 @@ public class PartyInviteExpireNotifyPacket extends NotifyPacket<Packet> {
         UUID sender
     ) implements Message<Packet, Void> {
 
-        @Override
-        public ProtocolObject<Packet, Void> getProtocolObject() {
-            return new PartyInviteExpireNotifyPacket();
-        }
     }
 }

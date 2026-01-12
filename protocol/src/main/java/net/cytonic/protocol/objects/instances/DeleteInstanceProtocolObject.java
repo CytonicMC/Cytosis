@@ -14,9 +14,5 @@ public class DeleteInstanceProtocolObject extends ProtocolObject<Packet, Instanc
 
     public record Packet(String instanceType, String allocId) implements Message<Packet, InstanceResponse> {
 
-        @Override
-        public ProtocolObject<Packet, InstanceResponse> getProtocolObject() {
-            return new DeleteInstanceProtocolObject();
-        }
     }
 }

@@ -7,7 +7,6 @@ import net.kyori.adventure.key.Key;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
-import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.CooldownUpdateNotifyPacket.Packet;
 
 public class CooldownUpdateNotifyPacket extends NoResponse<Packet> {
@@ -24,9 +23,5 @@ public class CooldownUpdateNotifyPacket extends NoResponse<Packet> {
 
     public record Packet(Key namespace, Instant expiry, UUID userUUID, Type type) implements Message<Packet, Void> {
 
-        @Override
-        public ProtocolObject<Packet, Void> getProtocolObject() {
-            return new CooldownUpdateNotifyPacket();
-        }
     }
 }

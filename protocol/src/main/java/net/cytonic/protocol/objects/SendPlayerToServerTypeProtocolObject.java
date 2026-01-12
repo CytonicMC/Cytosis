@@ -16,9 +16,5 @@ public class SendPlayerToServerTypeProtocolObject extends ProtocolObject<Packet,
 
     public record Packet(UUID player, String group, String type) implements Message<Packet, SendPlayerResponse> {
 
-        @Override
-        public ProtocolObject<Packet, SendPlayerResponse> getProtocolObject() {
-            return new SendPlayerToServerTypeProtocolObject();
-        }
     }
 }

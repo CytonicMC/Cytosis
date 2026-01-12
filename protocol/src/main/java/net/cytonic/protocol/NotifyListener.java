@@ -2,7 +2,9 @@ package net.cytonic.protocol;
 
 public interface NotifyListener<T> extends Subject, Serializable<T> {
 
-    ProtocolObject<T, ?> getProtocolObject();
+    default ProtocolObject<T, ?> getProtocolObject() {
+        return ProtocolHelper.getProtocolObject(getClass(), 0);
+    }
 
     @Override
     default Serializer<T> getSerializer() {

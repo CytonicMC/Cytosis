@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
-import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.notifyPackets.PlayerLoginLogoutNotifyPacket.Packet;
 
 @NoArgsConstructor
@@ -23,9 +22,5 @@ public class PlayerLoginLogoutNotifyPacket extends NoResponse<Packet> {
 
     public record Packet(String username, UUID uuid) implements Message<Packet, Void> {
 
-        @Override
-        public ProtocolObject<Packet, Void> getProtocolObject() {
-            return new PlayerLoginLogoutNotifyPacket();
-        }
     }
 }
