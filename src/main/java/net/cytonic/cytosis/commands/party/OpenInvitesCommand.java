@@ -27,7 +27,9 @@ class OpenInvitesCommand extends CytosisCommand {
         });
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            pm.openPartyInvites(player.getUuid(), context.get(stateArg)).exceptionally(throwable -> {
+            boolean state = context.get(stateArg);
+            pm.openPartyInvites(player.getUuid(), state)
+                .exceptionally(throwable -> {
                     Logger.error("An error occurred whilst opening a party's invitations:", throwable);
                     return new PartyResponse(false, "INTERNAL_ERROR");
                 })
@@ -40,6 +42,8 @@ class OpenInvitesCommand extends CytosisCommand {
                             sender.sendMessage(Msg.whoops("You are not in a party."));
                         case "ERR_NO_PERMISSION" -> sender.sendMessage(
                             Msg.whoops("You must be the party leader to open the party's invitations."));
+                        case "ERR_ALREADY_STATE" -> sender.sendMessage(
+                            Msg.whoops("The party already has open invites %s.", state ? "enabled" : "disabled"));
                         default ->
                             sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.message()));
                     }
