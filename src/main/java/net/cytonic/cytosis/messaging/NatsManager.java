@@ -7,12 +7,10 @@ import java.util.function.Consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
-import io.nats.client.Dispatcher;
 import io.nats.client.ErrorListener;
 import io.nats.client.Message;
 import io.nats.client.Nats;
 import io.nats.client.Options;
-import io.nats.client.Subscription;
 import lombok.SneakyThrows;
 import net.minestom.server.MinecraftServer;
 
@@ -30,7 +28,6 @@ import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.ProtocolHelper;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
 import net.cytonic.protocol.objects.FetchServersProtocolObject;
-import net.cytonic.protocol.objects.HealthCheckProtocolObject;
 
 import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
@@ -44,7 +41,6 @@ public class NatsManager implements Bootstrappable {
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
     private CytosisSettings cytosisSettings;
     private Connection connection;
-    private Subscription healthCheck;
     private boolean started = false;
 
     @Override
@@ -122,7 +118,6 @@ public class NatsManager implements Bootstrappable {
             if (type == CONNECTED || type == RESUBSCRIBED || type == RECONNECTED) {
                 connection = conn;
                 Logger.info("Connected asynchronously to NATS server!");
-                startHealthCheck();
 
                 PublishContainer publish;
                 while ((publish = publishQueue.poll()) != null) {
@@ -147,15 +142,6 @@ public class NatsManager implements Bootstrappable {
                 connection = null;
             }
         };
-    }
-
-    public void startHealthCheck() {
-        if (healthCheck != null) {
-            healthCheck.getDispatcher().unsubscribe(healthCheck);
-        }
-        Dispatcher dispatcher = connection.createDispatcher();
-        healthCheck = dispatcher.subscribe(Subjects.applyPrefix(Subjects.HEALTH_CHECK),
-            msg -> new HealthCheckProtocolObject.Packet().publish(msg.getReplyTo()));
     }
 
     /**
