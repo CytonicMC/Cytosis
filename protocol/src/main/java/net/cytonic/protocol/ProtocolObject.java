@@ -21,15 +21,17 @@ public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSer
     public <X> Class<X> getSerializableType(int slot) {
         Class<?> declaringClass = null;
         int typeParameterIndex = -1;
+        Class<?> targetInterface = slot == 0 ? Serializable.class : ReturnSerializable.class;
+        int targetSlot = 0;
 
         Class<?> searchClass = getClass();
         while (searchClass != null && searchClass != Object.class) {
             Type[] interfaces = searchClass.getGenericInterfaces();
             for (Type genericInterface : interfaces) {
                 if (genericInterface instanceof ParameterizedType paramType
-                    && paramType.getRawType().equals(Serializable.class)) {
+                    && paramType.getRawType().equals(targetInterface)) {
 
-                    Type actualType = paramType.getActualTypeArguments()[slot];
+                    Type actualType = paramType.getActualTypeArguments()[targetSlot];
 
                     if (actualType instanceof Class<?>) {
                         return (Class<X>) actualType;

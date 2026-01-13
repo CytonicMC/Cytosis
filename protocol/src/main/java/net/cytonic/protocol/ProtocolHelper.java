@@ -27,6 +27,7 @@ public class ProtocolHelper {
         return (ProtocolObject<T, R>) PROTOCOL_OBJECTS.get(className);
     }
 
+    @SuppressWarnings("unchecked")
     public static void init() {
         if (started) return;
         ClassGraphUtils.getExtendedClasses(ProtocolObject.class, PACKAGE).forEach(protocolObject ->
@@ -41,6 +42,22 @@ public class ProtocolHelper {
             notifyListeners.add(new NotifyHandlerListener<>(annotatedMethod)));
 
         notifyListeners.forEach(ProtocolHelper::registerNotifyListener);
+
+        ClassGraphUtils.getImplementedClasses(Endpoint.class, PACKAGE).forEach(endpoint ->
+            NatsAPI.INSTANCE.subscribe(endpoint.getSubject(), message -> {
+                try {
+                    Object packet = endpoint.getProtocolObject().deserializeFromString(new String(message.getData()));
+                    Object response = endpoint.onMessage(packet, new NotifyData(message));
+                    if (response == null) {
+                        return;
+                    }
+                    NatsAPI.INSTANCE.publish(message.getReplyTo(),
+                        endpoint.getProtocolObject().serializeReturnToString(response));
+                } catch (Exception e) {
+                    log.error("Error publishing response ", e);
+                }
+            }));
+
         started = true;
     }
 
