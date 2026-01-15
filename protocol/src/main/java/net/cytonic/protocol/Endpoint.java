@@ -1,5 +1,7 @@
 package net.cytonic.protocol;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.protocol.utils.ReflectionUtils;
@@ -11,6 +13,5 @@ public interface Endpoint<T, R> extends Subject {
     }
 
     @Nullable
-    R onMessage(T message, NotifyData extraData);
-
+    CompletableFuture<R> onMessage(T message, NotifyData extraData);
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,12 +48,21 @@ public class ProtocolHelper {
             NatsAPI.INSTANCE.subscribe(endpoint.getSubject(), message -> {
                 try {
                     Object packet = endpoint.getProtocolObject().deserializeFromString(new String(message.getData()));
-                    Object response = endpoint.onMessage(packet, new NotifyData(message));
-                    if (response == null) {
+                    CompletableFuture<Object> responseFuture = endpoint.onMessage(packet, new NotifyData(message));
+                    if (responseFuture == null) {
                         return;
                     }
-                    NatsAPI.INSTANCE.publish(message.getReplyTo(),
-                        endpoint.getProtocolObject().serializeReturnToString(response));
+                    responseFuture.whenComplete(((response, throwable) -> {
+                        if (throwable != null) {
+                            log.error("Error publishing response", throwable);
+                            return;
+                        }
+                        if (response == null) {
+                            return;
+                        }
+                        NatsAPI.INSTANCE.publish(message.getReplyTo(),
+                            endpoint.getProtocolObject().serializeReturnToString(response));
+                    }));
                 } catch (Exception e) {
                     log.error("Error publishing response ", e);
                 }

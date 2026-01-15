@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.protocol.endpoints;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.google.errorprone.annotations.Keep;
 
 import net.cytonic.cytosis.CytosisContext;
@@ -14,8 +16,8 @@ public class HealthCheckEndpoint implements
     Endpoint<HealthCheckProtocolObject.Packet, HealthCheckProtocolObject.Response> {
 
     @Override
-    public Response onMessage(Packet message, NotifyData extraData) {
-        return new Response();
+    public CompletableFuture<Response> onMessage(Packet message, NotifyData extraData) {
+        return CompletableFuture.completedFuture(new Response());
     }
 
     @Override
