@@ -77,7 +77,7 @@ public class ProtocolHelper {
         NatsAPI.INSTANCE.subscribe(notifyListener.getSubject(), (message) -> {
             try {
                 T data = (T) protocolObject.deserializeFromString(new String(message.getData()));
-                notifyListener.onMessage(data, new NotifyData(message.getSubject()));
+                notifyListener.onMessage(data, new NotifyData(message));
             } catch (Exception e) {
                 log.error("Failed to handle message", e);
             }
