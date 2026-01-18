@@ -21,6 +21,11 @@ public class PlayerUtils {
         if (input == null) {
             return null;
         }
+        try {
+            return UUID.fromString(input);
+        } catch (IllegalArgumentException ignored) {
+        }
+
         UUID cached = Cytosis.get(CytonicNetwork.class).getLifetimeFlattened()
             .getByValue(input.toLowerCase());
         if (cached != null) {

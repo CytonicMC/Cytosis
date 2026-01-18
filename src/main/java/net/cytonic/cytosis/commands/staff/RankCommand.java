@@ -18,10 +18,10 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.protocol.notifyPackets.PlayerRankUpdateNotifyPacket;
 
 /**
  * A command that allows players to change another player's rank
@@ -86,8 +86,8 @@ public class RankCommand extends CytosisCommand {
             .append(Msg.mm("<gray>."));
 
         Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
-        Cytosis.get(GlobalDatabase.class).setPlayerRank(uuid, rank).thenAccept(unused -> {
-            Cytosis.get(NatsManager.class).sendPlayerRankUpdate(uuid, rank);
+        Cytosis.get(GlobalDatabase.class).setPlayerRank(uuid, rank).thenAccept(_ -> {
+            new PlayerRankUpdateNotifyPacket.Packet(uuid, rank.name()).publish();
             sender.sendMessage(Msg.mm("<green>Successfully updated " + usr + "'s rank!"));
         }).exceptionally(throwable -> {
             sender.sendMessage(Msg.mm(

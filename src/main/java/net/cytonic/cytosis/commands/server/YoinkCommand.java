@@ -1,11 +1,10 @@
 package net.cytonic.cytosis.commands.server;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
@@ -14,10 +13,11 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.objects.ChatMessage;
-import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket;
 
 public class YoinkCommand extends CytosisCommand {
 
@@ -28,7 +28,7 @@ public class YoinkCommand extends CytosisCommand {
 
         var playerArgument = ArgumentType.Word("player");
         playerArgument.setSuggestionCallback(
-            (cmds, cmdc, suggestion) -> Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
+            (_, _, suggestion) -> Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
                 .getValues()
                 .forEach(v -> suggestion.addEntry(new SuggestionEntry(v))));
         playerArgument.setCallback((sender, exception) -> sender.sendMessage(
@@ -55,15 +55,13 @@ public class YoinkCommand extends CytosisCommand {
                 return;
             }
 
-            NatsManager natsManager = Cytosis.get(NatsManager.class);
-            natsManager.sendPlayerToServer(uuid, Cytosis.CONTEXT.currentServer(), null);
+            Cytosis.get(SendPlayerToServerPacketPublisher.class)
+                .sendPlayerToServer(uuid, Cytosis.CONTEXT.currentServer());
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
                 .append(Msg.mm("<gray> pulled you to their server!"));
-            natsManager
-                .sendChatMessage(
-                    new ChatMessage(List.of(uuid), ChatChannel.INTERNAL_MESSAGE, JSONComponentSerializer.json()
-                        .serialize(component), null));
+            new ChatMessageNotifyPacket.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE,
+                new JsonComponent(component), null).publish();
         }), playerArgument);
     }
 }

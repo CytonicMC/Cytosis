@@ -2,11 +2,11 @@ package net.cytonic.cytosis.commands.party;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.parties.PartyManager;
-import net.cytonic.cytosis.parties.packets.PartyResponsePacket;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.responses.PartyResponse;
 
 class LeaveCommand extends CytosisCommand {
 
@@ -14,10 +14,10 @@ class LeaveCommand extends CytosisCommand {
         super("leave");
         setDefaultExecutor((s, _) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            Cytosis.get(PartyManager.class).leaveParty(player.getUuid())
+            Cytosis.get(PartyPacketsPublisher.class).leaveParty(player.getUuid())
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party leave: ", throwable);
-                    return new PartyResponsePacket(false, "INTERNAL_ERROR");
+                    return new PartyResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {

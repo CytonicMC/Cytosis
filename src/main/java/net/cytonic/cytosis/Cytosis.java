@@ -24,8 +24,9 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.adapters.InstantAdapter;
-import net.cytonic.cytosis.data.adapters.KeyAdapter;
+import net.cytonic.protocol.adapters.InstantAdapter;
+import net.cytonic.protocol.adapters.JsonComponentAdapter;
+import net.cytonic.protocol.adapters.KeyAdapter;
 import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
 import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
@@ -35,6 +36,7 @@ import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
+import net.cytonic.protocol.data.objects.JsonComponent;
 
 /**
  * The main class for Cytosis
@@ -49,12 +51,17 @@ public final class Cytosis {
         .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
         .registerTypeAdapter(Key.class, new KeyAdapter())
         .registerTypeAdapter(Instant.class, new InstantAdapter())
+        .registerTypeAdapter(JsonComponent.class, new JsonComponentAdapter())
         .registerTypeAdapterFactory(new TypedNamespaceAdapter())
         .registerTypeAdapterFactory(new PreferenceAdapter<>())
         .registerTypeAdapterFactory(new KeyAdapter())
         .enableComplexMapKeySerialization()
         .setStrictness(Strictness.LENIENT)
         .serializeNulls()
+        .create();
+
+    public static final Gson GO_GSON = GSON.newBuilder()
+        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
         .create();
 
     public static final GsonConfigurationLoader.Builder GSON_CONFIGURATION_LOADER = GsonConfigurationLoader.builder()

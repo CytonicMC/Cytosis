@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -814,8 +816,8 @@ public class GlobalDatabase implements Bootstrappable {
         return future;
     }
 
-    public CompletableFuture<List<UUID>> loadFriends(UUID player) {
-        CompletableFuture<List<UUID>> future = new CompletableFuture<>();
+    public CompletableFuture<Set<UUID>> loadFriends(UUID player) {
+        CompletableFuture<Set<UUID>> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (Connection conn = getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
@@ -823,9 +825,9 @@ public class GlobalDatabase implements Bootstrappable {
                 ps.setString(1, player.toString());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    future.complete(Cytosis.GSON.fromJson(rs.getString("friends"), Utils.UUID_LIST));
+                    future.complete(Cytosis.GSON.fromJson(rs.getString("friends"), Utils.UUID_SET));
                 } else {
-                    future.complete(new ArrayList<>());
+                    future.complete(new HashSet<>());
                 }
             } catch (Exception exception) {
                 future.completeExceptionally(exception);
@@ -834,7 +836,7 @@ public class GlobalDatabase implements Bootstrappable {
         return future;
     }
 
-    public void updateFriends(UUID player, List<UUID> friends) {
+    public void updateFriends(UUID player, Set<UUID> friends) {
         worker.submit(() -> {
 
             try (Connection conn = getConnection()) {
@@ -843,7 +845,7 @@ public class GlobalDatabase implements Bootstrappable {
                     VALUES (?, ?) ON DUPLICATE KEY UPDATE friends = ?
                     """);
                 friends.remove(player); // prevent self as a friend somehow
-                String serialized = Cytosis.GSON.toJson(friends);
+                String serialized = Cytosis.GSON.toJson(friends, Utils.UUID_SET);
                 ps.setString(1, player.toString());
                 ps.setString(2, serialized);
                 ps.setString(3, serialized);

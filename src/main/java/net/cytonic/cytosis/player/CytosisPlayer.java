@@ -3,7 +3,7 @@ package net.cytonic.cytosis.player;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import io.github.togar2.pvp.player.CombatPlayerImpl;
@@ -26,7 +26,6 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
-import net.cytonic.cytosis.data.packets.friends.FriendRequest;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -36,11 +35,12 @@ import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
-import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.parties.Party;
 import net.cytonic.cytosis.parties.PartyManager;
+import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.protocol.data.objects.Party;
+import net.cytonic.protocol.objects.FriendApiProtocolObject;
 
 /**
  * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the
@@ -261,7 +261,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      *
      * @return the player's friends
      */
-    public List<UUID> getFriends() {
+    public Set<UUID> getFriends() {
         return Cytosis.get(FriendManager.class).getFriends(getUuid());
     }
 
@@ -367,7 +367,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
             case STAFF -> isStaff();
             case MOD -> isModerator();
             case ADMIN -> isAdmin();
-            case PARTY -> isInParty() && (!getParty().isMuted() || getParty().hasAuthority(this));
+            case PARTY -> isInParty() && (!getParty().isMuted() || getParty().hasAuthority(getUuid()));
             default -> true;
         };
     }
@@ -406,24 +406,25 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     public void sendFriendRequest(UUID recipient) {
-        Cytosis.get(NatsManager.class)
-            .sendFriendRequest(new FriendRequest(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
+        Cytosis.get(FriendPacketsPublisher.class)
+            .sendFriendRequest(
+                new FriendApiProtocolObject.Packet(getUuid(), recipient, Instant.now().plus(5, ChronoUnit.MINUTES)));
     }
 
     public void acceptFriendRequest(UUID sender) {
-        Cytosis.get(NatsManager.class).acceptFriendRequest(sender, getUuid());
+        Cytosis.get(FriendPacketsPublisher.class).sendAcceptFriendRequest(sender, getUuid());
     }
 
     public void acceptFriendRequestById(UUID requestId) {
-        Cytosis.get(NatsManager.class).acceptFriendRequest(requestId);
+        Cytosis.get(FriendPacketsPublisher.class).sendAcceptFriendRequest(requestId);
     }
 
     public void declineFriendRequest(UUID sender) {
-        Cytosis.get(NatsManager.class).declineFriendRequest(sender, getUuid());
+        Cytosis.get(FriendPacketsPublisher.class).sendDeclineFriendRequest(sender, getUuid());
     }
 
     public void declineFriendRequestById(UUID requestId) {
-        Cytosis.get(NatsManager.class).declineFriendRequest(requestId);
+        Cytosis.get(FriendPacketsPublisher.class).sendDeclineFriendRequest(requestId);
     }
 
     public boolean isVanished() {

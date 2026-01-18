@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.reflect.TypeToken;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
-import net.cytonic.cytosis.data.packets.ServerStatusPacket;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
@@ -37,9 +37,12 @@ public final class Utils {
      */
     public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
     }.getType();
-
-    public static final Type SERVER_LIST = new TypeToken<List<ServerStatusPacket>>() {
+    /**
+     * A type token for a set of UUIDs
+     */
+    public final static Type UUID_SET = new TypeToken<Set<UUID>>() {
     }.getType();
+
     /**
      * A type token for a map of namespaced preferences keyed by NamespaceID
      */
