@@ -1,13 +1,10 @@
 package net.cytonic.cytosis.events;
 
-import java.util.Optional;
-
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
-import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
@@ -29,14 +26,14 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
+import net.cytonic.cytosis.entity.newnpx.NPC;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
-import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
+import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
-import net.cytonic.cytosis.managers.NpcManager;
 import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
@@ -44,7 +41,6 @@ import net.cytonic.cytosis.managers.SideboardManager;
 import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.npcs.Npc;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
@@ -62,16 +58,14 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onInteract(PlayerEntityInteractEvent event) {
-        Optional<Npc> optional = Cytosis.get(NpcManager.class).findNpc(event.getTarget().getUuid());
-        if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
-            Npc npc = optional.get();
-            EventDispatcher.callCancellable(
-                new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()), () -> {
-                    npc.getActions()
-                        .forEach((action) -> action.execute(npc, NpcInteractType.INTERACT,
-                            (CytosisPlayer) event.getPlayer()));
-                });
-        }
+        CytosisPlayer player = (CytosisPlayer) event.getPlayer();
+
+        Entity target = event.getTarget();
+        NPC npc = NPC.getFromImpl(player, target);
+        if (npc == null) return;
+
+        NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.INTERACT, npc);
+        EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
     }
 
     @Listener
@@ -218,13 +212,12 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onAttack(EntityAttackEvent event) {
         if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-        Optional<Npc> optional = Cytosis.get(NpcManager.class).findNpc(event.getTarget().getUuid());
-        if (optional.isPresent() && optional.get() == event.getTarget()) {
-            Npc npc = optional.get();
-            MinecraftServer.getGlobalEventHandler()
-                .callCancellable(new NpcInteractEvent(npc, player, npc.getActions()), () -> {
-                    npc.getActions().forEach((action) -> action.execute(npc, NpcInteractType.ATTACK, player));
-                });
-        }
+
+        Entity target = event.getTarget();
+        NPC npc = NPC.getFromImpl(player, target);
+        if (npc == null) return;
+
+        NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.ATTACK, npc);
+        EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
     }
 }
