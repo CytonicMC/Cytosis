@@ -9,7 +9,7 @@ public class SnooperNotifyPacket extends NotifyPacket<Packet> {
 
     @Override
     public String getSubject() {
-        throw new RuntimeException("oh noes");
+        throw new UnsupportedOperationException("SnooperNotifyPacket does not have a default subject!");
     }
 
     public record Packet(JsonComponent message) implements Message<Packet, Void> {

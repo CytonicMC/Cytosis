@@ -8,23 +8,12 @@ import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.NotifyHandler;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
-import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket.Packet;
 
 public class ServerStatusNotifyListener {
 
-    public static CytonicServer getServer(Packet packet) {
-        return new CytonicServer(
-            packet.ip(),
-            packet.id(),
-            packet.port(),
-            packet.type(),
-            packet.group()
-        );
-    }
-
     @NotifyHandler(subject = "servers.register")
     public static void serverStartup(ServerStatusNotifyPacket.Packet packet) {
-        CytonicServer server = getServer(packet);
+        CytonicServer server = new CytonicServer(packet);
         Cytosis.get(CytonicNetwork.class).getServers().put(packet.id(), server);
         Logger.info("Registered server: " + packet.id());
 
@@ -42,7 +31,7 @@ public class ServerStatusNotifyListener {
 
     @NotifyHandler(subject = "servers.shutdown")
     public static void serverShutdown(ServerStatusNotifyPacket.Packet packet) {
-        CytonicServer server = getServer(packet);
+        CytonicServer server = new CytonicServer(packet);
         Cytosis.get(CytonicNetwork.class).getServers().put(packet.id(), server);
         Logger.info("Shutdown server: " + packet.id());
 

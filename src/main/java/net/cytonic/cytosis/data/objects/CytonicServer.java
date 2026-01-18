@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.data.objects;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
 
 /**
  * A class that holds data about a Cytosis server
@@ -13,6 +14,10 @@ import net.cytonic.cytosis.Cytosis;
  */
 @SuppressWarnings("unused")
 public record CytonicServer(String ip, String id, int port, String type, String group) {
+
+    public CytonicServer(ServerStatusNotifyPacket.Packet packet) {
+        this(packet.ip(), packet.id(), packet.port(), packet.type(), packet.group());
+    }
 
     /**
      * Converts a serialized string into a CytonicServer
