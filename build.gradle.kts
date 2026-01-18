@@ -60,8 +60,8 @@ dependencies {
 
     implementation(libs.dependencydownload)
     dependencyDownloadOnly(libs.dependencydownload)
-    implementation(project(":protocol"))//todo publish along with cytosis
-    dependencyDownloadOnly(project(":protocol"))//todo publish along with cytosis
+    implementation(project(":protocol"))
+    dependencyDownloadOnly(project(":protocol"))
 
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
