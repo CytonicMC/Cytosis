@@ -69,8 +69,6 @@ public class CytosisBootstrap {
             MetricsHooks.init();
         }
 
-        // TODO: do only one of those , both are executing otherwise?
-        Runtime.getRuntime().addShutdownHook(new Thread(cytosisContext::shutdownHandler));
         MinecraftServer.getSchedulerManager().buildShutdownTask(cytosisContext::shutdownHandler);
 
         BootstrapRegistrationUtils.registerListeners(cytosisContext);
