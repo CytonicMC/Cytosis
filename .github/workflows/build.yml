@@ -35,6 +35,12 @@ jobs:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
+      - name: Publish Protocol
+        run: gradle --no-daemon protocol:publish
+        env:
+          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+          REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
   docker:
     if: github.repository == 'CytonicMC/Cytosis'
     runs-on: ubuntu-latest

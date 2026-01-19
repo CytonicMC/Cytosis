@@ -21,9 +21,9 @@ import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
+import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.protocol.listeners.ServerStatusNotifyListener;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.ProtocolHelper;
 import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
@@ -89,7 +89,7 @@ public class NatsManager implements Bootstrappable {
 
             for (ServerStatusNotifyPacket.Packet server : response.servers()) {
                 Cytosis.get(CytonicNetwork.class).getServers()
-                    .put(server.id(), ServerStatusNotifyListener.getServer(server));
+                    .put(server.id(), new CytonicServer(server));
                 Logger.info("Loaded server '" + server.id() + "' from Cydian!");
             }
             Logger.info("Loaded " + response.servers().size() + " active servers from Cydian!");

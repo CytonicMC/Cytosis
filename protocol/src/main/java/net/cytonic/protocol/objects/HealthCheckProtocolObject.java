@@ -9,7 +9,7 @@ public class HealthCheckProtocolObject extends ProtocolObject<Packet, Response> 
 
     @Override
     public String getSubject() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("HealthCheckProtocolObject does not have a default subject!");
     }
 
     public record Packet() implements Message<Packet, Response> {

@@ -24,6 +24,7 @@ public class FriendNotifyPacket extends ProtocolObject<Packet, Response> {
 
     public record Packet(UUID sender, UUID recipient) implements Message<Packet, Response> {
 
+        @Override
         public void publish(String subject) {
             NatsAPI.INSTANCE.publish(subject, getProtocolObject().serializeToString(this));
         }

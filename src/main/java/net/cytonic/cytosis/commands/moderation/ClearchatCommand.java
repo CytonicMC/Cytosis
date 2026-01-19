@@ -26,11 +26,9 @@ public class ClearchatCommand extends CytosisCommand {
             if (sender instanceof CytosisPlayer player) {
                 for (CytosisPlayer online : Cytosis.getOnlinePlayers()) {
                     if (online.isStaff()) {
-                        // don't actually clear the chat
                         online.sendMessage(Msg.green("Chat has been cleared by ").append(player.formattedName())
                             .append(Msg.green("!")));
                     } else {
-                        // todo: use the ClearChatPacket, but minestom doesn't support it
                         for (int i = 0; i < 250; i++) {
                             online.sendMessage("");
                         }

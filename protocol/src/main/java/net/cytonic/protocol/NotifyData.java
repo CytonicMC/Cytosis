@@ -2,9 +2,9 @@ package net.cytonic.protocol;
 
 import io.nats.client.Message;
 
-public record NotifyData(String subject) {
+public record NotifyData(Message message, String subject) {
 
     public NotifyData(Message message) {
-        this(message.getSubject());
+        this(message, message.getSubject());
     }
 }

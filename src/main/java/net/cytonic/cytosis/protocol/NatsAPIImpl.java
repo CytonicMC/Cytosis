@@ -5,21 +5,14 @@ import java.util.function.Consumer;
 
 import io.nats.client.Message;
 
-import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.protocol.ProtocolHelper;
 import net.cytonic.protocol.utils.NatsAPI;
 
 @CytosisComponent(dependsOn = NatsManager.class)
-public class NatsAPIImpl implements NatsAPI, Bootstrappable {
-
-    @Override
-    public void init() {
-        ProtocolHelper.init();
-    }
+public class NatsAPIImpl implements NatsAPI {
 
     @Override
     public void subscribe(String channel, Consumer<Message> consumer) {

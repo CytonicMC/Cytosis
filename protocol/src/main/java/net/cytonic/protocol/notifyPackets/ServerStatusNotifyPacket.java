@@ -13,7 +13,7 @@ public class ServerStatusNotifyPacket extends NotifyPacket<Packet> {
 
     @Override
     public String getSubject() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("ServerStatusNotifyPacket does not have a default subject!");
     }
 
     public record Packet(
