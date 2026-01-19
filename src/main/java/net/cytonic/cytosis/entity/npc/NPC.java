@@ -40,4 +40,8 @@ public abstract class NPC {
     public void register() {
         Cytosis.get(NpcManager.class).register(this);
     }
+
+    public void remove() {
+        Cytosis.get(NpcManager.class).removeNPC(this);
+    }
 }

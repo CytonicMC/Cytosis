@@ -29,6 +29,7 @@ import net.cytonic.cytosis.entity.npc.impl.NPCEntityImpl;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
+import net.cytonic.protocol.ExcludeFromClassGraph;
 
 /**
  * A class that manages NPCs
@@ -54,6 +55,7 @@ public class NpcManager implements Bootstrappable {
         try (ScanResult result = graph.scan()) {
             result.getSubclasses(NPC.class).loadClasses().forEach(clazz -> {
                 try {
+                    if (clazz.isAnnotationPresent(ExcludeFromClassGraph.class)) return;
                     Constructor<?> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
                     NPC npc = (NPC) constructor.newInstance();
@@ -78,15 +80,19 @@ public class NpcManager implements Bootstrappable {
     public void removePlayer(CytosisPlayer player) {
         Map<NPC, Tuple<NPCEntityImpl, PlayerHolograms.Hologram>> playerNpcs = playerNPCs.remove(player.getUuid());
         if (playerNpcs != null) {
-            playerNpcs.values().forEach(tuple -> {
-                NPCEntityImpl entity = tuple.getFirst();
-                PlayerHolograms.Hologram hologram = tuple.getSecond();
-                entity.remove();
-                if (PlayerHolograms.holograms.containsKey(hologram)) {
-                    PlayerHolograms.holograms.remove(hologram).forEach(Entity::remove);
-                }
-            });
+            playerNpcs.keySet().forEach(this::removeNPC);
         }
+    }
+
+    public void removeNPC(NPC npc) {
+        playerNPCs.forEach((_, map) -> map.forEach((mapNpc, tuple) -> {
+            if (npc.equals(mapNpc)) {
+                tuple.getFirst().remove();
+                if (PlayerHolograms.holograms.containsKey(tuple.getSecond())) {
+                    PlayerHolograms.holograms.remove(tuple.getSecond()).forEach(Entity::remove);
+                }
+            }
+        }));
     }
 
     public void updateForPlayer(CytosisPlayer player) {
