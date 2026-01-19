@@ -333,7 +333,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "12.3.1"
+    toolVersion = "13.0.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
