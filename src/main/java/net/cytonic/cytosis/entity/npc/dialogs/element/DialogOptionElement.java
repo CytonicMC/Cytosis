@@ -52,7 +52,7 @@ public record DialogOptionElement(
                             }
 
                             dialog.markOptionGroupUsed(index);
-                            option.callback().accept(new Dialog(dialog.getNpc(), player));
+                            option.callback().accept(dialog);
                         },
                         ClickCallback.Options.builder()
                             .uses(1)

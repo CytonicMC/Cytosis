@@ -108,7 +108,7 @@ public class Dialog {
         return usedOptionGroups.contains(startIndex);
     }
 
-    public static void end(Dialog dialog) {
-        dialog.finished = true;
+    public void end() {
+        finished = true;
     }
 }

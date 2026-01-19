@@ -21,27 +21,23 @@ public class HologramEntity extends Entity {
         super(EntityType.TEXT_DISPLAY);
         this.text = text;
 
-        TextDisplayMeta meta = (TextDisplayMeta) this.getEntityMeta();
-
-        meta.setNotifyAboutChanges(false);
-        meta.setText(text);
-        meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
-        meta.setHasNoGravity(true);
-        meta.setUseDefaultBackground(true);
-        meta.setLineWidth(1000);
-        meta.setNotifyAboutChanges(true);
+        editEntityMeta(TextDisplayMeta.class, meta -> {
+            meta.setText(text);
+            meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
+            meta.setHasNoGravity(true);
+            meta.setUseDefaultBackground(true);
+            meta.setLineWidth(1000);
+        });
     }
 
     public void setText(Component text) {
         this.text = text;
 
-        TextDisplayMeta meta = (TextDisplayMeta) this.getEntityMeta();
-
-        meta.setNotifyAboutChanges(false);
-        meta.setText(text);
-        meta.setUseDefaultBackground(true);
-        meta.setLineWidth(1000);
-        meta.setNotifyAboutChanges(true);
+        editEntityMeta(TextDisplayMeta.class, meta -> {
+            meta.setText(text);
+            meta.setUseDefaultBackground(true);
+            meta.setLineWidth(1000);
+        });
     }
 
     @Override
