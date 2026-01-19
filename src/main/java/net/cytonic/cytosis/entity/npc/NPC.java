@@ -4,9 +4,11 @@ import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.entity.npc.configuration.NPCConfiguration;
 import net.cytonic.cytosis.entity.npc.dialogs.Dialog;
 import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
+import net.cytonic.cytosis.managers.NpcManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
 public abstract class NPC {
@@ -33,5 +35,9 @@ public abstract class NPC {
 
     protected Dialog startDialog(CytosisPlayer player) {
         return new Dialog(this, player);
+    }
+
+    public void register() {
+        Cytosis.get(NpcManager.class).register(this);
     }
 }

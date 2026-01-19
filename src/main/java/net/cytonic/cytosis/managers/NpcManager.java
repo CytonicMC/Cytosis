@@ -57,7 +57,7 @@ public class NpcManager implements Bootstrappable {
                     Constructor<?> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
                     NPC npc = (NPC) constructor.newInstance();
-                    register(npc);
+                    npc.register();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                          NoSuchMethodException e) {
                     throw new RuntimeException(e);
