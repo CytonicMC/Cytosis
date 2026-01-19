@@ -12,8 +12,9 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.Bootstrappable;
@@ -74,17 +75,33 @@ public class NpcManager implements Bootstrappable {
         registeredNPCs.add(npc);
     }
 
+    public void removePlayer(CytosisPlayer player) {
+        Map<NPC, Tuple<NPCEntityImpl, PlayerHolograms.Hologram>> playerNpcs = playerNPCs.remove(player.getUuid());
+        if (playerNpcs != null) {
+            playerNpcs.values().forEach(tuple -> {
+                NPCEntityImpl entity = tuple.getFirst();
+                PlayerHolograms.Hologram hologram = tuple.getSecond();
+                entity.remove();
+                if (PlayerHolograms.holograms.containsKey(hologram)) {
+                    PlayerHolograms.holograms.remove(hologram).forEach(Entity::remove);
+                }
+            });
+        }
+    }
+
     public void updateForPlayer(CytosisPlayer player) {
         registeredNPCs.forEach(npc -> {
             NPCConfiguration config = npc.getConfig();
-            if (!playerNPCs.containsKey(player.getUuid())) {
+            Pos npcPos = config.position(player);
+            double distanceSquared = player.getPosition().distanceSquared(npcPos);
+            boolean inRange = distanceSquared <= (NPC.SPAWN_DISTANCE * NPC.SPAWN_DISTANCE);
+
+            if (!playerNPCs.containsKey(player.getUuid()) || !playerNPCs.get(player.getUuid()).containsKey(npc)) {
+                if (!inRange) return;
+
                 //has not been loaded by player before
                 List<Component> holograms = config.holograms(player);
-                String username = toString(holograms.getLast());
-                boolean overflowing = username.length() > 16;
-                if (overflowing) {
-                    username = " ";
-                }
+                String username = " ";
 
                 NPCEntityImpl entity = new NPCEntityImpl(
                     username,
@@ -92,31 +109,54 @@ public class NpcManager implements Bootstrappable {
                     config.signature(player),
                     holograms
                 );
-                entity.setInstance(config.instance(), config.position(player));
+                entity.setInstance(config.instance(), npcPos);
                 entity.addViewer(player);
 
                 PlayerHolograms.Hologram hologram = PlayerHolograms.Hologram.builder()
-                    .pos(config.position(player).add(0, 1.1 + (overflowing ? -0.2f : 0.0f), 0))
-                    .lines(holograms.subList(0, holograms.size() - (overflowing ? 0 : 1)))
+                    .pos(config.position(player).add(0, 1.1, 0))
+                    .lines(holograms)
                     .player(player)
                     .instance(config.instance())
                     .build();
 
-                PlayerHolograms.addHologram(hologram);
+                PlayerHolograms.addHologram(hologram, entity);
                 playerNPCs.computeIfAbsent(player.getUuid(), _ -> new HashMap<>())
                     .put(npc, Tuple.of(entity, hologram));
                 return;
             }
+
             //player has seen it before
             Map<NPC, Tuple<NPCEntityImpl, PlayerHolograms.Hologram>> playerNpcs = playerNPCs.get(player.getUuid());
-            NPCEntityImpl entity = playerNpcs.get(npc).getFirst();
+            Tuple<NPCEntityImpl, PlayerHolograms.Hologram> data = playerNpcs.get(npc);
+            NPCEntityImpl entity = data.getFirst();
+            PlayerHolograms.Hologram hologram = data.getSecond();
 
-            if (player.getDistance(config.position(player)) <= NPC.SPAWN_DISTANCE) {
+            if (!inRange) {
+                entity.remove();
+                if (PlayerHolograms.holograms.containsKey(hologram)) {
+                    PlayerHolograms.holograms.remove(hologram).forEach(Entity::remove);
+                }
+                playerNpcs.remove(npc);
+                return;
+            }
+
+            if (config.looking(player) && distanceSquared <= (NPC.LOOK_DISTANCE * NPC.LOOK_DISTANCE)) {
+                Pos lookPos = entity.getPosition().withLookAt(player.getPosition().add(0, player.getEyeHeight(), 0));
+                entity.setView(lookPos.yaw(), lookPos.pitch());
+            } else {
+                entity.setView(npcPos.yaw(), npcPos.pitch());
             }
         });
     }
 
-    private String toString(Component component) {
-        return PlainTextComponentSerializer.plainText().serialize(component);
+    public NPC getNPC(CytosisPlayer player, Entity entity) {
+        if (!playerNPCs.containsKey(player.getUuid())) return null;
+        for (Map.Entry<NPC, Tuple<NPCEntityImpl, PlayerHolograms.Hologram>> entry : playerNPCs.get(player.getUuid())
+            .entrySet()) {
+            if (entry.getValue().getFirst().getEntityId() == entity.getEntityId()) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 }

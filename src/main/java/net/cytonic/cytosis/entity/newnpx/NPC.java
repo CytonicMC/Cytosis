@@ -10,7 +10,6 @@ public abstract class NPC {
 
     public static final int SPAWN_DISTANCE = 48;
     public static final int LOOK_DISTANCE = 5;
-    public static final float HOLOGRAM_DISTANCE = 1.1f;
 
     @Getter
     private final NPCConfiguration config;

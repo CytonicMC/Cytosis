@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
@@ -26,6 +27,7 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
+import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
 import net.cytonic.cytosis.entity.newnpx.NPC;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
@@ -34,6 +36,7 @@ import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.NpcManager;
 import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
@@ -58,10 +61,11 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onInteract(PlayerEntityInteractEvent event) {
-        CytosisPlayer player = (CytosisPlayer) event.getPlayer();
+        if (!(event.getEntity() instanceof CytosisPlayer player)) return;
+        if (event.getHand() == PlayerHand.OFF) return;
 
         Entity target = event.getTarget();
-        NPC npc = NPC.getFromImpl(player, target);
+        NPC npc = Cytosis.get(NpcManager.class).getNPC(player, target);
         if (npc == null) return;
 
         NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.INTERACT, npc);
@@ -206,6 +210,8 @@ public final class ServerEventListeners {
             .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
+        Cytosis.get(NpcManager.class).removePlayer(player);
+        PlayerHolograms.removePlayer(player);
     }
 
     @Listener
@@ -214,7 +220,7 @@ public final class ServerEventListeners {
         if (!(event.getEntity() instanceof CytosisPlayer player)) return;
 
         Entity target = event.getTarget();
-        NPC npc = NPC.getFromImpl(player, target);
+        NPC npc = Cytosis.get(NpcManager.class).getNPC(player, target);
         if (npc == null) return;
 
         NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.ATTACK, npc);

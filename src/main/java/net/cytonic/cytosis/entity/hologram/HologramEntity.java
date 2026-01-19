@@ -23,13 +23,12 @@ public class HologramEntity extends Entity {
 
         TextDisplayMeta meta = (TextDisplayMeta) this.getEntityMeta();
 
-        setInvisible(true);
-
         meta.setNotifyAboutChanges(false);
-        meta.setCustomNameVisible(false);
         meta.setText(text);
         meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
         meta.setHasNoGravity(true);
+        meta.setUseDefaultBackground(true);
+        meta.setLineWidth(1000);
         meta.setNotifyAboutChanges(true);
     }
 
@@ -40,12 +39,13 @@ public class HologramEntity extends Entity {
 
         meta.setNotifyAboutChanges(false);
         meta.setText(text);
+        meta.setUseDefaultBackground(true);
+        meta.setLineWidth(1000);
         meta.setNotifyAboutChanges(true);
     }
 
     @Override
     public @NotNull CompletableFuture<Void> setInstance(@NotNull Instance instance, @NotNull Pos pos) {
-        pos = pos.add(0, 1.3, 0);
         return super.setInstance(instance, pos);
     }
 }
