@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.entity.newnpx.configuration;
+package net.cytonic.cytosis.entity.npc.configuration;
 
 import java.util.List;
 

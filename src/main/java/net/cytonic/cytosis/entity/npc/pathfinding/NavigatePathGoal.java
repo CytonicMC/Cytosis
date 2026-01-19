@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.npcs.pathfinding;
+package net.cytonic.cytosis.entity.npc.pathfinding;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.EntityCreature;

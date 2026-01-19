@@ -1,10 +1,13 @@
-package net.cytonic.cytosis.entity.newnpx;
+package net.cytonic.cytosis.entity.npc;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
-import net.cytonic.cytosis.entity.newnpx.configuration.NPCConfiguration;
+import net.cytonic.cytosis.entity.npc.configuration.NPCConfiguration;
+import net.cytonic.cytosis.entity.npc.dialogs.Dialog;
 import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 public abstract class NPC {
 
@@ -24,5 +27,11 @@ public abstract class NPC {
                 : Component.text(className.replaceAll("(?<=.)(?=\\p{Lu})", " "));
     }
 
-    public abstract void onClick(NPCInteractEvent event);
+    @OverrideOnly
+    public void onClick(NPCInteractEvent event) {
+    }
+
+    protected Dialog startDialog(CytosisPlayer player) {
+        return new Dialog(this, player);
+    }
 }

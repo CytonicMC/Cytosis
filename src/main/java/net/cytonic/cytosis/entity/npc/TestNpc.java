@@ -1,13 +1,13 @@
-package net.cytonic.cytosis.entity.newnpx;
+package net.cytonic.cytosis.entity.npc;
 
 import java.util.List;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 
-import net.cytonic.cytosis.entity.newnpx.configuration.NPCConfiguration;
+import net.cytonic.cytosis.entity.npc.configuration.NPCConfiguration;
+import net.cytonic.cytosis.entity.npc.dialogs.Dialog;
 import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -45,7 +45,48 @@ public class TestNpc extends NPC {
 
     @Override
     public void onClick(NPCInteractEvent event) {
-        event.player().sendMessage(Msg.mm("On click!!!"));
-        Logger.debug("Hello world!");
+        startDialog(event.player())
+            .message("Adventurer! Thank goodness you're here!")
+            .delay(20)
+            .message("Our village is being terrorized by goblins.")
+            .delay(20)
+            .message("They've stolen our supplies and scared off our farmers.")
+            .delay(20)
+            .option("I'll help you", dialog ->
+                dialog.message("Thank you, brave one!")
+                    .message("May fortune smile upon you.")
+                    .message("<red>Quest Started: The Goblin Threat")
+                    .option("I won't let you down", Dialog::end)
+                    .send())
+            .option("Tell me more", this::explainQuest)
+            .option("Not interested", this::declineQuest)
+            .delay(20)
+            .send();
+    }
+
+    private void explainQuest(Dialog dialog) {
+        dialog.message("The goblin camp is northeast of here.")
+            .message("We need you to defeat 10 goblins and retrieve our supplies.")
+            .message("I'll reward you handsomely - 500 gold and a rare amulet.")
+            .option("I accept!", this::acceptQuest)
+            .option("Sounds too dangerous", this::declineQuest)
+            .send();
+    }
+
+    private void acceptQuest(Dialog dialog) {
+        CytosisPlayer p = dialog.getPlayer();
+
+        dialog.message("Thank you, brave one!")
+            .message("May fortune smile upon you.")
+            .execute(d -> p.sendMessage("§6Quest Started: The Goblin Threat"))
+            .option("I won't let you down", Dialog::end)
+            .send();
+    }
+
+    private void declineQuest(Dialog dialog) {
+        dialog.message("I understand... it's dangerous work.")
+            .message("If you change your mind, I'll be here.")
+            .option("I'll think about it", Dialog::end)
+            .send();
     }
 }

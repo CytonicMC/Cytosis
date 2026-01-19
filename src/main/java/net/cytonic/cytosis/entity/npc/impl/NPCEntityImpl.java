@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.entity.newnpx.impl;
+package net.cytonic.cytosis.entity.npc.impl;
 
 import java.util.ArrayList;
 import java.util.List;

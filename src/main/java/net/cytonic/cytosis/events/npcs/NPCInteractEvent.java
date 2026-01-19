@@ -7,7 +7,7 @@ import net.minestom.server.event.trait.PlayerInstanceEvent;
 import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.data.enums.NpcInteractType;
-import net.cytonic.cytosis.entity.newnpx.NPC;
+import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
 @Getter

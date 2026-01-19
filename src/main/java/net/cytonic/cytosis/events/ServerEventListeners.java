@@ -28,7 +28,7 @@ import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
-import net.cytonic.cytosis.entity.newnpx.NPC;
+import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
