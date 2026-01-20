@@ -7,9 +7,9 @@ import com.google.errorprone.annotations.Keep;
 import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.protocol.Endpoint;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.objects.HealthCheckProtocolObject;
-import net.cytonic.protocol.objects.HealthCheckProtocolObject.Packet;
-import net.cytonic.protocol.objects.HealthCheckProtocolObject.Response;
+import net.cytonic.protocol.impl.objects.HealthCheckProtocolObject;
+import net.cytonic.protocol.impl.objects.HealthCheckProtocolObject.Packet;
+import net.cytonic.protocol.impl.objects.HealthCheckProtocolObject.Response;
 
 @Keep
 public class HealthCheckEndpoint implements

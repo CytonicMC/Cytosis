@@ -9,7 +9,7 @@ import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.notifyPackets.BroadcastNotifyPacket;
+import net.cytonic.protocol.impl.notify.BroadcastNotifyPacket;
 
 /**
  * The class representing the broadcast command

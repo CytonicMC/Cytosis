@@ -16,8 +16,8 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.NotifyListener;
-import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket.Packet;
+import net.cytonic.protocol.notify.NotifyListener;
 
 @Keep
 public class ChatMessageNotifyListener implements NotifyListener<Packet> {

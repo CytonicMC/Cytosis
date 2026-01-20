@@ -5,6 +5,10 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.function.BiConsumer;
 
+import net.cytonic.protocol.serializer.GsonSerializer;
+import net.cytonic.protocol.serializer.ReturnSerializable;
+import net.cytonic.protocol.serializer.Serializable;
+import net.cytonic.protocol.serializer.Serializer;
 import net.cytonic.protocol.utils.NatsAPI;
 
 public abstract class ProtocolObject<T, R> implements Serializable<T>, ReturnSerializable<R>, Subject {

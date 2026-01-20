@@ -4,10 +4,10 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.Subjects;
-import net.cytonic.protocol.objects.instances.CreateInstanceProtocolObject;
-import net.cytonic.protocol.objects.instances.DeleteAllInstancesProtocolObject;
-import net.cytonic.protocol.objects.instances.DeleteInstanceProtocolObject;
-import net.cytonic.protocol.objects.instances.UpdateInstancesProtocolObject;
+import net.cytonic.protocol.impl.objects.instances.CreateInstanceProtocolObject;
+import net.cytonic.protocol.impl.objects.instances.DeleteAllInstancesProtocolObject;
+import net.cytonic.protocol.impl.objects.instances.DeleteInstanceProtocolObject;
+import net.cytonic.protocol.impl.objects.instances.UpdateInstancesProtocolObject;
 
 @CytosisComponent
 public class ServerInstancingManager {

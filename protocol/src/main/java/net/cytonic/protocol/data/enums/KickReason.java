@@ -20,6 +20,11 @@ public enum KickReason {
      */
     INVALID_WORLD(true),
     /**
+     * Kicked due to calling {@code Player#kick(Component)} or {@code Player#kick(String)}, or some other unknown
+     * reason.
+     */
+    UNKNOWN(true),
+    /**
      * Kicked due to the kick command
      */
     COMMAND(false);

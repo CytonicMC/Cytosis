@@ -2,6 +2,7 @@ package net.cytonic.protocol;
 
 import java.util.function.BiConsumer;
 
+import net.cytonic.protocol.serializer.Serializer;
 import net.cytonic.protocol.utils.NatsAPI;
 
 public abstract class NoResponse<T> extends ProtocolObject<T, Void> {

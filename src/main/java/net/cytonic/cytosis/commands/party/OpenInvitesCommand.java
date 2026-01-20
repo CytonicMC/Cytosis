@@ -10,7 +10,7 @@ import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.PartyResponse;
 
 class OpenInvitesCommand extends CytosisCommand {
 

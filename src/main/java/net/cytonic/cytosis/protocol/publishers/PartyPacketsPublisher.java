@@ -11,13 +11,13 @@ import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.protocol.data.objects.Party;
 import net.cytonic.protocol.data.objects.PartyInvite;
-import net.cytonic.protocol.objects.parties.PartyInviteAcceptProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyInviteProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyLeaveProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyOnePlayerProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyStateProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyTwoPlayerProtocolObject;
-import net.cytonic.protocol.responses.PartyResponse;
+import net.cytonic.protocol.impl.objects.parties.PartyInviteAcceptProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyInviteProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyLeaveProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyOnePlayerProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyStateProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyTwoPlayerProtocolObject;
+import net.cytonic.protocol.impl.responses.PartyResponse;
 
 
 @NoArgsConstructor

@@ -10,8 +10,8 @@ import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.messaging.Subjects;
-import net.cytonic.protocol.NotifyHandler;
-import net.cytonic.protocol.notifyPackets.PlayerLoginLogoutNotifyPacket;
+import net.cytonic.protocol.impl.notify.PlayerLoginLogoutNotifyPacket;
+import net.cytonic.protocol.utils.NotifyHandler;
 
 public class PlayerLoginLogoutNotifyListener {
 
