@@ -4,7 +4,7 @@ import com.google.errorprone.annotations.Keep;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.impl.notifyPackets.BroadcastNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.BroadcastNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyListener;
 
 @Keep

@@ -1,8 +1,8 @@
-package net.cytonic.protocol.impl.notifyPackets.parties;
+package net.cytonic.protocol.impl.notify.parties;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.data.objects.PartyInvite;
-import net.cytonic.protocol.impl.notifyPackets.parties.PartyInviteNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.parties.PartyInviteNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyPacket;
 
 public class PartyInviteNotifyPacket extends NotifyPacket<Packet> {

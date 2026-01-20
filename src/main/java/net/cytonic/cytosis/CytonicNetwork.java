@@ -21,7 +21,7 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.protocol.impl.notifyPackets.PlayerChangeServerNotifyPacket;
+import net.cytonic.protocol.impl.notify.PlayerChangeServerNotifyPacket;
 import net.cytonic.protocol.utils.NotifyHandler;
 
 

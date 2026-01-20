@@ -1,9 +1,9 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.util.UUID;
 
 import net.cytonic.protocol.Message;
-import net.cytonic.protocol.impl.notifyPackets.PlayerRankUpdateNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.PlayerRankUpdateNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyPacket;
 
 public class PlayerRankUpdateNotifyPacket extends NotifyPacket<Packet> {

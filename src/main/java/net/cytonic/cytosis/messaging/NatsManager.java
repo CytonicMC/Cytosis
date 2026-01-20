@@ -26,7 +26,7 @@ import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.ProtocolHelper;
-import net.cytonic.protocol.impl.notifyPackets.ServerStatusNotifyPacket;
+import net.cytonic.protocol.impl.notify.ServerStatusNotifyPacket;
 import net.cytonic.protocol.impl.objects.FetchServersProtocolObject;
 
 import static io.nats.client.ConnectionListener.Events.CONNECTED;

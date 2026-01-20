@@ -5,7 +5,7 @@ import com.google.errorprone.annotations.Keep;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.impl.notifyPackets.CooldownUpdateNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.CooldownUpdateNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyListener;
 
 @Keep

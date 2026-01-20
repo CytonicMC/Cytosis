@@ -1,4 +1,4 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.util.UUID;
 
@@ -6,7 +6,7 @@ import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.impl.notifyPackets.PlayerKickNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket.Packet;
 
 public class PlayerKickNotifyPacket extends NoResponse<Packet> {
 

@@ -1,9 +1,9 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.util.UUID;
 
 import net.cytonic.protocol.Message;
-import net.cytonic.protocol.impl.notifyPackets.PlayerChangeServerNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.PlayerChangeServerNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyPacket;
 
 public class PlayerChangeServerNotifyPacket extends NotifyPacket<Packet> {

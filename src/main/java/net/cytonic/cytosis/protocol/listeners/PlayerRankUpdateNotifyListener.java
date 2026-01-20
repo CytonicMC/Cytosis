@@ -9,7 +9,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.impl.notifyPackets.PlayerRankUpdateNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.PlayerRankUpdateNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyListener;
 
 @Keep

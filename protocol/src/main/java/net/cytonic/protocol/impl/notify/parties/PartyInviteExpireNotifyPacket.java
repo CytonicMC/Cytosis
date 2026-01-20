@@ -1,11 +1,11 @@
-package net.cytonic.protocol.impl.notifyPackets.parties;
+package net.cytonic.protocol.impl.notify.parties;
 
 import java.util.UUID;
 
 import com.google.gson.annotations.SerializedName;
 
 import net.cytonic.protocol.Message;
-import net.cytonic.protocol.impl.notifyPackets.parties.PartyInviteExpireNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.parties.PartyInviteExpireNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyPacket;
 
 public class PartyInviteExpireNotifyPacket extends NotifyPacket<Packet> {

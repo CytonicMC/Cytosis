@@ -1,4 +1,4 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.time.Instant;
 
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.protocol.Message;
-import net.cytonic.protocol.impl.notifyPackets.ServerStatusNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.ServerStatusNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyPacket;
 
 public class ServerStatusNotifyPacket extends NotifyPacket<Packet> {

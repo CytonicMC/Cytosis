@@ -17,7 +17,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.impl.notifyPackets.ChatMessageNotifyPacket;
+import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
 public class YoinkCommand extends CytosisCommand {
 

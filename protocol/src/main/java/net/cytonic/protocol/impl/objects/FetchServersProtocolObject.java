@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.impl.notifyPackets.ServerStatusNotifyPacket;
+import net.cytonic.protocol.impl.notify.ServerStatusNotifyPacket;
 import net.cytonic.protocol.impl.objects.FetchServersProtocolObject.Packet;
 import net.cytonic.protocol.impl.objects.FetchServersProtocolObject.Response;
 

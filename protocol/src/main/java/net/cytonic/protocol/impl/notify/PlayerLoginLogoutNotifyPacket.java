@@ -1,4 +1,4 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.util.UUID;
 
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
-import net.cytonic.protocol.impl.notifyPackets.PlayerLoginLogoutNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.PlayerLoginLogoutNotifyPacket.Packet;
 
 @NoArgsConstructor
 @AllArgsConstructor

@@ -19,7 +19,7 @@ import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.impl.notifyPackets.PlayerKickNotifyPacket;
+import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
 
 public class KickCommand extends CytosisCommand {
 

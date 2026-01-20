@@ -43,7 +43,7 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.impl.notifyPackets.PlayerKickNotifyPacket;
+import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
 import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
 
 /**

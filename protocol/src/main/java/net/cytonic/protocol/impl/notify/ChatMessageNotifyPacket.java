@@ -1,4 +1,4 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.util.Set;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.impl.notifyPackets.ChatMessageNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket.Packet;
 
 public class ChatMessageNotifyPacket extends NoResponse<Packet> {
 

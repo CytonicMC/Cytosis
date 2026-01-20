@@ -14,7 +14,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.impl.notifyPackets.FriendNotifyPacket;
+import net.cytonic.protocol.impl.notify.FriendNotifyPacket;
 import net.cytonic.protocol.impl.objects.FriendApiIdProtocolObject;
 import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
 

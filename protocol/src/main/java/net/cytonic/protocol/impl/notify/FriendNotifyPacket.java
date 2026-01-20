@@ -1,4 +1,4 @@
-package net.cytonic.protocol.impl.notifyPackets;
+package net.cytonic.protocol.impl.notify;
 
 import java.util.UUID;
 
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.impl.notifyPackets.FriendNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notify.FriendNotifyPacket.Packet;
 import net.cytonic.protocol.impl.objects.FriendApiProtocolObject.Response;
 import net.cytonic.protocol.utils.NatsAPI;
 

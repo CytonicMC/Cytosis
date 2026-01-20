@@ -21,7 +21,7 @@ import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
-import net.cytonic.protocol.impl.notifyPackets.PlayerRankUpdateNotifyPacket;
+import net.cytonic.protocol.impl.notify.PlayerRankUpdateNotifyPacket;
 
 /**
  * A command that allows players to change another player's rank
