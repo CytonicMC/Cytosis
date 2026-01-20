@@ -6,8 +6,8 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.NotifyHandler;
-import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.ServerStatusNotifyPacket;
+import net.cytonic.protocol.utils.NotifyHandler;
 
 public class ServerStatusNotifyListener {
 

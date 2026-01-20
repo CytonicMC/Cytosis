@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.data.objects;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.protocol.notifyPackets.ServerStatusNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.ServerStatusNotifyPacket;
 
 /**
  * A class that holds data about a Cytosis server

@@ -12,8 +12,6 @@ import io.github.classgraph.ScanResult;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import net.cytonic.protocol.ExcludeFromClassGraph;
-
 @Slf4j
 @UtilityClass
 public class ClassGraphUtils {

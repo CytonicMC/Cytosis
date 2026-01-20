@@ -43,8 +43,8 @@ import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.notifyPackets.PlayerKickNotifyPacket;
-import net.cytonic.protocol.objects.FriendApiProtocolObject;
+import net.cytonic.protocol.impl.notifyPackets.PlayerKickNotifyPacket;
+import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
 
 /**
  * A wrapper class for the {@link Player} object which includes a few more useful utilities that avoids calling the

@@ -12,8 +12,8 @@ import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.NotifyHandler;
-import net.cytonic.protocol.notifyPackets.FriendNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.FriendNotifyPacket;
+import net.cytonic.protocol.utils.NotifyHandler;
 
 public class FriendNotifyListener {
 

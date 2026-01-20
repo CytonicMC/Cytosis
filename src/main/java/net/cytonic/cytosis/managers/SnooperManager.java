@@ -29,7 +29,7 @@ import net.cytonic.cytosis.snooper.SnooperReceiveEvent;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.notifyPackets.SnooperNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.SnooperNotifyPacket;
 
 @CytosisComponent(dependsOn = {MysqlDatabase.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {

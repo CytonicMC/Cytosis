@@ -18,7 +18,7 @@ import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.ChatMessageNotifyPacket;
 
 public class MsgCommand extends CytosisCommand {
 

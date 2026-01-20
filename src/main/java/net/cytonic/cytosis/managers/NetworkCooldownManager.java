@@ -17,8 +17,8 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
-import net.cytonic.protocol.notifyPackets.CooldownUpdateNotifyPacket;
-import net.cytonic.protocol.notifyPackets.CooldownUpdateNotifyPacket.Type;
+import net.cytonic.protocol.impl.notifyPackets.CooldownUpdateNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.CooldownUpdateNotifyPacket.Type;
 
 /**
  * A class that handles network-wide cooldowns that sync across servers

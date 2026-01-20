@@ -26,7 +26,7 @@ import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.notifyPackets.PlayerKickNotifyPacket;
+import net.cytonic.protocol.impl.notifyPackets.PlayerKickNotifyPacket;
 
 /**
  * A command that allows authorized players to ban players.

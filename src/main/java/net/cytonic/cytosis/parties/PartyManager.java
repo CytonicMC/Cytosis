@@ -18,13 +18,13 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
+import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.PartyResponse;
 
 @CytosisComponent(dependsOn = {NatsManager.class, CytonicNetwork.class})
 public class PartyManager implements Bootstrappable {

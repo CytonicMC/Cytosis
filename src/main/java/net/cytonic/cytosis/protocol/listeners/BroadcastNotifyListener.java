@@ -4,8 +4,8 @@ import com.google.errorprone.annotations.Keep;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.NotifyListener;
-import net.cytonic.protocol.notifyPackets.BroadcastNotifyPacket.Packet;
+import net.cytonic.protocol.impl.notifyPackets.BroadcastNotifyPacket.Packet;
+import net.cytonic.protocol.notify.NotifyListener;
 
 @Keep
 public class BroadcastNotifyListener implements NotifyListener<Packet> {
