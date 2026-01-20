@@ -2,21 +2,19 @@ package net.cytonic.cytosis.events;
 
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
-import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerPacketOutEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.network.packet.client.play.ClientInteractEntityPacket;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
@@ -60,16 +58,17 @@ public final class ServerEventListeners {
 
     @Listener
     @Priority(1)
-    private void onInteract(PlayerEntityInteractEvent event) {
-        if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-        if (event.getHand() == PlayerHand.OFF) return;
-
-        Entity target = event.getTarget();
-        NPC npc = Cytosis.get(NpcManager.class).getNPC(player, target);
-        if (npc == null) return;
-
-        NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.INTERACT, npc);
-        EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
+    private void onPacketIn(PlayerPacketEvent event) {
+        if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
+        if (event.getPacket() instanceof ClientInteractEntityPacket interactEntityPacket) {
+            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, interactEntityPacket.targetId());
+            if (npc == null) return;
+            NpcInteractType type =
+                interactEntityPacket.type() instanceof ClientInteractEntityPacket.Attack ? NpcInteractType.ATTACK
+                    : NpcInteractType.INTERACT;
+            NPCInteractEvent clickEvent = new NPCInteractEvent(player, type, npc);
+            EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
+        }
     }
 
     @Listener
@@ -212,18 +211,5 @@ public final class ServerEventListeners {
         }
         Cytosis.get(NpcManager.class).removePlayer(player);
         PlayerHolograms.removePlayer(player);
-    }
-
-    @Listener
-    @Priority(1)
-    private void onAttack(EntityAttackEvent event) {
-        if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-
-        Entity target = event.getTarget();
-        NPC npc = Cytosis.get(NpcManager.class).getNPC(player, target);
-        if (npc == null) return;
-
-        NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.ATTACK, npc);
-        EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
     }
 }

@@ -35,6 +35,7 @@ public class NavigatePathGoal extends GoalSelector {
         index++;
         if (index >= path.getNodes().size()) {
             index = 0;
+            path.onFinish().accept(entity);
         }
     }
 

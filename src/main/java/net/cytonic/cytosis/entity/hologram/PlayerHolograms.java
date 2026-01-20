@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import lombok.Builder;
@@ -12,50 +13,69 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.metadata.display.TextDisplayMeta;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.MetadataDef;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.InstanceContainer;
-import org.jetbrains.annotations.Nullable;
+import net.minestom.server.network.packet.server.play.DestroyEntitiesPacket;
+import net.minestom.server.network.packet.server.play.EntityTeleportPacket;
+import net.minestom.server.network.packet.server.play.SpawnEntityPacket;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 
 public class PlayerHolograms {
 
     public static final double SPACE = 0.28;
 
-    public static final Map<Hologram, List<HologramEntity>> holograms = new HashMap<>();
+    public static final Map<Hologram, List<Integer>> holograms = new HashMap<>();
 
-    /**
-     * @param entity The entity to add the bottom hologram as passenger
-     */
-    public static void addHologram(Hologram hologram, @Nullable Entity entity) {
-        List<HologramEntity> entities = new ArrayList<>();
-        Instance instance =
-            hologram.getInstance() != null ? hologram.getInstance() : Cytosis.get(InstanceContainer.class);
-        HologramEntity firstEntity = null;
+    public static void addHologram(Hologram hologram) {
+        List<Integer> entities = new ArrayList<>();
         for (int i = 0; i < hologram.lines.size(); i++) {
-            double y = 0.20d + ((hologram.lines.size() - 1 - i) * SPACE);
-            HologramEntity hologramEntity = new HologramEntity(hologram.lines.get(i));
-            hologramEntity.setInstance(instance, hologram.pos);
-            hologramEntity.editEntityMeta(TextDisplayMeta.class, meta -> meta.setTranslation(new Vec(0, y, 0)));
-            hologramEntity.addViewer(hologram.player);
-            entities.add(hologramEntity);
+            double y = (hologram.lines.size() - 1 - i) * SPACE;
+            int entityId = Entity.generateId();
+            entities.add(entityId);
 
-            if (entity != null && firstEntity == null) {
-                firstEntity = hologramEntity;
-                entity.addPassenger(firstEntity);
-                continue;
-            }
-            if (firstEntity != null) {
-                firstEntity.addPassenger(hologramEntity);
-            }
+            hologram.player.sendPackets(
+                new SpawnEntityPacket(entityId, UUID.randomUUID(), EntityType.TEXT_DISPLAY, hologram.pos.add(0, y, 0),
+                    0, 0, Vec.ZERO),
+                MetadataPacketBuilder.empty(entityId)
+                    .setTextComponent(MetadataDef.TextDisplay.TEXT.index(), hologram.lines.get(i))
+                    .setByte(MetadataDef.TextDisplay.BILLBOARD_CONSTRAINTS.index(), (byte) 3) // CENTER
+                    .setBoolean(MetadataDef.TextDisplay.HAS_NO_GRAVITY.index(), true)
+                    .setVarInt(MetadataDef.TextDisplay.LINE_WIDTH.index(), 1000)
+                    .build()
+            );
         }
         holograms.put(hologram, entities);
     }
 
+    public static void updateHologram(Hologram hologram, Pos pos) {
+        List<Integer> entities = holograms.get(hologram);
+        if (entities != null) {
+            for (int i = 0; i < hologram.lines.size(); i++) {
+                double y = (hologram.lines.size() - 1 - i) * SPACE;
+                int entityId = entities.get(i);
+                hologram.player.sendPacket(new EntityTeleportPacket(entityId, pos.add(0, y, 0), Vec.ZERO, 0, false));
+            }
+        }
+    }
+
+    public static void removeHologram(Hologram hologram) {
+        List<Integer> entities = holograms.remove(hologram);
+        if (entities != null) {
+            hologram.player.sendPacket(new DestroyEntitiesPacket(entities));
+        }
+    }
+
     public static void removePlayer(CytosisPlayer player) {
-        holograms.entrySet().removeIf(entry -> entry.getKey().getPlayer().equals(player));
+        holograms.entrySet().removeIf(entry -> {
+            if (entry.getKey().getPlayer().equals(player)) {
+                player.sendPacket(new DestroyEntitiesPacket(entry.getValue()));
+                return true;
+            }
+            return false;
+        });
     }
 
     @Builder

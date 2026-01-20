@@ -9,6 +9,7 @@ import net.minestom.server.instance.InstanceContainer;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.entity.npc.pathfinding.Path;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
 public interface NPCConfiguration {
@@ -16,6 +17,11 @@ public interface NPCConfiguration {
     List<Component> holograms(CytosisPlayer player);
 
     Pos position(CytosisPlayer player);
+
+    @Nullable
+    default Path path(CytosisPlayer player) {
+        return null;
+    }
 
     default boolean looking(CytosisPlayer player) {
         return false;
