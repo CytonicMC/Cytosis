@@ -12,7 +12,7 @@ public @interface NotifyHandler {
     /**
      * Sets the subject
      * <p>
-     * This will only work if the ProtocolObject's first paramiter is a {@code String}
+     * This will only work if the ProtocolObject's first parameter is a {@code String}
      * <p>
      * It will be an empty string if not set
      *
