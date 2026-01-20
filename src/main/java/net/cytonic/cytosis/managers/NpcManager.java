@@ -116,7 +116,7 @@ public class NpcManager implements Bootstrappable {
             NPCConfiguration config = npc.getConfig();
             Pos npcPos = config.position(player);
             double distanceSquared = player.getPosition().distanceSquared(npcPos);
-            boolean inRange = distanceSquared <= (NPC.SPAWN_DISTANCE * NPC.SPAWN_DISTANCE);
+            boolean inRange = distanceSquared <= NPC.SPAWN_DISTANCE_SQUARED;
 
             if (!playerNPCs.containsKey(player.getUuid()) || !playerNPCs.get(player.getUuid()).containsKey(npc)) {
                 if (!inRange) return;
@@ -171,7 +171,7 @@ public class NpcManager implements Bootstrappable {
                 return;
             }
 
-            if (config.looking(player) && distanceSquared <= (NPC.LOOK_DISTANCE * NPC.LOOK_DISTANCE)) {
+            if (config.looking(player) && distanceSquared <= NPC.LOOK_DISTANCE_SQUARED) {
                 Pos lookPos = entity.getPosition().withLookAt(player.getPosition().add(0, player.getEyeHeight(), 0));
                 player.sendPackets(
                     new EntityRotationPacket(entity.getEntityId(), lookPos.yaw(), lookPos.pitch(), player.isOnGround()),

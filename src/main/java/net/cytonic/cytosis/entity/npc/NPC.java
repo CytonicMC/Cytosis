@@ -14,7 +14,9 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 public abstract class NPC {
 
     public static final int SPAWN_DISTANCE = 48;
+    public static final int SPAWN_DISTANCE_SQUARED = SPAWN_DISTANCE * SPAWN_DISTANCE;
     public static final int LOOK_DISTANCE = 5;
+    public static final int LOOK_DISTANCE_SQUARED = LOOK_DISTANCE * LOOK_DISTANCE;
 
     @Getter
     private final NPCConfiguration config;
