@@ -3,6 +3,7 @@ package net.cytonic.protocol.notifyPackets;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.protocol.Message;
@@ -10,6 +11,7 @@ import net.cytonic.protocol.NoResponse;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.notifyPackets.ChatMessageNotifyPacket.Packet;
 
+@Internal
 public class ChatMessageNotifyPacket extends NoResponse<Packet> {
 
     @Override
@@ -17,6 +19,7 @@ public class ChatMessageNotifyPacket extends NoResponse<Packet> {
         return "chat.message";
     }
 
+    @Internal
     public record Packet(
         @Nullable Set<UUID> recipients,
         String channel,

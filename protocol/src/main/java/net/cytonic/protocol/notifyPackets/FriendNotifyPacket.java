@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
@@ -13,6 +14,7 @@ import net.cytonic.protocol.utils.NatsAPI;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Internal
 public class FriendNotifyPacket extends ProtocolObject<Packet, Response> {
 
     private String subject;
@@ -22,6 +24,7 @@ public class FriendNotifyPacket extends ProtocolObject<Packet, Response> {
         return subject;
     }
 
+    @Internal
     public record Packet(UUID sender, UUID recipient) implements Message<Packet, Response> {
 
         @Override

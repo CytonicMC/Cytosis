@@ -3,6 +3,7 @@ package net.cytonic.protocol.objects.parties;
 import java.util.UUID;
 
 import com.google.gson.annotations.SerializedName;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.protocol.Message;
@@ -10,6 +11,7 @@ import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.objects.parties.PartyInviteProtocolObject.Packet;
 import net.cytonic.protocol.responses.PartyResponse;
 
+@Internal
 public class PartyInviteProtocolObject extends ProtocolObject<Packet, PartyResponse> {
 
     @Override
@@ -17,6 +19,7 @@ public class PartyInviteProtocolObject extends ProtocolObject<Packet, PartyRespo
         return "party.invites.send";
     }
 
+    @Internal
     public record Packet(
         @Nullable
         @SerializedName("party_id")

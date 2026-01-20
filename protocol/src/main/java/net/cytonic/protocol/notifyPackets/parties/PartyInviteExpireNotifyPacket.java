@@ -3,11 +3,13 @@ package net.cytonic.protocol.notifyPackets.parties;
 import java.util.UUID;
 
 import com.google.gson.annotations.SerializedName;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NotifyPacket;
 import net.cytonic.protocol.notifyPackets.parties.PartyInviteExpireNotifyPacket.Packet;
 
+@Internal
 public class PartyInviteExpireNotifyPacket extends NotifyPacket<Packet> {
 
     @Override
@@ -15,6 +17,7 @@ public class PartyInviteExpireNotifyPacket extends NotifyPacket<Packet> {
         return "party.invites.expire";
     }
 
+    @Internal
     public record Packet(
         @SerializedName("request_id")
         UUID request,
