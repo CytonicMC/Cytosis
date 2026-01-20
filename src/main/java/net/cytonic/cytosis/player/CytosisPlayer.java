@@ -19,6 +19,7 @@ import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
@@ -39,7 +40,10 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.protocol.data.enums.KickReason;
+import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.data.objects.Party;
+import net.cytonic.protocol.notifyPackets.PlayerKickNotifyPacket;
 import net.cytonic.protocol.objects.FriendApiProtocolObject;
 
 /**
@@ -327,6 +331,11 @@ public class CytosisPlayer extends CombatPlayerImpl {
         return getTrueUsername();
     }
 
+    @Override
+    public void kick(@NonNull Component message) {
+        kick(KickReason.UNKNOWN, message);
+    }
+
     /**
      * Returns if this player has helper (or higher) permissions
      *
@@ -491,5 +500,23 @@ public class CytosisPlayer extends CombatPlayerImpl {
                 .sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID),
                     false);
         }
+    }
+
+    /**
+     * Removes the player from this server, and possibly the entire network.
+     *
+     * @param reason  The reason to kick the player. If {@link KickReason#isRescuable()} is true, the proxy will try to
+     *                reroute the player to a different server. Otherwise, the player's connection is terminated and the
+     *                supplied message is shown.
+     * @param message The message to send to the client. This may or may not be displayed to the client.
+     */
+    public void kick(KickReason reason, @Nullable Component message) {
+        if (message == null) {
+            message = Component.text("No reason specified.");
+        }
+        if (reason == null) {
+            reason = KickReason.UNKNOWN;
+        }
+        new PlayerKickNotifyPacket.Packet(getUuid(), reason, new JsonComponent(message)).publish();
     }
 }
