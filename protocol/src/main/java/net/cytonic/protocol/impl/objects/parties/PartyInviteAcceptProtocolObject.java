@@ -1,0 +1,22 @@
+package net.cytonic.protocol.impl.objects.parties;
+
+import java.util.UUID;
+
+import com.google.gson.annotations.SerializedName;
+
+import net.cytonic.protocol.Message;
+import net.cytonic.protocol.ProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyInviteAcceptProtocolObject.Packet;
+import net.cytonic.protocol.impl.responses.PartyResponse;
+
+public class PartyInviteAcceptProtocolObject extends ProtocolObject<Packet, PartyResponse> {
+
+    @Override
+    public String getSubject() {
+        return "party.invites.accept";
+    }
+
+    public record Packet(@SerializedName("request_id") UUID request) implements Message<Packet, PartyResponse> {
+
+    }
+}

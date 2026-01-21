@@ -25,16 +25,16 @@ import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.snooper.SnoopPersistenceManager;
 import net.cytonic.cytosis.snooper.SnooperChannel;
-import net.cytonic.cytosis.snooper.SnooperRecieveEvent;
+import net.cytonic.cytosis.snooper.SnooperReceiveEvent;
 import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.JsonComponent;
-import net.cytonic.protocol.notifyPackets.SnooperNotifyPacket;
+import net.cytonic.protocol.impl.notify.SnooperNotifyPacket;
 
 @CytosisComponent(dependsOn = {MysqlDatabase.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {
 
-    private final Map<SnooperRecieveEvent, Predicate<SnooperRecieveEvent>> events = new ConcurrentHashMap<>();
+    private final Map<SnooperReceiveEvent, Predicate<SnooperReceiveEvent>> events = new ConcurrentHashMap<>();
     private final SnooperRegistry registry = new SnooperRegistry();
     @Getter
     private SnoopPersistenceManager persistenceManager;
@@ -124,11 +124,11 @@ public class SnooperManager implements Bootstrappable {
     }
 
     /**
-     * A mirror of {@link SnooperManager#onSnoop(SnooperRecieveEvent, Predicate)} with an unrestrictive predicate.
+     * A mirror of {@link SnooperManager#onSnoop(SnooperReceiveEvent, Predicate)} with an unrestrictive predicate.
      *
      * @param event The reception event, used to monitor.
      */
-    public void onSnoop(SnooperRecieveEvent event) {
+    public void onSnoop(SnooperReceiveEvent event) {
         onSnoop(event, ignored -> true);
     }
 
@@ -139,7 +139,7 @@ public class SnooperManager implements Bootstrappable {
      * @param event     The reception event
      * @param predicate The predicate used to filter the messsages
      */
-    public void onSnoop(SnooperRecieveEvent event, Predicate<SnooperRecieveEvent> predicate) {
+    public void onSnoop(SnooperReceiveEvent event, Predicate<SnooperReceiveEvent> predicate) {
         events.put(event, predicate);
     }
 

@@ -10,8 +10,8 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.objects.SendPlayerToServerProtocolObject;
-import net.cytonic.protocol.objects.SendPlayerToServerTypeProtocolObject;
+import net.cytonic.protocol.impl.objects.SendPlayerToServerProtocolObject;
+import net.cytonic.protocol.impl.objects.SendPlayerToServerTypeProtocolObject;
 
 @CytosisComponent
 @NoArgsConstructor

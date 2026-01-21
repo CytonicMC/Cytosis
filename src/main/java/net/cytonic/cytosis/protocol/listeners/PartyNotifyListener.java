@@ -6,13 +6,13 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.protocol.NotifyData;
-import net.cytonic.protocol.NotifyHandler;
-import net.cytonic.protocol.notifyPackets.parties.PartyCreateNotifyPacket;
-import net.cytonic.protocol.notifyPackets.parties.PartyInviteExpireNotifyPacket;
-import net.cytonic.protocol.notifyPackets.parties.PartyInviteNotifyPacket;
-import net.cytonic.protocol.objects.parties.PartyOnePlayerProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyStateProtocolObject;
-import net.cytonic.protocol.objects.parties.PartyTwoPlayerProtocolObject;
+import net.cytonic.protocol.impl.notify.parties.PartyCreateNotifyPacket;
+import net.cytonic.protocol.impl.notify.parties.PartyInviteExpireNotifyPacket;
+import net.cytonic.protocol.impl.notify.parties.PartyInviteNotifyPacket;
+import net.cytonic.protocol.impl.objects.parties.PartyOnePlayerProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyStateProtocolObject;
+import net.cytonic.protocol.impl.objects.parties.PartyTwoPlayerProtocolObject;
+import net.cytonic.protocol.utils.NotifyHandler;
 
 @CytosisComponent(dependsOn = PartyManager.class)
 public class PartyNotifyListener {
