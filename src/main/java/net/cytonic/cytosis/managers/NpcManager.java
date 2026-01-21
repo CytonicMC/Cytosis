@@ -22,7 +22,7 @@ import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
-import net.cytonic.protocol.ExcludeFromClassGraph;
+import net.cytonic.protocol.utils.ExcludeFromClassGraph;
 
 /**
  * A class that manages NPCs
