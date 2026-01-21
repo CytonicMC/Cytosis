@@ -9,6 +9,7 @@ public record DialogActionElement(Consumer<Dialog> consumer) implements DialogEl
 
     @Override
     public void run(Dialog dialog, int index) {
+        if (dialog.isFinished()) return;
         consumer.accept(dialog);
         sendNextElement(dialog, index);
     }

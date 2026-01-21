@@ -11,6 +11,7 @@ public record DialogMessageElement(Component message) implements DialogElement {
 
     @Override
     public void run(Dialog dialog, int index) {
+        if (dialog.isFinished()) return;
         Component message = dialog.getNpc().getName()
             .append(Msg.grey(": "))
             .append(message());

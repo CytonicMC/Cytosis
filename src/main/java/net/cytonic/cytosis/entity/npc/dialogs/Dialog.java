@@ -51,7 +51,7 @@ public class Dialog {
 
     public Dialog messageIf(Function<CytosisPlayer, Boolean> condition, Component message) {
         if (condition.apply(player)) {
-            return message(message);
+            elements.add(new DialogMessageElement(message));
         }
         return this;
     }
@@ -72,7 +72,7 @@ public class Dialog {
 
     public Dialog optionIf(boolean condition, Component text, Consumer<Dialog> callback) {
         if (condition) {
-            return option(text, callback);
+            elements.add(new DialogOptionElement(text, callback, p -> true));
         }
         return this;
     }
@@ -88,11 +88,20 @@ public class Dialog {
     }
 
     public void send() {
+        if (elements.isEmpty()) {
+            end();
+            return;
+        }
+        finished = false;
         sendElements(0);
     }
 
     void sendElements(int index) {
-        if (index >= elements.size() || finished) {
+        if (finished) {
+            return;
+        }
+        if (index >= elements.size()) {
+            end();
             return;
         }
 
@@ -104,11 +113,23 @@ public class Dialog {
         usedOptionGroups.add(startIndex);
     }
 
+    public void clearElements() {
+        elements.clear();
+        usedOptionGroups.clear();
+        finished = false;
+    }
+
     public boolean isOptionGroupUsed(int startIndex) {
         return usedOptionGroups.contains(startIndex);
     }
 
     public void end() {
+        end(true);
+    }
+
+    public void end(boolean remove) {
+        if (finished && !remove) return;
         finished = true;
+        if (remove) npc.removeDialog(player);
     }
 }

@@ -61,12 +61,22 @@ public final class ServerEventListeners {
     private void onPacketIn(PlayerPacketEvent event) {
         if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
         if (event.getPacket() instanceof ClientInteractEntityPacket interactEntityPacket) {
+            ClientInteractEntityPacket.Type packetType = interactEntityPacket.type();
+            if (packetType instanceof ClientInteractEntityPacket.Interact) {
+                return;
+            }
+            if (!(packetType instanceof ClientInteractEntityPacket.Attack)) {
+                if (!(packetType instanceof ClientInteractEntityPacket.InteractAt interactAt)) {
+                    return;
+                }
+                if (interactAt.hand().ordinal() != 0) return;
+            }
             NPC npc = Cytosis.get(NpcManager.class).getNPC(player, interactEntityPacket.targetId());
             if (npc == null) return;
-            NpcInteractType type =
+            NpcInteractType interactType =
                 interactEntityPacket.type() instanceof ClientInteractEntityPacket.Attack ? NpcInteractType.ATTACK
                     : NpcInteractType.INTERACT;
-            NPCInteractEvent clickEvent = new NPCInteractEvent(player, type, npc);
+            NPCInteractEvent clickEvent = new NPCInteractEvent(player, interactType, npc);
             EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
         }
     }

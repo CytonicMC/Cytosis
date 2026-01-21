@@ -17,8 +17,11 @@ public record DialogDelayElement(@Range(from = 1, to = Integer.MAX_VALUE) int ti
 
     @Override
     public void run(Dialog dialog, int index) {
-        MinecraftServer.getSchedulerManager().buildTask(() ->
-                sendNextElement(dialog, index))
+        if (dialog.isFinished()) return;
+        MinecraftServer.getSchedulerManager().buildTask(() -> {
+                if (dialog.isFinished()) return;
+                sendNextElement(dialog, index);
+            })
             .delay(TaskSchedule.tick(ticks))
             .schedule();
     }

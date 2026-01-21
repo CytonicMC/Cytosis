@@ -24,6 +24,7 @@ public record DialogOptionElement(
 
     @Override
     public void run(Dialog dialog, int index) {
+        if (dialog.isFinished()) return;
         CytosisPlayer player = dialog.getPlayer();
         List<DialogOptionElement> options = new ArrayList<>();
         for (int i = index; i < dialog.getElements().size(); i++) {
@@ -52,6 +53,7 @@ public record DialogOptionElement(
                             }
 
                             dialog.markOptionGroupUsed(index);
+                            dialog.clearElements();
                             option.callback().accept(dialog);
                         },
                         ClickCallback.Options.builder()
@@ -60,5 +62,11 @@ public record DialogOptionElement(
                             .build()));
             player.sendMessage(clickable);
         }
+        dialog.end(false);
+    }
+
+    @Override
+    public void sendNextElement(Dialog dialog, int index) {
+        // Do nothing, we want to stop the dialog here
     }
 }
