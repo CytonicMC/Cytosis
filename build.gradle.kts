@@ -110,8 +110,6 @@ tasks.withType<Javadoc> {
     javadocOptions.encoding = "UTF-8"
 }
 
-val bundled = gradle.startParameter.taskNames.any { it.contains("fatJar") || it.contains("fatShadow") }
-
 sourceSets {
     main {
         blossom {
@@ -119,7 +117,11 @@ sourceSets {
                 property("buildVersion", project.version.toString())
                 property("gitCommit", indraGit.commit().get().name())
                 properties.put("builtAt", System.currentTimeMillis())
-                properties.put("dependenciesBundled", bundled)
+                properties.put(
+                    "dependenciesBundled",
+                    gradle.taskGraph.hasTask(":fatShadow")
+                            || gradle.taskGraph.hasTask(":fatJar")
+                )
             }
         }
     }
