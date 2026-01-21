@@ -1,9 +1,7 @@
 package net.cytonic.cytosis.entity.hologram;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -27,7 +25,7 @@ public class PlayerHolograms {
 
     public static final double SPACE = 0.28;
 
-    public static final Map<Hologram, List<Integer>> holograms = new HashMap<>();
+    public static final List<Hologram> holograms = new ArrayList<>();
 
     public static void addHologram(Hologram hologram) {
         List<Integer> entities = new ArrayList<>();
@@ -47,11 +45,12 @@ public class PlayerHolograms {
                     .build()
             );
         }
-        holograms.put(hologram, entities);
+        hologram.entityIds.addAll(entities);
+        holograms.add(hologram);
     }
 
     public static void updateHologram(Hologram hologram, Pos pos) {
-        List<Integer> entities = holograms.get(hologram);
+        List<Integer> entities = hologram.entityIds;
         if (entities != null) {
             for (int i = 0; i < hologram.lines.size(); i++) {
                 double y = (hologram.lines.size() - 1 - i) * SPACE;
@@ -62,16 +61,17 @@ public class PlayerHolograms {
     }
 
     public static void removeHologram(Hologram hologram) {
-        List<Integer> entities = holograms.remove(hologram);
+        holograms.remove(hologram);
+        List<Integer> entities = hologram.entityIds;
         if (entities != null) {
             hologram.player.sendPacket(new DestroyEntitiesPacket(entities));
         }
     }
 
     public static void removePlayer(CytosisPlayer player) {
-        holograms.entrySet().removeIf(entry -> {
-            if (entry.getKey().getPlayer().equals(player)) {
-                player.sendPacket(new DestroyEntitiesPacket(entry.getValue()));
+        holograms.removeIf(hologram -> {
+            if (hologram.getPlayer().equals(player)) {
+                player.sendPacket(new DestroyEntitiesPacket(hologram.entityIds));
                 return true;
             }
             return false;
@@ -89,5 +89,7 @@ public class PlayerHolograms {
         private final Function<CytosisPlayer, List<Component>> displayFunction;
         @Builder.Default
         private final double spacing = 0.3;
+        @Builder.Default
+        private final List<Integer> entityIds = new ArrayList<>();
     }
 }

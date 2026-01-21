@@ -6,8 +6,10 @@ import org.jetbrains.annotations.Range;
 
 import net.cytonic.cytosis.entity.npc.dialogs.Dialog;
 import net.cytonic.cytosis.entity.npc.dialogs.DialogElement;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
-public record DialogDelayElement(@Range(from = 1, to = Integer.MAX_VALUE) int ticks) implements DialogElement {
+public record DialogDelayElement<P extends CytosisPlayer>(@Range(from = 1, to = Integer.MAX_VALUE) int ticks)
+    implements DialogElement<P> {
 
     public DialogDelayElement {
         if (ticks <= 0) {
@@ -16,11 +18,11 @@ public record DialogDelayElement(@Range(from = 1, to = Integer.MAX_VALUE) int ti
     }
 
     @Override
-    public void run(Dialog dialog, int index) {
+    public void run(P player, Dialog<P> dialog, int index) {
         if (dialog.isFinished()) return;
         MinecraftServer.getSchedulerManager().buildTask(() -> {
                 if (dialog.isFinished()) return;
-                sendNextElement(dialog, index);
+                sendNextElement(player, dialog, index);
             })
             .delay(TaskSchedule.tick(ticks))
             .schedule();

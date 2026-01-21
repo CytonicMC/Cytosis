@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -22,91 +23,98 @@ import net.cytonic.cytosis.utils.Msg;
 
 @Getter
 @SuppressWarnings("unused")
-public class Dialog {
+public class Dialog<P extends CytosisPlayer> {
 
     private final NPC npc;
-    private final CytosisPlayer player;
-    private final List<DialogElement> elements = new ArrayList<>();
+    private final List<DialogElement<P>> elements = new ArrayList<>();
     private final List<ClickCallback<?>> clickCallbacks = new ArrayList<>();
     private final Set<Integer> usedOptionGroups = new HashSet<>();
     private boolean finished = false;
 
-    public Dialog(NPC npc, CytosisPlayer player) {
+    public Dialog(NPC npc) {
         this.npc = npc;
-        this.player = player;
     }
 
-    public Dialog message(String message) {
+    public Dialog<P> message(String message) {
         return message(Msg.mm(message));
     }
 
-    public Dialog message(Component message) {
-        elements.add(new DialogMessageElement(message));
+    public Dialog<P> message(Component message) {
+        elements.add(new DialogMessageElement<>(message));
         return this;
     }
 
-    public Dialog messageIf(boolean condition, Component message) {
-        return messageIf(_ -> condition, message);
+    public Dialog<P> messageIf(boolean condition, Component message) {
+        return messageIf(() -> condition, message);
     }
 
-    public Dialog messageIf(Function<CytosisPlayer, Boolean> condition, Component message) {
-        if (condition.apply(player)) {
-            elements.add(new DialogMessageElement(message));
+    public Dialog<P> messageIf(Supplier<Boolean> condition, Component message) {
+        if (condition.get()) {
+            elements.add(new DialogMessageElement<>(message));
         }
         return this;
     }
 
-    public Dialog delay(int ticks) {
-        elements.add(new DialogDelayElement(ticks));
+    public Dialog<P> delay(int ticks) {
+        elements.add(new DialogDelayElement<>(ticks));
         return this;
     }
 
-    public Dialog option(String text, Consumer<Dialog> callback) {
+    public Dialog<P> option(String text, BiConsumer<P, Dialog<P>> callback) {
         return option(Msg.mm(text), callback);
     }
 
-    public Dialog option(Component text, Consumer<Dialog> callback) {
-        elements.add(new DialogOptionElement(text, callback, p -> true));
+    public Dialog<P> option(String text, Consumer<Dialog<P>> callback) {
+        return option(Msg.mm(text), callback);
+    }
+
+    public Dialog<P> option(Component text, BiConsumer<P, Dialog<P>> callback) {
+        elements.add(new DialogOptionElement<>(text, callback, p -> true));
         return this;
     }
 
-    public Dialog optionIf(boolean condition, Component text, Consumer<Dialog> callback) {
+    public Dialog<P> option(Component text, Consumer<Dialog<P>> callback) {
+        elements.add(new DialogOptionElement<>(text, (_, dialog) -> callback.accept(dialog), p -> true));
+        return this;
+    }
+
+    public Dialog<P> optionIf(boolean condition, Component text, BiConsumer<P, Dialog<P>> callback) {
         if (condition) {
-            elements.add(new DialogOptionElement(text, callback, p -> true));
+            elements.add(new DialogOptionElement<>(text, callback, p -> true));
         }
         return this;
     }
 
-    public Dialog optionWhen(Predicate<CytosisPlayer> predicate, Component text, Consumer<Dialog> callback) {
-        elements.add(new DialogOptionElement(text, callback, predicate));
+    public Dialog<P> optionWhen(Predicate<CytosisPlayer> predicate, Component text, BiConsumer<P, Dialog<P>> callback) {
+        elements.add(new DialogOptionElement<>(text, callback, predicate));
         return this;
     }
 
-    public Dialog execute(Consumer<Dialog> action) {
-        elements.add(new DialogActionElement(action));
+    public Dialog<P> execute(BiConsumer<P, Dialog<P>> action) {
+        elements.add(new DialogActionElement<>(action));
         return this;
     }
 
-    public void send() {
+    public void send(P player) {
         if (elements.isEmpty()) {
-            end();
+            end(player);
             return;
         }
         finished = false;
-        sendElements(0);
+        sendElements(player, 0);
     }
 
-    void sendElements(int index) {
+    void sendElements(P player, int index) {
         if (finished) {
             return;
         }
         if (index >= elements.size()) {
-            end();
+            end(player);
             return;
         }
 
-        DialogElement element = elements.get(index);
-        element.run(this, index);
+        DialogElement<P> element = elements.get(index);
+        element.run(player, this, index);
     }
 
     public void markOptionGroupUsed(int startIndex) {
@@ -123,11 +131,15 @@ public class Dialog {
         return usedOptionGroups.contains(startIndex);
     }
 
-    public void end() {
-        end(true);
+    public void end(P player) {
+        end(player, true);
     }
 
-    public void end(boolean remove) {
+    public static <P extends CytosisPlayer> void end(P player, Dialog<P> dialog) {
+        dialog.end(player);
+    }
+
+    public void end(P player, boolean remove) {
         if (finished && !remove) return;
         finished = true;
         if (remove) npc.removeDialog(player);

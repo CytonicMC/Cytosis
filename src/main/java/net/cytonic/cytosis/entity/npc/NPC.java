@@ -54,7 +54,7 @@ public abstract class NPC {
     private final Component name;
 
     private final Map<UUID, ViewerData> viewers = new ConcurrentHashMap<>();
-    private final Map<UUID, Dialog> activeDialogs = new ConcurrentHashMap<>();
+    private final Map<UUID, Dialog<? extends CytosisPlayer>> activeDialogs = new ConcurrentHashMap<>();
 
     public NPC(NPCConfiguration config) {
         this.config = config;
@@ -72,11 +72,12 @@ public abstract class NPC {
         return activeDialogs.containsKey(player.getUuid());
     }
 
-    protected Dialog startDialog(CytosisPlayer player) {
+    protected <P extends CytosisPlayer> Dialog<P> startDialog(P player) {
         if (activeDialogs.containsKey(player.getUuid())) {
-            return activeDialogs.get(player.getUuid());
+            //noinspection unchecked
+            return (Dialog<P>) activeDialogs.get(player.getUuid());
         }
-        Dialog dialog = new Dialog(this, player);
+        Dialog<P> dialog = new Dialog<>(this);
         activeDialogs.put(player.getUuid(), dialog);
         return dialog;
     }

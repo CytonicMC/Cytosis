@@ -5,17 +5,19 @@ import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.entity.npc.dialogs.Dialog;
 import net.cytonic.cytosis.entity.npc.dialogs.DialogElement;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public record DialogMessageElement(Component message) implements DialogElement {
+public record DialogMessageElement<P extends CytosisPlayer>(Component message)
+    implements DialogElement<P> {
 
     @Override
-    public void run(Dialog dialog, int index) {
+    public void run(P player, Dialog<P> dialog, int index) {
         if (dialog.isFinished()) return;
         Component message = dialog.getNpc().getName()
             .append(Msg.grey(": "))
             .append(message());
-        dialog.getPlayer().sendMessage(message);
-        sendNextElement(dialog, index);
+        player.sendMessage(message);
+        sendNextElement(player, dialog, index);
     }
 }

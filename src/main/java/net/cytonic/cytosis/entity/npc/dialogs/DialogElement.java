@@ -1,10 +1,12 @@
 package net.cytonic.cytosis.entity.npc.dialogs;
 
-public interface DialogElement {
+import net.cytonic.cytosis.player.CytosisPlayer;
 
-    void run(Dialog dialog, int index);
+public interface DialogElement<P extends CytosisPlayer> {
 
-    default void sendNextElement(Dialog dialog, int index) {
-        dialog.sendElements(index + 1);
+    void run(P player, Dialog<P> dialog, int index);
+
+    default void sendNextElement(P player, Dialog<P> dialog, int index) {
+        dialog.sendElements(player, index + 1);
     }
 }
