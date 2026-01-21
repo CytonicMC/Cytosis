@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({"net.cytonic.cytosis.plugins.annotations.Plugin"})
-@SupportedSourceVersion(SourceVersion.RELEASE_21)
+@SupportedSourceVersion(SourceVersion.RELEASE_25)
 @SupportedOptions({})
 public class PluginAnnotationProcessor implements Processor {
 
