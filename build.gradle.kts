@@ -166,14 +166,14 @@ tasks.register("fatJar") {
     group = "Accessory Build"
     description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
     dependsOn(fatShadow)
-    finalizedBy("copyShadowJarToSecondary", "copyShadowJarToPrimary")
+    finalizedBy("copyShadowJarToSecondary", "copyShadowJarToPrimary", "copyJarForDocker")
 }
 
 tasks.register("thinJar") {
     group = "Accessory Build"
     description = "Builds Cytosis with only essential dependencies. Downloads the rest at runtime."
     dependsOn(thinShadow)
-    finalizedBy("copyJarToSecondary", "copyJarForDocker")
+    finalizedBy("copyJarToSecondary")
 }
 
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
@@ -228,7 +228,6 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
     mergeServiceFiles()
-    archiveFileName.set("cytosis.jar")
     archiveClassifier.set("all")
     destinationDirectory.set(layout.buildDirectory.dir("libs"))
 
@@ -254,6 +253,7 @@ tasks.register<Copy>("copyShadowJarToPrimary") {
     if (providers.gradleProperty("server_dir").isPresent) {
         from(fatShadow.get().archiveFile)
         into(providers.gradleProperty("server_dir"))
+        rename { "cytosis.jar" }
     }
 }
 
@@ -263,6 +263,7 @@ tasks.register<Copy>("copyShadowJarToSecondary") {
     if (providers.gradleProperty("server_dir2").isPresent) {
         from(fatShadow.get().archiveFile)
         into(providers.gradleProperty("server_dir2"))
+        rename { "cytosis.jar" }
     }
 }
 
@@ -271,9 +272,10 @@ tasks.shadowJar {
 }
 
 tasks.register<Copy>("copyJarForDocker") {
-    dependsOn(thinShadow)
-    from(thinShadow.get().archiveFile)
-    into(layout.buildDirectory.dir("libs"))
+    dependsOn(fatShadow)
+    from(fatShadow.get().archiveFile)
+    into(layout.buildDirectory.dir("docker"))
+    rename { "cytosis.jar" }
 }
 
 tasks.register<Copy>("copyJarToSecondary") {
