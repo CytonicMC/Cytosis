@@ -29,9 +29,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
 
       - name: Publish Jar
-        run: ./gradlew --no-daemon publish
+        run: ./gradlew --no-daemon --build-cache --configuration-cache --parallel publish
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
@@ -51,9 +53,11 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
 
       - name: Assemble Jar
-        run: ./gradlew --no-daemon fatJar
+        run: ./gradlew --no-daemon --build-cache --configuration-cache --parallel fatJar
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
