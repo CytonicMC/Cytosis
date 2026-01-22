@@ -31,7 +31,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Publish Jar
-        run: gradle --no-daemon publish
+        run: ./gradlew --no-daemon publish
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
@@ -53,7 +53,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Assemble Jar
-        run: gradle --no-daemon fatJar
+        run: ./gradlew --no-daemon fatJar
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}

@@ -18,10 +18,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Assemble Jar
-        run: gradle --no-daemon thinJar
+        run: ./gradlew --no-daemon thinJar
 
       - name: Run Java docs
-        run: gradle --no-daemon javadoc
+        run: ./gradlew --no-daemon javadoc
 
       - name: Upload jar as artifact
         uses: actions/upload-artifact@v6.0.0
