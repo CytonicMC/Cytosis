@@ -27,47 +27,81 @@ repositories {
     }
 }
 
+val alwaysShadow: Configuration by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
 
-val dependencyDownloadOnly: Configuration by configurations.creating {
+val downloadOrShadow: Configuration by configurations.creating {
     isCanBeResolved = true
     isCanBeConsumed = false
 }
 
 dependencies {
-    download(libs.minestom)
-    download(libs.gson)
-    download(libs.jnats)
-    download(libs.okhttp)
-    download(libs.polar)
-    download(libs.jedis)
-    download(libs.guava)
-    download(libs.minestompvp) {
+    // Always shadowed (in both thin and fat jars) - the essentials
+    alwaysShade(libs.dependencydownload)
+    alwaysShade(project(":protocol"))
+
+    // Downloaded at runtime for thinJar, shadowed in fatJar
+    downloadOrShade(libs.minestom)
+    downloadOrShade(libs.gson)
+    downloadOrShade(libs.jnats)
+    downloadOrShade(libs.okhttp)
+    downloadOrShade(libs.polar)
+    downloadOrShade(libs.jedis)
+    downloadOrShade(libs.guava)
+    downloadOrShade(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
     }
-    download(libs.invui)
-    download(libs.anvilInput)
-    download(libs.configurate)
-    download(libs.classgraph)
-    download(libs.jnats)
-    download(libs.jooq)
-    download(libs.minimessage)
-    download(libs.fastutil)
-    download(libs.hikaricp)
-    download(libs.reflections)
-    download(libs.bundles.log4j)
-    download(libs.bundles.otel)
-    download(libs.mysql)
-
-    implementation(libs.dependencydownload)
-    dependencyDownloadOnly(libs.dependencydownload)
-    implementation(project(":protocol"))
-    dependencyDownloadOnly(project(":protocol"))
+    downloadOrShade(libs.invui)
+    downloadOrShade(libs.anvilInput)
+    downloadOrShade(libs.configurate)
+    downloadOrShade(libs.classgraph)
+    downloadOrShade(libs.jooq)
+    downloadOrShade(libs.minimessage)
+    downloadOrShade(libs.fastutil)
+    downloadOrShade(libs.hikaricp)
+    downloadOrShade(libs.reflections)
+    downloadOrShade(libs.bundles.log4j)
+    downloadOrShade(libs.bundles.otel)
+    downloadOrShade(libs.mysql)
 
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
 }
 
-fun DependencyHandler.download(dependencyNotation: Any) {
+// alwaysShade: Always shadowed in both thin and fat jars
+fun DependencyHandler.alwaysShade(dependencyNotation: Any) {
+    val resolved = when (dependencyNotation) {
+        is Provider<*> -> dependencyNotation.get()
+        else -> dependencyNotation
+    }
+
+    if (resolved is Iterable<*>) {
+        resolved.forEach { dep ->
+            add("api", dep!!)
+            add("alwaysShadow", dep)
+        }
+    } else {
+        add("api", resolved)
+        add("alwaysShadow", resolved)
+    }
+}
+
+fun DependencyHandler.alwaysShade(
+    dependencyNotation: Any,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+) {
+    val resolved = when (dependencyNotation) {
+        is Provider<*> -> dependencyNotation.get()
+        else -> dependencyNotation
+    }
+
+    addDependencyTo(this, "api", resolved, dependencyConfiguration)
+    addDependencyTo(this, "alwaysShadow", resolved, dependencyConfiguration)
+}
+
+fun DependencyHandler.downloadOrShade(dependencyNotation: Any) {
     val resolved = when (dependencyNotation) {
         is Provider<*> -> dependencyNotation.get()
         else -> dependencyNotation
@@ -77,14 +111,16 @@ fun DependencyHandler.download(dependencyNotation: Any) {
         resolved.forEach { dep ->
             add("api", dep!!)
             add("runtimeDownloadOnly", dep)
+            add("downloadOrShadow", dep)
         }
     } else {
         add("api", resolved)
         add("runtimeDownloadOnly", resolved)
+        add("downloadOrShadow", resolved)
     }
 }
 
-fun DependencyHandler.download(
+fun DependencyHandler.downloadOrShade(
     dependencyNotation: Any,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ) {
@@ -93,12 +129,9 @@ fun DependencyHandler.download(
         else -> dependencyNotation
     }
 
-    addDependencyTo(
-        this, "api", resolved, dependencyConfiguration
-    )
-    addDependencyTo(
-        this, "runtimeDownloadOnly", resolved, dependencyConfiguration
-    )
+    addDependencyTo(this, "api", resolved, dependencyConfiguration)
+    addDependencyTo(this, "runtimeDownloadOnly", resolved, dependencyConfiguration)
+    addDependencyTo(this, "downloadOrShadow", resolved, dependencyConfiguration)
 }
 
 tasks.withType<Javadoc> {
@@ -117,17 +150,19 @@ sourceSets {
                 property("buildVersion", project.version.toString())
                 property("gitCommit", indraGit.commit().get().name())
                 properties.put("builtAt", System.currentTimeMillis())
-                properties.put(
-                    "dependenciesBundled",
-                    gradle.taskGraph.hasTask(":fatShadow")
-                            || gradle.taskGraph.hasTask(":fatJar")
-                )
             }
         }
     }
 }
 
-tasks.register("fatJar") { // all included
+gradle.taskGraph.whenReady {
+    val bundled = hasTask(":fatShadow") || hasTask(":fatJar")
+    sourceSets.main.get().blossom.javaSources {
+        properties.put("dependenciesBundled", bundled)
+    }
+}
+
+tasks.register("fatJar") {
     group = "Accessory Build"
     description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
     dependsOn(fatShadow)
@@ -136,14 +171,12 @@ tasks.register("fatJar") { // all included
 
 tasks.register("thinJar") {
     group = "Accessory Build"
-    description = "Builds Cytosis without including any dependencies included in the final jar. <1Mb jar sizes :)"
-
+    description = "Builds Cytosis with only essential dependencies. Downloads the rest at runtime."
     dependsOn(thinShadow)
     finalizedBy("copyJarToSecondary", "copyJarForDocker")
 }
 
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
-//    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
@@ -162,7 +195,7 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     )
     from(sourceSets.main.get().output)
 
-    configurations = listOf(dependencyDownloadOnly)
+    configurations = listOf(alwaysShadow)
 
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
@@ -190,19 +223,7 @@ configurations {
     }
 }
 
-val apiArtifacts: Configuration by configurations.creating {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-    extendsFrom(configurations.getByName("api"))
-}
-
-val apiJars = apiArtifacts
-    .resolvedConfiguration
-    .resolvedArtifacts
-    .map { it.file }
-
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
-//    dependsOn("check")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 
@@ -215,13 +236,12 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     exclude("META-INF/*.DSA")
     exclude("META-INF/*.RSA")
 
+    from(sourceSets.main.get().output)
 
     configurations = listOf(
-        project.configurations.runtimeClasspath.get(),
-        project.configurations.getByName("runtimeDownload"),
-        project.configurations.getByName("runtimeDownloadOnly")
+        alwaysShadow,
+        downloadOrShadow
     )
-    from(sourceSets.main.get().output)
 
     manifest {
         attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
@@ -236,6 +256,7 @@ tasks.register<Copy>("copyShadowJarToPrimary") {
         into(providers.gradleProperty("server_dir"))
     }
 }
+
 tasks.register<Copy>("copyShadowJarToSecondary") {
     dependsOn(fatShadow)
 
@@ -254,6 +275,7 @@ tasks.register<Copy>("copyJarForDocker") {
     from(thinShadow.get().archiveFile)
     into(layout.buildDirectory.dir("libs"))
 }
+
 tasks.register<Copy>("copyJarToSecondary") {
     dependsOn(thinShadow)
 
@@ -276,8 +298,6 @@ publishing {
         maven {
             name = "FoxikleCytonicRepository"
             url = uri("https://repo.foxikle.dev/cytonic")
-//            credentials(PasswordCredentials::class)
-            // Use providers to get the properties or fallback to environment variables
             var u = System.getenv("REPO_USERNAME")
             var p = System.getenv("REPO_PASSWORD")
 
