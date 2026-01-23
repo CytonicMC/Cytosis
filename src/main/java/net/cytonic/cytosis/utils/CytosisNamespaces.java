@@ -72,6 +72,8 @@ public class CytosisNamespaces {
         UUID.class);
     public static final TypedNamespace<Boolean> CHAT_MESSAGE_PING = new TypedNamespace<>(
         Key.key("cytosis", "chat_message_ping"), Boolean.class);
+    public static final TypedNamespace<Boolean> TPS_DEBUG = new TypedNamespace<>(
+        Key.key("cytosis", "chat_message_ping"), Boolean.class);
 
     /**
      * A convenient set of all the namespaces

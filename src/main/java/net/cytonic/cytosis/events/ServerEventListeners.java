@@ -1,9 +1,14 @@
 package net.cytonic.cytosis.events;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
@@ -23,6 +28,7 @@ import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.server.TpsCommand;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
@@ -58,6 +64,8 @@ import net.cytonic.cytosis.utils.Msg;
 public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;
+    public static Set<UUID> TPS_CACHE = new HashSet<>();
+    public static long MEM_USED = 0;
 
     @Listener
     @Priority(1)
@@ -89,6 +97,10 @@ public final class ServerEventListeners {
     @Async
     private void onTick(ServerTickMonitorEvent event) {
         RAW_MSPT = event.getTickMonitor().getTickTime();
+        Runtime rt = Runtime.getRuntime();
+        long used = rt.totalMemory() - rt.freeMemory();
+        MEM_USED = used / 1_000_000;
+        TpsCommand.BAR.name(Component.text("MSPT: " + RAW_MSPT + " |  MEM: " + MEM_USED + "mb", NamedTextColor.GOLD));
     }
 
     @Listener
@@ -168,6 +180,9 @@ public final class ServerEventListeners {
             Cytosis.get(MetricsManager.class)
                 .addToLongCounter("players.unique", 1, Attributes.empty());
         }
+        if (player.getPreference(CytosisPreferences.TPS_DEBUG)) {
+            TPS_CACHE.add(player.getUuid());
+        }
     }
 
     @Listener
@@ -212,6 +227,7 @@ public final class ServerEventListeners {
             .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
+        TPS_CACHE.remove(player.getUuid());
     }
 
     @Listener

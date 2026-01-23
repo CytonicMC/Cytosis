@@ -70,9 +70,12 @@ public class CytosisPreferences {
     public static final NamespacedPreference<Boolean> CHAT_MESSAGE_PING = new NamespacedPreference<>(
         CytosisNamespaces.CHAT_MESSAGE_PING, false);
 
+    public static final NamespacedPreference<Boolean> TPS_DEBUG = new NamespacedPreference<>(
+        CytosisNamespaces.TPS_DEBUG, false);
+
     /**
      * A set of all the preferences that are available here.
      */
     public static final Set<NamespacedPreference<?>> ALL = Set.of(ACCEPT_FRIEND_REQUESTS, SERVER_ALERTS, CHAT_CHANNEL,
-        VANISHED, IGNORED_CHAT_CHANNELS, LISTENING_SNOOPS);
+        VANISHED, IGNORED_CHAT_CHANNELS, LISTENING_SNOOPS, TPS_DEBUG);
 }
