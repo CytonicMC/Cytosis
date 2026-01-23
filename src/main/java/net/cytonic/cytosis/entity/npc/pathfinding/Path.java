@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.npcs.pathfinding;
+package net.cytonic.cytosis.entity.npc.pathfinding;
 
 import java.util.List;
 import java.util.function.Consumer;

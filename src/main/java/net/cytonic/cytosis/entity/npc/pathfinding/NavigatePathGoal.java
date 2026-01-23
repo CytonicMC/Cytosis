@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.npcs.pathfinding;
+package net.cytonic.cytosis.entity.npc.pathfinding;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.EntityCreature;
@@ -35,6 +35,7 @@ public class NavigatePathGoal extends GoalSelector {
         index++;
         if (index >= path.getNodes().size()) {
             index = 0;
+            path.onFinish().accept(entity);
         }
     }
 

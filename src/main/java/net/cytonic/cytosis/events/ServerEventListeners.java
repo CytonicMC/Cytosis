@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.events;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -9,21 +8,19 @@ import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
-import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerPacketOutEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.network.packet.client.play.ClientInteractEntityPacket;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
@@ -35,10 +32,12 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
+import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
+import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
-import net.cytonic.cytosis.events.npcs.NpcInteractEvent;
+import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
@@ -50,7 +49,6 @@ import net.cytonic.cytosis.managers.SideboardManager;
 import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
-import net.cytonic.cytosis.npcs.Npc;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
@@ -69,16 +67,26 @@ public final class ServerEventListeners {
 
     @Listener
     @Priority(1)
-    private void onInteract(PlayerEntityInteractEvent event) {
-        Optional<Npc> optional = Cytosis.get(NpcManager.class).findNpc(event.getTarget().getUuid());
-        if (optional.isPresent() && optional.get() == event.getTarget() && event.getHand() == PlayerHand.MAIN) {
-            Npc npc = optional.get();
-            EventDispatcher.callCancellable(
-                new NpcInteractEvent(npc, (CytosisPlayer) event.getPlayer(), npc.getActions()), () -> {
-                    npc.getActions()
-                        .forEach((action) -> action.execute(npc, NpcInteractType.INTERACT,
-                            (CytosisPlayer) event.getPlayer()));
-                });
+    private void onPacketIn(PlayerPacketEvent event) {
+        if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
+        if (event.getPacket() instanceof ClientInteractEntityPacket interactEntityPacket) {
+            ClientInteractEntityPacket.Type packetType = interactEntityPacket.type();
+            if (packetType instanceof ClientInteractEntityPacket.Interact) {
+                return;
+            }
+            if (!(packetType instanceof ClientInteractEntityPacket.Attack)) {
+                if (!(packetType instanceof ClientInteractEntityPacket.InteractAt interactAt)) {
+                    return;
+                }
+                if (interactAt.hand().ordinal() != 0) return;
+            }
+            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, interactEntityPacket.targetId());
+            if (npc == null) return;
+            NpcInteractType interactType =
+                interactEntityPacket.type() instanceof ClientInteractEntityPacket.Attack ? NpcInteractType.ATTACK
+                    : NpcInteractType.INTERACT;
+            NPCInteractEvent clickEvent = new NPCInteractEvent(player, interactType, npc);
+            EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
         }
     }
 
@@ -227,20 +235,8 @@ public final class ServerEventListeners {
             .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
+        Cytosis.get(NpcManager.class).removePlayer(player);
+        PlayerHolograms.removePlayer(player);
         TPS_CACHE.remove(player.getUuid());
-    }
-
-    @Listener
-    @Priority(1)
-    private void onAttack(EntityAttackEvent event) {
-        if (!(event.getEntity() instanceof CytosisPlayer player)) return;
-        Optional<Npc> optional = Cytosis.get(NpcManager.class).findNpc(event.getTarget().getUuid());
-        if (optional.isPresent() && optional.get() == event.getTarget()) {
-            Npc npc = optional.get();
-            MinecraftServer.getGlobalEventHandler()
-                .callCancellable(new NpcInteractEvent(npc, player, npc.getActions()), () -> {
-                    npc.getActions().forEach((action) -> action.execute(npc, NpcInteractType.ATTACK, player));
-                });
-        }
     }
 }

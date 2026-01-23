@@ -11,7 +11,7 @@ ARG OTEL_HOST
 #ENV OTEL_HOSTNAME=${OTEL_HOST}
 
 # Copy cytosis Jar
-ADD ../../build/libs/cytosis.jar .
+ADD ../../build/docker/cytosis.jar .
 
 # Conditionally copy config.json (if it exists at build time)
 COPY ../../config.json* .
