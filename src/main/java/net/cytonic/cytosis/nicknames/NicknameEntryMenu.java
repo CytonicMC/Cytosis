@@ -4,7 +4,6 @@ import me.devnatan.AnvilInput;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewConfigBuilder;
 import me.devnatan.inventoryframework.ViewType;
-import me.devnatan.inventoryframework.context.CloseContext;
 import me.devnatan.inventoryframework.context.RenderContext;
 import me.devnatan.inventoryframework.state.MutableState;
 import net.minestom.server.command.CommandManager;
@@ -14,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.minestomInventoryFramework.context.CloseContext;
 
 public class NicknameEntryMenu extends View {
 
