@@ -20,11 +20,8 @@ jobs:
       - name: Assemble Jar
         run: ./gradlew --no-daemon thinJar
 
-      - name: Run Java docs
-        run: ./gradlew --no-daemon javadoc
-
-      - name: Upload jar as artifact
+      - name: Upload thinJar
         uses: actions/upload-artifact@v6.0.0
         with:
-          name: cytosis
+          name: thinJar
           path: build/libs/cytosis.jar
