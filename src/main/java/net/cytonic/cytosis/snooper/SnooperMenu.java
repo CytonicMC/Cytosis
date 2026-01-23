@@ -13,7 +13,6 @@ import me.devnatan.inventoryframework.component.Pagination;
 import me.devnatan.inventoryframework.context.IFContext;
 import me.devnatan.inventoryframework.context.OpenContext;
 import me.devnatan.inventoryframework.context.RenderContext;
-import me.devnatan.inventoryframework.context.SlotClickContext;
 import me.devnatan.inventoryframework.state.MutableState;
 import me.devnatan.inventoryframework.state.State;
 import net.kyori.adventure.key.Key;
@@ -29,6 +28,7 @@ import net.cytonic.cytosis.menus.MenuUtils;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.minestomInventoryFramework.context.SlotClickContext;
 
 public class SnooperMenu extends View {
 
