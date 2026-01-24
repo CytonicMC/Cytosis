@@ -6,60 +6,45 @@ import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.utils.Utils;
 
 @Getter
 @Setter
-public class JsonPreference<T> extends NamespacedPreference<T> {
+public class JsonPreference<T> extends Preference<T> {
 
+    //todo: use codecs :)
     private JsonPreferenceSerializer<T> serializer = Cytosis.GSON::toJson;
-    private JsonPreferenceDeserializer<T> deserializer = data -> Cytosis.GSON.fromJson(data, type());
+    private JsonPreferenceDeserializer<T> deserializer = data -> Cytosis.GSON.fromJson(data, getType());
 
     /**
      * Creates a new {@link JsonPreference}, with an optionally null value. The type must be specified manually
      *
-     * @param namespaceID the namespace
-     * @param type        the type of the preference
-     * @param value       the default value, nullable
+     * @param key   the namespace
+     * @param type  the type of the preference
+     * @param value the default value, nullable
      */
-    public JsonPreference(Key namespaceID, Class<T> type, @Nullable T value) {
-        super(namespaceID, type, value);
+    public JsonPreference(Key key, Class<T> type, @Nullable T value) {
+        super(type, key, value);
     }
 
-    public JsonPreference(TypedNamespace<T> namespaceID, @Nullable T value) {
-        super(namespaceID, value);
-    }
-
-    public JsonPreference(Key namespaceID, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer,
+    public JsonPreference(Key key, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer,
         JsonPreferenceDeserializer<T> deserializer) {
-        super(namespaceID, type, value);
+        super(type, key, value);
         this.serializer = serializer;
         this.deserializer = deserializer;
     }
 
-    public JsonPreference(TypedNamespace<T> namespaceID, @Nullable T value, JsonPreferenceSerializer<T> serializer,
-        JsonPreferenceDeserializer<T> deserializer) {
-        super(namespaceID, value);
-        this.serializer = serializer;
-        this.deserializer = deserializer;
-    }
 
     public String serialize() {
-        return serializer.serialize(value());
+        return serializer.serialize(getValue());
     }
 
     public T deserialize(String data) {
         return deserializer.deserialize(data);
     }
 
-    public T deserializeAndSet(String data) {
-        value(deserializer.deserialize(data));
-        return value();
-    }
-
     @Override
     public JsonPreference<T> clone() {
-        return new JsonPreference<>(namespace(), type(), Utils.clone(value()), serializer, deserializer);
+        return new JsonPreference<>(getKey(), getType(), Utils.clone(getValue()), serializer, deserializer);
     }
 }

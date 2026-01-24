@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.commands.debug.preferences;
 
+import java.util.Set;
+
 import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
@@ -19,24 +21,27 @@ public class GetPreferenceCommand extends CytosisCommand {
 
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : Cytosis.get(PreferenceManager.class).getPreferenceRegistry()
-                .namespaces()) {
+            if (!(cmds instanceof CytosisPlayer player)) return;
+            Set<Key> options = Cytosis.get(PreferenceManager.class).getPreferenceRegistry().keys();
+            options.addAll(player.getPreferenceKeys());
+            for (Key preference : options) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
 
         addSyntax((sender, context) -> {
-            if (!(sender instanceof CytosisPlayer player)) {
-                sender.sendMessage(Msg.mm("<red>You must be a player to use this command!"));
-                return;
-            }
+            if (!(sender instanceof CytosisPlayer player)) return;
+
             Key node = Key.key(context.get(nodeArg));
             PreferenceManager manager = Cytosis.get(PreferenceManager.class);
-            Preference<?> preference = manager.getPreferenceRegistry().unsafeGet(node);
+            Preference<?> preference = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
             if (preference == null) {
-                player.sendMessage(
-                    Msg.mm("<red>Preference node <yellow>" + node.asString() + "</yellow> does not exist!"));
+                player.sendMessage(Msg.red("Preference node <yellow>" + node.asString() + "</yellow> does not exist!"));
+                return;
             }
+            player.sendMessage(
+                Msg.pink("Preference node <yellow>" + node.asString() + "</yellow> has a value of '<aqua>%s</aqua>'",
+                    preference.getValue().toString()));
         }, nodeArg);
     }
 }
