@@ -10,7 +10,6 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -23,7 +22,7 @@ public class SetPreferenceCommand extends CytosisCommand {
         PreferenceManager pm = Cytosis.get(PreferenceManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
-            for (Key preference : pm.getPreferenceRegistry().namespaces()) {
+            for (Key preference : pm.getPreferenceRegistry().keys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
         });
@@ -38,28 +37,22 @@ public class SetPreferenceCommand extends CytosisCommand {
             }
 
             Key node = Key.key(context.get(nodeArg));
-            PreferenceManager manager = pm;
-            Preference<?> preference = manager.getPreferenceRegistry().unsafeGet(node);
+            Preference<?> preference = pm.getPlayerPreferenceRaw(player.getUuid(), node);
             if (preference == null) {
                 sender.sendMessage(Msg.red("Preference node <yellow>%s</yellow> does not exist!", node.asString()));
                 return;
             }
 
-            TypedNamespace<?> typedNamespace = pm.getPreferenceRegistry()
-                .typedNamespaces().stream()
-                .filter(ns -> ns.namespaceID().equals(node)).findFirst()
-                .orElseThrow();
-            Class<?> type = typedNamespace.type();
             String raw = context.get(valueArg)[0];
             if (raw.equalsIgnoreCase("null")) {
-                manager.updateplayerpreferenceUnsafe(player.getUuid(), node, null);
+                pm.updatePlayerPreference_UNSAFE(player.getUuid(), node, null);
                 player.sendMessage(Msg.splash("NULLIFIED!", "db0d74",
                     "Successfully set preference node <yellow>%s</yellow> to null.", node.asString()));
                 return;
             }
-            Object value = parseValue(sender, type, raw, context.get(valueArg));
+            Object value = parseValue(sender, preference.getType(), raw, context.get(valueArg));
 
-            manager.updateplayerpreferenceUnsafe(player.getUuid(), node, value);
+            pm.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
             player.sendMessage(Msg.mm(
                 "<green>Successfully updated preference node <yellow>%s</yellow> to <light_purple>'%s'</light_purple>",
                 node.asString(), value));

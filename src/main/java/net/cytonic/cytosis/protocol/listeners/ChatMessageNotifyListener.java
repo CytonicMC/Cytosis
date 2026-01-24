@@ -13,8 +13,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
-import net.cytonic.cytosis.utils.CytosisPreferences;
+import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyListener;
@@ -41,9 +40,9 @@ public class ChatMessageNotifyListener implements NotifyListener<Packet> {
         Sound sound = Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, .7f, 1.0F);
         recipients.forEach(uuid -> Cytosis.getPlayer(uuid).ifPresent(player -> {
             if (!player.canReceiveFromChannel(channel)) return;
-            if (player.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel)) return;
+            if (player.getPreference(Preferences.IGNORED_CHAT_CHANNELS).getForChannel(channel)) return;
 
-            if (player.getPreference(CytosisPreferences.CHAT_MESSAGE_PING)) {
+            if (player.getPreference(Preferences.CHAT_MESSAGE_PING)) {
                 player.playSound(sound);
             }
             player.sendMessage(component);

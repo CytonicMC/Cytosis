@@ -35,6 +35,10 @@ public class Dialog<P extends CytosisPlayer> {
         this.npc = npc;
     }
 
+    public static <P extends CytosisPlayer> void end(P player, Dialog<P> dialog) {
+        dialog.end(player);
+    }
+
     public Dialog<P> message(String message) {
         return message(Msg.mm(message));
     }
@@ -133,10 +137,6 @@ public class Dialog<P extends CytosisPlayer> {
 
     public void end(P player) {
         end(player, true);
-    }
-
-    public static <P extends CytosisPlayer> void end(P player, Dialog<P> dialog) {
-        dialog.end(player);
     }
 
     public void end(P player, boolean remove) {

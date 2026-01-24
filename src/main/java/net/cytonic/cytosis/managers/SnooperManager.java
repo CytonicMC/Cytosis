@@ -26,8 +26,8 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.snooper.SnoopPersistenceManager;
 import net.cytonic.cytosis.snooper.SnooperChannel;
 import net.cytonic.cytosis.snooper.SnooperReceiveEvent;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.impl.notify.SnooperNotifyPacket;
 
@@ -102,10 +102,10 @@ public class SnooperManager implements Bootstrappable {
                 if (!player.canReceiveSnoop(channel.recipients())) {
                     continue;
                 }
-                if (player.getPreference(CytosisNamespaces.MUTE_SNOOPER)) {
+                if (player.getPreference(Preferences.MUTE_SNOOPER)) {
                     continue;
                 }
-                if (!player.getPreference(CytosisNamespaces.LISTENING_SNOOPS).snoops()
+                if (!player.getPreference(Preferences.LISTENING_SNOOPS).snoops()
                     .contains(channel.id().asString())) {
                     continue;
                 }
@@ -161,23 +161,23 @@ public class SnooperManager implements Bootstrappable {
     }
 
     public void snoop(CytosisPlayer player, @NotNull String channel) {
-        SnoopsContainer container = player.getPreference(CytosisNamespaces.LISTENING_SNOOPS);
+        SnoopsContainer container = player.getPreference(Preferences.LISTENING_SNOOPS);
         if (container.snoops().contains(channel)) {
             player.sendMessage(Msg.whoops(" You are already snooping on the channel '" + channel + "'"));
             return;
         }
-        player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.with(channel));
+        player.updatePreference(Preferences.LISTENING_SNOOPS, container.with(channel));
         player.sendMessage(
             Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
     }
 
     public void blind(CytosisPlayer player, @NotNull String channel) {
-        SnoopsContainer container = player.getPreference(CytosisNamespaces.LISTENING_SNOOPS);
+        SnoopsContainer container = player.getPreference(Preferences.LISTENING_SNOOPS);
         if (!container.snoops().contains(channel)) {
             player.sendMessage(Msg.whoops("You are not snooping on the channel '" + channel + "'"));
             return;
         }
-        player.updatePreference(CytosisNamespaces.LISTENING_SNOOPS, container.without(channel));
+        player.updatePreference(Preferences.LISTENING_SNOOPS, container.without(channel));
         player.sendMessage(
             Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
     }

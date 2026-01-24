@@ -2,6 +2,8 @@ package net.cytonic.cytosis.events;
 
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
@@ -19,6 +21,7 @@ import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.commands.server.TpsCommand;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
@@ -43,9 +46,10 @@ import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
+import net.cytonic.cytosis.utils.Utils;
 
 /**
  * A class that registers Cytosis required server events
@@ -55,6 +59,7 @@ import net.cytonic.cytosis.utils.Msg;
 public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;
+    public static long MEM_USED = 0;
 
     @Listener
     @Priority(1)
@@ -96,6 +101,12 @@ public final class ServerEventListeners {
     @Async
     private void onTick(ServerTickMonitorEvent event) {
         RAW_MSPT = event.getTickMonitor().getTickTime();
+        Runtime rt = Runtime.getRuntime();
+        long used = rt.totalMemory() - rt.freeMemory();
+        MEM_USED = used / 1_000_000;
+        TpsCommand.BAR.name(
+            Component.text("MSPT: " + Utils.FOUR_PLACES.format(RAW_MSPT) + "ms |  MEM: " + MEM_USED + "mb",
+                NamedTextColor.GOLD));
     }
 
     @Listener
@@ -155,11 +166,16 @@ public final class ServerEventListeners {
         Cytosis.get(PlayerListManager.class).setupPlayer(player);
         Cytosis.get(RankManager.class).addPlayer(player);
         Cytosis.get(CommandHandler.class).recalculateCommands(player);
-        if (player.getPreference(CytosisPreferences.VANISHED)) {
+        if (player.getPreference(Preferences.VANISHED)) {
             player.setVanished(true);
         }
+        if (player.getPreference(Preferences.FLY)) {
+            player.setAllowFlying(true);
+            player.setFlying(true);
+            player.setFlyingSpeed(0.05F * player.getPreference(Preferences.FLY_SPEED));
+        }
         try {
-            if (player.getPreference(CytosisPreferences.NICKNAME_DATA) != null) {
+            if (player.getPreference(Preferences.NICKNAME_DATA) != null) {
                 Cytosis.get(NicknameManager.class).loadNickedPlayer(player);
             }
         } catch (Exception e) {
@@ -174,6 +190,9 @@ public final class ServerEventListeners {
             // add a new player who hasn't played before
             Cytosis.get(MetricsManager.class)
                 .addToLongCounter("players.unique", 1, Attributes.empty());
+        }
+        if (player.getPreference(Preferences.TPS_DEBUG)) {
+            player.showBossBar(TpsCommand.BAR);
         }
     }
 
@@ -216,7 +235,7 @@ public final class ServerEventListeners {
         Cytosis.get(SideboardManager.class).removePlayer(player);
         Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
         if (Cytosis.get(PreferenceManager.class)
-            .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+            .getPlayerPreference(player.getUuid(), Preferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
         Cytosis.get(NpcManager.class).removePlayer(player);

@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -795,7 +794,7 @@ public class GlobalDatabase implements Bootstrappable {
         return list;
     }
 
-    public CompletableFuture<PreferenceData> loadPlayerPreferences(UUID player) {
+    public CompletableFuture<@Nullable PreferenceData> loadPlayerPreferences(UUID player) {
         CompletableFuture<PreferenceData> future = new CompletableFuture<>();
         worker.submit(() -> {
             try (Connection conn = getConnection()) {
@@ -807,7 +806,7 @@ public class GlobalDatabase implements Bootstrappable {
                     PreferenceData data = PreferenceData.deserialize(rs.getString("preferences"));
                     future.complete(data);
                 } else {
-                    future.complete(new PreferenceData(new HashMap<>()));
+                    future.complete(null);
                 }
             } catch (Exception exception) {
                 future.completeExceptionally(exception);
@@ -875,8 +874,8 @@ public class GlobalDatabase implements Bootstrappable {
             try (Connection conn = getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
                     "UPDATE cytonic_preferences SET preferences = ? WHERE uuid = ?");
-                ps.setString(1, player.toString());
-                ps.setString(2, data.serialize());
+                ps.setString(1, data.serialize());
+                ps.setString(2, player.toString());
                 ps.executeUpdate();
             } catch (Exception e) {
                 Logger.error("An error occurred whilst adding a new player's preferences!", e);

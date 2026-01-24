@@ -20,9 +20,8 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
@@ -54,7 +53,7 @@ public class ChatManager implements Bootstrappable {
      * @param channel The channel to set
      */
     public void setChannel(UUID uuid, ChatChannel channel) {
-        preferenceManager.updatePlayerPreference(uuid, CytosisNamespaces.CHAT_CHANNEL, channel);
+        preferenceManager.updatePlayerPreference(uuid, Preferences.CHAT_CHANNEL, channel);
     }
 
     /**
@@ -64,7 +63,7 @@ public class ChatManager implements Bootstrappable {
      * @return the player's currently selected chat channel
      */
     public ChatChannel getChannel(UUID uuid) {
-        return preferenceManager.getPlayerPreference(uuid, CytosisPreferences.CHAT_CHANNEL);
+        return preferenceManager.getPlayerPreference(uuid, Preferences.CHAT_CHANNEL);
     }
 
     /**
@@ -116,7 +115,7 @@ public class ChatManager implements Bootstrappable {
                             .getChatColor())));
                     return;
                 }
-                if (!p.getPreference(CytosisNamespaces.IGNORED_CHAT_CHANNELS).getForChannel(channel)) {
+                if (!p.getPreference(Preferences.IGNORED_CHAT_CHANNELS).getForChannel(channel)) {
                     p.sendMessage(finalMessage);
                 }
             });

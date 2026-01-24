@@ -1,6 +1,9 @@
 package net.cytonic.cytosis.managers;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,15 +16,12 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.MysqlDatabase;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceData;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
 
 /**
  * A manager class holding preference data for users. An example is if they are accepting friend requests. Since
@@ -32,8 +32,8 @@ import net.cytonic.cytosis.utils.Msg;
 public class PreferenceManager implements Bootstrappable {
 
     /**
-     * The registry of preferences currently registered. The held preference of the {@link NamespacedPreference} is the
-     * default preference passed if none is found in the player's preferences
+     * The registry of preferences currently registered. The held preference of the {@link Preference} is the default
+     * preference passed if none is found in the player's preferences
      */
     public static final PreferenceRegistry PREFERENCE_REGISTRY = new PreferenceRegistry();
     private final Map<UUID, PreferenceData> preferenceData = new ConcurrentHashMap<>();
@@ -48,19 +48,7 @@ public class PreferenceManager implements Bootstrappable {
     @Override
     public void init() {
         this.db = Cytosis.get(GlobalDatabase.class);
-
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.ACCEPT_FRIEND_REQUESTS, CytosisPreferences.ACCEPT_FRIEND_REQUESTS);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.SERVER_ALERTS, CytosisPreferences.SERVER_ALERTS);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_CHANNEL, CytosisPreferences.CHAT_CHANNEL);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.VANISHED, CytosisPreferences.VANISHED);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.LOBBY_PLAYER_VISIBILITY,
-            CytosisPreferences.LOBBY_PLAYER_VISIBILITY);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.IGNORED_CHAT_CHANNELS, CytosisPreferences.IGNORED_CHAT_CHANNELS);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.LISTENING_SNOOPS, CytosisPreferences.LISTENING_SNOOPS);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.MUTE_SNOOPER, CytosisPreferences.MUTE_SNOOPER);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKNAME_DATA, CytosisPreferences.NICKNAME_DATA);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.NICKED_UUID, CytosisPreferences.NICKED_UUID);
-        PREFERENCE_REGISTRY.write(CytosisNamespaces.CHAT_MESSAGE_PING, CytosisPreferences.CHAT_MESSAGE_PING);
+        Preferences.ALL.forEach(PREFERENCE_REGISTRY::write);
     }
 
     /**
@@ -70,8 +58,13 @@ public class PreferenceManager implements Bootstrappable {
      */
     public void loadPlayerPreferences(UUID uuid) {
         db.loadPlayerPreferences(uuid).thenAccept(data -> {
+            if (data == null) {
+                data = new PreferenceData(new ArrayList<>());
+                Logger.debug("Needs to be created!");
+                db.addNewPlayerPreferences(uuid, data);
+            }
             preferenceData.put(uuid, data);
-            data.get(CytosisPreferences.LISTENING_SNOOPS).snoops().forEach(s -> {
+            data.get(Preferences.LISTENING_SNOOPS).snoops().forEach(s -> {
                 if (Cytosis.get(SnooperManager.class).getChannel(Key.key(s)) == null) {
                     // big problem if null
                     Logger.warn(
@@ -98,70 +91,47 @@ public class PreferenceManager implements Bootstrappable {
         preferenceData.remove(uuid);
     }
 
-    /**
-     * Update a player's preference data
-     *
-     * @param uuid       the player to update
-     * @param preference the namespace
-     * @param value      the preference to set
-     * @param <T>        the type of the preference
-     * @throws IllegalStateException    if the player has no preference data
-     * @throws IllegalArgumentException if the preference is of the incorrect type
-     * @throws ClassCastException       if the preference is of the incorrect type
-     */
-    @SuppressWarnings("unchecked") // it is a checked cast
-    public <T> void updateplayerpreferenceUnsafe(UUID uuid, Key preference, @Nullable T value) {
-        TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream()
-            .filter(t -> t.namespaceID().equals(preference)).findFirst().orElse(null);
-        if (typed == null) {
-            throw new IllegalArgumentException("The preference " + preference + " does not exist!");
-        }
-        if (value != null && typed.type() != value.getClass()) {
-            throw new IllegalArgumentException(
-                "Cannot set a preference " + preference.asString() + " of type " + value.getClass().getSimpleName()
-                    + " with a preference of type " + typed.type().getSimpleName());
-        }
-        updatePlayerPreference(uuid, (TypedNamespace<T>) typed, value);
-    }
 
     /**
      * Update a player's preference data
      *
      * @param uuid        the player to update
-     * @param namespaceID the id of the preference
+     * @param key the id of the preference
      * @param value       the preference to set
      * @param <T>         the type of the preference
      * @throws IllegalStateException    if the player has no preference data
      * @throws IllegalArgumentException if the preference is of the incorrect type
      */
-    public <T> void updatePlayerPreference(UUID uuid, TypedNamespace<T> namespaceID, T value) {
-        PreferenceRegistry.Entry<T> entry = PREFERENCE_REGISTRY.get(namespaceID);
-        Preference<T> preference = entry.preference();
+    @SuppressWarnings("unchecked")
+    public <T> void updatePlayerPreference_UNSAFE(UUID uuid, Key key, @Nullable T value) {
+        Preference<?> entry = PREFERENCE_REGISTRY.get(key);
 
-        if (preference.value() != null && preference.value().getClass() != value.getClass()) {
+        if (value != null && !entry.getType().isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException(
                 "Cannot set a preference of type " + value.getClass().getSimpleName() + " with a preference of type "
-                    + preference.value().getClass().getSimpleName());
+                    + entry.getType().getSimpleName());
         }
 
+        Preference<T> safe = (Preference<T>) entry;
+        safe = safe.withValue(value);
         if (!preferenceData.containsKey(uuid)) {
-            PreferenceData data = new PreferenceData(new ConcurrentHashMap<>());
-            data.set(namespaceID, value);
+            PreferenceData data = new PreferenceData(new ArrayList<>());
+            data.get(safe);
             preferenceData.put(uuid, data);
             db.addNewPlayerPreferences(uuid, data);
             return;
         }
 
-        preferenceData.get(uuid).set(namespaceID, value);
+        preferenceData.get(uuid).set(safe);
         db.persistPlayerPreferences(uuid, preferenceData.get(uuid));
     }
 
     @SneakyThrows
-    public <T> void updatePlayerPreference(UUID uuid, NamespacedPreference<T> pref, T val) {
-        NamespacedPreference<T> preference = pref.clone(); // as to not mutate it....
-        preference.value(val);
+    public <T> void updatePlayerPreference(UUID uuid, Preference<T> pref, T val) {
+        Preference<T> preference = pref.withValue(val);
+
         if (!preferenceData.containsKey(uuid)) {
-            PreferenceData data = new PreferenceData(new ConcurrentHashMap<>());
+            PreferenceData data = new PreferenceData(new ArrayList<>());
             data.set(preference);
             preferenceData.put(uuid, data);
             db.addNewPlayerPreferences(uuid, data);
@@ -172,40 +142,37 @@ public class PreferenceManager implements Bootstrappable {
     }
 
     /**
-     * Gets the preference of a player
+     * Gets the preference of a player, with a few more ways of throwing an error.
      *
      * @param uuid      The player
-     * @param namespace the namespace
+     * @param key the namespace
      * @param <T>       the type of the preference
      * @return the player's preference
      */
     @SuppressWarnings("unchecked")
-    public <T> T getPlayerPreferenceUnsafe(UUID uuid, Key namespace) {
-        TypedNamespace<?> typed = PREFERENCE_REGISTRY.typedNamespaces().stream()
-            .filter(t -> t.namespaceID().equals(namespace)).findFirst().orElse(null);
-        if (typed == null) {
-            throw new IllegalArgumentException("The preference " + namespace + " does not exist!");
+    public <T> T getPlayerPreference_UNSAFE(UUID uuid, Key key) {
+        Preference<T> pref = (Preference<T>) PREFERENCE_REGISTRY.get(key);
+        if (pref == null) {
+            // this preference isn't supplied by this server.
+            if (!preferenceData.containsKey(uuid)) return null;
+            return preferenceData.get(uuid).getOr(key, null);
         }
-        return getPlayerPreference(uuid, (TypedNamespace<T>) typed);
+        return getPlayerPreference(uuid, pref);
     }
 
-    /**
-     * Gets the preference of a player
-     *
-     * @param uuid        The player
-     * @param namespaceID the namespace
-     * @param <T>         the type of the preference
-     * @return the player's preference
-     */
-    public <T> T getPlayerPreference(UUID uuid, TypedNamespace<T> namespaceID) {
-        if (!PREFERENCE_REGISTRY.contains(namespaceID)) {
-            throw new IllegalArgumentException("The preference " + namespaceID + " is not in the registry!");
-        }
-        if (!preferenceData.containsKey(uuid)) {
-            return PREFERENCE_REGISTRY.get(namespaceID).preference().value();
-        }
-        return preferenceData.get(uuid).get(namespaceID);
+    @Nullable
+    public Preference<?> getPlayerPreferenceRaw(UUID uuid, Key key) {
+        if (!preferenceData.containsKey(uuid)) return null;
+        Preference<?> pref = preferenceData.get(uuid).getPreference(key);
+        if (pref != null) return pref;
+        return PREFERENCE_REGISTRY.get(key);
     }
+
+    public Set<Key> getPlayerKeys(UUID uuid) {
+        return preferenceData.getOrDefault(uuid, new PreferenceData(new ArrayList<>()))
+            .keys();
+    }
+
 
     /**
      * Gets the preference of a player
@@ -215,15 +182,24 @@ public class PreferenceManager implements Bootstrappable {
      * @param <T>        the type of the preference
      * @return the player's preference
      */
-    public <T> T getPlayerPreference(UUID uuid, NamespacedPreference<T> preference) {
-        if (!PREFERENCE_REGISTRY.contains(preference.typedNamespace())) {
+    public <T> T getPlayerPreference(UUID uuid, Preference<T> preference) {
+        if (!PREFERENCE_REGISTRY.contains(preference)) {
             throw new IllegalArgumentException(
-                "The preference " + preference.namespace().asString() + " does not exist!");
+                "The preference " + preference.getKey() + " has not been registered!");
         }
         if (!preferenceData.containsKey(uuid)) {
-            return PREFERENCE_REGISTRY.get(preference.typedNamespace()).preference().value();
+            return preference.getValue();
         }
         return preferenceData.get(uuid).get(preference);
+    }
+
+    private boolean isValid(UUID uuid, Key key) {
+        Set<Key> valid = new HashSet<>();
+        if (preferenceData.containsKey(uuid)) {
+            valid.addAll(preferenceData.get(uuid).keys());
+        }
+        valid.addAll(PREFERENCE_REGISTRY.keys());
+        return valid.contains(key);
     }
 
     /**

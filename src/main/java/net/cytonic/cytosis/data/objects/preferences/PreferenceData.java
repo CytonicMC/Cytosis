@@ -1,110 +1,144 @@
 package net.cytonic.cytosis.data.objects.preferences;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import com.google.gson.JsonParser;
+import net.kyori.adventure.key.Key;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.Transcoder;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
 import net.cytonic.cytosis.managers.PreferenceManager;
-import net.cytonic.cytosis.utils.Utils;
 
 /**
  * A class holding a user's preference data.
  */
 public class PreferenceData {
 
-    private final Map<TypedNamespace<?>, Preference<?>> preferences;
+    public static PreferenceManager pm = Cytosis.get(PreferenceManager.class);
+
+    public static final Codec<PreferenceData> CODEC = StoredPreference.CODEC.list()
+        .transform(PreferenceData::new, PreferenceData::toStorage);
+
+    private final Map<Key, Preference<?>> preferences;
 
     /**
      * Creates a new PreferenceData object with the specified preferences
      *
-     * @param preferences the preferences
+     * @param list the preferences
      */
-    public PreferenceData(Map<TypedNamespace<?>, Preference<?>> preferences) {
-        this.preferences = preferences;
+    public PreferenceData(List<StoredPreference> list) {
+        this.preferences = list.stream()
+            .map(p -> {
+                Preference<?> known = pm.getPreferenceRegistry().get(p.getKey());
+                if (known == null)
+                    return p; // this instance doesn't use this preference, just keep it as a stored version
+                return known.fromStorage(p);
+            }).collect(Collectors.toMap(Preference::getKey, Function.identity()));
     }
 
     /**
-     * Deserializes the string into a {@link PreferenceData} object. Effectivley the same as {@link #loadData(String)},
-     * but this creates a new object
+     * Deserializes the string into a {@link PreferenceData} object.
      *
      * @param data The serialized json data
      * @return a new {@link PreferenceData} object with the specified data
      */
     public static PreferenceData deserialize(String data) {
-        Map<TypedNamespace<?>, Preference<?>> preferences = Cytosis.GSON.fromJson(data,
-            Utils.PREFERENCE_MAP.getType()); // <NamespaceID, Preference>
+        return CODEC.decode(Transcoder.JSON, JsonParser.parseString(data))
+            .orElseThrow("Failed to parse user preferences!");
+    }
 
-        return new PreferenceData(preferences);
+    public List<StoredPreference> toStorage() {
+        return preferences.values().stream().map(Preference::toStorage).toList();
+    }
+
+    @Nullable
+    public Preference<?> getPreference(Key key) {
+        return preferences.get(key);
     }
 
     /**
      * Gets a preference of the specified type. If the player does not have a set preference, it will return the default
      * value.
      *
-     * @param namespaceID The namespace of the preference
-     * @param <T>         The type of the preference
+     * @param key The namespace of the preference
+     * @param <T> The type of the preference
      * @return The preference. Null if it does not exist
      */
-    public <T> T get(TypedNamespace<T> namespaceID) {
-        if (preferences.containsKey(namespaceID)) {
-            return (T) preferences.get(namespaceID).value();
+    @SuppressWarnings("unchecked")
+    public <T> T get(Key key) {
+        if (preferences.containsKey(key)) {
+            return (T) preferences.get(key).getValue();
         } else {
-            return PreferenceManager.PREFERENCE_REGISTRY.get(namespaceID).preference().value();
+            return (T) PreferenceManager.PREFERENCE_REGISTRY.get(key).getValue();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getOr(Key key, T defaultValue) {
+        try {
+            if (preferences.containsKey(key)) {
+                return (T) preferences.get(key).getValue();
+            } else {
+                return (T) PreferenceManager.PREFERENCE_REGISTRY.get(key).getValue();
+            }
+        } catch (NullPointerException _) {
+            return defaultValue;
         }
     }
 
     /**
      * Gets a preference of the specified type. If the player does not have a set preference, it will return the default
-     * value.
+     * value. Possibly null.
      *
      * @param namespace The namespaced ID to pull the namespace from
      * @param <T>       The type of the preference
      * @return The preference. Null if it does not exist
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(NamespacedPreference<T> namespace) {
-        if (preferences.containsKey(namespace.typedNamespace())) {
-            return (T) preferences.get(namespace.typedNamespace()).value();
+    public <T> T get(Preference<T> namespace) {
+        if (preferences.containsKey(namespace.getKey())) {
+            return (T) preferences.get(namespace.getKey()).getValue();
         } else {
-            return namespace.value();
+            return namespace.getValue();
         }
     }
 
-    public <T> void set(NamespacedPreference<T> preference) {
-        set(preference.typedNamespace(), preference.value());
+    public <T> void set(Preference<T> p) {
+        set(p.getKey(), p.getType(), p.getValue());
     }
 
     /**
      * Sets the value of the specified preference
      *
-     * @param namespace The namespace of the preference
-     * @param value     The new value
-     * @param <T>       The type of the preference
+     * @param key   The namespace of the preference
+     * @param value The new value
+     * @param <T>   The type of the preference
      */
-    public <T> void set(TypedNamespace<T> namespace, T value) {
-        if (PreferenceManager.PREFERENCE_REGISTRY.isJson(namespace)) {
-            preferences.put(namespace, new JsonPreference<>(namespace, value));
-        } else {
-            preferences.put(namespace, new NamespacedPreference<>(namespace, value));
-        }
-    }
-
-    /**
-     * Loads the preference data from the specified json string
-     *
-     * @param data the json string produced from the {@link PreferenceData#serialize} method
-     */
-    public void loadData(String data) {
-        preferences.putAll(deserialize(data).preferences);
+    public <T> void set(Key key, Class<T> type, T value) {
+        if (!PreferenceManager.PREFERENCE_REGISTRY.contains(key))
+            throw new IllegalArgumentException("Unknown preference: " + key);
+        Preference<T> pref = PreferenceManager.PREFERENCE_REGISTRY.get(key, type);
+        preferences.put(key, pref.withValue(value));
     }
 
     /**
      * Serializes the preference data into a json string
      *
-     * @return the json data of this object
+     * @return the JSON data of this object
      */
     public String serialize() {
-        return Cytosis.GSON.toJson(preferences, Utils.PREFERENCE_MAP.getType());
+        return Cytosis.GSON.toJson(CODEC.encode(Transcoder.JSON, this)
+            .orElseThrow("Failed to serialize user preferences!"));
+    }
+
+    public Set<Key> keys() {
+        return preferences.keySet();
     }
 
     @Override
