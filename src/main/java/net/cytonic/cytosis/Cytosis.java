@@ -24,18 +24,14 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.protocol.adapters.InstantAdapter;
-import net.cytonic.protocol.adapters.JsonComponentAdapter;
-import net.cytonic.protocol.adapters.KeyAdapter;
-import net.cytonic.cytosis.data.adapters.PreferenceAdapter;
-import net.cytonic.cytosis.data.adapters.TypedNamespaceAdapter;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.serializers.KeySerializer;
 import net.cytonic.cytosis.data.serializers.PosSerializer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
+import net.cytonic.protocol.adapters.InstantAdapter;
+import net.cytonic.protocol.adapters.JsonComponentAdapter;
+import net.cytonic.protocol.adapters.KeyAdapter;
 import net.cytonic.protocol.data.objects.JsonComponent;
 
 /**
@@ -47,13 +43,9 @@ public final class Cytosis {
 
     // The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
     public static final Gson GSON = new GsonBuilder()
-        .registerTypeAdapter(TypedNamespace.class, new TypedNamespaceAdapter())
-        .registerTypeAdapter(Preference.class, new PreferenceAdapter<>())
         .registerTypeAdapter(Key.class, new KeyAdapter())
         .registerTypeAdapter(Instant.class, new InstantAdapter())
         .registerTypeAdapter(JsonComponent.class, new JsonComponentAdapter())
-        .registerTypeAdapterFactory(new TypedNamespaceAdapter())
-        .registerTypeAdapterFactory(new PreferenceAdapter<>())
         .registerTypeAdapterFactory(new KeyAdapter())
         .enableComplexMapKeySerialization()
         .setStrictness(Strictness.LENIENT)
@@ -86,7 +78,7 @@ public final class Cytosis {
      *
      * @param args Runtime flags
      */
-    public static void main(String[] args) {
+    static void main(String[] args) {
         new CytosisBootstrap(args, CONTEXT).run();
     }
 
