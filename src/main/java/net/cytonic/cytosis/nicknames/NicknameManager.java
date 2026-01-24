@@ -34,9 +34,9 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
 
 @CytosisComponent(dependsOn = {PlayerListManager.class})
 public class NicknameManager implements Bootstrappable {
@@ -87,8 +87,8 @@ public class NicknameManager implements Bootstrappable {
         nicknames.put(playerUuid, data);
         addToTrackedNicknames(playerUuid, data.nickname());
         sendNicknamePacketsToAll(player, masked, false);
-        player.updatePreference(CytosisNamespaces.NICKNAME_DATA, data);
-        player.updatePreference(CytosisNamespaces.NICKED_UUID, masked);
+        player.updatePreference(Preferences.NICKNAME_DATA, data);
+        player.updatePreference(Preferences.NICKED_UUID, masked);
 
         Component msg = player.trueFormattedName().append(Msg.aqua(" has been nicked to "))
             .append(player.formattedName())
@@ -151,8 +151,8 @@ public class NicknameManager implements Bootstrappable {
         redis.removeFromHash("cytosis:nicknames", playerUuid.toString());
         sendRemovePackets(player);
         rankManager.setupCosmetics(player, player.getTrueRank());
-        player.updatePreference(CytosisNamespaces.NICKNAME_DATA, null);
-        player.updatePreference(CytosisNamespaces.NICKED_UUID, null);
+        player.updatePreference(Preferences.NICKNAME_DATA, null);
+        player.updatePreference(Preferences.NICKED_UUID, null);
     }
 
     public void sendRemovePackets(CytosisPlayer player) {
@@ -182,8 +182,8 @@ public class NicknameManager implements Bootstrappable {
 
     public void loadNickedPlayer(CytosisPlayer player) {
         NicknameData data = Cytosis.get(PreferenceManager.class)
-            .getPlayerPreference(player.getUuid(), CytosisNamespaces.NICKNAME_DATA);
-        UUID maskedUuid = player.getPreference(CytosisNamespaces.NICKED_UUID);
+            .getPlayerPreference(player.getUuid(), Preferences.NICKNAME_DATA);
+        UUID maskedUuid = player.getPreference(Preferences.NICKED_UUID);
         if (maskedUuid == null) {
             maskedUuid = UUID.randomUUID();
         }

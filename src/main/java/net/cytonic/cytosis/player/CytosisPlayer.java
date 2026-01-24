@@ -25,8 +25,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.TypedNamespace;
-import net.cytonic.cytosis.data.objects.preferences.NamespacedPreference;
+import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -39,7 +38,7 @@ import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
-import net.cytonic.cytosis.utils.CytosisNamespaces;
+import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.data.objects.Party;
@@ -116,21 +115,17 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      * @throws IllegalArgumentException if the preference and value are not of the same type
      */
-    public <T> void updatePreference(TypedNamespace<T> namespace, T value) {
+    public <T> void updatePreference(Preference<T> namespace, T value) {
         Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
     }
 
     /**
-     * Updates the preference
+     * Gets all the possible preferences this player has. Some may not be registered in the {@link PreferenceManager}.
      *
-     * @param namespace the namespace of the preference
-     * @param value     the value to set the preference
-     * @param <T>       the type of the preference value
-     * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
-     * @throws IllegalArgumentException if the preference and value are not of the same type
+     * @return the value stored in the preference
      */
-    public <T> void updatePreference(NamespacedPreference<T> namespace, T value) {
-        Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
+    public Set<Key> getPreferenceKeys() {
+        return Cytosis.get(PreferenceManager.class).getPlayerKeys(getUuid());
     }
 
     /**
@@ -141,19 +136,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
      * @return the value stored in the preference
      * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
      */
-    public <T> T getPreference(NamespacedPreference<T> namespace) {
-        return Cytosis.get(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
-    }
-
-    /**
-     * Gets a preference value
-     *
-     * @param namespace the namespace of the preference
-     * @param <T>       the Type of the preference
-     * @return the value stored in the preference
-     * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
-     */
-    public <T> T getPreference(TypedNamespace<T> namespace) {
+    public <T> T getPreference(Preference<T> namespace) {
         return Cytosis.get(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
     }
 
@@ -492,13 +475,13 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     @Override
-    public void updateNewViewer(@NotNull Player player) {
+    public void updateNewViewer(@NotNull Player p) {
+        if (!(p instanceof CytosisPlayer player)) return;
         if (!isNicked()) {
             super.updateNewViewer(player);
         } else {
             Cytosis.get(NicknameManager.class)
-                .sendNicknamePacketsToPlayer(this, (CytosisPlayer) player, getPreference(CytosisNamespaces.NICKED_UUID),
-                    false);
+                .sendNicknamePacketsToPlayer(this, player, getPreference(Preferences.NICKED_UUID), false);
         }
     }
 

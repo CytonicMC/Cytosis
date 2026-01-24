@@ -9,8 +9,8 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
 
 public class IgnoreChatChannelCommand extends CytosisCommand {
 
@@ -67,9 +67,9 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
     }
 
     private void ignoreChannel(CytosisPlayer player, ChatChannel channel) {
-        IgnoredChatChannelContainer container = player.getPreference(CytosisPreferences.IGNORED_CHAT_CHANNELS);
+        IgnoredChatChannelContainer container = player.getPreference(Preferences.IGNORED_CHAT_CHANNELS);
         container = container.withForChannel(channel, !container.getForChannel(channel));
-        player.updatePreference(CytosisPreferences.IGNORED_CHAT_CHANNELS, container);
+        player.updatePreference(Preferences.IGNORED_CHAT_CHANNELS, container);
 
         if (!container.getForChannel(channel)) {
             player.sendMessage(Msg.greySplash("UNIGNORED!",

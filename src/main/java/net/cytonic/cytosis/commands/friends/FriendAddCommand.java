@@ -12,9 +12,9 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Preferences;
 
 public class FriendAddCommand extends CytosisCommand {
 
@@ -53,7 +53,7 @@ public class FriendAddCommand extends CytosisCommand {
             }
 
             if (!Cytosis.get(PreferenceManager.class)
-                .getPlayerPreference(target, CytosisPreferences.ACCEPT_FRIEND_REQUESTS) || nicked) {
+                .getPlayerPreference(target, Preferences.ACCEPT_FRIEND_REQUESTS) || nicked) {
                 player.sendMessage(Msg.whoops("").append(targetComp)
                     .append(Msg.mm("<gray> is not accepting friend requests!")));
                 return;

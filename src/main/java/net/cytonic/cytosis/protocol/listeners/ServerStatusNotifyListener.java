@@ -4,8 +4,8 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.impl.notify.ServerStatusNotifyPacket;
 import net.cytonic.protocol.utils.NotifyHandler;
 
@@ -21,7 +21,7 @@ public class ServerStatusNotifyListener {
             if (!player.isAdmin()) {
                 return;
             }
-            if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
+            if (player.getPreference(Preferences.SERVER_ALERTS)) {
                 player.sendMessage(
                     Msg.network("Server %s of type %s:%s has been started!",
                         packet.id(), server.group(), server.type()));
@@ -39,7 +39,7 @@ public class ServerStatusNotifyListener {
             if (!player.isAdmin()) {
                 return;
             }
-            if (player.getPreference(CytosisPreferences.SERVER_ALERTS)) {
+            if (player.getPreference(Preferences.SERVER_ALERTS)) {
                 player.sendMessage(
                     Msg.network("Server %s of type %s:%s has been shut down!",
                         packet.id(), server.group(), server.type()));
