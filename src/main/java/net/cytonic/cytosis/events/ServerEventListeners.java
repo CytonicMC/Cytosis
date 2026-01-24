@@ -1,9 +1,5 @@
 package net.cytonic.cytosis.events;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -50,9 +46,10 @@ import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.CytosisPreferences;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Preferences;
+import net.cytonic.cytosis.utils.Utils;
 
 /**
  * A class that registers Cytosis required server events
@@ -62,7 +59,6 @@ import net.cytonic.cytosis.utils.Msg;
 public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;
-    public static Set<UUID> TPS_CACHE = new HashSet<>();
     public static long MEM_USED = 0;
 
     @Listener
@@ -108,7 +104,9 @@ public final class ServerEventListeners {
         Runtime rt = Runtime.getRuntime();
         long used = rt.totalMemory() - rt.freeMemory();
         MEM_USED = used / 1_000_000;
-        TpsCommand.BAR.name(Component.text("MSPT: " + RAW_MSPT + " |  MEM: " + MEM_USED + "mb", NamedTextColor.GOLD));
+        TpsCommand.BAR.name(
+            Component.text("MSPT: " + Utils.FOUR_PLACES.format(RAW_MSPT) + "ms |  MEM: " + MEM_USED + "mb",
+                NamedTextColor.GOLD));
     }
 
     @Listener
@@ -168,11 +166,16 @@ public final class ServerEventListeners {
         Cytosis.get(PlayerListManager.class).setupPlayer(player);
         Cytosis.get(RankManager.class).addPlayer(player);
         Cytosis.get(CommandHandler.class).recalculateCommands(player);
-        if (player.getPreference(CytosisPreferences.VANISHED)) {
+        if (player.getPreference(Preferences.VANISHED)) {
             player.setVanished(true);
         }
+        if (player.getPreference(Preferences.FLY)) {
+            player.setAllowFlying(true);
+            player.setFlying(true);
+            player.setFlyingSpeed(0.05F * player.getPreference(Preferences.FLY_SPEED));
+        }
         try {
-            if (player.getPreference(CytosisPreferences.NICKNAME_DATA) != null) {
+            if (player.getPreference(Preferences.NICKNAME_DATA) != null) {
                 Cytosis.get(NicknameManager.class).loadNickedPlayer(player);
             }
         } catch (Exception e) {
@@ -188,8 +191,8 @@ public final class ServerEventListeners {
             Cytosis.get(MetricsManager.class)
                 .addToLongCounter("players.unique", 1, Attributes.empty());
         }
-        if (player.getPreference(CytosisPreferences.TPS_DEBUG)) {
-            TPS_CACHE.add(player.getUuid());
+        if (player.getPreference(Preferences.TPS_DEBUG)) {
+            player.showBossBar(TpsCommand.BAR);
         }
     }
 
@@ -232,11 +235,10 @@ public final class ServerEventListeners {
         Cytosis.get(SideboardManager.class).removePlayer(player);
         Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
         if (Cytosis.get(PreferenceManager.class)
-            .getPlayerPreference(player.getUuid(), CytosisPreferences.VANISHED)) {
+            .getPlayerPreference(player.getUuid(), Preferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
         Cytosis.get(NpcManager.class).removePlayer(player);
         PlayerHolograms.removePlayer(player);
-        TPS_CACHE.remove(player.getUuid());
     }
 }
