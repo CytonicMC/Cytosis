@@ -80,6 +80,7 @@ public final class CytosisSettings {
         loadIntFromEnvOrProperty("REDIS_PORT", this.getRedisConfig()::setPort);
         loadStringFromEnvOrProperty("REDIS_PASSWORD", this.getRedisConfig()::setPassword);
 
+        loadStringFromEnvOrProperty("NATS_USERNAME", this.getNatsConfig()::setUser);
         loadStringFromEnvOrProperty("NATS_HOSTNAME", this.getNatsConfig()::setHost);
         loadIntFromEnvOrProperty("NATS_PORT", this.getNatsConfig()::setPort);
         loadStringFromEnvOrProperty("NATS_PASSWORD", this.getNatsConfig()::setPassword);
