@@ -25,7 +25,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Run Checkstyle
-        run: ./gradlew checkstyleMain checkstyleTest
+        run: ./gradlew --build-cache --parallel checkstyleMain checkstyleTest
 
       - name: Upload Checkstyle results
         if: failure()
