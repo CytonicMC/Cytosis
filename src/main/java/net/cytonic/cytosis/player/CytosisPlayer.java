@@ -25,6 +25,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
@@ -38,6 +39,8 @@ import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
+import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
+import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.JsonComponent;
@@ -501,5 +504,23 @@ public class CytosisPlayer extends CombatPlayerImpl {
             reason = KickReason.UNKNOWN;
         }
         new PlayerKickNotifyPacket.Packet(getUuid(), reason, new JsonComponent(message)).publish();
+    }
+
+    public void sendToServer(String id) {
+        CytonicServer server = Cytosis.get(CytonicNetwork.class).getServers().get(id);
+        if (server == null) {
+            sendMessage(Msg.whoops("Tried to send you to a non-existent server!"));
+            return;
+        }
+        Cytosis.get(SendPlayerToServerPacketPublisher.class).sendPlayerToServer(getUuid(), server);
+    }
+
+    public void sendToGenericServer(Key key, @Nullable String name) {
+        if (name == null) {
+            name = "A server";
+        }
+
+        Cytosis.get(SendPlayerToServerPacketPublisher.class)
+            .sendPlayerToGenericServer(getUuid(), key.namespace(), key.value(), name);
     }
 }
