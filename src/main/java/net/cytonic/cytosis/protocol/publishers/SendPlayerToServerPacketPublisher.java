@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import lombok.NoArgsConstructor;
 import net.minestom.server.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
@@ -43,7 +44,7 @@ public class SendPlayerToServerPacketPublisher {
         });
     }
 
-    public void sendPlayerToGenericServer(UUID player, String group, String id, String displayName) {
+    public void sendPlayerToGenericServer(UUID player, String group, String id, @Nullable String displayName) {
         new SendPlayerToServerTypeProtocolObject.Packet(player, group, id).request((response, throwable) -> {
             if (Cytosis.getPlayer(player).isEmpty()) {
                 return;
@@ -51,7 +52,7 @@ public class SendPlayerToServerPacketPublisher {
             Player p = Cytosis.getPlayer(player).get();
             if (throwable != null) {
                 p.sendMessage(Msg.serverError("An error occurred whilst sending you to %s!",
-                    displayName == null ? "the a server" : displayName));
+                    displayName == null ? "a server" : displayName));
                 Logger.error("An error occurred whilst sending " + player + " to a generic " + group + ":" + id
                     + "! <red>(%s)</red>", throwable);
             }
