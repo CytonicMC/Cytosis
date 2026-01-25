@@ -22,9 +22,6 @@ jobs:
       - name: Assemble Jar
         run: ./gradlew --no-daemon --build-cache --parallel thinJar
 
-      - name: Run Java docs
-        run: ./gradlew --no-daemon --build-cache --parallel javadoc
-
       - name: Upload jar as artifact
         uses: actions/upload-artifact@v6.0.0
         with:
