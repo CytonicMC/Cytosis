@@ -222,6 +222,10 @@ public interface Msg {
         return MiniMessage.miniMessage().stripTags(str);
     }
 
+    static String toMini(Component component) {
+        return MiniMessage.miniMessage().serialize(component);
+    }
+
     static String toJson(Component component) {
         return JSONComponentSerializer.json().serialize(component);
     }

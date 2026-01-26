@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -20,6 +19,7 @@ import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.impl.notify.PlayerChangeServerNotifyPacket;
 import net.cytonic.protocol.utils.NotifyHandler;
@@ -183,9 +183,10 @@ public class CytonicNetwork implements Bootstrappable {
     }
 
     public String getMiniName(UUID player) {
-        String name = lifetimePlayers.getByKey(player);
-        String rank = MiniMessage.miniMessage().serialize(cachedPlayerRanks.get(player).getPrefix());
-        return rank + name;
+        PlayerRank rank = cachedPlayerRanks.get(player);
+        String color = rank.getTeamColor().toString();
+        String name = String.format("<%s>%s</%s>", color, lifetimePlayers.getByKey(player), color);
+        return Msg.toMini(rank.getPrefix()) + name;
     }
 
     /**
