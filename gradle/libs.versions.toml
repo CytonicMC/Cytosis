@@ -13,7 +13,7 @@ jnats = "2.25.1"
 jooq = "3.20.10"
 log4j = "2.25.3"
 minestompvp = "2025.12.29-1.21.11"
-mysql = "9.5.0"
+postgresql = "42.7.8"
 okhttp = "5.3.2"
 opentelemetry = "1.58.0"
 polar = "1.15.0"
@@ -39,7 +39,7 @@ configurate = { module = "org.spongepowered:configurate-gson", version.ref = "co
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
 minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
 adventure-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }

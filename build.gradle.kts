@@ -64,7 +64,7 @@ dependencies {
     downloadOrShade(libs.reflections)
     downloadOrShade(libs.bundles.log4j)
     downloadOrShade(libs.bundles.otel)
-    downloadOrShade(libs.mysql)
+    downloadOrShade(libs.postgresql)
     downloadOrShade(libs.joml)
 
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
