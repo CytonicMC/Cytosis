@@ -66,7 +66,7 @@ public interface Msg {
     }
 
     static Component darkAquaSplash(String splash, String text, Object... args) {
-        return mm("<dark_aqua><b>" + splash + "</b></darkAqua><gray> " + text, args);
+        return mm("<dark_aqua><b>" + splash + "</b></dark_aqua><gray> " + text, args);
     }
 
     static Component greenSplash(String splash, String text, Object... args) {

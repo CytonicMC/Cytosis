@@ -55,10 +55,10 @@ public interface PlayerlistCreator {
                 }
             }
             PlayerRank rank = p.getRank();
-            players.add(new PlayerListEntry(rank.getPrefix()
-                .append(p.getName()), rank.ordinal(), new PlayerInfoUpdatePacket.Property("textures", p.getSkin()
-                .textures(), p.getSkin()
-                .signature())));
+            players.add(new PlayerListEntry(p.formattedName(), rank.ordinal(),
+                new PlayerInfoUpdatePacket.Property("textures", p.getSkin()
+                    .textures(), p.getSkin()
+                    .signature())));
         }
 
         Column playerCol = new Column(Msg.mm("<dark_purple><b>        Players    "), PlayerListFavicon.PURPLE);

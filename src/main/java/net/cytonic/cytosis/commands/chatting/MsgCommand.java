@@ -11,7 +11,7 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -31,7 +31,7 @@ public class MsgCommand extends CytosisCommand {
         CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
         playerArg.setSuggestionCallback((_, _, suggestion) -> network.getOnlinePlayers().getValues()
             .forEach(player -> suggestion.addEntry(new SuggestionEntry(player))));
-        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.mm("<RED>Usage: /msg <player> [message]")));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.red("Usage: /msg <player> [message]")));
 
         addSyntax((sender, context) -> {
             if (sender instanceof CytosisPlayer actor) {
@@ -63,7 +63,7 @@ public class MsgCommand extends CytosisCommand {
             actor.sendMessage(
                 Msg.darkAquaSplash("CHAT CHANNEL!", "You opened a direct message to ").append(recipientComponent)
                     .append(Msg.grey("!"))
-                    .append(Msg.darkGrey("<i>Whenever you type in chat your messages get sent to" + " them!")));
+                    .append(Msg.darkGrey("<i> Whenever you type in chat your messages get sent to" + " them!")));
             ChatManager chatManager = Cytosis.get(ChatManager.class);
             chatManager.setChannel(actor.getUuid(), ChatChannel.PRIVATE_MESSAGE);
             chatManager.openPrivateMessage(actor, recipient);
@@ -73,11 +73,12 @@ public class MsgCommand extends CytosisCommand {
         Component component = Msg.mm("<dark_aqua>From <reset>")
             .append(actor.getRank().getPrefix().append(Msg.mm(actor.getUsername())).append(Msg.mm("<dark_aqua> » ")))
             .append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.get(MysqlDatabase.class).addPlayerMessage(actor.getUuid(), recipient, message);
+        Cytosis.get(EnvironmentDatabase.class).addPlayerMessage(actor.getUuid(), recipient, message);
         new ChatMessageNotifyPacket.Packet(Set.of(recipient), ChatChannel.PRIVATE_MESSAGE, new JsonComponent(component),
             actor.getUuid()).publish();
         actor.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(targetRank.getPrefix().append(
-                Msg.mm(Cytosis.get(CytonicNetwork.class).getLifetimeFlattened().getByKey(recipient))))
+                Msg.mm(Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(recipient))))
+            .color(targetRank.getTeamColor())
             .append(Msg.mm("<dark_aqua> » ")).append(Component.text(message, NamedTextColor.WHITE)));
     }
 }
