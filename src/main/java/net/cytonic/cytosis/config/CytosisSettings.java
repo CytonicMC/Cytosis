@@ -127,7 +127,7 @@ public final class CytosisSettings {
          */
         @Setting("port")
         @Required
-        private int port = 3306;
+        private int port = 5432;
         /**
          * Name of the database to use
          */

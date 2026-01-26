@@ -15,19 +15,19 @@ public enum PlayerRank {
     /**
      * The [OWNER] rank
      */
-    OWNER(Msg.mm("<red>[OWNER] "), NamedTextColor.RED, NamedTextColor.WHITE),
+    OWNER(Msg.mm("<gold>[<dark_red>⛨</dark_red>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
     /**
      * The [ADMIN] rank
      */
-    ADMIN(Msg.mm("<red>[ADMIN] "), NamedTextColor.RED, NamedTextColor.WHITE),
+    ADMIN(Msg.mm("<gold>[<red>⛨</red>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
     /**
      * The [MOD] rank
      */
-    MODERATOR(Msg.mm("<green>[MOD] "), NamedTextColor.GREEN, NamedTextColor.WHITE),
+    MODERATOR(Msg.mm("<gold>[<green>⛨</green>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
     /**
      * The [HELPER] rank
      */
-    HELPER(Msg.mm("<aqua>[HELPER] "), NamedTextColor.AQUA, NamedTextColor.WHITE),
+    HELPER(Msg.mm("<gold>[<aqua>⛨</aqua>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
 
     // player ranks
     /**

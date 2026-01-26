@@ -13,12 +13,12 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.utils.polar.PolarExtension;
 
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {MysqlDatabase.class, net.minestom.server.instance.InstanceManager.class})
+@CytosisComponent(dependsOn = {EnvironmentDatabase.class, net.minestom.server.instance.InstanceManager.class})
 public class InstanceManager implements Bootstrappable {
 
     private GlobalDatabase db;

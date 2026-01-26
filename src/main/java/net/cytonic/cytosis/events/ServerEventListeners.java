@@ -24,8 +24,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TpsCommand;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
@@ -156,7 +156,7 @@ public final class ServerEventListeners {
         Logger.info(
             player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
                 .getRemoteAddress());
-        MysqlDatabase db = Cytosis.get(MysqlDatabase.class);
+        EnvironmentDatabase db = Cytosis.get(EnvironmentDatabase.class);
         GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
 
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
@@ -202,7 +202,7 @@ public final class ServerEventListeners {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         event.setCancelled(true);
         GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
-        MysqlDatabase db = Cytosis.get(MysqlDatabase.class);
+        EnvironmentDatabase db = Cytosis.get(EnvironmentDatabase.class);
         gdb.isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst checking if the player is muted!", throwable);
