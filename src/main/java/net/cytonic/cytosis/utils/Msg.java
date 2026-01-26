@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import net.cytonic.cytosis.data.objects.BanData;
 
@@ -220,6 +221,10 @@ public interface Msg {
 
     static String stripTags(String str) {
         return MiniMessage.miniMessage().stripTags(str);
+    }
+
+    static String toText(Component component) {
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
     static String toMini(Component component) {

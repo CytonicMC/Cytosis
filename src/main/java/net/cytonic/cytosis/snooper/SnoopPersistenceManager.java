@@ -9,8 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 import lombok.SneakyThrows;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -24,6 +22,7 @@ import org.jooq.impl.SQLDataType;
 
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.Msg;
 
 public class SnoopPersistenceManager {
 
@@ -69,9 +68,7 @@ public class SnoopPersistenceManager {
     @SneakyThrows
     public CompletableFuture<Void> persistSnoop(SnooperChannel channel, Component component) {
         return CompletableFuture.supplyAsync(() -> {
-            String message = MiniMessage.miniMessage()
-                .stripTags(PlainTextComponentSerializer.plainText().serialize(component));
-//                .replaceAll("[\\uE000-\\uF8FF]", ""); // strip any custom chars since mysql will throw a fit
+            String message = Msg.stripTags(Msg.toText(component));
             try {
                 db.insertInto(table, target, content, this.channel)
                     .values(channel.recipients(), message, channel.id().asString()).execute();
