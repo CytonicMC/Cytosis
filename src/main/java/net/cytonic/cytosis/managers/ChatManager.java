@@ -15,7 +15,7 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.messaging.NatsManager;
@@ -142,7 +142,7 @@ public class ChatManager implements Bootstrappable {
             .append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername())))
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.get(MysqlDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
+        Cytosis.get(EnvironmentDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
         new ChatMessageNotifyPacket.Packet(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
             new JsonComponent(component), player.getUuid()).publish();
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » "))

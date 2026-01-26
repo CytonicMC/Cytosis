@@ -16,8 +16,8 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
@@ -27,13 +27,13 @@ import net.cytonic.cytosis.player.CytosisPlayer;
  * A class that manages player ranks
  */
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {MysqlDatabase.class, RedisDatabase.class, GlobalDatabase.class})
+@CytosisComponent(dependsOn = {EnvironmentDatabase.class, RedisDatabase.class, GlobalDatabase.class})
 public class RankManager implements Bootstrappable {
 
     private final ConcurrentHashMap<UUID, PlayerRank> rankMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerRank, Team> teamMap = new ConcurrentHashMap<>();
     private RedisDatabase redis;
-    private MysqlDatabase db;
+    private EnvironmentDatabase db;
     private GlobalDatabase gdb;
 
     /**
@@ -42,7 +42,7 @@ public class RankManager implements Bootstrappable {
     @Override
     public void init() {
         this.redis = Cytosis.get(RedisDatabase.class);
-        this.db = Cytosis.get(MysqlDatabase.class);
+        this.db = Cytosis.get(EnvironmentDatabase.class);
         this.gdb = Cytosis.get(GlobalDatabase.class);
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager()).collisionRule(

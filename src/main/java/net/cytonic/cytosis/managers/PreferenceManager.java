@@ -14,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceData;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceRegistry;
@@ -28,7 +28,7 @@ import net.cytonic.cytosis.utils.Preferences;
  * preferences are pretty small, every online player has their preference data stored here, no matter which server they
  * are connected to.
  */
-@CytosisComponent(dependsOn = {MysqlDatabase.class})
+@CytosisComponent(dependsOn = {EnvironmentDatabase.class})
 public class PreferenceManager implements Bootstrappable {
 
     /**

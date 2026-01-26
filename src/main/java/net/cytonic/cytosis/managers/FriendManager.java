@@ -14,19 +14,20 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 
 /**
  * A class to manage friends
  */
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class, MysqlDatabase.class, CytonicNetwork.class}, priority = 10)
+@CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class, EnvironmentDatabase.class,
+    CytonicNetwork.class}, priority = 10)
 public class FriendManager implements Bootstrappable {
 
     private final Map<UUID, Set<UUID>> friends = new ConcurrentHashMap<>();

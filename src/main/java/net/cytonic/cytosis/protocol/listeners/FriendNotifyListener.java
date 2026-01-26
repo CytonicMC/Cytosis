@@ -128,16 +128,16 @@ public class FriendNotifyListener {
     }
 
     private Component createTargetComponent(UUID target) {
-        String targetName = network.getLifetimePlayers().getByKey(target);
-        PlayerRank targetRank = network.getCachedPlayerRanks().get(target);
+        String name = network.getLifetimePlayers().getByKey(target);
+        PlayerRank rank = network.getCachedPlayerRanks().get(target);
 
-        return targetRank.getPrefix().append(Component.text(targetName));
+        return rank.getPrefix().append(Component.text(name, rank.getTeamColor()));
     }
 
     private Component createSenderComponent(UUID sender) {
-        String senderName = network.getLifetimePlayers().getByKey(sender);
-        PlayerRank senderRank = network.getCachedPlayerRanks().get(sender);
+        String name = network.getLifetimePlayers().getByKey(sender);
+        PlayerRank rank = network.getCachedPlayerRanks().get(sender);
 
-        return senderRank.getPrefix().append(Component.text(senderName));
+        return rank.getPrefix().append(Component.text(name, rank.getTeamColor()));
     }
 }
