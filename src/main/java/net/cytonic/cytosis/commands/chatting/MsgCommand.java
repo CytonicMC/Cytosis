@@ -63,7 +63,7 @@ public class MsgCommand extends CytosisCommand {
             actor.sendMessage(
                 Msg.darkAquaSplash("CHAT CHANNEL!", "You opened a direct message to ").append(recipientComponent)
                     .append(Msg.grey("!"))
-                    .append(Msg.darkGrey("<i> Whenever you type in chat your messages get sent to" + " them!")));
+                    .append(Msg.darkGrey("<i> Whenever you type in chat your messages get sent to them!")));
             ChatManager chatManager = Cytosis.get(ChatManager.class);
             chatManager.setChannel(actor.getUuid(), ChatChannel.PRIVATE_MESSAGE);
             chatManager.openPrivateMessage(actor, recipient);
