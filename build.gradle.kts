@@ -57,7 +57,6 @@ dependencies {
     downloadOrShade(libs.anvilInput)
     downloadOrShade(libs.configurate)
     downloadOrShade(libs.classgraph)
-    downloadOrShade(libs.jooq)
     downloadOrShade(libs.minimessage)
     downloadOrShade(libs.fastutil)
     downloadOrShade(libs.hikaricp)
@@ -66,6 +65,15 @@ dependencies {
     downloadOrShade(libs.bundles.otel)
     downloadOrShade(libs.postgresql)
     downloadOrShade(libs.joml)
+    downloadOrShade(libs.hibernate)
+    downloadOrShade(libs.hibernate.hikari)
+    downloadOrShade(libs.querydsl.jpa) {
+        artifact { classifier = "jakarta" }
+    }
+    annotationProcessor(libs.jakarta)
+    annotationProcessor(libs.querydsl.apt) {
+        artifact { classifier = "jakarta" }
+    }
 
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)

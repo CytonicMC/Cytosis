@@ -48,7 +48,7 @@ public class SnooperManager implements Bootstrappable {
     @Override
     public void init() {
         this.natsManager = Cytosis.get(NatsManager.class);
-        this.persistenceManager = new SnoopPersistenceManager(Cytosis.get(EnvironmentDatabase.class));
+        this.persistenceManager = new SnoopPersistenceManager();
 
         Logger.info("Loading snooper channels from redis");
         loadChannelsFromRedis();
@@ -152,7 +152,7 @@ public class SnooperManager implements Bootstrappable {
      * @param message The message to send.
      */
     public void sendSnoop(SnooperChannel channel, Component message) {
-        persistenceManager.persistSnoop(channel, message).whenComplete((unused, throwable) -> {
+        persistenceManager.persistSnoop(channel, message).whenComplete((_, throwable) -> {
             if (throwable != null) {
                 Logger.error("error persisting snoop!: ", throwable);
             }
