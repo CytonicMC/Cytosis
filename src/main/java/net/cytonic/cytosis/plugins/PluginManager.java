@@ -15,10 +15,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import io.github.classgraph.ClassGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.cytonic.cytosis.Bootstrappable;
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisBootstrap;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.plugins.dependencies.DependencyUtils;
@@ -53,6 +56,18 @@ public class PluginManager implements Bootstrappable {
             net.cytonic.cytosis.logging.Logger.error("An error occurred whilst loading plugins!", e);
             throw new RuntimeException("An error occurred whilst loading plugins!", e);
         }
+    }
+
+    public static ClassGraph createClassGraph() {
+        List<ClassLoader> loaders = new ArrayList<>();
+        loaders.add(Cytosis.class.getClassLoader());
+        loaders.addAll(PluginClassLoader.LOADERS);
+
+        return new ClassGraph()
+            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
+            .enableClassInfo()
+            .enableAnnotationInfo()
+            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
     }
 
     @Override
