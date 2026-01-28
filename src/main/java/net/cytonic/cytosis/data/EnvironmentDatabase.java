@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
@@ -36,6 +37,7 @@ import net.cytonic.cytosis.utils.PosSerializer;
 public class EnvironmentDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
+    @Getter
     private final HikariDataSource dataSource;
 
     /**

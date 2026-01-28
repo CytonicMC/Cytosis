@@ -45,18 +45,18 @@ public class SnooperMenu extends View {
         .layoutTarget('1')
         .itemFactory((builder, snoop) -> {
             List<Component> lore = new ArrayList<>();
-            lore.add(Msg.mm("<yellow>Channel: '<light_purple>" + snoop.channel() + "</light_purple>'"));
+            lore.add(Msg.mm("<yellow>Channel: '<light_purple>" + snoop.getChannel() + "</light_purple>'"));
             lore.add(Msg.mm("<yellow>Content:</yellow>"));
-            lore.addAll(Msg.wrap(snoop.rawContent()));
+            lore.addAll(Msg.wrap(snoop.getContent()));
             lore.add(Msg.mm(""));
             lore.add(Msg.mm(
                 "<yellow>Sent: <light_purple>"
-                    + DurationParser.unparseFull(snoop.timestamp().toInstant())
+                    + DurationParser.unparseFull(snoop.getCreated())
                     + "</light_purple> ago."));
 
             ItemStack item = ItemStack.builder(Material.PAPER)
                 .hideExtraTooltip()
-                .customName(Msg.mm("Snoop #" + snoop.id()))
+                .customName(Msg.mm("Snoop #" + snoop.getId()))
                 .lore(lore)
                 .build();
             builder.withItem(item);

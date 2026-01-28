@@ -25,6 +25,7 @@ import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 
 /**
@@ -72,18 +73,8 @@ public final class BootstrapRegistrationUtils {
      * @return list of candidate component classes
      */
     private static List<Class<?>> scanAnnotatedComponents() {
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
-
-        ClassGraph graph = new ClassGraph()
-            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableClassInfo()
-            .enableAnnotationInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
-
         List<Class<?>> candidates = new ArrayList<>();
-        try (var scanResult = graph.scan()) {
+        try (var scanResult = PluginManager.createClassGraph().scan()) {
             var classInfos = scanResult.getClassesWithAnnotation(CytosisComponent.class.getName());
             for (var classInfo : classInfos) {
                 try {

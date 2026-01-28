@@ -9,7 +9,6 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -34,14 +33,14 @@ public class GetPreferenceCommand extends CytosisCommand {
 
             Key node = Key.key(context.get(nodeArg));
             PreferenceManager manager = Cytosis.get(PreferenceManager.class);
-            Preference<?> preference = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
+            Object preference = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
             if (preference == null) {
                 player.sendMessage(Msg.red("Preference node <yellow>" + node.asString() + "</yellow> does not exist!"));
                 return;
             }
             player.sendMessage(
                 Msg.pink("Preference node <yellow>" + node.asString() + "</yellow> has a value of '<aqua>%s</aqua>'",
-                    preference.getValue().toString()));
+                    preference.toString()));
         }, nodeArg);
     }
 }
