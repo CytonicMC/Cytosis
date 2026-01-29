@@ -126,8 +126,6 @@ public class CytosisBootstrap {
      * Applies system settings and loads environment.
      */
     private void applySystemSettings() {
-        System.setProperty("org.jooq.no-logo", "true");
-        System.setProperty("org.jooq.no-tips", "true");
         Logger.info("Creating file manager");
         Logger.info("Initializing file manager");
         cytosisContext.registerComponent(new FileManager());

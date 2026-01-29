@@ -13,7 +13,6 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.JdbcSettings;
 import org.hibernate.service.ServiceRegistry;
 
 import net.cytonic.cytosis.Bootstrappable;
@@ -41,9 +40,9 @@ public class HibernateHelper implements Bootstrappable {
 
         settings.put(AvailableSettings.JAKARTA_NON_JTA_DATASOURCE,
             Cytosis.get(EnvironmentDatabase.class).getDataSource());
-
-        settings.put(JdbcSettings.SHOW_SQL, true);
-        settings.put(JdbcSettings.FORMAT_SQL, true);
+        settings.put(AvailableSettings.SHOW_SQL, Boolean.getBoolean("hibernate_debug"));
+        settings.put(AvailableSettings.JTA_PLATFORM, "none");
+        settings.put(AvailableSettings.FORMAT_SQL, true);
         settings.put(AvailableSettings.HBM2DDL_AUTO, "update");
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
