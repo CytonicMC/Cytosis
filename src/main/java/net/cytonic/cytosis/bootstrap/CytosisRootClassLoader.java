@@ -1,11 +1,11 @@
 package net.cytonic.cytosis.bootstrap;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import net.cytonic.cytosis.utils.BuildInfo;
 
 /**
  * Class Loader that can modify class bytecode when they are loaded
@@ -15,7 +15,8 @@ public class CytosisRootClassLoader extends URLClassLoader {
     private static volatile CytosisRootClassLoader INSTANCE;
 
     private CytosisRootClassLoader(ClassLoader parent) {
-        super("Cytosis Root ClassLoader", extractUrlsFromClasspath(), parent);
+        super("Cytosis Root ClassLoader", extractUrlsFromClasspath(),
+            BuildInfo.DEPENDENCIES_BUNDLED ? parent : ClassLoader.getPlatformClassLoader());
     }
 
     public static CytosisRootClassLoader getInstance() {
@@ -52,45 +53,7 @@ public class CytosisRootClassLoader extends URLClassLoader {
 
     @Override
     public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class<?> loadedClass = findLoadedClass(name);
-        if (loadedClass != null) {
-            return loadedClass;
-        }
-
-        try {
-            // we do not load system classes by ourselves
-            return ClassLoader.getPlatformClassLoader().loadClass(name);
-        } catch (ClassNotFoundException e) {
-            try {
-                return define(name, resolve);
-            } catch (Exception ex) {
-                // fail to load a class, let parent load
-                // this forbids code modification, but at least it will load
-                return super.loadClass(name, resolve);
-            }
-        }
-    }
-
-    private Class<?> define(String name, boolean resolve) throws IOException, ClassNotFoundException {
-        byte[] bytes = loadBytes(name);
-        Class<?> defined = defineClass(name, bytes, 0, bytes.length);
-        if (resolve) {
-            resolveClass(defined);
-        }
-        return defined;
-    }
-
-    public byte[] loadBytes(String name) throws IOException, ClassNotFoundException {
-        if (name == null) throw new ClassNotFoundException();
-        String path = name.replace(".", "/") + ".class";
-
-        byte[] originalBytes;
-        try (InputStream input = getResourceAsStream(path)) {
-            if (input == null) throw new ClassNotFoundException("Could not find resource " + path);
-            originalBytes = input.readAllBytes();
-        }
-
-        return originalBytes;
+        return super.loadClass(name, resolve);
     }
 
     @Override
