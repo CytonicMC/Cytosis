@@ -11,6 +11,7 @@ plugins {
     id("net.kyori.blossom") version "2.2.0"
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
+    id("io.ebean") version "17.2.0"
 }
 
 group = "net.cytonic"
@@ -65,16 +66,10 @@ dependencies {
     downloadOrShade(libs.bundles.otel)
     downloadOrShade(libs.postgresql)
     downloadOrShade(libs.joml)
-    downloadOrShade(libs.hibernate)
-    downloadOrShade(libs.hibernate.hikari)
-    downloadOrShade(libs.querydsl.jpa) {
-        artifact { classifier = "jakarta" }
-    }
-    annotationProcessor(libs.jakarta)
-    annotationProcessor(libs.querydsl.apt) {
-        artifact { classifier = "jakarta" }
-    }
-
+    downloadOrShade(libs.ebean)
+    downloadOrShade(libs.ebean.ddl)
+    downloadOrShade(libs.ebean.migrations)
+    annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
 }
