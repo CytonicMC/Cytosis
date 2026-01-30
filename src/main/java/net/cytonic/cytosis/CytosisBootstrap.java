@@ -2,7 +2,6 @@ package net.cytonic.cytosis;
 
 import java.lang.reflect.Constructor;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.github.classgraph.ClassGraph;
@@ -24,7 +23,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
+import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 
 /**
@@ -90,14 +89,10 @@ public class CytosisBootstrap {
         Logger.info("Initializing view frame");
         ViewFrame viewFrame = ViewFrame.create();
 
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
-
         ClassGraph graph = new ClassGraph()
-            .acceptPackages("net.cytonic")
-            .enableAllInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
+            .enableClassInfo()
+            .overrideClassLoaders(PluginManager.getClassLoaders());
 
         try (ScanResult result = graph.scan()) {
             result.getSubclasses(View.class).loadClasses().forEach(foundClass -> {
