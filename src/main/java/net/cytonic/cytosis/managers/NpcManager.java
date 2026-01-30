@@ -2,8 +2,6 @@ package net.cytonic.cytosis.managers;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +19,6 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.PluginManager;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.protocol.utils.ExcludeFromClassGraph;
 
 /**
@@ -35,14 +32,10 @@ public class NpcManager implements Bootstrappable {
 
     @Override
     public void init() {
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
-
         ClassGraph graph = new ClassGraph()
             .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableAllInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+            .enableClassInfo()
+            .overrideClassLoaders(PluginManager.getClassLoaders());
         try (ScanResult result = graph.scan()) {
             result.getSubclasses(NPC.class).loadClasses().forEach(clazz -> {
                 try {

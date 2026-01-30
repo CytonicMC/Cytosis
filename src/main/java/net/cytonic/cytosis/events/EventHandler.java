@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.trait.CancellableEvent;
 import org.jetbrains.annotations.ApiStatus;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
+import net.cytonic.cytosis.plugins.PluginManager;
 
 /**
  * EventHandler class is responsible for handling events and managing listeners. It provides methods to register,
@@ -34,20 +34,18 @@ public class EventHandler {
     }
 
     public void findEvents() {
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
+        final ClassGraph classGraph = new ClassGraph().acceptPackages("net.minestom.event", "net.cytonic.events",
+                "io.github.togar2.events") // cytonic things, and PVP
+            .enableAnnotationInfo()
+            .overrideClassLoaders(PluginManager.getClassLoaders());
 
-        final ClassGraph classGraph = new ClassGraph().acceptPackages("net.minestom", "net.cytonic",
-                "io.github.togar2") // cytonic things, and PVP
-            .enableAllInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+        try (ScanResult scanResult = classGraph.scan()) {
+            scanResult.getClassesImplementing(Event.class.getName()).forEach(classInfo -> {
+                Class<?> clazz = classInfo.loadClass();
+                globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
+            });
 
-        classGraph.scan().getClassesImplementing(Event.class.getName()).forEach(classInfo -> {
-            Class<?> clazz = classInfo.loadClass();
-            globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
-        });
-
+        }
     }
 
     /**
