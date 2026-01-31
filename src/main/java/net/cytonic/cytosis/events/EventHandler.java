@@ -34,17 +34,16 @@ public class EventHandler {
     }
 
     public void findEvents() {
-        final ClassGraph classGraph = new ClassGraph().acceptPackages("net.minestom.event", "net.cytonic.events",
+        final ClassGraph classGraph = new ClassGraph()
+            .acceptPackages("net.minestom.server.event", "net.cytonic",
                 "io.github.togar2.events") // cytonic things, and PVP
-            .enableAnnotationInfo()
+            .enableClassInfo()
             .overrideClassLoaders(PluginManager.getClassLoaders());
-
         try (ScanResult scanResult = classGraph.scan()) {
-            scanResult.getClassesImplementing(Event.class.getName()).forEach(classInfo -> {
+            scanResult.getClassesImplementing(Event.class).forEach(classInfo -> {
                 Class<?> clazz = classInfo.loadClass();
                 globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
             });
-
         }
     }
 
