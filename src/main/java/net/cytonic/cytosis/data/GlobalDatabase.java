@@ -128,13 +128,12 @@ public class GlobalDatabase implements Bootstrappable {
 
     protected static void registerDatabase(String databaseName, HikariDataSource dataSource) {
         Properties props = new Properties();
-        props.setProperty("ebean.migration.migrationPath", "dbmigration/" + databaseName);
+        props.setProperty("ebean.migration.migrationPath", "dbmigration/cytosis/" + databaseName);
         props.setProperty("ebean.migration.run", "true");
         DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.setDataSource(dataSource);
         databaseConfig.loadFromProperties(props);
         databaseConfig.runMigration(true);
-        databaseConfig.register("environment".equals(databaseName));
         databaseConfig.defaultDatabase("environment".equals(databaseName));
         databaseConfig.name(databaseName);
         DatabaseFactory.create(databaseConfig);
