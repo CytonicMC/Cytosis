@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -48,7 +49,8 @@ import net.cytonic.cytosis.utils.Utils;
 public class GlobalDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
-    private final HikariDataSource dataSource;
+    @Getter
+    private HikariDataSource dataSource;
 
     /**
      * Creates and initializes a new Global Database
@@ -57,10 +59,6 @@ public class GlobalDatabase implements Bootstrappable {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
-        // Configure HikariCP
-        HikariConfig config = getHikariConfig();
-
-        this.dataSource = new HikariDataSource(config);
     }
 
     protected static @NonNull HikariConfig getHikariConfig() {
@@ -112,6 +110,9 @@ public class GlobalDatabase implements Bootstrappable {
     public void connect() {
         if (!isConnected()) {
             try {
+                HikariConfig config = getHikariConfig();
+                this.dataSource = new HikariDataSource(config);
+
                 // Test the connection
                 try (Connection conn = dataSource.getConnection()) {
                     Logger.info("Successfully connected to the Global Database!");
@@ -148,7 +149,7 @@ public class GlobalDatabase implements Bootstrappable {
      * @return A connection from the pool
      * @throws SQLException if a connection cannot be obtained
      */
-    private Connection getConnection() throws SQLException {
+    protected Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 

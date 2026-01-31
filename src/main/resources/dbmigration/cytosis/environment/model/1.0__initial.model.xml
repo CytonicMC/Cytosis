@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="cytonic_snoops" identityType="identity" pkName="pk_cytonic_snoops">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="channel" type="varchar"/>
+            <column name="target" type="tinyint"/>
+            <column name="content" type="varchar"/>
+            <column name="created" type="timestamp" notnull="true"/>
+        </createTable>
+    </changeSet>
+</migration>
