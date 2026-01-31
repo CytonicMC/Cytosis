@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import io.ebean.annotation.Platform.POSTGRES
 import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 
 plugins {
@@ -11,6 +12,8 @@ plugins {
     id("net.kyori.blossom") version "2.2.0"
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
+    id("io.ebean") version "17.2.0"
+    id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
 }
 
 group = "net.cytonic"
@@ -65,16 +68,10 @@ dependencies {
     downloadOrShade(libs.bundles.otel)
     downloadOrShade(libs.postgresql)
     downloadOrShade(libs.joml)
-    downloadOrShade(libs.hibernate)
-    downloadOrShade(libs.hibernate.hikari)
-    downloadOrShade(libs.querydsl.jpa) {
-        artifact { classifier = "jakarta" }
-    }
-    annotationProcessor(libs.jakarta)
-    annotationProcessor(libs.querydsl.apt) {
-        artifact { classifier = "jakarta" }
-    }
-
+    downloadOrShade(libs.ebean)
+    downloadOrShade(libs.ebean.ddl)
+    downloadOrShade(libs.ebean.migrations)
+    annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
 }
@@ -141,6 +138,11 @@ fun DependencyHandler.downloadOrShade(
     addDependencyTo(this, "api", resolved, dependencyConfiguration)
     addDependencyTo(this, "runtimeDownloadOnly", resolved, dependencyConfiguration)
     addDependencyTo(this, "downloadOrShadow", resolved, dependencyConfiguration)
+}
+migration {
+    id = "cytosis"
+    platform = POSTGRES
+    databases = listOf("global", "environment")
 }
 
 tasks.withType<Javadoc> {

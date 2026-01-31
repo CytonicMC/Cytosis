@@ -84,7 +84,7 @@ public class JavaPluginLoader {
             dependencies.add(toDependencyMeta(dependency));
         }
 
-        return new JavaDescriptionCandidate(description.getName(), description.getName(), description.getVersion(),
+        return new JavaDescriptionCandidate(description.getId(), description.getName(), description.getVersion(),
             description.getDescription(), description.getAuthors(), dependencies, source, description.getMain());
     }
 
