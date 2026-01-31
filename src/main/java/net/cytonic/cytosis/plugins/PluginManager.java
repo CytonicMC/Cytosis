@@ -26,7 +26,6 @@ import net.cytonic.cytosis.plugins.dependencies.DependencyUtils;
 import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
 import net.cytonic.cytosis.plugins.loader.JavaPluginLoader;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
-import net.cytonic.cytosis.utils.EbeanUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -114,7 +113,6 @@ public class PluginManager implements Bootstrappable {
 
             try {
                 loader.createPlugin(container);
-                EbeanUtils.runPluginMigrations(container);
             } catch (Throwable e) {
                 logger.error("Can't create plugin {}", desc.getId(), e);
                 continue;

@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -17,8 +16,7 @@ import java.util.concurrent.Executors;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.ebean.DatabaseFactory;
-import io.ebean.config.DatabaseConfig;
+import lombok.Getter;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -51,6 +49,7 @@ import net.cytonic.cytosis.utils.Utils;
 public class GlobalDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
+    @Getter
     private HikariDataSource dataSource;
 
     /**
@@ -118,26 +117,11 @@ public class GlobalDatabase implements Bootstrappable {
                 try (Connection conn = dataSource.getConnection()) {
                     Logger.info("Successfully connected to the Global Database!");
                 }
-                registerDatabase("global", dataSource);
             } catch (SQLException e) {
                 Logger.error("Invalid Database Credentials!", e);
                 MinecraftServer.stopCleanly();
             }
         }
-    }
-
-    protected static void registerDatabase(String databaseName, HikariDataSource dataSource) {
-        Properties props = new Properties();
-        props.setProperty("ebean.migration.migrationPath", "dbmigration/cytosis/" + databaseName);
-        props.setProperty("ebean.migration.run", "true");
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-        databaseConfig.setDataSource(dataSource);
-        databaseConfig.loadFromProperties(props);
-        databaseConfig.runMigration(true);
-        databaseConfig.defaultDatabase("environment".equals(databaseName));
-        databaseConfig.name(databaseName);
-        DatabaseFactory.create(databaseConfig);
-        Logger.info("Successfully connected to the Ebean " + databaseName + " Database!");
     }
 
     /**
@@ -165,7 +149,7 @@ public class GlobalDatabase implements Bootstrappable {
      * @return A connection from the pool
      * @throws SQLException if a connection cannot be obtained
      */
-    private Connection getConnection() throws SQLException {
+    protected Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 

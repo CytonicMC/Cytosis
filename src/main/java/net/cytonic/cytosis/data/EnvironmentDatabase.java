@@ -81,8 +81,6 @@ public class EnvironmentDatabase implements Bootstrappable {
                 try (Connection conn = dataSource.getConnection()) {
                     Logger.info("Successfully connected to the Environmental Database!");
                 }
-
-                GlobalDatabase.registerDatabase("environment", dataSource);
             } catch (Throwable e) {
                 Logger.error("Invalid Database Credentials!", e);
                 MinecraftServer.stopCleanly();
@@ -295,7 +293,7 @@ public class EnvironmentDatabase implements Bootstrappable {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
 
         worker.submit(() -> {
-            try (Connection conn = getConnection()) {
+            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_worlds WHERE world_name = ?");
                 ps.setString(1, worldName);
                 ResultSet rs = ps.executeQuery();
@@ -330,7 +328,7 @@ public class EnvironmentDatabase implements Bootstrappable {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
 
         worker.submit(() -> {
-            try (Connection conn = getConnection()) {
+            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
                     "SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?");
                 ps.setString(1, worldName);
