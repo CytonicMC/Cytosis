@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import io.ebean.annotation.Platform.POSTGRES
 import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 
 plugins {
@@ -12,6 +13,7 @@ plugins {
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
     id("io.ebean") version "17.2.0"
+    id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
 }
 
 group = "net.cytonic"
@@ -136,6 +138,11 @@ fun DependencyHandler.downloadOrShade(
     addDependencyTo(this, "api", resolved, dependencyConfiguration)
     addDependencyTo(this, "runtimeDownloadOnly", resolved, dependencyConfiguration)
     addDependencyTo(this, "downloadOrShadow", resolved, dependencyConfiguration)
+}
+migration {
+    id = "cytosis"
+    platform = POSTGRES
+    databases = listOf("global", "environment")
 }
 
 tasks.withType<Javadoc> {
