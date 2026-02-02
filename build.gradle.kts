@@ -12,7 +12,7 @@ plugins {
     id("net.kyori.blossom") version "2.2.0"
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
-    id("io.ebean") version "17.2.0"
+    id("io.ebean") version "17.2.1"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
 }
 
