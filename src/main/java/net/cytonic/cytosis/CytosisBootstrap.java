@@ -29,7 +29,7 @@ import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
+import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
@@ -137,12 +137,8 @@ public class CytosisBootstrap {
         Logger.info("Initializing view frame");
         ViewFrame viewFrame = ViewFrame.create();
 
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
-
-        ClassGraph graph = new ClassGraph().acceptPackages("net.cytonic").enableAllInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+        ClassGraph graph = new ClassGraph().acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT).enableClassInfo()
+            .overrideClassLoaders(PluginManager.getClassLoaders());
 
         try (ScanResult result = graph.scan()) {
             result.getSubclasses(View.class).loadClasses().forEach(foundClass -> {
@@ -171,8 +167,6 @@ public class CytosisBootstrap {
      * Applies system settings and loads environment.
      */
     private void applySystemSettings() {
-        System.setProperty("org.jooq.no-logo", "true");
-        System.setProperty("org.jooq.no-tips", "true");
         Logger.info("Creating file manager");
         Logger.info("Initializing file manager");
         cytosisContext.registerComponent(new FileManager());

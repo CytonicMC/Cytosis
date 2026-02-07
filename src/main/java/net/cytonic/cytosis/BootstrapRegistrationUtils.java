@@ -72,17 +72,10 @@ public final class BootstrapRegistrationUtils {
      * @return list of candidate component classes
      */
     private static List<Class<?>> scanAnnotatedComponents() {
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
-
-        ClassGraph graph = new ClassGraph()
-            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableClassInfo()
-            .enableAnnotationInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
-
         List<Class<?>> candidates = new ArrayList<>();
+        ClassGraph graph = new ClassGraph().acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
+            .enableAnnotationInfo()
+            .enableClassInfo();
         try (var scanResult = graph.scan()) {
             var classInfos = scanResult.getClassesWithAnnotation(CytosisComponent.class.getName());
             for (var classInfo : classInfos) {

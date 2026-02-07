@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
@@ -36,19 +37,18 @@ import net.cytonic.cytosis.utils.PosSerializer;
 public class EnvironmentDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
-    private final HikariDataSource dataSource;
+    @Getter
+    private HikariDataSource dataSource;
 
     /**
      * Creates and initializes a new EnvironmentDatabase
      */
     public EnvironmentDatabase() {
-        String prefix = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment().getPrefix();
+        String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the database worker thread: " + t.getName(),
                     e)).factory());
-
-        this.dataSource = new HikariDataSource(GlobalDatabase.getHikariConfig());
     }
 
     @Override
@@ -67,12 +67,20 @@ public class EnvironmentDatabase implements Bootstrappable {
      */
     public void connect() {
         if (!isConnected()) {
+            HikariConfig config = GlobalDatabase.getHikariConfig();
+            CytosisSettings settings = Cytosis.get(CytosisSettings.class);
+            String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+            config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s",
+                settings.getDatabaseConfig().getHost(),
+                settings.getDatabaseConfig().getPort(),
+                prefix + settings.getDatabaseConfig().getName()));
+            this.dataSource = new HikariDataSource(config);
             try {
                 // Test the connection
                 try (Connection conn = dataSource.getConnection()) {
                     Logger.info("Successfully connected to the Environmental Database!");
                 }
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 Logger.error("Invalid Database Credentials!", e);
                 MinecraftServer.stopCleanly();
             }
@@ -284,7 +292,7 @@ public class EnvironmentDatabase implements Bootstrappable {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
 
         worker.submit(() -> {
-            try (Connection conn = getConnection()) {
+            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_worlds WHERE world_name = ?");
                 ps.setString(1, worldName);
                 ResultSet rs = ps.executeQuery();
@@ -319,7 +327,7 @@ public class EnvironmentDatabase implements Bootstrappable {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
 
         worker.submit(() -> {
-            try (Connection conn = getConnection()) {
+            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
                     "SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?");
                 ps.setString(1, worldName);
