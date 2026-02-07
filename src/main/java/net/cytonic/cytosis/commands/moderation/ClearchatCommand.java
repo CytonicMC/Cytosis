@@ -3,7 +3,6 @@ package net.cytonic.cytosis.commands.moderation;
 import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.config.CytosisSnoops;
@@ -35,7 +34,7 @@ public class ClearchatCommand extends CytosisCommand {
                     }
                 }
                 Component snoop = player.formattedName()
-                    .append(Msg.mm("<gray> cleared the chat in server " + CytosisContext.SERVER_ID + "."));
+                    .append(Msg.mm("<gray> cleared the chat in server " + Cytosis.CONTEXT.SERVER_ID + "."));
                 Cytosis.get(SnooperManager.class)
                     .sendSnoop(CytosisSnoops.CHAT_CLEAR, Msg.snoop(snoop));
             } else {

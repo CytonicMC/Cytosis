@@ -506,6 +506,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
         new PlayerKickNotifyPacket.Packet(getUuid(), reason, new JsonComponent(message)).publish();
     }
 
+    public void kickInternal(Component msg) {
+        super.kick(msg);
+    }
+
     public void sendToServer(String id) {
         CytonicServer server = Cytosis.get(CytonicNetwork.class).getServers().get(id);
         if (server == null) {

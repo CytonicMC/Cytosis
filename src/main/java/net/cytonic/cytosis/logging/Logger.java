@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.config.CytosisSnoops;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.utils.Msg;
@@ -45,7 +44,7 @@ public interface Logger {
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.DEBUG).setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext()
                     .getTraceId()) // Add trace ID
                 .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext()
@@ -67,7 +66,7 @@ public interface Logger {
             OTEL_LOGGER.logRecordBuilder()
                 .setSeverity(Severity.INFO)
                 .setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
                 .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
                 .emit();
@@ -87,7 +86,7 @@ public interface Logger {
             OTEL_LOGGER.logRecordBuilder()
                 .setSeverity(Severity.WARN)
                 .setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
                 .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
                 .emit();
@@ -104,7 +103,7 @@ public interface Logger {
 
         LOGGER.error(message.formatted(args));
         Component component = Msg.red("""
-                <b>Error Logged on server '" + CytosisContext.SERVER_ID + "'</b></red><newline><gray> Message: %s""",
+                <b>Error Logged on server '" + Cytosis.CONTEXT.SERVER_ID + "'</b></red><newline><gray> Message: %s""",
             message);
         try {
             Cytosis.get(SnooperManager.class)
@@ -115,7 +114,7 @@ public interface Logger {
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.ERROR).setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext()
                     .getTraceId()) // Add trace ID
                 .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext()
@@ -132,7 +131,7 @@ public interface Logger {
      */
     static void error(String message, Throwable ex) {
         Component component = Msg.mm(
-            "<red><b>Error Logged on server '" + CytosisContext.SERVER_ID + "'</b></red><newline><gray> Message: "
+            "<red><b>Error Logged on server '" + Cytosis.CONTEXT.SERVER_ID + "'</b></red><newline><gray> Message: "
                 + message
                 + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
         try {
@@ -145,7 +144,7 @@ public interface Logger {
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
             OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.ERROR).setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), CytosisContext.SERVER_ID)
+                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("throwable_message"), ex.getMessage())
                 .setAttribute(AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName())
                 .setAttribute(AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))

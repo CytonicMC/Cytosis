@@ -53,9 +53,9 @@ public class CytonicNetwork implements Bootstrappable {
         this.gdb = cytosisContext.getComponent(GlobalDatabase.class);
         importData();
         getServers()
-            .put(CytosisContext.SERVER_ID,
+            .put(Cytosis.CONTEXT.SERVER_ID,
                 new CytonicServer(Utils.getServerIP(),
-                    CytosisContext.SERVER_ID,
+                    Cytosis.CONTEXT.SERVER_ID,
                     cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getPort(),
                     cytosisContext.getServerGroup().type(),
                     cytosisContext.getServerGroup().group())

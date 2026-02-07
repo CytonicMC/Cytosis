@@ -1,5 +1,6 @@
 package net.cytonic.cytosis;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.objects.CytonicServer;
@@ -15,6 +17,7 @@ import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.data.enums.KickReason;
 
 /**
  * Holds references to all Cytosis components for dependency passing.
@@ -24,7 +27,7 @@ import net.cytonic.cytosis.utils.Utils;
 public class CytosisContext {
 
     // The instance ID is used to identify the server
-    public static final String SERVER_ID = generateID();
+    public final String SERVER_ID = generateID();
     private ServerGroup serverGroup = new ServerGroup("cytonic", "lobby");
 
     // map for bootstrappable services
@@ -36,6 +39,26 @@ public class CytosisContext {
     // Misc
     private List<String> flags;
     private boolean metricsEnabled = false;
+    private boolean stopping = false;
+    @Nullable
+    private Instant shutdownAt = null;
+    private boolean slowShutdown = Cytosis.IS_NOMAD;
+
+
+    /**
+     * Generates a random Server ID:
+     * <p>
+     * TODO: make a check for existing server ids
+     *
+     * @return a random Server ID
+     */
+    private static String generateID() {
+        var rnd = new java.security.SecureRandom();
+        char first = (char) ('a' + rnd.nextInt(26));
+        char last = (char) ('a' + rnd.nextInt(26));
+        int mid = rnd.nextInt(100000); // 0..99999
+        return "%c%05d%c".formatted(first, mid, last); // e.g., a01234b
+    }
 
     /**
      * Retrieves a component of the specified class type from the context.
@@ -164,27 +187,13 @@ public class CytosisContext {
             getServerGroup().group());
     }
 
-    /**
-     * Generates a random Server ID:
-     * <p>
-     * TODO: make a check for existing server ids
-     *
-     * @return a random Server ID
-     */
-    private static String generateID() {
-        var rnd = new java.security.SecureRandom();
-        char first = (char) ('a' + rnd.nextInt(26));
-        char last = (char) ('a' + rnd.nextInt(26));
-        int mid = rnd.nextInt(100000); // 0..99999
-        return "%c%05d%c".formatted(first, mid, last); // e.g., a01234b
-    }
-
     public void shutdownHandler() {
-        Cytosis.getOnlinePlayers()
-            .forEach(onlinePlayer -> onlinePlayer.kick(Msg.mm("<red>The server is shutting down.")));
+        Cytosis.getOnlinePlayers().forEach(onlinePlayer ->
+            onlinePlayer.kick(KickReason.SERVER_STOP, Msg.red("This server is shutting down.")));
 
         // shutdown bootstrappable components
         components.values().stream().filter(component -> component instanceof Bootstrappable)
             .map(Bootstrappable.class::cast).forEach(Bootstrappable::shutdown);
+        Logger.info("Cytosis has been shut down.");
     }
 }

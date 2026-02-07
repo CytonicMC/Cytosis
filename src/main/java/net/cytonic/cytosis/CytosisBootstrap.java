@@ -2,6 +2,8 @@ package net.cytonic.cytosis;
 
 import java.lang.reflect.Constructor;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,9 @@ import io.github.classgraph.ScanResult;
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewFrame;
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.bossbar.BossBar.Color;
+import net.kyori.adventure.title.Title;
 import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
@@ -26,6 +31,8 @@ import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
+import net.cytonic.cytosis.utils.DurationParser;
+import net.cytonic.cytosis.utils.Msg;
 
 /**
  * Main bootstrap class responsible for initializing and starting the Cytosis server. This class orchestrates the entire
@@ -55,6 +62,7 @@ public class CytosisBootstrap {
                 e1.printStackTrace(System.err);
             }
         });
+        System.setProperty("minestom.shutdown-on-signal", "false");
 
         applySystemSettings();
         initMinestom();
@@ -69,7 +77,46 @@ public class CytosisBootstrap {
             MetricsHooks.init();
         }
 
-        MinecraftServer.getSchedulerManager().buildShutdownTask(cytosisContext::shutdownHandler);
+        Runtime.getRuntime().addShutdownHook(Thread.ofPlatform().unstarted(() -> {
+            Cytosis.CONTEXT.setStopping(true);
+            Logger.info("Shutdown signal received!");
+
+            if (!Cytosis.CONTEXT.isSlowShutdown() || Cytosis.getOnlinePlayers().isEmpty()) {
+                Cytosis.CONTEXT.shutdownHandler();
+                MinecraftServer.stopCleanly();
+                return;
+            }
+
+            int seconds = Cytosis.get(CytosisSettings.class).getServerConfig().getShutdownDuration();
+            Instant shutdown = Instant.now().plusSeconds(seconds);
+            Cytosis.CONTEXT.setShutdownAt(shutdown);
+            Logger.info("Shutting server down in %d seconds.", seconds);
+            MinecraftServer.getSchedulerManager().buildTask(() -> {
+                Cytosis.CONTEXT.shutdownHandler();
+                MinecraftServer.stopCleanly();
+            }).delay(Duration.ofSeconds(seconds)).schedule();
+
+            BossBar bb = BossBar.bossBar(Msg.red("<b>Server Shutdown</b><white> %s",
+                DurationParser.unparse(shutdown, " ")), 1F, Color.RED, BossBar.Overlay.PROGRESS);
+            MinecraftServer.getSchedulerManager().buildTask(() -> {
+                    bb.progress(Instant.now().until(shutdown, ChronoUnit.SECONDS) / (float) seconds);
+                    bb.name(Msg.red("<b>Server Shutdown</b><white> %s", DurationParser.unparse(shutdown, " ")));
+                }).repeat(Duration.ofSeconds(1))
+                .schedule();
+            Cytosis.getOnlinePlayers().forEach(player -> {
+                player.showBossBar(bb);
+                player.showTitle(Title.title(Msg.redSplash("SERVER SHUTTING DOWN", ""),
+                    Msg.mm("This server will shut down in %s",
+                        DurationParser.unparse(shutdown, " ")), 10, 40, 10));
+            });
+
+            try {
+                Thread.sleep(seconds * 1000L);
+            } catch (InterruptedException e) {
+                System.err.println("Interrupted!");
+                Thread.currentThread().interrupt();
+            }
+        }));
 
         BootstrapRegistrationUtils.registerListeners(cytosisContext);
         cytosisContext.getComponent(EventHandler.class).init();
@@ -78,7 +125,7 @@ public class CytosisBootstrap {
 
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
-        Logger.info("Server id = " + CytosisContext.SERVER_ID);
+        Logger.info("Server id = " + Cytosis.CONTEXT.SERVER_ID);
 
         if (cytosisContext.getFlags().contains("--ci-test")) {
             Logger.info("Stopping server due to '--ci-test' flag.");
@@ -94,9 +141,7 @@ public class CytosisBootstrap {
         loaders.add(Cytosis.class.getClassLoader());
         loaders.addAll(PluginClassLoader.LOADERS);
 
-        ClassGraph graph = new ClassGraph()
-            .acceptPackages("net.cytonic")
-            .enableAllInfo()
+        ClassGraph graph = new ClassGraph().acceptPackages("net.cytonic").enableAllInfo()
             .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
 
         try (ScanResult result = graph.scan()) {
@@ -138,8 +183,8 @@ public class CytosisBootstrap {
      * Initializes and configures the Minestom server components required for the application.
      */
     private void initMinestom() {
-        cytosisContext.registerComponent(MinecraftServer.init(new Auth.Velocity(cytosisContext.getComponent(
-            CytosisSettings.class).getServerConfig().getSecret())));
+        cytosisContext.registerComponent(MinecraftServer.init(
+            new Auth.Velocity(cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getSecret())));
         MinecraftServer.getConnectionManager().setPlayerProvider(CytosisPlayer::new);
         MinecraftServer.setBrandName("Cytosis");
         MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
@@ -163,8 +208,8 @@ public class CytosisBootstrap {
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
         Logger.info("Adding a singed command packet handler");
-        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class, (packet, p) ->
-            MinecraftServer.getPacketListenerManager()
+        MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class,
+            (packet, p) -> MinecraftServer.getPacketListenerManager()
                 .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection()));
 
         Thread.ofVirtual().name("Cytosis-WorldLoader").start(Cytosis::loadWorld);
