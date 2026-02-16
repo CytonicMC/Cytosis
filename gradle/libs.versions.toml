@@ -23,7 +23,7 @@ lombokwarningfix = "4.0.5"
 fastutil = "8.5.18"
 hikaricp = "7.0.2"
 joml = "1.10.8"
-ebean = "17.2.1"
+ebean = "17.3.0"
 ebean-migrations = "14.3.0"
 
 [libraries]
