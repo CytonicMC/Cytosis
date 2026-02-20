@@ -154,7 +154,8 @@ public class SnooperManager implements Bootstrappable {
     public void sendSnoop(SnooperChannel channel, Component message) {
         persistenceManager.persistSnoop(channel, message).whenComplete((_, throwable) -> {
             if (throwable != null) {
-                Logger.error("error persisting snoop!: ", throwable);
+                Logger.warn("error persisting snoop!");
+                throwable.printStackTrace(System.err);
             }
         });
         new SnooperNotifyPacket.Packet(new JsonComponent(message)).publish(channel.channel());
