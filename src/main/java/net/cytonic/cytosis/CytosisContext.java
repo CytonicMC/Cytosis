@@ -43,6 +43,7 @@ public class CytosisContext {
     @Nullable
     private Instant shutdownAt = null;
     private boolean slowShutdown = Cytosis.IS_NOMAD;
+    private boolean sendErrorsThroughSnooper = false;
 
 
     /**

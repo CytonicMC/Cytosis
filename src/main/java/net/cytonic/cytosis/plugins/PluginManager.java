@@ -39,6 +39,7 @@ public class PluginManager implements Bootstrappable {
     private final Map<String, PluginContainer> pluginsById = new LinkedHashMap<>();
     private final Map<Object, PluginContainer> pluginInstances = new IdentityHashMap<>();
     private final Logger logger = LoggerFactory.getLogger("Plugin Manager");
+    private final List<Optional<CytosisPlugin>> plugins = new ArrayList<>();
 
     @Override
     public void init() {
@@ -54,6 +55,7 @@ public class PluginManager implements Bootstrappable {
             net.cytonic.cytosis.logging.Logger.error("An error occurred whilst loading plugins!", e);
             throw new RuntimeException("An error occurred whilst loading plugins!", e);
         }
+        logger.info("Done loading plugins!");
     }
 
     public static ClassLoader[] getClassLoaders() {
@@ -111,6 +113,7 @@ public class PluginManager implements Bootstrappable {
             PluginContainer container = plugin.getValue();
             PluginDescription desc = container.getDescription();
 
+            logger.warn("Creating plugin");
             try {
                 loader.createPlugin(container);
             } catch (Throwable e) {
@@ -152,11 +155,14 @@ public class PluginManager implements Bootstrappable {
 
     private void registerPlugin(PluginContainer plugin) {
         pluginsById.put(plugin.getDescription().getId(), plugin);
-        Optional<CytosisPlugin> instance = plugin.getInstance();
-        instance.ifPresent(o -> {
-            pluginInstances.put(o, plugin);
-            o.initialize();
-        });
+        plugins.add(plugin.getInstance());
+        plugin.getInstance().ifPresent(o -> pluginInstances.put(o, plugin));
+    }
+
+    public void initializePlugins() {
+        for (Optional<CytosisPlugin> plugin : plugins) {
+            plugin.ifPresent(CytosisPlugin::initialize);
+        }
     }
 
     public Optional<PluginContainer> getPlugin(String id) {

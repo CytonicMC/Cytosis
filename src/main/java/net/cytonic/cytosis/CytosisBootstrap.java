@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.github.classgraph.ClassGraph;
@@ -66,7 +65,12 @@ public class CytosisBootstrap {
 
         applySystemSettings();
         initMinestom();
-        BootstrapRegistrationUtils.registerCytosisComponents(cytosisContext);
+        try {
+            BootstrapRegistrationUtils.registerCytosisComponents(cytosisContext);
+        } catch (Exception ex) {
+            Logger.error("failed to register components!", ex);
+        }
+
         // register commands after every component is registered to avoid missing dependencies
         cytosisContext.getComponent(CommandHandler.class).registerCytosisCommands();
         initWorld();
@@ -118,11 +122,15 @@ public class CytosisBootstrap {
             }
         }));
 
-        BootstrapRegistrationUtils.registerListeners(cytosisContext);
+        cytosisContext.getComponent(PluginManager.class).initializePlugins();
+
+        try {
+            BootstrapRegistrationUtils.registerListeners(cytosisContext);
+        } catch (Exception ex) {
+            Logger.error("Failed to register components!", ex);
+        }
         cytosisContext.getComponent(EventHandler.class).init();
-
         startServer();
-
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
         Logger.info("Server id = " + Cytosis.CONTEXT.SERVER_ID);

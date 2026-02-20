@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.managers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -12,6 +13,7 @@ import io.ebean.migration.MigrationConfig;
 import io.ebean.migration.MigrationRunner;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 
 import net.cytonic.cytosis.Bootstrappable;
@@ -35,6 +37,9 @@ public class EbeanManager implements Bootstrappable {
         registerDatabase("environment", Cytosis.get(EnvironmentDatabase.class).getDataSource());
 
         Cytosis.get(PluginManager.class).getPlugins().forEach(this::runPluginMigrations);
+
+        Logger.info("Errors will now be broadcast through snooper.");
+        Cytosis.CONTEXT.setSendErrorsThroughSnooper(true);
     }
 
     private void registerDatabase(String databaseName, HikariDataSource dataSource) {
@@ -43,23 +48,32 @@ public class EbeanManager implements Bootstrappable {
         props.setProperty("ebean.migration.run", "true");
         DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.setDataSource(dataSource);
-        scanForEntityClasses().forEach(databaseConfig::addClass);
+        scanForEbeanClasses().forEach(databaseConfig::addClass);
         databaseConfig.loadFromProperties(props);
         databaseConfig.runMigration(true);
         databaseConfig.defaultDatabase("environment".equals(databaseName));
         databaseConfig.name(databaseName);
         DatabaseFactory.create(databaseConfig);
-        Logger.info("Successfully connected to the Ebean " + databaseName + " Database!");
+        Logger.info("Successfully connected to the Ebean " + databaseName
+            + " Database!");
     }
 
-    private List<Class<?>> scanForEntityClasses() {
+    private List<Class<?>> scanForEbeanClasses() {
         ClassGraph graph = new ClassGraph()
             .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
             .enableClassInfo()
             .enableAnnotationInfo()
             .overrideClassLoaders(PluginManager.getClassLoaders());
         try (ScanResult scanResult = graph.scan()) {
-            return scanResult.getClassesWithAnnotation(Entity.class).loadClasses();
+            List<Class<?>> classes = new ArrayList<>();
+
+            // Scan for @Entity classes
+            classes.addAll(scanResult.getClassesWithAnnotation(Entity.class).loadClasses());
+
+            // Scan for @Embeddable classes
+            classes.addAll(scanResult.getClassesWithAnnotation(Embeddable.class).loadClasses());
+
+            return classes;
         }
     }
 
