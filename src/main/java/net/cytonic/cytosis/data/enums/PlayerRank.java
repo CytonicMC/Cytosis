@@ -31,25 +31,17 @@ public enum PlayerRank {
 
     // player ranks
     /**
-     * The [ELYSIAN] rank
+     * The [NEXUS] rank
      */
-    ELYSIAN(Msg.mm("<gold>[ELYSIAN] "), NamedTextColor.GOLD, NamedTextColor.WHITE),
+    NEXUS(Msg.mm("<gold>[NEXUS] "), NamedTextColor.GOLD, NamedTextColor.WHITE),
     /**
-     * The [CELESTIAL] rank
+     * The [SYNAPSE] rank
      */
-    CELESTIAL(Msg.mm("<dark_aqua>[CELESTIAL] "), NamedTextColor.DARK_AQUA, NamedTextColor.WHITE),
+    SYNAPSE(Msg.mm("<dark_green>[SYNAPSE] "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
     /**
-     * The [MASTER] rank
+     * The [CORTEX] rank
      */
-    MASTER(Msg.mm("<dark_red>[MASTER] "), NamedTextColor.DARK_RED, NamedTextColor.WHITE),
-    /**
-     * The [VALIENT] rank
-     */
-    VALIENT(Msg.mm("<dark_green>[VALIENT] "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
-    /**
-     * The [NOBLE] rank
-     */
-    NOBLE(Msg.mm("<dark_purple>[NOBLE] "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
+    CORTEX(Msg.mm("<dark_purple>[CORTEX] "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
     /**
      * The [DEFAULT] rank
      */
