@@ -60,7 +60,6 @@ public class PreferenceManager implements Bootstrappable {
         db.loadPlayerPreferences(uuid).thenAccept(data -> {
             if (data == null) {
                 data = new PreferenceData(new ArrayList<>());
-                Logger.debug("Needs to be created!");
                 db.addNewPlayerPreferences(uuid, data);
             }
             preferenceData.put(uuid, data);

@@ -16,6 +16,7 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.logging.Logger;
 
 public class CytosisOpenTelemetry {
 
@@ -25,6 +26,7 @@ public class CytosisOpenTelemetry {
         try {
             url = getUrl();
         } catch (Exception e) {
+            Logger.warn("Disabling metrics as the URL was invalid.");
             Cytosis.CONTEXT.setMetricsEnabled(false);
             return;
         }
@@ -64,6 +66,7 @@ public class CytosisOpenTelemetry {
             .setLoggerProvider(loggerProvider).buildAndRegisterGlobal();
 
         Cytosis.CONTEXT.setMetricsEnabled(true);
+        Logger.info("Metrics collection has been enabled!");
     }
 
     private static String getUrl() {

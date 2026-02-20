@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.errorprone.annotations.Keep;
 
-import net.cytonic.cytosis.CytosisContext;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.protocol.Endpoint;
 import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.impl.objects.HealthCheckProtocolObject;
@@ -22,6 +22,6 @@ public class HealthCheckEndpoint implements
 
     @Override
     public String getSubject() {
-        return "health.check." + CytosisContext.SERVER_ID;
+        return "health.check." + Cytosis.CONTEXT.SERVER_ID;
     }
 }

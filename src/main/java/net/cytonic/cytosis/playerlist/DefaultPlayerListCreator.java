@@ -9,7 +9,6 @@ import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
@@ -41,7 +40,7 @@ public class DefaultPlayerListCreator implements PlayerlistCreator {
                 new PlayerListEntry(Component.empty(), 1),
                 new PlayerListEntry(Msg.mm("<dark_aqua>Players: " + Cytosis.getOnlinePlayers()
                     .size()), 2), new PlayerListEntry(Msg.mm("<dark_aqua>Version: " + Cytosis.VERSION), 3),
-                new PlayerListEntry(Msg.mm("<dark_aqua>ID: " + CytosisContext.SERVER_ID), 4),
+                new PlayerListEntry(Msg.mm("<dark_aqua>ID: " + Cytosis.CONTEXT.SERVER_ID), 4),
                 new PlayerListEntry(
                     Msg.mm("<darK_aqua>Network Players: " + Cytosis.get(CytonicNetwork.class)
                         .getOnlinePlayers()

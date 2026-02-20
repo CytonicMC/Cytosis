@@ -6,7 +6,6 @@ import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -32,7 +31,7 @@ public class DefaultCreator implements SideboardCreator {
     @Override
     public List<Component> lines(CytosisPlayer player) {
         try {
-            return List.of(Msg.mm("<gray>" + CytosisContext.SERVER_ID),
+            return List.of(Msg.mm("<gray>" + Cytosis.CONTEXT.SERVER_ID),
                 Msg.mm("<green>Players: " + Cytosis.get(CytonicNetwork.class)
                     .getOnlinePlayers()
                     .size()), Msg.mm(""), Msg.mm("Cytosis v" + Cytosis.VERSION), Msg.mm(""), Msg.mm("<green>Rank: ")

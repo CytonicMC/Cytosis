@@ -8,7 +8,6 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -30,7 +29,7 @@ public class ServerCommand extends CytosisCommand {
         serverArgument.setSuggestionCallback((_, ctx, suggestion) -> {
             List<SuggestionEntry> options = Cytosis.get(CytonicNetwork.class).getServers().keySet()
                 .stream()
-                .filter(s -> !s.equalsIgnoreCase(CytosisContext.SERVER_ID))
+                .filter(s -> !s.equalsIgnoreCase(Cytosis.CONTEXT.SERVER_ID))
                 .map(SuggestionEntry::new)
                 .toList();
             CommandUtils.filterEntries(ctx.get(serverArgument), options).forEach(suggestion::addEntry);
@@ -38,8 +37,8 @@ public class ServerCommand extends CytosisCommand {
         addSyntax(((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (!player.isStaff()) return;
-            if (context.get(serverArgument).equalsIgnoreCase(CytosisContext.SERVER_ID)) {
-                player.sendMessage(Msg.whoops("You are already connected to %s!", CytosisContext.SERVER_ID));
+            if (context.get(serverArgument).equalsIgnoreCase(Cytosis.CONTEXT.SERVER_ID)) {
+                player.sendMessage(Msg.whoops("You are already connected to %s!", Cytosis.CONTEXT.SERVER_ID));
                 return;
             }
             player.sendToServer(context.get(serverArgument));

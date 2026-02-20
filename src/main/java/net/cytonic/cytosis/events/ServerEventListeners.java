@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
@@ -136,7 +135,11 @@ public final class ServerEventListeners {
     @Priority(1)
     @Listener
     private void onConfig(AsyncPlayerConfigurationEvent event) {
-        final Player player = event.getPlayer();
+        final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
+        if (Cytosis.CONTEXT.isStopping()) {
+            player.kickInternal(Msg.whoops("This server is stopping"));
+            return;
+        }
         if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
             event.setSpawningInstance(Cytosis.get(InstanceContainer.class));
         }

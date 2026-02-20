@@ -75,6 +75,7 @@ public final class CytosisSettings {
         loadStringFromEnvOrProperty("SERVER_WORLD_NAME", this.getServerConfig()::setWorldName);
         loadStringFromEnvOrProperty("SERVER_SPAWN_POINT",
             string -> this.getServerConfig().setSpawnPos(PosSerializer.deserialize(string)));
+        loadIntFromEnvOrProperty("SHUTDOWN_DURATION", this.getServerConfig()::setShutdownDuration);
 
         loadStringFromEnvOrProperty("REDIS_HOST", this.getRedisConfig()::setHost);
         loadIntFromEnvOrProperty("REDIS_PORT", this.getRedisConfig()::setPort);
@@ -171,6 +172,10 @@ public final class CytosisSettings {
         @Required
         @Setting("spawn_point")
         private Pos spawnPos = new Pos(0, 1, 0);
+        /**
+         * The number of seconds to wait until shutting down the server after receiving the command/signal.
+         */
+        private int shutdownDuration = 60;
     }
 
     @Getter

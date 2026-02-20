@@ -17,7 +17,6 @@ import net.minestom.server.MinecraftServer;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
@@ -73,7 +72,7 @@ public class NatsManager implements Bootstrappable {
         new ServerStatusNotifyPacket.Packet(
             Cytosis.CONTEXT.getServerGroup().type(),
             Utils.getServerIP(),
-            CytosisContext.SERVER_ID,
+            Cytosis.CONTEXT.SERVER_ID,
             Cytosis.get(CytosisSettings.class).getServerConfig().getPort(),
             Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()
