@@ -105,11 +105,12 @@ public interface Logger {
         Component component = Msg.red("""
                 <b>Error Logged on server '" + Cytosis.CONTEXT.SERVER_ID + "'</b></red><newline><gray> Message: %s""",
             message);
-        try {
-            Cytosis.get(SnooperManager.class)
-                .sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
-        } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
-            Logger.warn("Failed to log error via snooper!");
+        if (Cytosis.CONTEXT.isSendErrorsThroughSnooper()) {
+            try {
+                Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
+            } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
+                Logger.warn("Failed to log error via snooper!");
+            }
         }
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
