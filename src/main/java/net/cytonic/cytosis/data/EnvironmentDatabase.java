@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
@@ -30,58 +31,25 @@ import net.cytonic.cytosis.utils.PosSerializer;
 
 /**
  * A class handling Cytosis database transactions within its environment. Things like player ranks, punishments, and
- * some worlds are stored in {@link GlobalDatabase}
+ * some worlds are stored in {@link GlobalDatabase}.
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 @CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
-public class MysqlDatabase implements Bootstrappable {
+public class EnvironmentDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
-    private final HikariDataSource dataSource;
+    @Getter
+    private HikariDataSource dataSource;
 
     /**
-     * Creates and initializes a new MysqlDatabase
+     * Creates and initializes a new EnvironmentDatabase
      */
-    public MysqlDatabase() {
-        String prefix = Cytosis.CONTEXT.getComponent(EnvironmentManager.class).getEnvironment().getPrefix();
+    public EnvironmentDatabase() {
+        String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the database worker thread: " + t.getName(),
                     e)).factory());
-
-        CytosisSettings settings = Cytosis.get(CytosisSettings.class);
-
-        // Configure HikariCP
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
-            settings.getDatabaseConfig().getHost(),
-            settings.getDatabaseConfig().getPort(),
-            prefix + settings.getDatabaseConfig().getName()));
-        config.setUsername(settings.getDatabaseConfig().getUser());
-        config.setPassword(settings.getDatabaseConfig().getPassword());
-
-        // HikariCP optimizations
-        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        config.setMaximumPoolSize(10); // Adjust depending on our needs
-        config.setMinimumIdle(2);
-        config.setConnectionTimeout(30000); // 30 seconds
-        config.setIdleTimeout(600000); // 10 minutes
-        config.setMaxLifetime(1800000); // 30 minutes
-        config.setPoolName("CytosisPool");
-
-        // MySQL specific optimizations
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("useServerPrepStmts", "true");
-        config.addDataSourceProperty("useLocalSessionState", "true");
-        config.addDataSourceProperty("rewriteBatchedStatements", "true");
-        config.addDataSourceProperty("cacheResultSetMetadata", "true");
-        config.addDataSourceProperty("cacheServerConfiguration", "true");
-        config.addDataSourceProperty("elideSetAutoCommits", "true");
-        config.addDataSourceProperty("maintainTimeStats", "false");
-
-        this.dataSource = new HikariDataSource(config);
     }
 
     @Override
@@ -100,12 +68,20 @@ public class MysqlDatabase implements Bootstrappable {
      */
     public void connect() {
         if (!isConnected()) {
+            HikariConfig config = GlobalDatabase.getHikariConfig();
+            CytosisSettings settings = Cytosis.get(CytosisSettings.class);
+            String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+            config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s",
+                settings.getDatabaseConfig().getHost(),
+                settings.getDatabaseConfig().getPort(),
+                prefix + settings.getDatabaseConfig().getName()));
+            this.dataSource = new HikariDataSource(config);
             try {
                 // Test the connection
                 try (Connection conn = dataSource.getConnection()) {
-                    Logger.info("Successfully connected to the Environmental MySQL Database!");
+                    Logger.info("Successfully connected to the Environmental Database!");
                 }
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 Logger.error("Invalid Database Credentials!", e);
                 MinecraftServer.stopCleanly();
             }
@@ -158,11 +134,10 @@ public class MysqlDatabase implements Bootstrappable {
         try (Connection conn = getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_chat (
-                    id INT NOT NULL AUTO_INCREMENT,
+                    id SERIAL PRIMARY KEY,
                     timestamp TIMESTAMP,
-                    uuid VARCHAR(36),
-                    message TEXT,
-                    PRIMARY KEY(id)
+                    uuid UUID,
+                    message TEXT
                 )
                 """);
             ps.executeUpdate();
@@ -178,13 +153,13 @@ public class MysqlDatabase implements Bootstrappable {
         try (Connection conn = getConnection()) {
             conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_worlds (
-                    world_name TEXT,
+                    world_name VARCHAR(255),
                     world_type TEXT,
                     last_modified TIMESTAMP,
-                    world_data MEDIUMBLOB,
+                    world_data BYTEA,
                     spawn_point TEXT,
                     extra_data TEXT,
-                    UUID VARCHAR(36),
+                    uuid UUID,
                     PRIMARY KEY(world_name)
                 )
                 """).executeUpdate();
@@ -199,7 +174,7 @@ public class MysqlDatabase implements Bootstrappable {
     private void createPlayerJoinsTable() {
         try (Connection conn = getConnection()) {
             PreparedStatement ps = conn.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS cytonic_player_joins (joined TIMESTAMP, uuid VARCHAR(36), ip TEXT)");
+                "CREATE TABLE IF NOT EXISTS cytonic_player_joins (joined TIMESTAMP, uuid UUID, ip TEXT)");
             ps.executeUpdate();
         } catch (SQLException e) {
             Logger.error("An error occurred whilst creating the `cytonic_player_joins` table.", e);
@@ -213,12 +188,11 @@ public class MysqlDatabase implements Bootstrappable {
         try (Connection conn = getConnection()) {
             conn.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS cytonic_player_messages (
-                    id INT NOT NULL AUTO_INCREMENT,
+                    id SERIAL PRIMARY KEY,
                     timestamp TIMESTAMP,
-                    sender VARCHAR(36),
-                    target VARCHAR(36),
-                    message TEXT,
-                    PRIMARY KEY(id)
+                    sender UUID,
+                    target UUID,
+                    message TEXT
                 )
                 """).executeUpdate();
         } catch (SQLException e) {
@@ -244,8 +218,8 @@ public class MysqlDatabase implements Bootstrappable {
                     INSERT INTO cytonic_player_messages (timestamp, sender, target, message)
                     VALUES (CURRENT_TIMESTAMP, ?, ?, ?)
                     """);
-                ps.setString(1, sender.toString());
-                ps.setString(2, target.toString());
+                ps.setObject(1, sender);
+                ps.setObject(2, target);
                 ps.setString(3, message);
                 ps.executeUpdate();
                 future.complete(null);
@@ -270,7 +244,7 @@ public class MysqlDatabase implements Bootstrappable {
             try (Connection conn = getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO cytonic_chat (timestamp, uuid, message) VALUES (CURRENT_TIMESTAMP,?,?)");
-                ps.setString(1, uuid.toString());
+                ps.setObject(1, uuid);
                 ps.setString(2, message);
                 ps.executeUpdate();
             } catch (SQLException e) {
@@ -296,7 +270,7 @@ public class MysqlDatabase implements Bootstrappable {
                 ps.setString(2, worldType);
                 ps.setBytes(3, PolarWriter.write(world));
                 ps.setString(4, PosSerializer.serialize(spawnPoint));
-                ps.setString(5, worldUuid.toString());
+                ps.setObject(5, worldUuid);
                 ps.executeUpdate();
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst adding a world!", e);
@@ -319,7 +293,7 @@ public class MysqlDatabase implements Bootstrappable {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
 
         worker.submit(() -> {
-            try (Connection conn = getConnection()) {
+            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_worlds WHERE world_name = ?");
                 ps.setString(1, worldName);
                 ResultSet rs = ps.executeQuery();
@@ -354,7 +328,7 @@ public class MysqlDatabase implements Bootstrappable {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
 
         worker.submit(() -> {
-            try (Connection conn = getConnection()) {
+            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
                     "SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?");
                 ps.setString(1, worldName);
@@ -435,7 +409,7 @@ public class MysqlDatabase implements Bootstrappable {
             try (Connection conn = getConnection()) {
                 PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO cytonic_player_joins (joined, uuid, ip) VALUES (CURRENT_TIMESTAMP,?,?)");
-                ps.setString(1, uuid.toString());
+                ps.setObject(1, uuid);
                 ps.setString(2, ip.toString());
                 ps.executeUpdate();
             } catch (SQLException e) {

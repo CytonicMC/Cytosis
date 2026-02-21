@@ -17,7 +17,6 @@ import net.minestom.server.MinecraftServer;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
@@ -40,7 +39,7 @@ public class NatsManager implements Bootstrappable {
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
     private CytosisSettings cytosisSettings;
-    private Connection connection;
+    private volatile Connection connection;
     private boolean started = false;
 
     @Override
@@ -73,7 +72,7 @@ public class NatsManager implements Bootstrappable {
         new ServerStatusNotifyPacket.Packet(
             Cytosis.CONTEXT.getServerGroup().type(),
             Utils.getServerIP(),
-            CytosisContext.SERVER_ID,
+            Cytosis.CONTEXT.SERVER_ID,
             Cytosis.get(CytosisSettings.class).getServerConfig().getPort(),
             Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()
@@ -152,8 +151,9 @@ public class NatsManager implements Bootstrappable {
      */
     public void publish(String channel, byte[] data) {
         channel = Subjects.applyPrefix(channel);
-        if (connection != null) {
-            connection.publish(channel, data);
+        Connection conn = connection;
+        if (conn != null) {
+            conn.publish(channel, data);
             return;
         }
 
@@ -162,8 +162,9 @@ public class NatsManager implements Bootstrappable {
 
     public void request(String channel, byte[] data, BiConsumer<Message, Throwable> consumer) {
         channel = Subjects.applyPrefix(channel);
-        if (connection != null) {
-            connection.request(channel, data).whenComplete(consumer);
+        Connection conn = connection;
+        if (conn != null) {
+            conn.request(channel, data).whenComplete(consumer);
             return;
         }
 
@@ -172,8 +173,9 @@ public class NatsManager implements Bootstrappable {
 
     public void subscribe(String channel, Consumer<Message> consumer) {
         channel = Subjects.applyPrefix(channel);
-        if (connection != null) {
-            connection.createDispatcher(consumer::accept).subscribe(channel);
+        Connection conn = connection;
+        if (conn != null) {
+            conn.createDispatcher(consumer::accept).subscribe(channel);
             return;
         }
 

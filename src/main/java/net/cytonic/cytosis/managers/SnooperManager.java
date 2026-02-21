@@ -17,7 +17,7 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.SnoopsContainer;
 import net.cytonic.cytosis.logging.Logger;
@@ -31,7 +31,7 @@ import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.data.objects.JsonComponent;
 import net.cytonic.protocol.impl.notify.SnooperNotifyPacket;
 
-@CytosisComponent(dependsOn = {MysqlDatabase.class, NatsManager.class})
+@CytosisComponent(dependsOn = {EnvironmentDatabase.class, NatsManager.class})
 public class SnooperManager implements Bootstrappable {
 
     private final Map<SnooperReceiveEvent, Predicate<SnooperReceiveEvent>> events = new ConcurrentHashMap<>();
@@ -48,7 +48,7 @@ public class SnooperManager implements Bootstrappable {
     @Override
     public void init() {
         this.natsManager = Cytosis.get(NatsManager.class);
-        this.persistenceManager = new SnoopPersistenceManager(Cytosis.get(MysqlDatabase.class));
+        this.persistenceManager = new SnoopPersistenceManager();
 
         Logger.info("Loading snooper channels from redis");
         loadChannelsFromRedis();
@@ -152,9 +152,10 @@ public class SnooperManager implements Bootstrappable {
      * @param message The message to send.
      */
     public void sendSnoop(SnooperChannel channel, Component message) {
-        persistenceManager.persistSnoop(channel, message).whenComplete((unused, throwable) -> {
+        persistenceManager.persistSnoop(channel, message).whenComplete((_, throwable) -> {
             if (throwable != null) {
-                Logger.error("error persisting snoop!: ", throwable);
+                Logger.warn("error persisting snoop!");
+                throwable.printStackTrace(System.err);
             }
         });
         new SnooperNotifyPacket.Packet(new JsonComponent(message)).publish(channel.channel());

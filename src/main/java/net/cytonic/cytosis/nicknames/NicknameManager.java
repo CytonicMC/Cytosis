@@ -24,7 +24,7 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSnoops;
-import net.cytonic.cytosis.data.MysqlDatabase;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.Tuple;
@@ -46,7 +46,7 @@ public class NicknameManager implements Bootstrappable {
     private final Map<UUID, UUID> maskedUuids = new ConcurrentHashMap<>();
     private RankManager rankManager;
     private RedisDatabase redis;
-    private MysqlDatabase db;
+    private EnvironmentDatabase db;
 
     public NicknameManager() {
         // remove them from this memory cache
@@ -69,7 +69,7 @@ public class NicknameManager implements Bootstrappable {
     @Override
     public void init() {
         this.rankManager = Cytosis.get(RankManager.class);
-        this.db = Cytosis.get(MysqlDatabase.class);
+        this.db = Cytosis.get(EnvironmentDatabase.class);
         this.redis = Cytosis.get(RedisDatabase.class);
     }
 
@@ -149,6 +149,7 @@ public class NicknameManager implements Bootstrappable {
         NicknameData data = nicknames.remove(playerUuid);
         if (data == null) return;
         redis.removeFromHash("cytosis:nicknames", playerUuid.toString());
+        redis.removeFromHash("cytosis:nicknames_reverse", data.nickname());
         sendRemovePackets(player);
         rankManager.setupCosmetics(player, player.getTrueRank());
         player.updatePreference(Preferences.NICKNAME_DATA, null);

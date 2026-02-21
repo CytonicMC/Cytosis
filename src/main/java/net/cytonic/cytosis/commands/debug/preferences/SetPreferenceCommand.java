@@ -21,7 +21,7 @@ public class SetPreferenceCommand extends CytosisCommand {
         super("set");
         PreferenceManager pm = Cytosis.get(PreferenceManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
-        nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
+        nodeArg.setSuggestionCallback((_, _, suggestion) -> {
             for (Key preference : pm.getPreferenceRegistry().keys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
@@ -51,7 +51,8 @@ public class SetPreferenceCommand extends CytosisCommand {
                 return;
             }
             Object value = parseValue(sender, preference.getType(), raw, context.get(valueArg));
-
+            //return here since if value was null that means that it failed to parse the input
+            if (value == null) return;
             pm.updatePlayerPreference_UNSAFE(player.getUuid(), node, value);
             player.sendMessage(Msg.mm(
                 "<green>Successfully updated preference node <yellow>%s</yellow> to <light_purple>'%s'</light_purple>",

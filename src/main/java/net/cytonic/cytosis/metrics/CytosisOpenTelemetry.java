@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.metrics;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
+import java.time.Duration;
+
 import io.opentelemetry.api.logs.LoggerProvider;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.trace.Tracer;
@@ -15,56 +16,15 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 
+import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.logging.Logger;
 
-public class CytosisOpenTelemetry {
+@CytosisComponent
+public class CytosisOpenTelemetry implements Bootstrappable {
 
-    public static void setup() {
-
-        String url;
-        try {
-            url = getUrl();
-        } catch (Exception e) {
-            Cytosis.CONTEXT.setMetricsEnabled(false);
-            return;
-        }
-
-        // Configure Span Exporter (for traces)
-        OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder().setEndpoint(url)  // OTLP endpoint
-            .build();
-
-        // Configure Tracer Provider (for traces)
-        SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(spanExporter)
-                .build()).build();
-
-        // Configure Metric Exporter (for metrics)
-        OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder().setEndpoint(url)  // OTLP endpoint
-            .build();
-
-        // Configure Meter Provider (for metrics)
-        SdkMeterProvider meterProvider = SdkMeterProvider.builder()
-            .registerMetricReader(PeriodicMetricReader.builder(metricExporter)
-                .build()).build();
-
-        // Configure Log Exporter (for logs)
-        OtlpGrpcLogRecordExporter logExporter = OtlpGrpcLogRecordExporter.builder().setEndpoint(url)  // OTLP endpoint
-            .build();
-
-        // Configure Logger Provider (for logs)
-        SdkLoggerProvider loggerProvider = SdkLoggerProvider.builder()
-            .addLogRecordProcessor(BatchLogRecordProcessor.builder(logExporter)
-                .build())
-            .build();
-
-        GlobalOpenTelemetry.resetForTest();
-        // Build and register the OpenTelemetry SDK
-        OpenTelemetrySdk openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(tracerProvider)
-            .setMeterProvider(meterProvider)
-            .setLoggerProvider(loggerProvider).buildAndRegisterGlobal();
-
-        Cytosis.CONTEXT.setMetricsEnabled(true);
-    }
+    private OpenTelemetrySdk sdk;
 
     private static String getUrl() {
         // these get read directly from env as the file manager isn't started yet.
@@ -87,21 +47,76 @@ public class CytosisOpenTelemetry {
 
         // disable otel support
         if (port == -1 || host == null || host.isEmpty()) {
-            throw new IllegalArgumentException("OPEN_TELEMETRY_HOST is null");
+            throw new IllegalArgumentException(
+                String.format("Invalid OTEL connection parameters: [PORT:%d, HOST: '%s']", port, host));
         }
 
         return "http://" + host + ":" + port;
     }
 
-    public static Tracer getTracer(String name) {
-        return GlobalOpenTelemetry.getTracer(name);
+    @Override
+    public void init() {
+
+        String url;
+        try {
+            url = getUrl();
+        } catch (Exception e) {
+            Logger.warn("Disabling metrics as the URL was invalid. (%s)", e.getMessage());
+            Cytosis.CONTEXT.setMetricsEnabled(false);
+            return;
+        }
+
+        // Configure Span Exporter (for traces)
+        OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder().setEndpoint(url)  // OTLP endpoint
+            .build();
+
+        // Configure Tracer Provider (for traces)
+        SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
+            .addSpanProcessor(BatchSpanProcessor.builder(spanExporter)
+                .build()).build();
+
+        // Configure Metric Exporter (for metrics)
+        OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder().setEndpoint(url)  // OTLP endpoint
+            .build();
+
+        // Configure Meter Provider (for metrics)
+        SdkMeterProvider meterProvider = SdkMeterProvider.builder().registerMetricReader(PeriodicMetricReader
+            .builder(metricExporter)
+            .setInterval(Duration.ofSeconds(5))
+            .build()
+        ).build();
+
+        // Configure Log Exporter (for logs)
+        OtlpGrpcLogRecordExporter logExporter = OtlpGrpcLogRecordExporter.builder().setEndpoint(url)  // OTLP endpoint
+            .build();
+
+        // Configure Logger Provider (for logs)
+        SdkLoggerProvider loggerProvider = SdkLoggerProvider.builder()
+            .addLogRecordProcessor(BatchLogRecordProcessor.builder(logExporter).build()).build();
+
+        // Build and register the OpenTelemetry SDK
+        sdk = OpenTelemetrySdk.builder()
+            .setTracerProvider(tracerProvider)
+            .setMeterProvider(meterProvider)
+            .setLoggerProvider(loggerProvider)
+            .build();
+
+        Cytosis.CONTEXT.setMetricsEnabled(true);
+        Logger.info("Metrics collection has been enabled!");
     }
 
-    public static Meter getMeter(String name) {
-        return GlobalOpenTelemetry.getMeter(name);
+    public Tracer getTracer(String name) {
+        if (sdk == null) throw new IllegalStateException("OTel is not yet set up!");
+        return sdk.getTracer(name);
     }
 
-    public static LoggerProvider getLogger(String name) {
-        return GlobalOpenTelemetry.get().getLogsBridge();
+    public Meter getMeter(String name) {
+        if (sdk == null) throw new IllegalStateException("OTel is not yet set up!");
+        return sdk.getMeter(name);
+    }
+
+    public LoggerProvider getLogger(String name) {
+        if (sdk == null) throw new IllegalStateException("OTel is not yet set up!");
+        return sdk.getLogsBridge();
     }
 }

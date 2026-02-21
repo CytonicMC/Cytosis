@@ -2,6 +2,7 @@ package net.cytonic.cytosis.bootstrap;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Bootstrapper {
      * @param args the input args given by running the jar
      * @throws IOException If the Cytosis jar is malformed (dependency manifests are not present)
      */
-    public static void main(final String[] args) throws IOException {
+    static void main(final String[] args) throws IOException {
         if (!BuildInfo.DEPENDENCIES_BUNDLED) {
             loadDependencies(args);
         } else {
@@ -49,7 +50,7 @@ public class Bootstrapper {
             Objects.requireNonNull(Bootstrapper.class.getResource("/runtimeDownload.txt"))));
         manager.downloadAll(executor, List.of(new MavenRepository("https://repo1.maven.org/maven2/"),
                 new MavenRepository("https://repo.foxikle.dev/cytonic/"), new MavenRepository("https://jitpack.io/")))
-            .thenAccept(unused -> {
+            .thenAccept(_ -> {
                 manager.loadAll(executor, new BootstrapClasspathAppender()).join();
                 long end = System.currentTimeMillis();
                 BootstrapLogger.info("Loaded dependencies in " + (end - start) + "ms.");
@@ -70,7 +71,9 @@ public class Bootstrapper {
             Class<?> mainClass = BootstrapClasspathAppender.CLASSLOADER.loadClass("net.cytonic.cytosis.Cytosis");
             BootstrapLogger.info("Starting Cytosis!");
             try {
-                mainClass.getDeclaredMethod("main", String[].class).invoke(null, (Object) args);
+                Method method = mainClass.getDeclaredMethod("main", String[].class);
+                method.setAccessible(true);
+                method.invoke(null, (Object) args);
             } catch (Exception e) {
                 BootstrapLogger.error("Caught exception: ", e);
             }

@@ -15,41 +15,33 @@ public enum PlayerRank {
     /**
      * The [OWNER] rank
      */
-    OWNER(Msg.mm("<red>[OWNER] "), NamedTextColor.RED, NamedTextColor.WHITE),
+    OWNER(Msg.mm("<gold>[<dark_red>⛨</dark_red>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
     /**
      * The [ADMIN] rank
      */
-    ADMIN(Msg.mm("<red>[ADMIN] "), NamedTextColor.RED, NamedTextColor.WHITE),
+    ADMIN(Msg.mm("<gold>[<red>⛨</red>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
     /**
      * The [MOD] rank
      */
-    MODERATOR(Msg.mm("<green>[MOD] "), NamedTextColor.GREEN, NamedTextColor.WHITE),
+    MODERATOR(Msg.mm("<gold>[<green>⛨</green>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
     /**
      * The [HELPER] rank
      */
-    HELPER(Msg.mm("<aqua>[HELPER] "), NamedTextColor.AQUA, NamedTextColor.WHITE),
+    HELPER(Msg.mm("<gold>[<aqua>⛨</aqua>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
 
     // player ranks
     /**
-     * The [ELYSIAN] rank
+     * The [NEXUS] rank
      */
-    ELYSIAN(Msg.mm("<gold>[ELYSIAN] "), NamedTextColor.GOLD, NamedTextColor.WHITE),
+    NEXUS(Msg.mm("<gold>[NEXUS] "), NamedTextColor.GOLD, NamedTextColor.WHITE),
     /**
-     * The [CELESTIAL] rank
+     * The [SYNAPSE] rank
      */
-    CELESTIAL(Msg.mm("<dark_aqua>[CELESTIAL] "), NamedTextColor.DARK_AQUA, NamedTextColor.WHITE),
+    SYNAPSE(Msg.mm("<dark_green>[SYNAPSE] "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
     /**
-     * The [MASTER] rank
+     * The [CORTEX] rank
      */
-    MASTER(Msg.mm("<dark_red>[MASTER] "), NamedTextColor.DARK_RED, NamedTextColor.WHITE),
-    /**
-     * The [VALIENT] rank
-     */
-    VALIENT(Msg.mm("<dark_green>[VALIENT] "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
-    /**
-     * The [NOBLE] rank
-     */
-    NOBLE(Msg.mm("<dark_purple>[NOBLE] "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
+    CORTEX(Msg.mm("<dark_purple>[CORTEX] "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
     /**
      * The [DEFAULT] rank
      */

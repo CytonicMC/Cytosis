@@ -1,12 +1,11 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +37,7 @@ public class ActionbarManager implements Bootstrappable {
     // Currently active message per player
     private final Map<UUID, MessageEntry> currentMessages = new ConcurrentHashMap<>();
 
-    private final Set<UUID> cooldowns = new HashSet<>();
+    private final Set<UUID> cooldowns = ConcurrentHashMap.newKeySet();
     @Setter
     @Getter
     private ActionbarSupplier defaultSupplier = ActionbarSupplier.DEFAULT;
@@ -49,8 +48,8 @@ public class ActionbarManager implements Bootstrappable {
     @Override
     public void init() {
         Events.onConfig((player) -> {
-            messageQueues.put(player.getUuid(), new LinkedList<>());
-            immediateQueues.put(player.getUuid(), new LinkedList<>());
+            messageQueues.put(player.getUuid(), new ConcurrentLinkedQueue<>());
+            immediateQueues.put(player.getUuid(), new ConcurrentLinkedQueue<>());
             cooldowns.add(player.getUuid());
             // prevent sending packets too early
             MinecraftServer.getSchedulerManager().buildTask(() -> cooldowns.remove(player.getUuid()))
@@ -142,7 +141,7 @@ public class ActionbarManager implements Bootstrappable {
         if (ticks <= 0) {
             return;
         }
-        Queue<MessageEntry> queue = messageQueues.computeIfAbsent(uuid, u -> new LinkedList<>());
+        Queue<MessageEntry> queue = messageQueues.computeIfAbsent(uuid, u -> new ConcurrentLinkedQueue<>());
         queue.add(new MessageEntry(message, ticks));
     }
 
@@ -158,7 +157,7 @@ public class ActionbarManager implements Bootstrappable {
         if (ticks <= 0) {
             return;
         }
-        Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new LinkedList<>());
+        Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new ConcurrentLinkedQueue<>());
         MessageEntry entry = new MessageEntry(message, ticks);
         queue.add(entry);
         currentMessages.put(uuid, entry);

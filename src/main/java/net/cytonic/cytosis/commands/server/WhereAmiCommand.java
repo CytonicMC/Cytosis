@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.commands.server;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.utils.BuildInfo;
 import net.cytonic.cytosis.utils.DurationParser;
@@ -13,7 +12,7 @@ public class WhereAmiCommand extends CytosisCommand {
         super("whereami", "version");
         setDefaultExecutor((sender, context) -> {
             sender.sendMessage(Msg.yellowSplash("SERVER INFO!", "Here is some basic server information:")
-                .appendNewline().append(Msg.mm("<gold>Server ID: </gold><gray>" + CytosisContext.SERVER_ID))
+                .appendNewline().append(Msg.mm("<gold>Server ID: </gold><gray>" + Cytosis.CONTEXT.SERVER_ID))
                 .appendNewline()
                 .append(Msg.gold("""
                     Latest Commit: <gray><hover:show_text:'<gold><b>Click to copy Commit Hash!'>\

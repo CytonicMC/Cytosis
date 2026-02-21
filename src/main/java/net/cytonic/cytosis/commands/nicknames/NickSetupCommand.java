@@ -213,10 +213,9 @@ public class NickSetupCommand extends CytosisCommand {
 
     private static String translateRank(PlayerRank rank) {
         return switch (rank) {
-            case NOBLE -> "<dark_purple>[NOBLE]";
-            case VALIENT -> "<dark_green>[VALIENT]";
-            case MASTER -> "<dark_red>[MASTER]";
-            case CELESTIAL -> "<dark_aqua>[CELESTIAL]";
+            case CORTEX -> "<dark_purple>[CORTEX]";
+            case SYNAPSE -> "<dark_green>[SYNAPSE]";
+            case NEXUS -> "<gold>[NEUX]";
             default -> "<gray>DEFAULT";
         };
     }

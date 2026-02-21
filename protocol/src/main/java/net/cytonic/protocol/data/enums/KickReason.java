@@ -25,6 +25,10 @@ public enum KickReason {
      */
     UNKNOWN(true),
     /**
+     * Kicked since this server is restarting
+     */
+    SERVER_STOP(true),
+    /**
      * Kicked due to the kick command
      */
     COMMAND(false);

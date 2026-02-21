@@ -16,11 +16,13 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
 
       - name: Assemble Jar
-        run: ./gradlew --build-cache --parallel thinJar
+        run: ./gradlew --no-daemon --build-cache --parallel thinJar
 
-      - name: Upload thinJar
+      - name: Upload jar as artifact
         uses: actions/upload-artifact@v6.0.0
         with:
           name: thinJar

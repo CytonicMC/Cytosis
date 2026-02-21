@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
@@ -24,8 +23,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TpsCommand;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.MysqlDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
@@ -136,7 +135,11 @@ public final class ServerEventListeners {
     @Priority(1)
     @Listener
     private void onConfig(AsyncPlayerConfigurationEvent event) {
-        final Player player = event.getPlayer();
+        final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
+        if (Cytosis.CONTEXT.isStopping()) {
+            player.kickInternal(Msg.whoops("This server is stopping"));
+            return;
+        }
         if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
             event.setSpawningInstance(Cytosis.get(InstanceContainer.class));
         }
@@ -156,7 +159,7 @@ public final class ServerEventListeners {
         Logger.info(
             player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
                 .getRemoteAddress());
-        MysqlDatabase db = Cytosis.get(MysqlDatabase.class);
+        EnvironmentDatabase db = Cytosis.get(EnvironmentDatabase.class);
         GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
 
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
@@ -202,7 +205,7 @@ public final class ServerEventListeners {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         event.setCancelled(true);
         GlobalDatabase gdb = Cytosis.get(GlobalDatabase.class);
-        MysqlDatabase db = Cytosis.get(MysqlDatabase.class);
+        EnvironmentDatabase db = Cytosis.get(EnvironmentDatabase.class);
         gdb.isMuted(player.getUuid()).whenComplete((isMuted, throwable) -> {
             if (throwable != null) {
                 Logger.error("An error occurred whilst checking if the player is muted!", throwable);
@@ -234,11 +237,13 @@ public final class ServerEventListeners {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         Cytosis.get(SideboardManager.class).removePlayer(player);
         Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
+        Cytosis.get(PlayerListManager.class).cleanupPlayer(player);
         if (Cytosis.get(PreferenceManager.class)
             .getPlayerPreference(player.getUuid(), Preferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
         Cytosis.get(NpcManager.class).removePlayer(player);
+        Cytosis.get(RankManager.class).removePlayer(player.getUuid());
         PlayerHolograms.removePlayer(player);
     }
 }
