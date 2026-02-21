@@ -153,7 +153,7 @@ public class FriendManager implements Bootstrappable {
      * @return the set of UUIDs of the player friends
      */
     public Set<UUID> getFriends(UUID uuid) {
-        return friends.getOrDefault(uuid, Set.of());
+        return friends.getOrDefault(uuid, ConcurrentHashMap.newKeySet());
     }
 
     /**
