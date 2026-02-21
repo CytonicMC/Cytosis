@@ -96,6 +96,11 @@ public class PlayerListManager implements Bootstrappable {
         player.sendPackets(createInjectPackets(player));
     }
 
+    public void cleanupPlayer(CytosisPlayer player) {
+        playerComponents.remove(player.getUuid());
+        playerFavicons.remove(player.getUuid());
+    }
+
     /**
      * Creates the player list packets
      *

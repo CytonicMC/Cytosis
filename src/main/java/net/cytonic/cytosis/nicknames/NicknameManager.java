@@ -149,6 +149,7 @@ public class NicknameManager implements Bootstrappable {
         NicknameData data = nicknames.remove(playerUuid);
         if (data == null) return;
         redis.removeFromHash("cytosis:nicknames", playerUuid.toString());
+        redis.removeFromHash("cytosis:nicknames_reverse", data.nickname());
         sendRemovePackets(player);
         rankManager.setupCosmetics(player, player.getTrueRank());
         player.updatePreference(Preferences.NICKNAME_DATA, null);

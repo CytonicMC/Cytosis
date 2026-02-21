@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.plugins.PluginManager;
+import net.cytonic.protocol.utils.ClassGraphUtils;
 
 /**
  * EventHandler class is responsible for handling events and managing listeners. It provides methods to register,
@@ -26,25 +27,28 @@ import net.cytonic.cytosis.plugins.PluginManager;
 @CytosisComponent(dependsOn = {MinecraftServer.class})
 public class EventHandler {
 
-    private GlobalEventHandler globalEventHandler;
     private final Map<String, EventListener<? extends Event>> namespacedHandlers = new HashMap<>();
+    private GlobalEventHandler globalEventHandler;
     private boolean initialized = false;
 
     public EventHandler() {
     }
 
     public void findEvents() {
-        final ClassGraph classGraph = new ClassGraph()
+        ClassGraph classGraph = new ClassGraph()
             .acceptPackages("net.minestom.server.event", "net.cytonic",
                 "io.github.togar2.events") // cytonic things, and PVP
             .enableClassInfo()
             .overrideClassLoaders(PluginManager.getClassLoaders());
-        try (ScanResult scanResult = classGraph.scan()) {
-            scanResult.getClassesImplementing(Event.class).forEach(classInfo -> {
-                Class<?> clazz = classInfo.loadClass();
-                globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
-            });
-        }
+        ScanResult scanResult = classGraph.scan(ClassGraphUtils.EXECUTOR, 125);
+        scanResult.getClassesImplementing(Event.class).forEach(classInfo -> {
+            Class<?> clazz = classInfo.loadClass();
+            globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
+        });
+
+        scanResult.close();
+        classGraph = null;
+        scanResult = null;
     }
 
     /**

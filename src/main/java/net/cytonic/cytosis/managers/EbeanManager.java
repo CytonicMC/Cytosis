@@ -31,6 +31,8 @@ import net.cytonic.cytosis.plugins.java.JavaPluginDescription;
 @CytosisComponent(dependsOn = {PluginManager.class, EnvironmentDatabase.class, GlobalDatabase.class})
 public class EbeanManager implements Bootstrappable {
 
+    private final List<Database> databases = new ArrayList<>();
+
     @Override
     public void init() {
         registerDatabase("global", Cytosis.get(GlobalDatabase.class).getDataSource());
@@ -53,7 +55,7 @@ public class EbeanManager implements Bootstrappable {
         databaseConfig.runMigration(true);
         databaseConfig.defaultDatabase("environment".equals(databaseName));
         databaseConfig.name(databaseName);
-        DatabaseFactory.create(databaseConfig);
+        databases.add(DatabaseFactory.create(databaseConfig));
         Logger.info("Successfully connected to the Ebean " + databaseName
             + " Database!");
     }
@@ -114,5 +116,10 @@ public class EbeanManager implements Bootstrappable {
             Logger.error("Failed to run migrations for plugin '%s' on database '%s'",
                 pluginId, databaseName, e);
         }
+    }
+
+    @Override
+    public void shutdown() {
+        databases.forEach(Database::shutdown);
     }
 }

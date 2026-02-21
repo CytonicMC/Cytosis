@@ -18,7 +18,7 @@ public class MetricsHooks {
             _ -> (long) Cytosis.getOnlinePlayers()
                 .size(), Attributes.empty());
 
-        mm.createDoubleGauge("server.mspt", "The last tick time", "ms", unused -> ServerEventListeners.RAW_MSPT,
+        mm.createDoubleGauge("server.mspt", "The last tick time", "ms", _ -> ServerEventListeners.RAW_MSPT,
             Attributes.empty());
 
         mm.createDoubleGauge("server.tps", "Ticks per second", "tps",
@@ -29,7 +29,11 @@ public class MetricsHooks {
             _ -> runtime.totalMemory() - runtime.freeMemory(), Attributes.empty());
 
         mm.createDoubleGauge("memory.percentage", "Percentage of memory usage", "%",
-            _ -> ((double) runtime.freeMemory() / runtime.totalMemory()) * 100.0, Attributes.empty());
+            _ -> {
+                long max = runtime.maxMemory();
+                long used = runtime.totalMemory() - runtime.freeMemory();
+                return ((double) used / max) * 100.0;
+            }, Attributes.empty());
 
         mm.createDoubleGauge("cpu.usage", "Percent usage of the server cpu", "%",
             _ -> ManagementFactory.getOperatingSystemMXBean()

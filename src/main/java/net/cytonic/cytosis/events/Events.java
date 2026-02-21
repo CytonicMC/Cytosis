@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.events;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import net.minestom.server.entity.Player;
@@ -28,18 +28,18 @@ import net.cytonic.cytosis.utils.events.PlayerJoinEventResponse;
 @SuppressWarnings({"unused", "UnstableApiUsage"})
 public class Events {
 
-    private static final List<Consumer<PlayerLeaveNetworkEvent>> NETWORK_LEAVE = new ArrayList<>();
-    private static final List<Consumer<PlayerJoinNetworkEvent>> NETWORK_JOIN = new ArrayList<>();
-    private static final List<Consumer<PlayerMoveEvent>> MOVE = new ArrayList<>();
-    private static final List<Consumer<AsyncPlayerConfigurationEvent>> CONFIG = new ArrayList<>();
-    private static final List<Consumer<PlayerLoadedEvent>> JOIN = new ArrayList<>();
-    private static final List<Consumer<PlayerDisconnectEvent>> DISCONNECT = new ArrayList<>();
-    private static final List<Consumer<PlayerPacketOutEvent>> PACKET_OUT = new ArrayList<>();
-    private static final List<Consumer<PlayerPacketEvent>> PACKET_IN = new ArrayList<>();
-    private static final List<Consumer<PlayerPacketOutEvent>> PACKET_OUT_HIGH = new ArrayList<>();
-    private static final List<Consumer<PlayerPacketEvent>> PACKET_IN_HIGH = new ArrayList<>();
-    private static final List<Consumer<PlayerPacketOutEvent>> PACKET_OUT_LOW = new ArrayList<>();
-    private static final List<Consumer<PlayerPacketEvent>> PACKET_IN_LOW = new ArrayList<>();
+    private static final List<Consumer<PlayerLeaveNetworkEvent>> NETWORK_LEAVE = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerJoinNetworkEvent>> NETWORK_JOIN = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerMoveEvent>> MOVE = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<AsyncPlayerConfigurationEvent>> CONFIG = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerLoadedEvent>> JOIN = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerDisconnectEvent>> DISCONNECT = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerPacketOutEvent>> PACKET_OUT = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerPacketEvent>> PACKET_IN = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerPacketOutEvent>> PACKET_OUT_HIGH = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerPacketEvent>> PACKET_IN_HIGH = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerPacketOutEvent>> PACKET_OUT_LOW = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<PlayerPacketEvent>> PACKET_IN_LOW = new CopyOnWriteArrayList<>();
 
     private Events() {
 
@@ -195,7 +195,22 @@ public class Events {
     public static void onNetworkLeave(Consumer<PlayerLeaveNetworkEvent> event) {
         NETWORK_LEAVE.add(event);
     }
-    
+
+    public static void unregisterAll(ClassLoader classLoader) {
+        NETWORK_LEAVE.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        NETWORK_JOIN.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        MOVE.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        CONFIG.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        JOIN.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        DISCONNECT.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        PACKET_OUT.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        PACKET_IN.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        PACKET_OUT_HIGH.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        PACKET_IN_HIGH.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        PACKET_OUT_LOW.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+        PACKET_IN_LOW.removeIf(consumer -> consumer.getClass().getClassLoader() == classLoader);
+    }
+
     public static void onMove(Consumer<PlayerMoveEvent> consumer) {
         MOVE.add(consumer);
     }

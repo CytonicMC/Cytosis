@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -16,11 +18,17 @@ import lombok.extern.slf4j.Slf4j;
 @UtilityClass
 public class ClassGraphUtils {
 
+    public static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(
+        125,
+        Thread.ofVirtual()
+            .name("graph-scan-", 0)
+            .factory());
+
     public static <T> List<T> getImplementedClasses(Class<T> clazz, String packageName) {
         ClassGraph graph = new ClassGraph().acceptPackages(packageName).enableAllInfo();
 
         List<T> resultList = new ArrayList<>();
-        try (ScanResult result = graph.scan()) {
+        try (ScanResult result = graph.scan(EXECUTOR, 125)) {
             result.getClassesImplementing(clazz).loadClasses().forEach(foundClass -> {
                 try {
                     if (foundClass.isAnnotationPresent(ExcludeFromClassGraph.class)) return;
@@ -44,7 +52,7 @@ public class ClassGraphUtils {
         ClassGraph graph = new ClassGraph().acceptPackages(packageName).enableAllInfo();
 
         List<T> resultList = new ArrayList<>();
-        try (ScanResult result = graph.scan()) {
+        try (ScanResult result = graph.scan(EXECUTOR, 125)) {
             result.getSubclasses(clazz).loadClasses().forEach(foundClass -> {
                 try {
                     if (foundClass.isAnnotationPresent(ExcludeFromClassGraph.class)) return;
@@ -74,7 +82,7 @@ public class ClassGraphUtils {
         ClassGraph graph = new ClassGraph().acceptPackages(packageName).enableAllInfo();
 
         List<AnnotatedMethod<T>> resultList = new ArrayList<>();
-        try (ScanResult result = graph.scan()) {
+        try (ScanResult result = graph.scan(EXECUTOR, 125)) {
             result.getClassesWithMethodAnnotation(clazz).loadClasses().forEach(foundClass -> {
                 try {
                     if (foundClass.isAnnotationPresent(ExcludeFromClassGraph.class)) return;

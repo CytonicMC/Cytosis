@@ -22,17 +22,17 @@ import net.cytonic.cytosis.logging.Logger;
 /**
  * The base cytosis metrics collecting utility. It supports counters and histograms
  */
-@CytosisComponent
+@CytosisComponent(dependsOn = CytosisOpenTelemetry.class)
 @SuppressWarnings("unused")
 public class MetricsManager implements Bootstrappable {
 
-    private final Meter meter;
     // counters
     private final Map<String, DoubleCounter> doublesCounters = new ConcurrentHashMap<>();
     private final Map<String, LongCounter> longsCounters = new ConcurrentHashMap<>();
     // histograms
     private final Map<String, DoubleHistogram> doubleHistograms = new ConcurrentHashMap<>();
     private final Map<String, LongHistogram> longHistograms = new ConcurrentHashMap<>();
+    private Meter meter;
     private CytosisContext cytosisContext;
 
     /*
@@ -48,7 +48,7 @@ public class MetricsManager implements Bootstrappable {
      * Creates a new Metrics Manager following a "cytosis" meter
      */
     public MetricsManager() {
-        meter = CytosisOpenTelemetry.getMeter("cytosis");
+        // the meter is set up on init, not instantiation
     }
 
     /**
@@ -66,15 +66,16 @@ public class MetricsManager implements Bootstrappable {
      * @param name The name to identify the meter by
      */
     public MetricsManager(String name) {
-        this.meter = CytosisOpenTelemetry.getMeter(name);
+        this.meter = Cytosis.get(CytosisOpenTelemetry.class).getMeter(name);
     }
 
     @Override
     public void init() {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
         this.cytosisContext = Cytosis.CONTEXT;
 
         if (!cytosisContext.getFlags().contains("--no-metrics")) {
-            CytosisOpenTelemetry.setup();
+            this.meter = Cytosis.get(CytosisOpenTelemetry.class).getMeter("cytosis");
         } else Logger.info("Skipping metric sending due to the `--no-metrics` flag.");
     }
 
@@ -98,6 +99,8 @@ public class MetricsManager implements Bootstrappable {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Metric name cannot be null or empty");
         }
+        if (meter == null) throw new IllegalStateException(
+            "A meter must be specified upon creation of the metrics manager, or after the initialization of the metrics manager.");
         if (!name.matches("[a-z_][a-z0-9_.]*")) {
             throw new IllegalArgumentException("Metric name must match pattern [a-z_][a-z0-9_]*");
         }
@@ -127,9 +130,13 @@ public class MetricsManager implements Bootstrappable {
     public void addToLongCounter(String counterName, long value, Attributes extraAttributes) {
         validateState(counterName);
         if (value <= 0) {
+            Logger.warn("A negative value cannot be added to a counter. Skipping.");
             return; // no negative values, adding 0 does nothing
         }
-        if (!longsCounters.containsKey(counterName)) return;
+        if (!longsCounters.containsKey(counterName)) {
+            Logger.warn("Attempted to add a value to an unknown counter: " + counterName);
+            return;
+        }
         longsCounters.get(counterName).add(value,
             Attributes.builder().putAll(extraAttributes)
                 .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
