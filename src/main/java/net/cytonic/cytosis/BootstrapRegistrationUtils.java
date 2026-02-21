@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import net.minestom.server.event.Event;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
@@ -76,9 +79,9 @@ public final class BootstrapRegistrationUtils {
         ClassGraph graph = new ClassGraph().acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
             .enableAnnotationInfo()
             .enableClassInfo();
-        try (var scanResult = graph.scan()) {
-            var classInfos = scanResult.getClassesWithAnnotation(CytosisComponent.class.getName());
-            for (var classInfo : classInfos) {
+        try (ScanResult scanResult = graph.scan()) {
+            ClassInfoList classInfos = scanResult.getClassesWithAnnotation(CytosisComponent.class.getName());
+            for (ClassInfo classInfo : classInfos) {
                 try {
                     candidates.add(classInfo.loadClass());
                 } catch (Throwable t) {
@@ -372,7 +375,7 @@ public final class BootstrapRegistrationUtils {
      * @param counter      atomic counter for listener naming
      */
     private static void scanAndRegisterListeners(ClassGraph graph, EventHandler eventHandler, AtomicInteger counter) {
-        try (var scanResult = graph.scan()) {
+        try (ScanResult scanResult = graph.scan()) {
             scanResult
                 .getClassesWithMethodAnnotation(Listener.class.getName())
                 .forEach(classInfo -> processListenerClass(classInfo, eventHandler, counter));

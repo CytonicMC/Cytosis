@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -68,13 +67,11 @@ public class FriendManager implements Bootstrappable {
     }
 
     public void addCachedFriend(UUID uuid, UUID friend) {
-        Set<UUID> list = friends.getOrDefault(uuid, new HashSet<>());
+        Set<UUID> list = friends.computeIfAbsent(uuid, u -> ConcurrentHashMap.newKeySet());
         list.add(friend);
-        friends.put(uuid, list);
 
-        list = friends.getOrDefault(friend, new HashSet<>());
-        list.add(uuid);
-        friends.put(friend, list);
+        Set<UUID> friendList = friends.computeIfAbsent(friend, u -> ConcurrentHashMap.newKeySet());
+        friendList.add(uuid);
     }
 
     /**
@@ -91,9 +88,8 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void addFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        Set<UUID> list = friends.getOrDefault(uuid, new HashSet<>());
+        Set<UUID> list = friends.computeIfAbsent(uuid, u -> ConcurrentHashMap.newKeySet());
         list.add(friend);
-        friends.put(uuid, list);
 
         db.updateFriends(uuid, list);
 
@@ -115,9 +111,8 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void removeFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        Set<UUID> list = friends.getOrDefault(uuid, new HashSet<>());
+        Set<UUID> list = friends.computeIfAbsent(uuid, u -> ConcurrentHashMap.newKeySet());
         list.remove(friend);
-        friends.put(uuid, list);
 
         db.updateFriends(uuid, list);
 
@@ -158,7 +153,7 @@ public class FriendManager implements Bootstrappable {
      * @return the set of UUIDs of the player friends
      */
     public Set<UUID> getFriends(UUID uuid) {
-        return friends.getOrDefault(uuid, new HashSet<>());
+        return friends.getOrDefault(uuid, Set.of());
     }
 
     /**

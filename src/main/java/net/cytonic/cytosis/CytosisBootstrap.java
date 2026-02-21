@@ -139,6 +139,9 @@ public class CytosisBootstrap {
             Logger.info("Stopping server due to '--ci-test' flag.");
             MinecraftServer.stopCleanly();
         }
+
+        // suggest it GCs all the glassgraph heap
+        System.gc();
     }
 
     private void initViewFrame() {

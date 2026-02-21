@@ -3,6 +3,7 @@ package net.cytonic.cytosis.entity.hologram;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 import lombok.Builder;
@@ -25,7 +26,7 @@ public class PlayerHolograms {
 
     public static final double SPACE = 0.28;
 
-    public static final List<Hologram> holograms = new ArrayList<>();
+    public static final List<Hologram> holograms = new CopyOnWriteArrayList<>();
 
     public static void addHologram(Hologram hologram) {
         List<Integer> entities = new ArrayList<>();

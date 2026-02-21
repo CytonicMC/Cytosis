@@ -237,11 +237,13 @@ public final class ServerEventListeners {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         Cytosis.get(SideboardManager.class).removePlayer(player);
         Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
+        Cytosis.get(PlayerListManager.class).cleanupPlayer(player);
         if (Cytosis.get(PreferenceManager.class)
             .getPlayerPreference(player.getUuid(), Preferences.VANISHED)) {
             Cytosis.get(VanishManager.class).disableVanish(player);
         }
         Cytosis.get(NpcManager.class).removePlayer(player);
+        Cytosis.get(RankManager.class).removePlayer(player.getUuid());
         PlayerHolograms.removePlayer(player);
     }
 }

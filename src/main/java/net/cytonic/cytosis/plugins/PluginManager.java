@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.plugins.dependencies.DependencyUtils;
 import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
@@ -205,8 +206,29 @@ public class PluginManager implements Bootstrappable {
     }
 
     public void unloadPlugins() {
-        for (PluginContainer value : pluginsById.values()) {
-            value.getInstance().ifPresent(CytosisPlugin::shutdown);
+        for (PluginContainer container : pluginsById.values()) {
+            container.getInstance().ifPresent(plugin -> {
+                try {
+                    plugin.shutdown();
+                } catch (Exception e) {
+                    logger.error("Error shutting down plugin {}", container.getDescription().getId(), e);
+                }
+                // Close the classloader if it's a PluginClassLoader
+                ClassLoader cl = plugin.getClass().getClassLoader();
+                if (cl instanceof PluginClassLoader pcl) {
+                    Events.unregisterAll(pcl);
+                    try {
+                        pcl.close();
+                    } catch (IOException e) {
+                        logger.error("Failed to close classloader for plugin {}", container.getDescription().getId(),
+                            e);
+                    }
+                }
+            });
         }
+        // Clear all registries to allow GC
+        pluginsById.clear();
+        pluginInstances.clear();
+        plugins.clear();
     }
 }

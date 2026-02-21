@@ -39,7 +39,7 @@ public class NatsManager implements Bootstrappable {
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
     private CytosisSettings cytosisSettings;
-    private Connection connection;
+    private volatile Connection connection;
     private boolean started = false;
 
     @Override
@@ -151,8 +151,9 @@ public class NatsManager implements Bootstrappable {
      */
     public void publish(String channel, byte[] data) {
         channel = Subjects.applyPrefix(channel);
-        if (connection != null) {
-            connection.publish(channel, data);
+        Connection conn = connection;
+        if (conn != null) {
+            conn.publish(channel, data);
             return;
         }
 
@@ -161,8 +162,9 @@ public class NatsManager implements Bootstrappable {
 
     public void request(String channel, byte[] data, BiConsumer<Message, Throwable> consumer) {
         channel = Subjects.applyPrefix(channel);
-        if (connection != null) {
-            connection.request(channel, data).whenComplete(consumer);
+        Connection conn = connection;
+        if (conn != null) {
+            conn.request(channel, data).whenComplete(consumer);
             return;
         }
 
@@ -171,8 +173,9 @@ public class NatsManager implements Bootstrappable {
 
     public void subscribe(String channel, Consumer<Message> consumer) {
         channel = Subjects.applyPrefix(channel);
-        if (connection != null) {
-            connection.createDispatcher(consumer::accept).subscribe(channel);
+        Connection conn = connection;
+        if (conn != null) {
+            conn.createDispatcher(consumer::accept).subscribe(channel);
             return;
         }
 
