@@ -28,6 +28,7 @@ public class Preferences {
     public static final Set<Preference<?>> ALL = new HashSet<>();
 
     public static final Preference<Boolean> ACCEPT_FRIEND_REQUESTS = make("accept_friend_request", true);
+    public static final Preference<Boolean> ACCEPT_PARTY_INVITES = make("accept_party_invite", true);
     public static final Preference<Boolean> SERVER_ALERTS = make("server_alerts", false);
     public static final Preference<ChatChannel> CHAT_CHANNEL = make("chat_channel", ChatChannel.ALL);
     public static final JsonPreference<IgnoredChatChannelContainer> IGNORED_CHAT_CHANNELS = makeJson(
@@ -42,6 +43,7 @@ public class Preferences {
     public static final Preference<Boolean> TPS_DEBUG = make("tps_debug", false);
     public static final Preference<Boolean> FLY = make("fly", false);
     public static final Preference<Float> FLY_SPEED = make("fly_speed", 1F);
+    public static final Preference<Boolean> REPORT_BANNED = make("report_banned", false);
 
 
     private static <T> Preference<T> make(String key, T def) {

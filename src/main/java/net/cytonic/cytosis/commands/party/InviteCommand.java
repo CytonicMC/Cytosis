@@ -7,10 +7,13 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.impl.responses.PartyResponse;
 
 class InviteCommand extends CytosisCommand {
@@ -27,6 +30,12 @@ class InviteCommand extends CytosisCommand {
             if (playerID == null) {
                 s.sendMessage(
                     Msg.whoops("Could not find the player '%s'", context.get(CommandUtils.NETWORK_PLAYERS)));
+                return;
+            }
+
+            if (!Cytosis.get(PreferenceManager.class).getPlayerPreference(playerID, Preferences.ACCEPT_PARTY_INVITES) ||
+                Cytosis.get(NicknameManager.class).isNicked(playerID)) {
+                s.sendMessage(Msg.whoops("That player has party invites disabled!"));
                 return;
             }
 
