@@ -53,6 +53,11 @@ public class PartyNotifyListener {
         }
     }
 
+    @NotifyHandler(subject = Subjects.PARTY_DEMOTE_NOTIFY)
+    private void handlePartyDemote(PartyTwoPlayerProtocolObject.Packet packet, NotifyData notifyData) {
+        pm.trackDemotionToMember(packet.party(), packet.sender(), packet.player());
+    }
+
     @NotifyHandler(subject = Subjects.PARTY_KICK_NOTIFY)
     private void handlePartyKick(PartyTwoPlayerProtocolObject.Packet packet) {
         pm.trackKick(packet.party(), packet.sender(), packet.player());
