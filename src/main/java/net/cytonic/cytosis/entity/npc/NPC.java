@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -28,6 +27,7 @@ import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
 import net.cytonic.cytosis.entity.npc.configuration.NPCConfiguration;
 import net.cytonic.cytosis.entity.npc.dialogs.Dialog;
@@ -53,8 +53,8 @@ public abstract class NPC {
     @Getter
     private final Component name;
 
-    private final Map<UUID, ViewerData> viewers = new ConcurrentHashMap<>();
-    private final Map<UUID, Dialog<? extends CytosisPlayer>> activeDialogs = new ConcurrentHashMap<>();
+    private final Map<UUID, ViewerData> viewers = new ExpiringMap<>();
+    private final Map<UUID, Dialog<? extends CytosisPlayer>> activeDialogs = new ExpiringMap<>();
 
     public NPC(NPCConfiguration config) {
         this.config = config;

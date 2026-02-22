@@ -27,6 +27,7 @@ import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
 import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.events.api.Async;
@@ -217,7 +218,6 @@ public final class ServerEventListeners {
             }
 
             ChatManager chatManager = Cytosis.get(ChatManager.class);
-            db.addChat(player.getUuid(), event.getRawMessage());
             String originalMessage = event.getRawMessage();
             ChatChannel channel = chatManager.getChannel(player.getUuid());
             if (player.canSendToChannel(channel)) {
@@ -235,15 +235,8 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onQuit(PlayerDisconnectEvent event) {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
-        Cytosis.get(SideboardManager.class).removePlayer(player);
-        Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
-        Cytosis.get(PlayerListManager.class).cleanupPlayer(player);
-        if (Cytosis.get(PreferenceManager.class)
-            .getPlayerPreference(player.getUuid(), Preferences.VANISHED)) {
-            Cytosis.get(VanishManager.class).disableVanish(player);
-        }
+        ExpiringMap.expire(player.getUuid());
         Cytosis.get(NpcManager.class).removePlayer(player);
-        Cytosis.get(RankManager.class).removePlayer(player.getUuid());
         PlayerHolograms.removePlayer(player);
     }
 }
