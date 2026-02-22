@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.objects.BanData;
@@ -131,7 +131,7 @@ public class BanCommand extends CytosisCommand {
         Component snoop = actor.formattedName().append(Msg.grey(" banned ")).append(SnoopUtils.toTarget(uuid))
             .append(Msg.grey(" for %s with the reason %s", durationText, reason));
 
-        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_BAN, Msg.snoop(snoop));
+        Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_BAN, Msg.snoop(snoop));
     }
 
     private Void handleBanCheckError(CommandSender sender, String player, Throwable throwable) {

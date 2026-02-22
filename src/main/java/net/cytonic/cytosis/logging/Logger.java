@@ -15,7 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -107,7 +107,7 @@ public interface Logger {
             message);
         if (Cytosis.CONTEXT.isSendErrorsThroughSnooper()) {
             try {
-                Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
+                Cytosis.get(SnooperManager.class).sendSnoop(Snoops.SERVER_ERROR, Msg.snoop(component));
             } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
                 Logger.warn("Failed to log error via snooper!");
             }
@@ -137,7 +137,7 @@ public interface Logger {
                 + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
         try {
             Cytosis.get(SnooperManager.class)
-                .sendSnoop(CytosisSnoops.SERVER_ERROR, Msg.snoop(component));
+                .sendSnoop(Snoops.SERVER_ERROR, Msg.snoop(component));
         } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
             Logger.warn("Failed to log error via snooper!");
         }

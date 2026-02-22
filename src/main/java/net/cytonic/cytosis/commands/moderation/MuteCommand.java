@@ -12,7 +12,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
@@ -92,7 +92,7 @@ public class MuteCommand extends CytosisCommand {
                     .append(Msg.grey(" for " + DurationParser.unparseFull(duration) + "."));
 
                 Cytosis.get(SnooperManager.class)
-                    .sendSnoop(CytosisSnoops.PLAYER_MUTE, Msg.snoop(snoop));
+                    .sendSnoop(Snoops.PLAYER_MUTE, Msg.snoop(snoop));
                 db.mutePlayer(uuid, duration).whenComplete((ignored, throwable3) -> {
                     if (throwable3 != null) {
                         actor.sendMessage(Msg.serverError("An error occurred whilst muting %s!", target));

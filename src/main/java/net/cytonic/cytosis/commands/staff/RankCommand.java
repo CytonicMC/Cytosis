@@ -13,7 +13,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
@@ -85,7 +85,7 @@ public class RankCommand extends CytosisCommand {
             .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))
             .append(Msg.mm("<gray>."));
 
-        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.CHANGE_RANK, Msg.snoop(snoop));
+        Cytosis.get(SnooperManager.class).sendSnoop(Snoops.CHANGE_RANK, Msg.snoop(snoop));
         Cytosis.get(GlobalDatabase.class).setPlayerRank(uuid, rank).thenAccept(_ -> {
             new PlayerRankUpdateNotifyPacket.Packet(uuid, rank.name()).publish();
             sender.sendMessage(Msg.mm("<green>Successfully updated " + usr + "'s rank!"));

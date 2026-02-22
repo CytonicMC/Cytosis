@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -95,7 +95,7 @@ public class NicknameManager implements Bootstrappable {
             .append(
                 Msg.aqua(" (Skin: %s)!", Msg.stripTags(translateSkin(player, data.value()).replace("My", "Their"))));
 
-        Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_NICKNAME, Msg.snoop(msg));
+        Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_NICKNAME, Msg.snoop(msg));
     }
 
     /**
