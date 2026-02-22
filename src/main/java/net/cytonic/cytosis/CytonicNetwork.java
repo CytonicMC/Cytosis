@@ -19,6 +19,8 @@ import net.cytonic.cytosis.data.objects.BiMap;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.RankManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
+import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.impl.notify.PlayerChangeServerNotifyPacket;
@@ -183,10 +185,20 @@ public class CytonicNetwork implements Bootstrappable {
     }
 
     public String getMiniName(UUID player) {
-        PlayerRank rank = cachedPlayerRanks.get(player);
+        PlayerRank rank;
+        String name;
+
+        NicknameData data = Cytosis.get(NicknameManager.class).getData(player);
+        if (data != null) {
+            rank = data.rank();
+            name = data.nickname();
+        } else {
+            rank = cachedPlayerRanks.get(player);
+            name = lifetimePlayers.getByKey(player);
+        }
+
         String color = rank.getTeamColor().toString();
-        String name = String.format("<%s>%s</%s>", color, lifetimePlayers.getByKey(player), color);
-        return Msg.toMini(rank.getPrefix()) + name;
+        return Msg.toMini(rank.getPrefix()) + String.format("<%s>%s</%s>", color, name, color);
     }
 
     /**
