@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -22,6 +23,7 @@ import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.impl.notify.PlayerChangeServerNotifyPacket;
 import net.cytonic.protocol.utils.NotifyHandler;
@@ -195,6 +197,41 @@ public class CytonicNetwork implements Bootstrappable {
         } else {
             rank = cachedPlayerRanks.get(player);
             name = lifetimePlayers.getByKey(player);
+        }
+
+        String color = rank.getTeamColor().toString();
+        return Msg.toMini(rank.getPrefix()) + String.format("<%s>%s</%s>", color, name, color);
+    }
+
+    /**
+     * Gets the player's name and rank formatted like [Nexus] Foxikle, except it does not reveal a player's nicked
+     * status. If a nicked player's true username is entered, it returns the player's true rank. If the player's nicked
+     * username is entered, then it returns the player's nicked rank.
+     *
+     * @param input The player's USERNAME to format. Unlike {@link #getMiniName(UUID)}, this method only works with
+     *              Username, as the UUID doesn't provide the context if the requesting player sees the real identity or
+     *              not.
+     * @return The formatted name, not revealing
+     */
+    @Nullable
+    public String getMiniNameFragile(String input) {
+        PlayerRank rank;
+        String name;
+
+        UUID uuid = PlayerUtils.resolveNickedUuid(input);
+        if (uuid != null) {
+            NicknameData data = Cytosis.get(NicknameManager.class).getData(uuid);
+            if (data != null) {
+                rank = data.rank();
+                name = data.nickname();
+            } else {
+                return null;
+            }
+        } else {
+            uuid = PlayerUtils.resolveUnickedUuid(input);
+            if (uuid == null) return null;
+            rank = cachedPlayerRanks.get(uuid);
+            name = lifetimePlayers.getByKey(uuid);
         }
 
         String color = rank.getTeamColor().toString();
