@@ -3,6 +3,8 @@ package net.cytonic.cytosis.player;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,8 +14,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.builder.CommandResult;
+import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
+import net.minestom.server.network.packet.server.SendablePacket;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -517,6 +522,31 @@ public class CytosisPlayer extends CombatPlayerImpl {
             return;
         }
         Cytosis.get(SendPlayerToServerPacketPublisher.class).sendPlayerToServer(getUuid(), server);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public @NonNull EntityMetaDataPacket getMetadataPacket() {
+        if (!isVanished()) return super.getMetadataPacket();
+        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(metadata.getEntries());
+        Metadata.Entry<Byte> entry = (Metadata.Entry<Byte>) entries.get(0);
+        entries.put(0, Metadata.Byte((byte) (entry.value() | 0x60)));
+
+        return new EntityMetaDataPacket(getEntityId(), entries);
+    }
+
+    @Override
+    public void sendPacketToViewersAndSelf(SendablePacket packet) {
+        if (!(packet instanceof EntityMetaDataPacket p)) {
+            super.sendPacketToViewersAndSelf(packet);
+        }
+
+        if (!isVanished()) {
+            super.sendPacketToViewersAndSelf(packet);
+            return;
+        }
+
+        super.sendPacketToViewersAndSelf(getMetadataPacket());
     }
 
     public void sendToGenericServer(Key key, @Nullable String name) {
