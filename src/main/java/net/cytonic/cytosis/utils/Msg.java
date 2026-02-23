@@ -17,6 +17,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 /**
  * A class that holds utils for formatting messages
  */
+@SuppressWarnings("unused")
 public interface Msg {
 
     /**
