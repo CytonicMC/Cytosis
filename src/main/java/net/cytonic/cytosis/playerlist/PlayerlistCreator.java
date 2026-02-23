@@ -6,13 +6,16 @@ import java.util.function.Function;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextDecoration.State;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+
+import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
+import static net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH;
 
 /**
  * A creator for the playerlist, for use with {@link net.cytonic.cytosis.managers.PlayerListManager}
@@ -26,19 +29,21 @@ public interface PlayerlistCreator {
                 if (!player.isStaff()) {
                     continue;
                 }
-                players.add(new PlayerListEntry(p.getRank().getPrefix().color(NamedTextColor.GRAY)
-                    .decorate(TextDecoration.STRIKETHROUGH, TextDecoration.ITALIC)
-                    .append(p.getName()), p.getRank()
-                    .ordinal(), new PlayerInfoUpdatePacket.Property("textures", p.getSkin()
-                    .textures(), p.getSkin()
-                    .signature())));
+                Component nicked = p.isNicked() ? Msg.darkAqua(" \uD83C\uDFAD") : Component.empty();
+                nicked = nicked.decoration(STRIKETHROUGH, State.FALSE).decoration(ITALIC, State.FALSE);
+                players.add(new PlayerListEntry(
+                    p.getRank().getPrefix().color(NamedTextColor.GRAY).decorate(STRIKETHROUGH, ITALIC)
+                        .append(p.getTrueName().color(NamedTextColor.GRAY).decorate(STRIKETHROUGH, ITALIC))
+                        .append(nicked),
+                    p.getRank().ordinal(), new PlayerInfoUpdatePacket.Property("textures", p.getSkin()
+                    .textures(), p.getTrueSkin().signature())));
                 continue;
             }
             if (p.isNicked()) {
+                PlayerRank rank = p.getTrueRank();
                 if (player.getUuid().equals(p.getUuid())) {
-                    PlayerRank rank = p.getTrueRank();
                     players.add(new PlayerListEntry(rank.getPrefix()
-                        .append(p.getTrueName()), rank.ordinal(),
+                        .append(p.getTrueName().color(rank.getTeamColor())), rank.ordinal(),
                         new PlayerInfoUpdatePacket.Property("textures", p.getTrueSkin()
                             .textures(), p.getTrueSkin()
                             .signature())));
@@ -46,7 +51,7 @@ public interface PlayerlistCreator {
                 }
 
                 if (player.isStaff()) {
-                    players.add(new PlayerListEntry(p.getTrueRank().getPrefix().append(p.getTrueName())
+                    players.add(new PlayerListEntry(rank.getPrefix().append(p.getTrueName().color(rank.getTeamColor()))
                         .append(Msg.darkAqua(" \uD83C\uDFAD")), p.getRank()
                         .ordinal(), new PlayerInfoUpdatePacket.Property("textures", p.getTrueSkin()
                         .textures(), p.getTrueSkin()
