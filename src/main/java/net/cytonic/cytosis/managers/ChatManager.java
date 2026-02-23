@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.managers;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -10,15 +11,15 @@ import com.google.common.cache.CacheBuilder;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
@@ -30,7 +31,7 @@ import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
  */
 @SuppressWarnings("unused")
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class})
+@CytosisComponent(dependsOn = {PreferenceManager.class})
 public class ChatManager implements Bootstrappable {
 
     private final Cache<UUID, UUID> openPrivateChannels = CacheBuilder.newBuilder()
@@ -38,12 +39,10 @@ public class ChatManager implements Bootstrappable {
         .expireAfterAccess(5L, TimeUnit.MINUTES).build();
 
     private PreferenceManager preferenceManager;
-    private NatsManager natsManager;
 
     @Override
     public void init() {
         this.preferenceManager = Cytosis.get(PreferenceManager.class);
-        this.natsManager = Cytosis.get(NatsManager.class);
     }
 
     /**
@@ -74,16 +73,19 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
+        if (channel == ChatChannel.PRIVATE_MESSAGE) {
+            handlePrivateMessage(originalMessage, player);
+            return;
+        }
+
+        logMessage(null, player.getUuid(), originalMessage, channel);
+
         if (!player.canSendToChannel(channel)) {
             player.sendMessage(Msg.whoops("You cannot currently send messages on the <gold>%s</gold> channel.",
                 channel.name()));
             return;
         }
         Component channelComponent = channel.getPrefix();
-        if (channel == ChatChannel.PRIVATE_MESSAGE) {
-            handlePrivateMessage(originalMessage, player);
-            return;
-        }
 
         Component message = Component.text("");
         if (channel.isShouldDeanonymize()) {
@@ -134,6 +136,8 @@ public class ChatManager implements Bootstrappable {
         UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
         PlayerRank recipientRank = Cytosis.get(RankManager.class).getPlayerRank(uuid).orElseThrow();
 
+        logMessage(uuid, player.getUuid(), message, ChatChannel.PRIVATE_MESSAGE);
+
         Component recipient = recipientRank.getPrefix()
             .append(Component.text(Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .getByKey(uuid), recipientRank.getTeamColor()));
@@ -142,7 +146,6 @@ public class ChatManager implements Bootstrappable {
             .append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername())))
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.get(EnvironmentDatabase.class).addPlayerMessage(player.getUuid(), uuid, message);
         new ChatMessageNotifyPacket.Packet(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
             new JsonComponent(component), player.getUuid()).publish();
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » "))
@@ -159,5 +162,17 @@ public class ChatManager implements Bootstrappable {
 
     public boolean hasOpenPrivateChannel(CytosisPlayer player) {
         return openPrivateChannels.getIfPresent(player.getUuid()) != null;
+    }
+
+    public void logMessage(@Nullable UUID recipient, UUID sender, String message, ChatChannel channel) {
+        Thread.ofVirtual().start(() -> {
+            ChatMessage msg = new ChatMessage();
+            msg.setChannel(channel);
+            msg.setSender(sender);
+            msg.setContent(message);
+            msg.setSentAt(Instant.now());
+            msg.setRecipient(recipient);
+            msg.save();
+        });
     }
 }
