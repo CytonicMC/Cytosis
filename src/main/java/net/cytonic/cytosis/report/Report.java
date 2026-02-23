@@ -5,12 +5,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import io.ebean.DB;
-import lombok.AllArgsConstructor;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.utils.Utils;
 
-@AllArgsConstructor
 public record Report<T extends ReportType<T>>(UUID uuid, ReportContext<T> context, T type, UUID reporter, UUID player,
                                               Instant submittedAt, boolean resolved) {
 

@@ -203,6 +203,14 @@ public class CytonicNetwork implements Bootstrappable {
         return Msg.toMini(rank.getPrefix()) + String.format("<%s>%s</%s>", color, name, color);
     }
 
+    public String getTrueMiniName(UUID player) {
+        PlayerRank rank = cachedPlayerRanks.get(player);
+        String name = lifetimePlayers.getByKey(player);
+
+        String color = rank.getTeamColor().toString();
+        return Msg.toMini(rank.getPrefix()) + String.format("<%s>%s</%s>", color, name, color);
+    }
+
     /**
      * Gets the player's name and rank formatted like [Nexus] Foxikle, except it does not reveal a player's nicked
      * status. If a nicked player's true username is entered, it returns the player's true rank. If the player's nicked

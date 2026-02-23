@@ -12,7 +12,11 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.Nullable;
 
+import net.cytonic.cytosis.CytonicNetwork;
+import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.config.Snoops;
+import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
@@ -56,6 +60,12 @@ public class ReportManager {
             entity.setType(report.type().getKey().asString());
             entity.setResolved(report.resolved());
             entity.save();
+
+            Cytosis.get(SnooperManager.class)
+                .sendSnoop(Snoops.REPORT_SUBMITTED, Msg.mm("%s submitted report %s against %s for %s.",
+                    Cytosis.get(CytonicNetwork.class).getTrueMiniName(report.reporter()), report.uuid(),
+                    Cytosis.get(CytonicNetwork.class).getTrueMiniName(report.player()),
+                    Msg.toMini(report.type().getDisplayName())));
             return null;
         });
     }
