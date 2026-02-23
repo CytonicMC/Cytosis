@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+  <changeSet type="apply">
+    <createIndex columns="sender" indexName="idx_sender" tableName="cytonic_chat"/>
+    <createIndex columns="sender" indexName="idx_recipient" tableName="cytonic_chat"/>
+    <createIndex columns="sent_at" indexName="idx_sent_at" tableName="cytonic_chat"/>
+    <createTable identityType="external" name="cytonic_reports" pkName="pk_cytonic_reports">
+      <column identity="true" name="id" primaryKey="true" type="uuid"/>
+      <column name="type" notnull="true" type="varchar"/>
+      <column name="reporter" notnull="true" type="uuid"/>
+      <column name="player" notnull="true" type="uuid"/>
+      <column defaultValue="false" name="resolved" notnull="true" type="boolean"/>
+      <column name="context" type="jsonb"/>
+      <column name="submitted_at" notnull="true" type="timestamp"/>
+    </createTable>
+    <createTable identityType="identity" name="cytonic_chat" pkName="pk_cytonic_chat">
+      <column name="id" primaryKey="true" type="bigint"/>
+      <column checkConstraint="check ( channel in ('ALL','PRIVATE_MESSAGE','INTERNAL_MESSAGE','PARTY','LEAGUE','MOD','ADMIN','STAFF'))" checkConstraintName="ck_cytonic_chat_channel"
+        name="channel"
+        type="varchar(16)"/>
+      <column defaultValue="'&lt; Empty Message &gt;'" name="content" notnull="true" type="varchar"/>
+      <column name="sender" notnull="true" type="uuid"/>
+      <column name="recipient" type="uuid"/>
+      <column name="sent_at" notnull="true" type="timestamp"/>
+    </createTable>
+  </changeSet>
+</migration>
