@@ -37,7 +37,7 @@ public class PartyCommand extends CytosisCommand {
         addSubcommands(new AcceptCommand(), new HelpCommand(), new JoinCommand(), new LeaveCommand(),
             new InviteCommand(), new ListCommand(), new KickCommand(), new PromoteCommand(), new TransferCommand(),
             new YoinkCommand(), new DisbandCommand(), new MuteCommand(), new OpenInvitesCommand(), new OpenCommand(),
-            new DisableInvitesCommand());
+            new DisableInvitesCommand(), new DemoteCommand());
 
         setDefaultExecutor((s, _) -> MinecraftServer.getCommandManager().getDispatcher().execute(s, "party help"));
 

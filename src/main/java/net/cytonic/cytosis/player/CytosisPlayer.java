@@ -369,7 +369,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
             case STAFF -> isStaff();
             case MOD -> isModerator();
             case ADMIN -> isAdmin();
-            case PARTY -> isInParty() && (!getParty().isMuted() || getParty().hasAuthority(getUuid()));
+            case PARTY -> isInParty() && (isStaff() || !getParty().isMuted() || getParty().hasAuthority(getUuid()));
             default -> true;
         };
     }

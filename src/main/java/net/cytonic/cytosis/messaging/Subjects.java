@@ -68,20 +68,13 @@ public class Subjects {
     public static final String PARTY_PROMOTE_REQUEST = "party.promote.request";
     public static final String PARTY_PROMOTE_NOTIFY = "party.promote.notify.*";
 
+    public static final String PARTY_DEMOTE_REQUEST = "party.demote.request";
+    public static final String PARTY_DEMOTE_NOTIFY = "party.demote.notify";
+
     public static final String PARTY_KICK_REQUEST = "party.kick.request";
     public static final String PARTY_KICK_NOTIFY = "party.kick.notify";
 
     public static final String PARTY_TRANSFER_REQUEST = "party.transfer.request";
-
-    public static String applyPrefix(String subject) {
-        if (subject.startsWith("_INBOX")) { // prevent replies from being inadvertently prefixed
-            return subject;
-        }
-        if (subject.startsWith(PREFIX)) {
-            return subject;
-        }
-        return PREFIX + subject;
-    }
 
     public static final String PARTY_STATE_MUTE_REQUEST = "party.state.mute.request";
     public static final String PARTY_STATE_OPEN_REQUEST = "party.state.open.request";
@@ -100,4 +93,13 @@ public class Subjects {
     public static final String PARTY_INVITE_SEND_NOTIFY = "party.invites.send.notify";
     public static final String PARTY_INVITE_EXPIRE_NOTIFY = "party.invites.expire";
 
+    public static String applyPrefix(String subject) {
+        if (subject.startsWith("_INBOX")) { // prevent replies from being inadvertently prefixed
+            return subject;
+        }
+        if (subject.startsWith(PREFIX)) {
+            return subject;
+        }
+        return PREFIX + subject;
+    }
 }

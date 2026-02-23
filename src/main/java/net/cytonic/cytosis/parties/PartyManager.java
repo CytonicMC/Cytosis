@@ -130,6 +130,34 @@ public class PartyManager implements Bootstrappable {
         }
     }
 
+    public void trackDemotionToMember(UUID partyId, UUID sender, UUID recipient) {
+        if (!parties.containsKey(partyId)) {
+            Logger.warn("STATE MISMATCH-- %s was demoted in a non-existent party '%s'", recipient.toString(),
+                partyId.toString());
+            return;
+        }
+        Party party = parties.get(partyId);
+        party.getModerators().remove(recipient);
+        party.getMembers().add(recipient);
+        for (UUID p : party.getAllPlayers()) {
+            if (p.equals(sender)) {
+                Cytosis.getPlayer(p).ifPresent(cp ->
+                    cp.sendMessage(Msg.mm("%s\n<white>You demoted %s<white> to party member!\n%s", LINE,
+                        cn.getMiniName(recipient), LINE)));
+                continue;
+            }
+            if (p.equals(recipient)) {
+                Cytosis.getPlayer(p).ifPresent(cp ->
+                    cp.sendMessage(Msg.mm("%s\n%s <white>demoted you to party member.\n%s", LINE,
+                        cn.getMiniName(sender), LINE)));
+                continue;
+            }
+            Cytosis.getPlayer(p).ifPresent(cp ->
+                cp.sendMessage(Msg.mm("%s\n%s <white>demoted %s<white> to party member.\n%s", LINE,
+                    cn.getMiniName(sender), cn.getMiniName(recipient), LINE)));
+        }
+    }
+
     public void trackPromotionToModerator(UUID partyId, UUID sender, UUID recipient) {
         if (!parties.containsKey(partyId)) {
             Logger.warn("STATE MISMATCH-- %s was promoted in a non-existent party '%s'", recipient.toString(),
@@ -574,6 +602,18 @@ public class PartyManager implements Bootstrappable {
 
         return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
             Subjects.PARTY_PROMOTE_REQUEST);
+    }
+
+    public CompletableFuture<PartyResponse> demotePlayer(UUID sender, UUID player) {
+        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+
+        Party party = getPlayerParty(sender);
+        if (party == null) {
+            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+        }
+
+        return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
+            Subjects.PARTY_DEMOTE_REQUEST);
     }
 
     public CompletableFuture<PartyResponse> disbandParty(UUID sender) {
