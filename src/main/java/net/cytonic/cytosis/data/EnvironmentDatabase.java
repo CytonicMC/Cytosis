@@ -121,30 +121,10 @@ public class EnvironmentDatabase implements Bootstrappable {
      * Creates the database tables
      */
     public void createTables() {
-        createChatTable();
         createWorldTable();
         createPlayerJoinsTable();
-        createPlayerMessagesTable();
     }
 
-    /**
-     * Creates the chat messages table
-     */
-    private void createChatTable() {
-        try (Connection conn = getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS cytonic_chat (
-                    id SERIAL PRIMARY KEY,
-                    timestamp TIMESTAMP,
-                    uuid UUID,
-                    message TEXT
-                )
-                """);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst creating the `cytonic_chat` table.", e);
-        }
-    }
 
     /**
      * Creates the world table
@@ -179,78 +159,6 @@ public class EnvironmentDatabase implements Bootstrappable {
         } catch (SQLException e) {
             Logger.error("An error occurred whilst creating the `cytonic_player_joins` table.", e);
         }
-    }
-
-    /**
-     * Creates the player messages table
-     */
-    private void createPlayerMessagesTable() {
-        try (Connection conn = getConnection()) {
-            conn.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS cytonic_player_messages (
-                    id SERIAL PRIMARY KEY,
-                    timestamp TIMESTAMP,
-                    sender UUID,
-                    target UUID,
-                    message TEXT
-                )
-                """).executeUpdate();
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst creating the `cytonic_player_messages` table.", e);
-        }
-    }
-
-    /**
-     * Adds a player message to the database
-     *
-     * @param sender  the sender of the message
-     * @param target  the target of the message
-     * @param message the message
-     * @return a future that completes when the message has been added
-     */
-    public CompletableFuture<Void> addPlayerMessage(UUID sender, UUID target, String message) {
-        checkConditions();
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        worker.submit(() -> {
-            checkConditions();
-            try (Connection conn = getConnection()) {
-                PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO cytonic_player_messages (timestamp, sender, target, message)
-                    VALUES (CURRENT_TIMESTAMP, ?, ?, ?)
-                    """);
-                ps.setObject(1, sender);
-                ps.setObject(2, target);
-                ps.setString(3, message);
-                ps.executeUpdate();
-                future.complete(null);
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a player message from " + sender + " to " + target + ".",
-                    e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Add a chat message to the log
-     *
-     * @param uuid    The UUID of the sender
-     * @param message The message to log
-     */
-    public void addChat(UUID uuid, String message) {
-        checkConditions();
-        worker.submit(() -> {
-            try (Connection conn = getConnection()) {
-                PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO cytonic_chat (timestamp, uuid, message) VALUES (CURRENT_TIMESTAMP,?,?)");
-                ps.setObject(1, uuid);
-                ps.setString(2, message);
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("Failed to save Chat Message: ", e);
-            }
-        });
     }
 
     public CompletableFuture<Void> addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint,

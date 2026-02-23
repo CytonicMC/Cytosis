@@ -11,7 +11,6 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -73,7 +72,7 @@ public class MsgCommand extends CytosisCommand {
         Component component = Msg.mm("<dark_aqua>From <reset>")
             .append(actor.getRank().getPrefix().append(Msg.mm(actor.getUsername())).append(Msg.mm("<dark_aqua> » ")))
             .append(Component.text(message, NamedTextColor.WHITE));
-        Cytosis.get(EnvironmentDatabase.class).addPlayerMessage(actor.getUuid(), recipient, message);
+        Cytosis.get(ChatManager.class).logMessage(recipient, actor.getUuid(), message, ChatChannel.PRIVATE_MESSAGE);
         new ChatMessageNotifyPacket.Packet(Set.of(recipient), ChatChannel.PRIVATE_MESSAGE, new JsonComponent(component),
             actor.getUuid()).publish();
         actor.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(targetRank.getPrefix().append(

@@ -10,7 +10,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -52,7 +52,7 @@ public class UnmuteCommand extends CytosisCommand {
             Component snoop = actor.formattedName().append(Msg.mm("<gray> unmuted ")).append(SnoopUtils.toTarget(uuid))
                 .append(Msg.mm("<gray>."));
 
-            Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNMUTE, Msg.snoop(snoop));
+            Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_UNMUTE, Msg.snoop(snoop));
             Cytosis.get(GlobalDatabase.class).unmutePlayer(uuid);
             sender.sendMessage(Msg.greenSplash("UNMUTED", "%s was successfully unmuted!", player));
         }, playerArg);

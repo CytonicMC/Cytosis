@@ -34,6 +34,26 @@ public class JsonPreference<T> extends Preference<T> {
         this.deserializer = deserializer;
     }
 
+    @Override
+    public Preference<T> withValue(@org.jspecify.annotations.Nullable T value) {
+        return new JsonPreference<>(getKey(), getType(), value, getSerializer(), getDeserializer());
+    }
+
+    @Override
+    public Preference<T> fromStorage(StoredPreference preference) {
+        return new JsonPreference<>(getKey(), getType(), deserialize(preference.getValue()), getSerializer(),
+            getDeserializer());
+    }
+
+    @Override
+    public StoredPreference toStorage() {
+        return new StoredPreference(getKey(), serialize());
+    }
+
+    @Override
+    public JsonPreference<T> clone() {
+        return new JsonPreference<>(getKey(), getType(), Utils.clone(getValue()), serializer, deserializer);
+    }
 
     public String serialize() {
         return serializer.serialize(getValue());
@@ -41,10 +61,5 @@ public class JsonPreference<T> extends Preference<T> {
 
     public T deserialize(String data) {
         return deserializer.deserialize(data);
-    }
-
-    @Override
-    public JsonPreference<T> clone() {
-        return new JsonPreference<>(getKey(), getType(), Utils.clone(getValue()), serializer, deserializer);
     }
 }

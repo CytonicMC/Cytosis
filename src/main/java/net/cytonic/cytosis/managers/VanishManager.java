@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,6 +14,7 @@ import net.minestom.server.utils.PacketSendingUtils;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.events.VanishToggleEvent;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -29,7 +29,7 @@ import net.cytonic.cytosis.utils.Msg;
 public class VanishManager {
 
     @Getter
-    private final Map<UUID, Integer> vanished = new HashMap<>();
+    private final Map<UUID, Integer> vanished = new ExpiringMap<>();
 
     /**
      * Enables vanish for a player

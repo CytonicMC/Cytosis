@@ -12,7 +12,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -44,7 +44,7 @@ public class UnbanCommand extends CytosisCommand {
             Component snoop = actor.formattedName().append(Msg.mm("<gray> unbanned ")).append(SnoopUtils.toTarget(uuid))
                 .append(Msg.mm("<gray>."));
 
-            Cytosis.get(SnooperManager.class).sendSnoop(CytosisSnoops.PLAYER_UNBAN, Msg.snoop(snoop));
+            Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_UNBAN, Msg.snoop(snoop));
             Cytosis.get(GlobalDatabase.class).unbanPlayer(uuid);
 
             sender.sendMessage(Msg.greenSplash("UNBANNED!", "%s was successfully unbanned!", player));

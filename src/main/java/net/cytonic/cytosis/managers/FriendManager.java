@@ -16,6 +16,7 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
@@ -29,7 +30,7 @@ import net.cytonic.cytosis.utils.Msg;
     CytonicNetwork.class}, priority = 10)
 public class FriendManager implements Bootstrappable {
 
-    private final Map<UUID, Set<UUID>> friends = new ConcurrentHashMap<>();
+    private final Map<UUID, Set<UUID>> friends = new ExpiringMap<>();
     private CytonicNetwork network;
     private GlobalDatabase db;
 
@@ -55,15 +56,6 @@ public class FriendManager implements Bootstrappable {
                 Logger.error("Failed to load friends!", throwable);
                 return null;
             });
-    }
-
-    /**
-     * Unloads the player's friends from memory
-     *
-     * @param uuid The player
-     */
-    public void unloadPlayer(UUID uuid) {
-        friends.remove(uuid);
     }
 
     public void addCachedFriend(UUID uuid, UUID friend) {

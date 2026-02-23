@@ -1,8 +1,10 @@
 package net.cytonic.cytosis.utils;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -10,10 +12,12 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import net.cytonic.cytosis.data.objects.BanData;
+import net.cytonic.cytosis.player.CytosisPlayer;
 
 /**
  * A class that holds utils for formatting messages
  */
+@SuppressWarnings("unused")
 public interface Msg {
 
     /**
@@ -237,6 +241,13 @@ public interface Msg {
 
     static Component fromJson(String json) {
         return JSONComponentSerializer.json().deserialize(json);
+    }
+
+    static ClickEvent callback(Consumer<CytosisPlayer> c) {
+        return ClickEvent.callback(audience -> {
+            if (!(audience instanceof CytosisPlayer player)) return;
+            c.accept(player);
+        });
     }
 
     /**

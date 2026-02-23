@@ -11,13 +11,10 @@ import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
-import net.minestom.server.event.player.PlayerPacketOutEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.network.packet.client.play.ClientInteractEntityPacket;
-import net.minestom.server.network.packet.server.SendablePacket;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TpsCommand;
@@ -27,6 +24,7 @@ import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.NpcInteractType;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
 import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.events.api.Async;
@@ -41,11 +39,9 @@ import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.SideboardManager;
-import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.cytosis.utils.Utils;
@@ -194,7 +190,6 @@ public final class ServerEventListeners {
             }
 
             ChatManager chatManager = Cytosis.get(ChatManager.class);
-            db.addChat(player.getUuid(), event.getRawMessage());
             String originalMessage = event.getRawMessage();
             ChatChannel channel = chatManager.getChannel(player.getUuid());
             if (player.canSendToChannel(channel)) {
@@ -212,15 +207,8 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onQuit(PlayerDisconnectEvent event) {
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
-        Cytosis.get(SideboardManager.class).removePlayer(player);
-        Cytosis.get(FriendManager.class).unloadPlayer(player.getUuid());
-        Cytosis.get(PlayerListManager.class).cleanupPlayer(player);
-        if (Cytosis.get(PreferenceManager.class)
-            .getPlayerPreference(player.getUuid(), Preferences.VANISHED)) {
-            Cytosis.get(VanishManager.class).disableVanish(player);
-        }
+        ExpiringMap.expire(player.getUuid());
         Cytosis.get(NpcManager.class).removePlayer(player);
-        Cytosis.get(RankManager.class).removePlayer(player.getUuid());
         PlayerHolograms.removePlayer(player);
     }
 }

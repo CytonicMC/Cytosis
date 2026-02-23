@@ -35,6 +35,5 @@ public class PlayerLoginLogoutNotifyListener {
         network.removePlayer(packet.username(), packet.uuid());
         preferenceManager.unloadPlayerPreferences(packet.uuid());
         friendManager.sendLogoutMessage(packet.uuid());
-        rankManager.removePlayer(packet.uuid());
     }
 }

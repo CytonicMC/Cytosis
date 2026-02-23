@@ -18,7 +18,9 @@ import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.network.packet.server.SendablePacket;
+import net.minestom.server.network.packet.server.play.CloseWindowPacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
+import net.minestom.server.network.packet.server.play.OpenWindowPacket;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -556,5 +558,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
         Cytosis.get(SendPlayerToServerPacketPublisher.class)
             .sendPlayerToGenericServer(getUuid(), key.namespace(), key.value(), name);
+    }
+
+    public void closeBook() {
+        sendPacket(new OpenWindowPacket(100, 0, Component.empty()));
+        sendPacket(new CloseWindowPacket(100));
     }
 }

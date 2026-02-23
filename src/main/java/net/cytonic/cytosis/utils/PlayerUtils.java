@@ -26,12 +26,44 @@ public class PlayerUtils {
         } catch (IllegalArgumentException ignored) {
         }
 
-        UUID cached = Cytosis.get(CytonicNetwork.class).getLifetimeFlattened()
+        UUID local = Cytosis.get(CytonicNetwork.class).getLifetimeFlattened()
             .getByValue(input.toLowerCase());
-        if (cached != null) {
-            return cached;
-        }
+        if (local != null) return local;
         return Cytosis.get(NicknameManager.class).deanonymizePlayer(input);
+    }
+
+    /**
+     * Resolves the nicked player from the given input.
+     *
+     * @param playerName The input to try to parse
+     * @return The resolved UUID, if and only if the player is nicknamed, potentially null.
+     */
+    public static @Nullable UUID resolveNickedUuid(String playerName) {
+        return Cytosis.get(NicknameManager.class).deanonymizePlayer(playerName);
+    }
+
+    /**
+     * Resolves the nicked player from the given input.
+     *
+     * @param playerName The input to try to parse
+     * @return The resolved UUID, if and only if the player is NOT nicknamed, potentially null.
+     */
+    public static @Nullable UUID resolveUnickedUuid(String playerName) {
+        return Cytosis.get(CytonicNetwork.class).getLifetimeFlattened()
+            .getByValue(playerName.toLowerCase());
+    }
+
+    /**
+     * Attempts to resolve a player's name from their UUID. This will return their nickname if they are nicked.
+     *
+     * @param uuid the player's UUID.
+     * @return the player's name, or null if the player could not be resolved.
+     */
+    public static @Nullable String resolveName(UUID uuid) {
+        if (Cytosis.get(NicknameManager.class).getData(uuid) != null) {
+            return Cytosis.get(NicknameManager.class).getData(uuid).nickname();
+        }
+        return Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
     }
 
     /**
@@ -40,7 +72,7 @@ public class PlayerUtils {
      * @param uuid the player's UUID.
      * @return the player's name, or null if the player could not be resolved.
      */
-    public static @Nullable String resolveName(UUID uuid) {
+    public static @Nullable String resolveTrueName(UUID uuid) {
         return Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
     }
 }

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSnoops;
+import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.SnoopsContainer;
@@ -53,17 +53,7 @@ public class SnooperManager implements Bootstrappable {
         Logger.info("Loading snooper channels from redis");
         loadChannelsFromRedis();
         Logger.info("Loading Cytosis snoops");
-        registerChannel(CytosisSnoops.PLAYER_BAN);
-        registerChannel(CytosisSnoops.PLAYER_UNBAN);
-        registerChannel(CytosisSnoops.PLAYER_KICK);
-        registerChannel(CytosisSnoops.PLAYER_UNMUTE);
-        registerChannel(CytosisSnoops.PLAYER_MUTE);
-        registerChannel(CytosisSnoops.PLAYER_WARN);
-        registerChannel(CytosisSnoops.SERVER_ERROR);
-        registerChannel(CytosisSnoops.CHANGE_RANK);
-        registerChannel(CytosisSnoops.PLAYER_NICKNAME);
-        registerChannel(CytosisSnoops.PLAYER_SERVER_CHANGE);
-        registerChannel(CytosisSnoops.PLAYER_WHITELIST);
+        Snoops.getRegistry().forEach(this::registerChannel);
     }
 
     public void loadChannelsFromRedis() {

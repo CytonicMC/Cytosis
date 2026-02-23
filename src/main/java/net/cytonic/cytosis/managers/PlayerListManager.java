@@ -6,7 +6,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +23,7 @@ import net.minestom.server.utils.PacketSendingUtils;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.Column;
 import net.cytonic.cytosis.playerlist.DefaultPlayerListCreator;
@@ -39,8 +39,8 @@ import net.cytonic.cytosis.playerlist.PlayerlistCreator;
 @CytosisComponent
 public class PlayerListManager implements Bootstrappable {
 
-    private final Map<UUID, Component[][]> playerComponents = new ConcurrentHashMap<>();
-    private final Map<UUID, PlayerInfoUpdatePacket.Property[][]> playerFavicons = new ConcurrentHashMap<>();
+    private final Map<UUID, Component[][]> playerComponents = new ExpiringMap<>();
+    private final Map<UUID, PlayerInfoUpdatePacket.Property[][]> playerFavicons = new ExpiringMap<>();
     private UUID[][] listUuids; // <column, entry>
     private PlayerlistCreator creator;
     // in ticks
@@ -94,11 +94,6 @@ public class PlayerListManager implements Bootstrappable {
                 player.getDisplayName(), null, -1, true)));
 
         player.sendPackets(createInjectPackets(player));
-    }
-
-    public void cleanupPlayer(CytosisPlayer player) {
-        playerComponents.remove(player.getUuid());
-        playerFavicons.remove(player.getUuid());
     }
 
     /**
