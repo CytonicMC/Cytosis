@@ -108,29 +108,6 @@ public final class ServerEventListeners {
                 NamedTextColor.GOLD));
     }
 
-    @Listener
-    @Priority(0)
-    @Async
-    @SuppressWarnings({"UnstableApiUsage"})
-    private void onPacketOut(PlayerPacketOutEvent e) {
-        if (!(e.getPacket() instanceof EntityMetaDataPacket packet)) return;
-        if (!((CytosisPlayer) e.getPlayer()).isStaff()) return;
-        if (!Cytosis.get(VanishManager.class).getVanished().containsValue(packet.entityId())) return;
-
-        MetadataPacketBuilder builder = MetadataPacketBuilder.builder(packet);
-
-        if (builder.isGlowing() && builder.isInvisible()) {
-            return; // don't need to modify (also prevents a stackoverflow)
-        }
-        e.setCancelled(true);
-
-        SendablePacket toSend = builder.setGlowing(true).setInvisible(true).build();
-
-        Cytosis.getOnlinePlayers().forEach(p -> {
-            if (!p.isStaff()) return;
-            p.sendPacket(toSend);
-        });
-    }
 
     @Priority(1)
     @Listener
