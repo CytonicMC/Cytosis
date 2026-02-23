@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -13,8 +14,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.reflect.TypeToken;
+import com.google.gson.JsonParser;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.Transcoder;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.logging.Logger;
@@ -43,6 +47,8 @@ public final class Utils {
      */
     public final static Type UUID_SET = new TypeToken<Set<UUID>>() {
     }.getType();
+
+    public static final Codec<Instant> INSTANT = Codec.STRING.transform(Instant::parse, Instant::toString);
 
     /**
      * Creates a MUTABLE list from a vararg, for immutable lists, use {@link List#of(Object...)}
@@ -140,5 +146,16 @@ public final class Utils {
         }
 
         return capitalized.toString().trim();
+    }
+
+    public static <T> T parseJson(String string, Codec<T> codec) {
+        return codec.decode(Transcoder.JSON, JsonParser.parseString(string))
+            .orElseThrow("Failed to Parse Json using codec.");
+    }
+
+    public static <T> String toJson(T obj, Codec<T> codec) {
+        return codec.encode(Transcoder.JSON, obj)
+            .orElseThrow("Failed to encode object to Json using codec")
+            .toString();
     }
 }
