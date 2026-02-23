@@ -519,6 +519,31 @@ public class CytosisPlayer extends CombatPlayerImpl {
         Cytosis.get(SendPlayerToServerPacketPublisher.class).sendPlayerToServer(getUuid(), server);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public @NonNull EntityMetaDataPacket getMetadataPacket() {
+        if (!isVanished()) return super.getMetadataPacket();
+        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(metadata.getEntries());
+        Metadata.Entry<Byte> entry = (Metadata.Entry<Byte>) entries.get(0);
+        entries.put(0, Metadata.Byte((byte) (entry.value() | 0x60)));
+
+        return new EntityMetaDataPacket(getEntityId(), entries);
+    }
+
+    @Override
+    public void sendPacketToViewersAndSelf(SendablePacket packet) {
+        if (!(packet instanceof EntityMetaDataPacket p)) {
+            super.sendPacketToViewersAndSelf(packet);
+        }
+
+        if (!isVanished()) {
+            super.sendPacketToViewersAndSelf(packet);
+            return;
+        }
+
+        super.sendPacketToViewersAndSelf(getMetadataPacket());
+    }
+
     public void sendToGenericServer(Key key, @Nullable String name) {
         if (name == null) {
             name = "A server";
