@@ -33,19 +33,19 @@ public enum PlayerRank {
     /**
      * The [NEXUS] rank
      */
-    NEXUS(Msg.mm("<gold>[NEXUS] "), NamedTextColor.GOLD, NamedTextColor.WHITE),
+    NEXUS(Msg.mm("<gold>[NEXUS]</gold> "), NamedTextColor.GOLD, NamedTextColor.WHITE),
     /**
      * The [SYNAPSE] rank
      */
-    SYNAPSE(Msg.mm("<dark_green>[SYNAPSE] "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
+    SYNAPSE(Msg.mm("<dark_green>[SYNAPSE]</dark_green> "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
     /**
      * The [CORTEX] rank
      */
-    CORTEX(Msg.mm("<dark_purple>[CORTEX] "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
+    CORTEX(Msg.mm("<dark_purple>[CORTEX]</dark_purple> "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
     /**
      * The [DEFAULT] rank
      */
-    DEFAULT(Msg.mm("<gray>"), NamedTextColor.GRAY, NamedTextColor.GRAY);
+    DEFAULT(Msg.mm(""), NamedTextColor.GRAY, NamedTextColor.GRAY);
 
     private final Component prefix;
     private final NamedTextColor teamColor;
