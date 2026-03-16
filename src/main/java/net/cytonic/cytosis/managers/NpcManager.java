@@ -6,20 +6,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 import lombok.Getter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisBootstrap;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.PluginManager;
-import net.cytonic.protocol.utils.ExcludeFromClassGraph;
+import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.utils.ExcludeFromIndex;
+import net.cytonic.protocol.utils.IndexHolder;
 
 /**
  * A class that manages NPCs
@@ -32,24 +31,24 @@ public class NpcManager implements Bootstrappable {
 
     @Override
     public void init() {
-        ClassGraph graph = new ClassGraph()
-            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableClassInfo()
-            .overrideClassLoaders(PluginManager.getClassLoaders());
-        try (ScanResult result = graph.scan()) {
-            result.getSubclasses(NPC.class).loadClasses().forEach(clazz -> {
+
+        IndexHolder.get().getAllKnownSubclasses(NPC.class).stream()
+            .filter(ci -> !ci.isAbstract() && !ci.isInterface())
+            .filter(ci -> !ci.hasAnnotation(ExcludeFromIndex.class))
+            .map(ci -> Utils.loadClass(ci.name().toString()))
+            .forEach(clazz -> {
                 try {
-                    if (clazz.isAnnotationPresent(ExcludeFromClassGraph.class)) return;
                     Constructor<?> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
                     NPC npc = (NPC) constructor.newInstance();
                     npc.register();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                          NoSuchMethodException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Failed to initialize NPC", e);
                 }
             });
-        }
+
+
         MinecraftServer.getSchedulerManager().scheduleTask(() -> {
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
                 updateForPlayer(player);

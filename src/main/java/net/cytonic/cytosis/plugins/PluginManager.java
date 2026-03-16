@@ -22,9 +22,9 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.Events;
-import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.plugins.dependencies.DependencyUtils;
 import net.cytonic.cytosis.plugins.dependencies.PluginDependency;
+import net.cytonic.cytosis.plugins.loader.AgregatePluginClassloader;
 import net.cytonic.cytosis.plugins.loader.JavaPluginLoader;
 import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 
@@ -34,8 +34,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Handles loading plugins and provides a registry for loaded plugins.
  */
-@CytosisComponent(priority = 100, dependsOn = {CommandDisablingManager.class})
+@CytosisComponent(priority = 0)
 public class PluginManager implements Bootstrappable {
+
+    public static final Path PLUGINS_DIR = Path.of("plugins");
 
     private final Map<String, PluginContainer> pluginsById = new LinkedHashMap<>();
     private final Map<Object, PluginContainer> pluginInstances = new IdentityHashMap<>();
@@ -45,13 +47,14 @@ public class PluginManager implements Bootstrappable {
     @Override
     public void init() {
         try {
-            Path pluginsDirPath = Path.of("plugins");
-            if (!Files.exists(pluginsDirPath)) {
-                Files.createDirectories(pluginsDirPath);
+            if (!Files.exists(PLUGINS_DIR)) {
+                Files.createDirectories(PLUGINS_DIR);
                 net.cytonic.cytosis.logging.Logger.info("Created plugins directory!");
             }
 
-            loadPlugins(pluginsDirPath);
+            loadPlugins(PLUGINS_DIR);
+            net.cytonic.cytosis.logging.Logger.debug("Set aggregate classloader in thread: %s", Thread.currentThread().getName());
+            Thread.currentThread().setContextClassLoader(AgregatePluginClassloader.INSTANCE);
         } catch (Exception e) {
             net.cytonic.cytosis.logging.Logger.error("An error occurred whilst loading plugins!", e);
             throw new RuntimeException("An error occurred whilst loading plugins!", e);

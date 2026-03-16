@@ -14,6 +14,7 @@ plugins {
     id("checkstyle")
     id("io.ebean") version "17.3.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
+    id("org.kordamp.gradle.jandex") version "2.3.0"
 }
 
 group = "net.cytonic"
@@ -59,7 +60,6 @@ dependencies {
     downloadOrShade(libs.invui)
     downloadOrShade(libs.anvilInput)
     downloadOrShade(libs.configurate)
-    downloadOrShade(libs.classgraph)
     downloadOrShade(libs.minimessage)
     downloadOrShade(libs.fastutil)
     downloadOrShade(libs.hikaricp)
@@ -71,6 +71,7 @@ dependencies {
     downloadOrShade(libs.ebean)
     downloadOrShade(libs.ebean.ddl)
     downloadOrShade(libs.ebean.migrations)
+    downloadOrShade(libs.jandex)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
@@ -176,6 +177,7 @@ gradle.taskGraph.whenReady {
 tasks.register("fatJar") {
     group = "Accessory Build"
     description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
+    dependsOn(":protocol:assemble")
     dependsOn(fatShadow)
     finalizedBy("copyFatToPrimary", "copyFatToSecondary", "copyJarForDocker", "copyFatToLibs")
 }
@@ -183,6 +185,7 @@ tasks.register("fatJar") {
 tasks.register("thinJar") {
     group = "Accessory Build"
     description = "Builds Cytosis with only essential dependencies. Downloads the rest at runtime."
+    dependsOn(":protocol:assemble")
     dependsOn(thinShadow)
     finalizedBy("copyThinToPrimary", "copyThinToSecondary", "copyThinToLibs")
 }
@@ -190,12 +193,14 @@ tasks.register("thinJar") {
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    dependsOn("jandex")
 
     exclude("META-INF/*.SF")
     exclude("META-INF/*.DSA")
     exclude("META-INF/*.RSA")
 
     mergeServiceFiles()
+//    exclude("META-INF/jandex.idx")
     archiveClassifier.set("")
     destinationDirectory.set(layout.buildDirectory.dir("temp"))
     from(sourceSets.main.get().output)
@@ -231,8 +236,11 @@ configurations {
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
+    dependsOn("jandex")
 
     mergeServiceFiles()
+//    exclude("META-INF/jandex.idx")
+
     archiveClassifier.set("all")
     destinationDirectory.set(layout.buildDirectory.dir("temp"))
 
