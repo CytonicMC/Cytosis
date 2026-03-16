@@ -28,6 +28,7 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.plugins.PluginManager;
@@ -86,6 +87,8 @@ public class CytosisBootstrap {
 
         // register commands after every component is registered to avoid missing dependencies
         cytosisContext.getComponent(CommandHandler.class).registerCytosisCommands();
+        //This has to load after command registration
+        cytosisContext.getComponent(CommandDisablingManager.class).loadRemotes();
         initWorld();
 
         if (cytosisContext.isMetricsEnabled()) {
