@@ -3,17 +3,17 @@ package net.cytonic.protocol.utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.jandex.CompositeIndex;
-import org.jboss.jandex.Index;
 import org.jboss.jandex.IndexReader;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.Indexer;
@@ -25,6 +25,7 @@ public class IndexHolder {
     private final IndexView compositeIndex;
 
     private IndexHolder(List<File> pluginJars) throws IOException {
+        long start = System.nanoTime();
         List<IndexView> indices = new ArrayList<>();
 
         // Add cytosis' index (from resources)
@@ -57,37 +58,45 @@ public class IndexHolder {
         }
 
         this.compositeIndex = CompositeIndex.create(indices);
+        log.info(String.format("Built indices in %.2fms", (System.nanoTime() - start) / 1.0e6));
     }
 
-    private static Index indexJar(File jarFile) {
+    private static IndexView indexJar(File jarFile) {
         return indexJar(jarFile, "");
     }
 
-    private static Index indexJar(File jarFile, String path) {
-        // Jandex looks for META-INF/jandex.idx inside the JAR automatically
+    private static IndexView indexJar(File jarFile, String packagePrefix) {
+        // Convert package prefix to jar path format once
+        String pathPrefix = packagePrefix.replace('.', '/');
+
         try (JarFile jar = new JarFile(jarFile)) {
             ZipEntry entry = jar.getEntry("META-INF/jandex.idx");
             if (entry != null) {
-                // JAR has a pre-built index - fast path
                 try (InputStream is = jar.getInputStream(entry)) {
-                    IndexReader reader = new IndexReader(is);
-                    return reader.read();
+                    return new IndexReader(is).read();
                 }
-            } else {
-                // JAR has no index - fall back to runtime indexing
-                Indexer indexer = new Indexer();
-
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry jarEntry = entries.nextElement();
-                    if (jarEntry.getName().startsWith(path) && jarEntry.getName().endsWith(".class")) {
-                        try (InputStream is = jar.getInputStream(jarEntry)) {
-                            indexer.index(is);
-                        }
-                    }
-                }
-                return indexer.complete();
             }
+
+            // Collect matching entries first (iteration is cheap)
+            List<JarEntry> matchingEntries = jar.stream()
+                .filter(e -> e.getName().startsWith(pathPrefix) && e.getName().endsWith(".class"))
+                .toList();
+
+            // Index each in parallel, each thread gets its own Indexer
+            List<IndexView> partialIndices = matchingEntries.parallelStream()
+                .map(jarEntry -> {
+                    Indexer indexer = new Indexer();
+                    try (InputStream is = jar.getInputStream(jarEntry)) {
+                        indexer.index(is);
+                        return indexer.complete();
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }).collect(Collectors.toList());
+
+            // Merge all partial indices into one
+            return CompositeIndex.create(partialIndices);
+
         } catch (IOException e) {
             log.error("Failed to index jar file: ", e);
             throw new RuntimeException(e);
