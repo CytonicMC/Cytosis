@@ -147,6 +147,7 @@ migration {
 }
 
 tasks.withType<Javadoc> {
+    dependsOn("jandex")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
 
