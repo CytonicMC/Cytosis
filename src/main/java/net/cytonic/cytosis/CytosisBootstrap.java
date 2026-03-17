@@ -1,13 +1,13 @@
 package net.cytonic.cytosis;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewFrame;
@@ -20,6 +20,8 @@ import net.minestom.server.command.CommandManager;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
+import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
 
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisSettings;
@@ -33,6 +35,8 @@ import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.utils.IndexHolder;
 
 /**
  * Main bootstrap class responsible for initializing and starting the Cytosis server. This class orchestrates the entire
@@ -64,6 +68,15 @@ public class CytosisBootstrap {
         });
         System.setProperty("minestom.shutdown-on-signal", "false");
 
+        Logger.info("Loading indexes");
+        try {
+            IndexHolder.initialize(List.of(Objects.requireNonNull(PluginManager.PLUGINS_DIR.toFile().listFiles())));
+        } catch (IOException e) {
+            Logger.error("Failed to initialize indexes: ", e);
+            System.exit(122);
+            return;
+        }
+
         applySystemSettings();
         initMinestom();
         try {
@@ -77,7 +90,6 @@ public class CytosisBootstrap {
         //This has to load after command registration
         cytosisContext.getComponent(CommandDisablingManager.class).loadRemotes();
         initWorld();
-        initViewFrame();
 
         if (cytosisContext.isMetricsEnabled()) {
             Logger.info("Starting metric hooks");
@@ -125,14 +137,16 @@ public class CytosisBootstrap {
             }
         }));
 
-        cytosisContext.getComponent(PluginManager.class).initializePlugins();
-
         try {
             BootstrapRegistrationUtils.registerListeners(cytosisContext);
         } catch (Exception ex) {
             Logger.error("Failed to register components!", ex);
         }
-        cytosisContext.getComponent(EventHandler.class).init();
+
+        Cytosis.get(PluginManager.class).initializePlugins();
+        initViewFrame();
+        Cytosis.get(EventHandler.class).init();
+
         startServer();
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
@@ -142,36 +156,27 @@ public class CytosisBootstrap {
             Logger.info("Stopping server due to '--ci-test' flag.");
             MinecraftServer.stopCleanly();
         }
-
-        // suggest it GCs all the glassgraph heap
-        System.gc();
     }
 
     private void initViewFrame() {
         Logger.info("Initializing view frame");
         ViewFrame viewFrame = ViewFrame.create();
 
-        ClassGraph graph = new ClassGraph().acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT).enableClassInfo()
-            .overrideClassLoaders(PluginManager.getClassLoaders());
+        IndexView index = IndexHolder.get();
 
-        try (ScanResult result = graph.scan()) {
-            result.getSubclasses(View.class).loadClasses().forEach(foundClass -> {
+        index.getAllKnownSubclasses(View.class).stream()
+            .filter(ci -> ci.name().startsWith(DotName.createSimple("net.cytonic")))
+            .forEach(ci -> {
                 try {
-                    if (!foundClass.getPackage().getName().startsWith("net.cytonic")) {
-                        return;
-                    }
-
-                    Constructor<?> constructor = foundClass.getDeclaredConstructor();
+                    Class<?> clazz = Utils.loadClass(ci.name().toString());
+                    Constructor<?> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
                     View instance = (View) constructor.newInstance();
                     viewFrame.with(instance);
                 } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading views!", e);
+                    Logger.error("An error occurred whilst loading menu views!", e);
                 }
             });
-        } catch (Exception e) {
-            Logger.error("An error occurred whilst loading views!", e);
-        }
 
         viewFrame.install(AnvilInputFeature.AnvilInput);
         cytosisContext.registerComponent(viewFrame.register());
@@ -229,4 +234,5 @@ public class CytosisBootstrap {
         cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", port);
         MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception: ", e));
     }
+
 }

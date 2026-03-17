@@ -12,36 +12,36 @@ import lombok.extern.slf4j.Slf4j;
 import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.ProtocolHelper;
 import net.cytonic.protocol.ProtocolObject;
-import net.cytonic.protocol.utils.ClassGraphUtils.AnnotatedMethod;
-import net.cytonic.protocol.utils.ExcludeFromClassGraph;
+import net.cytonic.protocol.utils.ExcludeFromIndex;
 import net.cytonic.protocol.utils.NotifyHandler;
 import net.cytonic.protocol.utils.ReflectionUtils;
 
 @Slf4j
-@ExcludeFromClassGraph
+@ExcludeFromIndex
 public class NotifyHandlerListener<T> implements NotifyListener<T> {
 
-    private final AnnotatedMethod<NotifyHandler> annotatedMethod;
+    private final Method method;
+    private final NotifyHandler handler;
     private final ProtocolObject<T, ?> protocolObject;
 
     @SuppressWarnings("unchecked")
-    public NotifyHandlerListener(AnnotatedMethod<NotifyHandler> annotatedMethod) {
-        this.annotatedMethod = annotatedMethod;
+    public NotifyHandlerListener(Method method, NotifyHandler handler) {
+        this.method = method;
+        this.handler = handler;
 
-        Method method = annotatedMethod.method();
         Type[] paramTypes = method.getGenericParameterTypes();
 
         if (paramTypes.length == 0) {
-            throw new IllegalArgumentException("Method must have at least one parameter " + format(annotatedMethod));
+            throw new IllegalArgumentException("Method must have at least one parameter " + format(method));
         }
 
         String className = getTypeNameFromType(paramTypes[0]);
         ProtocolObject<T, ?> test = ProtocolHelper.getProtocolObject(className);
         if (test == null) {
-            throw new IllegalStateException("No protocol object for " + format(annotatedMethod));
+            throw new IllegalStateException("No protocol object for " + format(method));
         }
 
-        String subject = annotatedMethod.annotation().subject();
+        String subject = handler.subject();
         boolean hasSubject = subject != null && !subject.isEmpty();
         boolean hasStringConstructor = hasConstructor(test.getClass(), new Class[]{String.class});
 
@@ -51,7 +51,7 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
             try {
                 protocolObject = ReflectionUtils.newInstance(test.getClass(), map);
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Failed to create instance " + annotatedMethod, e);
+                throw new RuntimeException("Failed to create instance " + method.getName(), e);
             }
             return;
         }
@@ -59,7 +59,7 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
         if (!hasSubject && hasStringConstructor) {
             throw new RuntimeException(
                 "ProtocolObject has a String constructor but no subject was provided. Using no-arg constructor "
-                    + annotatedMethod);
+                    + method);
         }
 
         try {
@@ -67,17 +67,12 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("No no-arg constructor found. " +
                 "Consider adding @NotifyHandler(subject=\"...\") if this class requires a subject." + format(
-                annotatedMethod));
+                method));
         }
     }
 
-    @Override
-    public String getSubject() {
-        if (annotatedMethod.annotation().subject().isEmpty()) {
-            return protocolObject.getSubject();
-        }
-
-        return annotatedMethod.annotation().subject();
+    private static String format(Method method) {
+        return method.getDeclaringClass().getSimpleName() + "#" + method.getName();
     }
 
     @Override
@@ -85,8 +80,28 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
         return protocolObject;
     }
 
-    private String format(AnnotatedMethod<NotifyHandler> annotatedMethod) {
-        return annotatedMethod.foundClass().getName() + "#" + annotatedMethod.method().getName();
+    @Override
+    public void onMessage(T message, NotifyData notifyData) {
+        try {
+            Object instance = ReflectionUtils.newInstance(method.getDeclaringClass());
+            method.setAccessible(true);
+            if (method.getParameterCount() == 1) {
+                method.invoke(instance, message);
+                return;
+            }
+
+            if (method.getParameterCount() != 2) {
+                throw new IllegalArgumentException(
+                    "Method " + method.getName() + " must have exactly two parameters");
+            }
+            if (method.getParameterTypes()[1] != NotifyData.class) {
+                throw new IllegalArgumentException(
+                    "Method " + method.getName() + "'s second parameter must be NotifyData");
+            }
+            method.invoke(instance, message, notifyData);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean hasConstructor(Class<?> clazz, Class<?>[] classes) {
@@ -119,27 +134,11 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
     }
 
     @Override
-    public void onMessage(T message, NotifyData notifyData) {
-        try {
-            Object instance = ReflectionUtils.newInstance(annotatedMethod.foundClass());
-            Method method = annotatedMethod.method();
-            method.setAccessible(true);
-            if (method.getParameterCount() == 1) {
-                method.invoke(instance, message);
-                return;
-            }
-
-            if (method.getParameterCount() != 2) {
-                throw new IllegalArgumentException(
-                    "Method " + annotatedMethod.method().getName() + " must have exactly two parameters");
-            }
-            if (method.getParameterTypes()[1] != NotifyData.class) {
-                throw new IllegalArgumentException(
-                    "Method " + annotatedMethod.method().getName() + "'s second parameter must be NotifyData");
-            }
-            method.invoke(instance, message, notifyData);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+    public String getSubject() {
+        if (handler.subject().isEmpty()) {
+            return protocolObject.getSubject();
         }
+
+        return handler.subject();
     }
 }

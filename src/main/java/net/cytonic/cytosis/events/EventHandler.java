@@ -5,9 +5,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
@@ -15,8 +14,10 @@ import net.minestom.server.event.trait.CancellableEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.plugins.PluginManager;
-import net.cytonic.protocol.utils.ClassGraphUtils;
+import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.utils.IndexHolder;
 
 /**
  * EventHandler class is responsible for handling events and managing listeners. It provides methods to register,
@@ -24,7 +25,7 @@ import net.cytonic.protocol.utils.ClassGraphUtils;
  *
  * @author Foxikle
  */
-@CytosisComponent(dependsOn = {MinecraftServer.class})
+@CytosisComponent(dependsOn = {PluginManager.class,MinecraftServer.class})
 public class EventHandler {
 
     private final Map<String, EventListener<? extends Event>> namespacedHandlers = new HashMap<>();
@@ -35,20 +36,19 @@ public class EventHandler {
     }
 
     public void findEvents() {
-        ClassGraph classGraph = new ClassGraph()
-            .acceptPackages("net.minestom.server.event", "net.cytonic",
-                "io.github.togar2.events") // cytonic things, and PVP
-            .enableClassInfo()
-            .overrideClassLoaders(PluginManager.getClassLoaders());
-        ScanResult scanResult = classGraph.scan(ClassGraphUtils.EXECUTOR, 125);
-        scanResult.getClassesImplementing(Event.class).forEach(classInfo -> {
-            Class<?> clazz = classInfo.loadClass();
-            globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
-        });
-
-        scanResult.close();
-        classGraph = null;
-        scanResult = null;
+        AtomicInteger counter = new AtomicInteger(0);
+        long start = System.nanoTime();
+        IndexHolder.get().getAllKnownImplementations(Event.class)
+            .forEach(ci -> {
+                try {
+                    Class<?> clazz = Utils.loadClass(ci.name().toString());
+                    globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
+                    counter.incrementAndGet();
+                } catch (Exception e) {
+                    Logger.error("An error occurred whilst loading Event class!", e);
+                }
+            });
+        Logger.info("Found %d indexed event classes in %.2fms.", counter.get(), (System.nanoTime() - start) / 1.0e6);
     }
 
     /**

@@ -14,12 +14,10 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
 import net.minestom.server.event.Event;
+import org.jboss.jandex.AnnotationTarget.Kind;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.EventHandler;
@@ -28,7 +26,9 @@ import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
+import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.utils.ExcludeFromIndex;
+import net.cytonic.protocol.utils.IndexHolder;
 
 /**
  * Utility class for registering Cytosis components and listeners.
@@ -47,7 +47,7 @@ public final class BootstrapRegistrationUtils {
     public static void registerCytosisComponents(CytosisContext cytosisContext) {
         Logger.info("Auto-registering Cytosis components...");
 
-        List<Class<?>> candidates = scanAnnotatedComponents();
+        Set<Class<?>> candidates = scanAnnotatedComponents();
         if (candidates.isEmpty()) {
             return;
         }
@@ -74,22 +74,18 @@ public final class BootstrapRegistrationUtils {
      *
      * @return list of candidate component classes
      */
-    private static List<Class<?>> scanAnnotatedComponents() {
-        List<Class<?>> candidates = new ArrayList<>();
-        ClassGraph graph = new ClassGraph().acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableAnnotationInfo()
-            .enableClassInfo();
-        try (ScanResult scanResult = graph.scan()) {
-            ClassInfoList classInfos = scanResult.getClassesWithAnnotation(CytosisComponent.class.getName());
-            for (ClassInfo classInfo : classInfos) {
+    private static Set<Class<?>> scanAnnotatedComponents() {
+        return IndexHolder.get().getAnnotations(CytosisComponent.class).stream()
+            .filter(ai -> ai.target().kind() == Kind.CLASS)
+            .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
+            .map(ai -> {
                 try {
-                    candidates.add(classInfo.loadClass());
-                } catch (Throwable t) {
-                    Logger.error("Failed to load annotated component class " + classInfo.getName(), t);
+                    return Utils.loadClass(ai.target().asClass().name().toString());
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                        "Failed to load annotated component class " + ai.target().asClass().name(), e);
                 }
-            }
-        }
-        return candidates;
+            }).collect(Collectors.toSet());
     }
 
     /**
@@ -98,7 +94,7 @@ public final class BootstrapRegistrationUtils {
      * @param candidates list of candidate classes
      * @return map of classes to their annotations
      */
-    private static Map<Class<?>, CytosisComponent> extractAnnotations(List<Class<?>> candidates) {
+    private static Map<Class<?>, CytosisComponent> extractAnnotations(Set<Class<?>> candidates) {
         Map<Class<?>, CytosisComponent> annotatedComponents = new HashMap<>(candidates.size());
         for (Class<?> c : candidates) {
             annotatedComponents.put(c, c.getAnnotation(CytosisComponent.class));
@@ -116,7 +112,7 @@ public final class BootstrapRegistrationUtils {
      * @param componentNeighbours output map of neighbour counts
      */
     private static void buildDependencyGraph(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Map<Class<?>, CytosisComponent> annotatedComponents,
         Map<Class<?>, Set<Class<?>>> dependencies,
         Map<Class<?>, List<Class<?>>> reverseDependencies,
@@ -153,7 +149,7 @@ public final class BootstrapRegistrationUtils {
      */
     private static Set<Class<?>> computeRequiredDependencies(
         Class<?> candidate,
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Map<Class<?>, CytosisComponent> annotatedComponents,
         Predicate<Class<?>> satisfiedExternally) {
 
@@ -182,7 +178,7 @@ public final class BootstrapRegistrationUtils {
      * @return priority queue of ready components
      */
     private static PriorityQueue<Class<?>> initializeReadyQueue(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Map<Class<?>, CytosisComponent> annotatedComponents,
         Map<Class<?>, Integer> componentNeighbours) {
 
@@ -282,14 +278,14 @@ public final class BootstrapRegistrationUtils {
      * @param dependencies map of dependencies
      */
     private static void validateRegistration(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Set<Class<?>> registered,
         Map<Class<?>, Set<Class<?>>> dependencies,
         CytosisContext cytosisContext) {
 
         if (registered.size() < candidates.size()) {
             List<String> missing = collectUnregisteredComponents(candidates, registered, dependencies, cytosisContext);
-            Logger.error("Could not resolve dependencies for some Cytosis components: " + missing);
+            Logger.error("Could not resolve dependencies for %d Cytosis components: %s", candidates.size(), missing);
         } else {
             Logger.info("Finished auto-registering Cytosis components (" + registered.size() + ")");
         }
@@ -304,7 +300,7 @@ public final class BootstrapRegistrationUtils {
      * @return list of error messages for unregistered components
      */
     private static List<String> collectUnregisteredComponents(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Set<Class<?>> registered,
         Map<Class<?>, Set<Class<?>>> dependencies,
         CytosisContext cytosisContext) {
@@ -342,66 +338,48 @@ public final class BootstrapRegistrationUtils {
         long start2 = System.currentTimeMillis();
         Logger.info("Scanning for listeners in plugins!");
 
-        ClassGraph graph = createListenerClassGraph();
         AtomicInteger counter = new AtomicInteger(0);
         EventHandler eventHandler = cytosisContext.getComponent(EventHandler.class);
 
-        scanAndRegisterListeners(graph, eventHandler, counter);
+        scanAndRegisterListeners(eventHandler, counter);
 
-        Logger.info("Finished scanning for listeners in plugins in " + (System.currentTimeMillis() - start2) + "ms!");
-    }
-
-    /**
-     * Creates and configures the ClassGraph for listener scanning.
-     *
-     * @return configured ClassGraph instance
-     */
-    private static ClassGraph createListenerClassGraph() {
-        List<ClassLoader> loaders = new ArrayList<>();
-        loaders.add(Cytosis.class.getClassLoader());
-        loaders.addAll(PluginClassLoader.LOADERS);
-
-        return new ClassGraph()
-            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableAllInfo()
-            .overrideClassLoaders(loaders.toArray(new ClassLoader[0]));
+        Logger.info("Finished scanning for %d listeners in %dms!", counter.get(),
+            (System.currentTimeMillis() - start2));
     }
 
     /**
      * Scans for and registers all listener methods.
      *
-     * @param graph        the ClassGraph to scan with
      * @param eventHandler the event handler to register listeners with
      * @param counter      atomic counter for listener naming
      */
-    private static void scanAndRegisterListeners(ClassGraph graph, EventHandler eventHandler, AtomicInteger counter) {
-        try (ScanResult scanResult = graph.scan()) {
-            scanResult
-                .getClassesWithMethodAnnotation(Listener.class.getName())
-                .forEach(classInfo -> processListenerClass(classInfo, eventHandler, counter));
-        }
+    private static void scanAndRegisterListeners(EventHandler eventHandler, AtomicInteger counter) {
+        Map<Class<?>, Object> instances = new HashMap<>();
+
+        IndexHolder.get().getAnnotations(Listener.class).stream()
+            .filter(ai -> ai.target().kind() == Kind.METHOD)
+            .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
+            .forEach(ai -> {
+                Class<?> clazz = Utils.loadClass(ai.target().asMethod().declaringClass().name().toString());
+
+                Method method;
+                try {
+                    method = clazz.getDeclaredMethod(
+                        ai.target().asMethod().name(),
+                        ai.target().asMethod().parameterTypes().stream()
+                            .map(type -> Utils.loadClass(type.name().toString()))
+                            .toArray(Class[]::new)
+                    );
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(
+                        "Failed to load annotated listener method " + ai.target().asMethod().name(), e);
+                }
+
+                Object instance = instances.computeIfAbsent(clazz, BootstrapRegistrationUtils::createListenerInstance);
+                registerListenerMethod(method, instance, eventHandler, counter);
+            });
     }
 
-    /**
-     * Processes a class containing listener methods.
-     *
-     * @param classInfo    information about the class to process
-     * @param eventHandler the event handler to register listeners with
-     * @param counter      atomic counter for listener naming
-     */
-    private static void processListenerClass(
-        io.github.classgraph.ClassInfo classInfo,
-        EventHandler eventHandler,
-        AtomicInteger counter) {
-
-        Class<?> clazz = classInfo.loadClass();
-        Object instance = createListenerInstance(clazz);
-        if (instance == null) {
-            return;
-        }
-
-        registerListenerMethods(clazz, instance, eventHandler, counter);
-    }
 
     /**
      * Creates an instance of the listener class.
@@ -419,27 +397,6 @@ public final class BootstrapRegistrationUtils {
             Logger.error("The class " + clazz.getSimpleName()
                 + " needs to have a public, no argument constructor to have an @Listener in it!", e);
             return null;
-        }
-    }
-
-    /**
-     * Registers all listener methods in a class.
-     *
-     * @param clazz        the class containing listener methods
-     * @param instance     instance of the class
-     * @param eventHandler the event handler to register listeners with
-     * @param counter      atomic counter for listener naming
-     */
-    private static void registerListenerMethods(
-        Class<?> clazz,
-        Object instance,
-        EventHandler eventHandler,
-        AtomicInteger counter) {
-
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(Listener.class)) {
-                registerListenerMethod(method, instance, eventHandler, counter);
-            }
         }
     }
 

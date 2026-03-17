@@ -11,14 +11,13 @@ import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.migration.MigrationConfig;
 import io.ebean.migration.MigrationRunner;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
+import org.jboss.jandex.AnnotationTarget.Kind;
+import org.jboss.jandex.IndexView;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.CytosisBootstrap;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
@@ -27,6 +26,9 @@ import net.cytonic.cytosis.plugins.PluginContainer;
 import net.cytonic.cytosis.plugins.PluginDescription;
 import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.plugins.java.JavaPluginDescription;
+import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.utils.ExcludeFromIndex;
+import net.cytonic.protocol.utils.IndexHolder;
 
 @CytosisComponent(dependsOn = {PluginManager.class, EnvironmentDatabase.class, GlobalDatabase.class})
 public class EbeanManager implements Bootstrappable {
@@ -61,22 +63,21 @@ public class EbeanManager implements Bootstrappable {
     }
 
     private List<Class<?>> scanForEbeanClasses() {
-        ClassGraph graph = new ClassGraph()
-            .acceptPackages(CytosisBootstrap.SCAN_PACKAGE_ROOT)
-            .enableClassInfo()
-            .enableAnnotationInfo()
-            .overrideClassLoaders(PluginManager.getClassLoaders());
-        try (ScanResult scanResult = graph.scan()) {
-            List<Class<?>> classes = new ArrayList<>();
+        List<Class<?>> classes = new ArrayList<>();
+        IndexView index = IndexHolder.get();
 
-            // Scan for @Entity classes
-            classes.addAll(scanResult.getClassesWithAnnotation(Entity.class).loadClasses());
+        classes.addAll(index.getAnnotations(Entity.class).stream()
+            .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
+            .filter(ai -> ai.target().kind() == Kind.CLASS)
+            .map(ai -> Utils.loadClass(ai.target().asClass().name().toString()))
+            .toList());
 
-            // Scan for @Embeddable classes
-            classes.addAll(scanResult.getClassesWithAnnotation(Embeddable.class).loadClasses());
+        classes.addAll(index.getAnnotations(Embeddable.class).stream()
+            .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
+            .filter(ai -> ai.target().kind() == Kind.CLASS)
+            .map(ai -> Utils.loadClass(ai.target().asClass().name().toString())).toList());
 
-            return classes;
-        }
+        return classes;
     }
 
     public void runPluginMigrations(PluginContainer container) {

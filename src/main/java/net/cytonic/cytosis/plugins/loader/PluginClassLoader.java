@@ -43,6 +43,10 @@ public class PluginClassLoader extends URLClassLoader {
         super.close();
     }
 
+    public Class<?> loadClass(String clazz) throws ClassNotFoundException {
+        return loadClass(clazz, true);
+    }
+
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         return loadClass0(name, resolve, true);

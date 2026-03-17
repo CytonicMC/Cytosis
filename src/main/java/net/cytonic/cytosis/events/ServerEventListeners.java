@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.events;
 
+import com.google.errorprone.annotations.Keep;
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -51,6 +52,7 @@ import net.cytonic.cytosis.utils.Utils;
  */
 @NoArgsConstructor
 @SuppressWarnings("unused")
+@Keep
 public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;

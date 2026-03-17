@@ -3,10 +3,11 @@ plugins {
     `maven-publish`
     `java-library`
     java
+    id("org.kordamp.gradle.jandex") version "2.3.0"
 }
 
 group = "net.cytonic"
-version = "1.1.0-SNAPSHOT"
+version = "1.2.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -16,7 +17,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.minimessage)
     implementation(libs.adventure.serializer.gson)
-    implementation(libs.classgraph)
+    implementation(libs.jandex)
     implementation(libs.jnats)
     implementation(libs.log4j.core)
     implementation(libs.log4j.slf4j2.impl)
@@ -29,6 +30,28 @@ java {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
+
+tasks {
+    javadoc {
+        dependsOn("jandex")
+        dependsOn(renameJandex)
+    }
+}
+
+val renameJandex by tasks.registering(Copy::class) {
+    dependsOn(tasks.named("jandex"))
+
+    from(layout.buildDirectory.file("resources/main/META-INF/jandex.idx"))
+    into(layout.buildDirectory.dir("resources/main/META-INF"))
+
+    rename("jandex.idx", "protocol-jandex.idx")
+}
+
+tasks.named("jar") {
+    dependsOn(renameJandex)
+}
+
+
 
 publishing {
     repositories {

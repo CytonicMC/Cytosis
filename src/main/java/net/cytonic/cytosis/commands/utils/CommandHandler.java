@@ -65,7 +65,7 @@ import net.cytonic.cytosis.utils.Msg;
  * A class that handles the commands, their execution, and allegedly a console.
  */
 @NoArgsConstructor
-@CytosisComponent(priority = 1, dependsOn = {CommandManager.class})
+@CytosisComponent(priority = 2, dependsOn = {CommandManager.class})
 public class CommandHandler implements Bootstrappable {
 
     private CommandManager commandManager;
