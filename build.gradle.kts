@@ -384,6 +384,7 @@ checkstyle {
 }
 
 tasks.withType<Checkstyle>().configureEach {
+    dependsOn("jandex")
     reports {
         xml.required.set(true)
         html.required.set(true)
