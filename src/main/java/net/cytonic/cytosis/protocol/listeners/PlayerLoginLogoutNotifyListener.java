@@ -15,25 +15,20 @@ import net.cytonic.protocol.utils.NotifyHandler;
 
 public class PlayerLoginLogoutNotifyListener {
 
-    private static final CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
-    private static final PreferenceManager preferenceManager = Cytosis.get(PreferenceManager.class);
-    private static final FriendManager friendManager = Cytosis.get(FriendManager.class);
-    private static final RankManager rankManager = Cytosis.get(RankManager.class);
-
     @NotifyHandler(subject = Subjects.PLAYER_JOIN)
     public static void onJoin(PlayerLoginLogoutNotifyPacket.Packet packet) {
         EventDispatcher.call(new PlayerJoinNetworkEvent(packet.uuid(), packet.username()));
-        network.addPlayer(packet.username(), packet.uuid());
-        preferenceManager.loadPlayerPreferences(packet.uuid());
-        friendManager.sendLoginMessage(packet.uuid());
-        rankManager.loadPlayer(packet.uuid());
+        Cytosis.get(CytonicNetwork.class).addPlayer(packet.username(), packet.uuid());
+        Cytosis.get(PreferenceManager.class).loadPlayerPreferences(packet.uuid());
+        Cytosis.get(FriendManager.class).sendLoginMessage(packet.uuid());
+        Cytosis.get(RankManager.class).loadPlayer(packet.uuid());
     }
 
     @NotifyHandler(subject = Subjects.PLAYER_LEAVE)
     public static void onLeave(PlayerLoginLogoutNotifyPacket.Packet packet) {
         EventDispatcher.call(new PlayerLeaveNetworkEvent(packet.uuid(), packet.username()));
-        network.removePlayer(packet.username(), packet.uuid());
-        preferenceManager.unloadPlayerPreferences(packet.uuid());
-        friendManager.sendLogoutMessage(packet.uuid());
+        Cytosis.get(CytonicNetwork.class).removePlayer(packet.username(), packet.uuid());
+        Cytosis.get(PreferenceManager.class).unloadPlayerPreferences(packet.uuid());
+        Cytosis.get(FriendManager.class).sendLogoutMessage(packet.uuid());
     }
 }

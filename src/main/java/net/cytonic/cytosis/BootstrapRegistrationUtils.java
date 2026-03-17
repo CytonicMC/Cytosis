@@ -47,7 +47,7 @@ public final class BootstrapRegistrationUtils {
     public static void registerCytosisComponents(CytosisContext cytosisContext) {
         Logger.info("Auto-registering Cytosis components...");
 
-        List<Class<?>> candidates = scanAnnotatedComponents();
+        Set<Class<?>> candidates = scanAnnotatedComponents();
         if (candidates.isEmpty()) {
             return;
         }
@@ -74,7 +74,7 @@ public final class BootstrapRegistrationUtils {
      *
      * @return list of candidate component classes
      */
-    private static List<Class<?>> scanAnnotatedComponents() {
+    private static Set<Class<?>> scanAnnotatedComponents() {
         return IndexHolder.get().getAnnotations(CytosisComponent.class).stream()
             .filter(ai -> ai.target().kind() == Kind.CLASS)
             .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
@@ -85,7 +85,7 @@ public final class BootstrapRegistrationUtils {
                     throw new RuntimeException(
                         "Failed to load annotated component class " + ai.target().asClass().name(), e);
                 }
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toSet());
     }
 
     /**
@@ -94,7 +94,7 @@ public final class BootstrapRegistrationUtils {
      * @param candidates list of candidate classes
      * @return map of classes to their annotations
      */
-    private static Map<Class<?>, CytosisComponent> extractAnnotations(List<Class<?>> candidates) {
+    private static Map<Class<?>, CytosisComponent> extractAnnotations(Set<Class<?>> candidates) {
         Map<Class<?>, CytosisComponent> annotatedComponents = new HashMap<>(candidates.size());
         for (Class<?> c : candidates) {
             annotatedComponents.put(c, c.getAnnotation(CytosisComponent.class));
@@ -112,7 +112,7 @@ public final class BootstrapRegistrationUtils {
      * @param componentNeighbours output map of neighbour counts
      */
     private static void buildDependencyGraph(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Map<Class<?>, CytosisComponent> annotatedComponents,
         Map<Class<?>, Set<Class<?>>> dependencies,
         Map<Class<?>, List<Class<?>>> reverseDependencies,
@@ -149,7 +149,7 @@ public final class BootstrapRegistrationUtils {
      */
     private static Set<Class<?>> computeRequiredDependencies(
         Class<?> candidate,
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Map<Class<?>, CytosisComponent> annotatedComponents,
         Predicate<Class<?>> satisfiedExternally) {
 
@@ -178,7 +178,7 @@ public final class BootstrapRegistrationUtils {
      * @return priority queue of ready components
      */
     private static PriorityQueue<Class<?>> initializeReadyQueue(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Map<Class<?>, CytosisComponent> annotatedComponents,
         Map<Class<?>, Integer> componentNeighbours) {
 
@@ -278,14 +278,14 @@ public final class BootstrapRegistrationUtils {
      * @param dependencies map of dependencies
      */
     private static void validateRegistration(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Set<Class<?>> registered,
         Map<Class<?>, Set<Class<?>>> dependencies,
         CytosisContext cytosisContext) {
 
         if (registered.size() < candidates.size()) {
             List<String> missing = collectUnregisteredComponents(candidates, registered, dependencies, cytosisContext);
-            Logger.error("Could not resolve dependencies for some Cytosis components: " + missing);
+            Logger.error("Could not resolve dependencies for %d Cytosis components: %s", candidates.size(), missing);
         } else {
             Logger.info("Finished auto-registering Cytosis components (" + registered.size() + ")");
         }
@@ -300,7 +300,7 @@ public final class BootstrapRegistrationUtils {
      * @return list of error messages for unregistered components
      */
     private static List<String> collectUnregisteredComponents(
-        List<Class<?>> candidates,
+        Set<Class<?>> candidates,
         Set<Class<?>> registered,
         Map<Class<?>, Set<Class<?>>> dependencies,
         CytosisContext cytosisContext) {

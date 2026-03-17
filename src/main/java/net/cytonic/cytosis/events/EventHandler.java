@@ -5,12 +5,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.trait.CancellableEvent;
-import org.jboss.jandex.DotName;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
@@ -36,16 +36,19 @@ public class EventHandler {
     }
 
     public void findEvents() {
-        IndexHolder.get().getAllKnownSubclasses(Event.class).stream()
-            .filter(ci -> ci.name().startsWith(DotName.createSimple("net.cytonic")))
+        AtomicInteger counter = new AtomicInteger(0);
+        long start = System.nanoTime();
+        IndexHolder.get().getAllKnownImplementations(Event.class)
             .forEach(ci -> {
                 try {
                     Class<?> clazz = Utils.loadClass(ci.name().toString());
                     globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
+                    counter.incrementAndGet();
                 } catch (Exception e) {
                     Logger.error("An error occurred whilst loading Event class!", e);
                 }
             });
+        Logger.info("Found %d indexed event classes in %.2fms.", counter.get(), (System.nanoTime() - start) / 1.0e6);
     }
 
     /**

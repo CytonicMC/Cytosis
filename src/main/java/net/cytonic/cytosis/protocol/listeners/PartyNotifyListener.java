@@ -17,22 +17,22 @@ import net.cytonic.protocol.utils.NotifyHandler;
 @CytosisComponent(dependsOn = PartyManager.class)
 public class PartyNotifyListener {
 
-    private final PartyManager pm = Cytosis.get(PartyManager.class);
 
     @NotifyHandler(subject = Subjects.PARTY_JOIN_NOTIFY)
     private void handlePartyJoin(PartyOnePlayerProtocolObject.Packet packet) {
-        pm.trackPlayerJoin(packet.party(), packet.player());
+        Cytosis.get(PartyManager.class).trackPlayerJoin(packet.party(), packet.player());
     }
 
     @NotifyHandler
     private void handlePartyCreate(PartyCreateNotifyPacket.Packet packet) {
-        pm.trackParty(packet.party());
+        Cytosis.get(PartyManager.class).trackParty(packet.party());
     }
 
     @NotifyHandler(subject = Subjects.PARTY_LEAVE_NOTIFY)
     private void handlePartyLeave(PartyOnePlayerProtocolObject.Packet packet, NotifyData notifyData) {
         String subject = notifyData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
+        PartyManager pm = Cytosis.get(PartyManager.class);
 
         switch (subject) {
             case "command" -> pm.trackPlayerLeave(packet.party(), packet.player());
@@ -45,6 +45,7 @@ public class PartyNotifyListener {
     private void handlePartyPromote(PartyTwoPlayerProtocolObject.Packet packet, NotifyData notifyData) {
         String subject = notifyData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
+        PartyManager pm = Cytosis.get(PartyManager.class);
 
         switch (subject) {
             case "moderator" -> pm.trackPromotionToModerator(packet.party(), packet.sender(), packet.player());
@@ -55,18 +56,19 @@ public class PartyNotifyListener {
 
     @NotifyHandler(subject = Subjects.PARTY_DEMOTE_NOTIFY)
     private void handlePartyDemote(PartyTwoPlayerProtocolObject.Packet packet, NotifyData notifyData) {
-        pm.trackDemotionToMember(packet.party(), packet.sender(), packet.player());
+        Cytosis.get(PartyManager.class).trackDemotionToMember(packet.party(), packet.sender(), packet.player());
     }
 
     @NotifyHandler(subject = Subjects.PARTY_KICK_NOTIFY)
     private void handlePartyKick(PartyTwoPlayerProtocolObject.Packet packet) {
-        pm.trackKick(packet.party(), packet.sender(), packet.player());
+        Cytosis.get(PartyManager.class).trackKick(packet.party(), packet.sender(), packet.player());
     }
 
     @NotifyHandler(subject = Subjects.PARTY_TRANSFER_NOTIFY)
     private void handlePartyTransfer(PartyTwoPlayerProtocolObject.Packet packet, NotifyData notifyData) {
         String subject = notifyData.subject().split("\\.")[3];
         if (subject.equals("request")) return;
+        PartyManager pm = Cytosis.get(PartyManager.class);
 
         switch (subject) {
             case "command" -> pm.trackTransferCommand(packet.party(), packet.sender(), packet.player());
@@ -79,6 +81,7 @@ public class PartyNotifyListener {
     @NotifyHandler(subject = Subjects.PARTY_STATE_NOTIFY)
     private void handlePartyStateChange(PartyStateProtocolObject.Packet packet, NotifyData notifyData) {
         String subject = notifyData.subject().split("\\.")[2];
+        PartyManager pm = Cytosis.get(PartyManager.class);
 
         switch (subject) {
             case "mute" -> pm.trackPartyMuteChange(packet.party(), packet.player(), packet.state());
@@ -90,12 +93,13 @@ public class PartyNotifyListener {
 
     @NotifyHandler(subject = Subjects.PARTY_YOINK_NOTIFY)
     private void handlePartyYoink(PartyOnePlayerProtocolObject.Packet packet) {
-        pm.trackYoink(packet.party(), packet.player());
+        Cytosis.get(PartyManager.class).trackYoink(packet.party(), packet.player());
     }
 
     @NotifyHandler(subject = Subjects.PARTY_DISBAND_NOTIFY)
     private void handlePartyDisband(PartyOnePlayerProtocolObject.Packet packet, NotifyData notifyData) {
         String subject = notifyData.subject().split("\\.")[3];
+        PartyManager pm = Cytosis.get(PartyManager.class);
 
         switch (subject) {
             case "empty" -> pm.trackEmptyPartyDisband(packet.party());
@@ -107,6 +111,7 @@ public class PartyNotifyListener {
     @NotifyHandler(subject = Subjects.PARTY_STATUS_NOTIFY)
     private void handlePartyStatusChange(PartyOnePlayerProtocolObject.Packet packet, NotifyData notifyData) {
         String subject = notifyData.subject().split("\\.")[2];
+        PartyManager pm = Cytosis.get(PartyManager.class);
 
         switch (subject) {
             case "disconnect" -> pm.notifyPlayerDisconnect(packet.player(), packet.player());
@@ -117,11 +122,12 @@ public class PartyNotifyListener {
 
     @NotifyHandler
     private void handlePartyInvite(PartyInviteNotifyPacket.Packet packet) {
-        pm.trackInviteSent(packet.invite(), false);
+        Cytosis.get(PartyManager.class).trackInviteSent(packet.invite(), false);
     }
 
     @NotifyHandler
     private void handlePartyInviteExpire(PartyInviteExpireNotifyPacket.Packet packet) {
-        pm.trackInviteExpired(packet.recipient(), packet.party(), packet.sender(), packet.recipient());
+        Cytosis.get(PartyManager.class)
+            .trackInviteExpired(packet.recipient(), packet.party(), packet.sender(), packet.recipient());
     }
 }

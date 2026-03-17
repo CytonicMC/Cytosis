@@ -53,7 +53,6 @@ public class PluginManager implements Bootstrappable {
             }
 
             loadPlugins(PLUGINS_DIR);
-            net.cytonic.cytosis.logging.Logger.debug("Set aggregate classloader in thread: %s", Thread.currentThread().getName());
             Thread.currentThread().setContextClassLoader(AgregatePluginClassloader.INSTANCE);
         } catch (Exception e) {
             net.cytonic.cytosis.logging.Logger.error("An error occurred whilst loading plugins!", e);

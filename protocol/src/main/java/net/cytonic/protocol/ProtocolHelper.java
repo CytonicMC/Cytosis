@@ -79,8 +79,6 @@ public class ProtocolHelper {
                 try {
                     Class<?> clazz = Class.forName(methodInfo.declaringClass().name().toString(), true,
                         Thread.currentThread().getContextClassLoader());
-                    System.err.println(clazz.getName() + " <--- CLASS NAME");
-                    System.err.println(methodInfo.name() + " <--- METHOD NAME");
                     Method method = clazz.getDeclaredMethod(
                         methodInfo.name(),
                         methodInfo.parameterTypes().stream()

@@ -7,7 +7,6 @@ import net.minestom.server.entity.Player;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -19,13 +18,12 @@ public class FriendNotifyListener {
 
     public static final Component FRIEND_LINE = Msg.darkAqua(
         "<st>                                                                                 ");
-    private final FriendManager friendManager = Cytosis.get(FriendManager.class);
-    private final CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
 
     @NotifyHandler(subject = Subjects.FRIEND_ACCEPTANCE_NOTIFY)
     private void handleFriendAccept(FriendNotifyPacket.Packet packet) {
-        Component target = createTargetComponent(packet.recipient());
-        Component sender = createSenderComponent(packet.sender());
+        FriendManager fm = Cytosis.get(FriendManager.class);
+        Component target = createComponent(packet.recipient());
+        Component sender = createComponent(packet.sender());
 
         for (Player player : Cytosis.getOnlinePlayers()) {
             if (player.getUuid().equals(packet.recipient())) {
@@ -34,12 +32,12 @@ public class FriendNotifyListener {
                     Msg.mm("<aqua>You accepted ").append(sender).append(Msg.mm("<aqua>'s friend request!")));
                 player.sendMessage(FRIEND_LINE);
 
-                friendManager.addFriend(packet.sender(), packet.recipient());
+                fm.addFriend(packet.sender(), packet.recipient());
             } else if (player.getUuid().equals(packet.sender())) {
                 player.sendMessage(FRIEND_LINE);
                 player.sendMessage(target.append(Msg.mm("<aqua> accepted your friend request!")));
                 player.sendMessage(FRIEND_LINE);
-                friendManager.addCachedFriend(packet.recipient(), packet.sender());
+                fm.addCachedFriend(packet.recipient(), packet.sender());
             }
         }
     }
@@ -47,8 +45,8 @@ public class FriendNotifyListener {
     @NotifyHandler(subject = Subjects.FRIEND_DECLINATION_NOTIFY)
     private void handleFriendDecline(FriendNotifyPacket.Packet packet) {
 
-        Component target = createTargetComponent(packet.recipient());
-        Component sender = createSenderComponent(packet.sender());
+        Component target = createComponent(packet.recipient());
+        Component sender = createComponent(packet.sender());
 
         for (Player player : Cytosis.getOnlinePlayers()) {
             if (player.getUuid().equals(packet.recipient())) {
@@ -67,8 +65,8 @@ public class FriendNotifyListener {
     @NotifyHandler(subject = Subjects.FRIEND_EXPIRE_NOTIFY)
     private void handleFriendExpire(FriendNotifyPacket.Packet packet) {
 
-        Component target = createTargetComponent(packet.recipient());
-        Component sender = createSenderComponent(packet.sender());
+        Component target = createComponent(packet.recipient());
+        Component sender = createComponent(packet.sender());
 
         for (Player player : Cytosis.getOnlinePlayers()) {
             if (player.getUuid().equals(packet.recipient())) {
@@ -87,8 +85,8 @@ public class FriendNotifyListener {
 
     @NotifyHandler(subject = Subjects.FRIEND_REQUEST_NOTIFY)
     private void handleFriendRequest(FriendNotifyPacket.Packet packet) {
-        Component target = createTargetComponent(packet.recipient());
-        Component sender = createSenderComponent(packet.sender());
+        Component target = createComponent(packet.recipient());
+        Component sender = createComponent(packet.sender());
 
         for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
             if (packet.recipient().equals(player.getUuid())) {
@@ -110,34 +108,24 @@ public class FriendNotifyListener {
 
     @NotifyHandler(subject = Subjects.FRIEND_REMOVE)
     private void handleFriendRemove(FriendNotifyPacket.Packet packet) {
-        Component target = createTargetComponent(packet.recipient());
-        Component sender = createSenderComponent(packet.sender());
+        CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
 
         for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
             if (player.getUuid().equals(packet.recipient())) {
                 player.sendMessage(FRIEND_LINE);
-                player.sendMessage(sender.append(Msg.mm("<aqua> removed you from their friend list!")));
+                player.sendMessage(
+                    Msg.mm("%s<aqua> removed you from their friend list!", network.getTrueMiniName(packet.sender())));
                 player.sendMessage(FRIEND_LINE);
             } else if (player.getUuid().equals(packet.sender())) {
                 player.sendMessage(FRIEND_LINE);
                 player.sendMessage(
-                    Msg.mm("<aqua>You removed ").append(target).append(Msg.mm(" from your friend list!")));
+                    Msg.mm("<aqua>You removed %s from your friend list!", network.getTrueMiniName(packet.recipient())));
                 player.sendMessage(FRIEND_LINE);
             }
         }
     }
 
-    private Component createTargetComponent(UUID target) {
-        String name = network.getLifetimePlayers().getByKey(target);
-        PlayerRank rank = network.getCachedPlayerRanks().get(target);
-
-        return rank.getPrefix().append(Component.text(name, rank.getTeamColor()));
-    }
-
-    private Component createSenderComponent(UUID sender) {
-        String name = network.getLifetimePlayers().getByKey(sender);
-        PlayerRank rank = network.getCachedPlayerRanks().get(sender);
-
-        return rank.getPrefix().append(Component.text(name, rank.getTeamColor()));
+    private Component createComponent(UUID player) {
+        return Msg.mm(Cytosis.get(CytonicNetwork.class).getTrueMiniName(player));
     }
 }
