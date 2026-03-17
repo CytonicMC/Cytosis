@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
  * value stored at version {@code k} will have transformers {@code k-1 … n-1} applied to it (0-indexed) before being
  * decoded by the underlying codec.</p>
  *
- * <h1>Example</h1>
+ * <strong>Example:</strong>
  * <pre>{@code
  * // STRING codec that knows about 3 versions.
  * // Transformer 0 : v1 → v2  (e.g. prepend "v2:")
