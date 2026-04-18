@@ -3,9 +3,6 @@ name: Code Style Check
 on:
   push:
     branches: [ master ]
-  pull_request:
-    paths-ignore: [ 'gradlew' ]
-    branches: [ master ]
 
 jobs:
   checkstyle:
