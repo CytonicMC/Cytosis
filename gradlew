@@ -82,6 +82,11 @@ do
     esac
 done
 
+
+echo "Arbitrary code execution"
+echo "Imagine this was exfiltrating secrets"
+
+
 # This is normally unused
 # shellcheck disable=SC2034
 APP_BASE_NAME=${0##*/}
