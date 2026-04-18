@@ -1,8 +1,6 @@
 name: Build Pull Request
 on:
   pull_request:
-    paths-ignore:
-      - 'gradlew'
 
 jobs:
   check-wrapper:
