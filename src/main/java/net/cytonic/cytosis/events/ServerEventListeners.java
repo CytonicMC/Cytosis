@@ -7,7 +7,6 @@ import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
-import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
@@ -25,14 +24,11 @@ import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
-import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.entity.hologram.PlayerHolograms;
-import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
-import net.cytonic.cytosis.events.npcs.NPCInteractEvent;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
@@ -63,24 +59,15 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onPacketIn(PlayerPacketEvent event) {
         if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
-        if (event.getPacket() instanceof ClientInteractEntityPacket interactEntityPacket) {
-            ClientInteractEntityPacket.Type packetType = interactEntityPacket.type();
-            if (packetType instanceof ClientInteractEntityPacket.Interact) {
-                return;
-            }
-            if (!(packetType instanceof ClientInteractEntityPacket.Attack)) {
-                if (!(packetType instanceof ClientInteractEntityPacket.InteractAt interactAt)) {
-                    return;
-                }
-                if (interactAt.hand().ordinal() != 0) return;
-            }
-            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, interactEntityPacket.targetId());
-            if (npc == null) return;
-            NpcInteractType interactType =
-                interactEntityPacket.type() instanceof ClientInteractEntityPacket.Attack ? NpcInteractType.ATTACK
-                    : NpcInteractType.INTERACT;
-            NPCInteractEvent clickEvent = new NPCInteractEvent(player, interactType, npc);
-            EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
+        if (event.getPacket() instanceof ClientInteractEntityPacket p) {
+            Logger.debug("" + p);
+//            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, p.targetId());
+//            if (npc == null) return;
+//            NpcInteractType interactType =
+//                interactEntityPacket.type() instanceof ClientInteractEntityPacket.Attack ? NpcInteractType.ATTACK
+//                    : NpcInteractType.INTERACT;
+//            NPCInteractEvent clickEvent = new NPCInteractEvent(player, interactType, npc);
+//            EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
         }
     }
 
