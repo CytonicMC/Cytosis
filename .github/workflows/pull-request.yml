@@ -1,8 +1,6 @@
 name: Build Pull Request
 on:
   pull_request:
-    paths-ignore:
-      - 'gradlew'
 
 jobs:
   check-wrapper:
@@ -29,7 +27,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
       - name: Run Checkstyle
@@ -52,13 +50,13 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
       - name: Assemble Jar
         run: ./gradlew --no-daemon --build-cache --parallel thinJar
       - name: Upload jar as artifact
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: thinJar
           path: build/libs/cytosis.jar
