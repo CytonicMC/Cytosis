@@ -7,6 +7,7 @@ import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
@@ -16,6 +17,7 @@ import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.network.packet.client.play.ClientAttackPacket;
 import net.minestom.server.network.packet.client.play.ClientInteractEntityPacket;
 
 import net.cytonic.cytosis.Cytosis;
@@ -63,23 +65,18 @@ public final class ServerEventListeners {
     @Priority(1)
     private void onPacketIn(PlayerPacketEvent event) {
         if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
-        if (event.getPacket() instanceof ClientInteractEntityPacket interactEntityPacket) {
-            ClientInteractEntityPacket.Type packetType = interactEntityPacket.type();
-            if (packetType instanceof ClientInteractEntityPacket.Interact) {
-                return;
-            }
-            if (!(packetType instanceof ClientInteractEntityPacket.Attack)) {
-                if (!(packetType instanceof ClientInteractEntityPacket.InteractAt interactAt)) {
-                    return;
-                }
-                if (interactAt.hand().ordinal() != 0) return;
-            }
-            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, interactEntityPacket.targetId());
+        if (event.getPacket() instanceof ClientInteractEntityPacket p) {
+            if (p.hand() == PlayerHand.OFF) return;
+            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, p.targetId());
             if (npc == null) return;
-            NpcInteractType interactType =
-                interactEntityPacket.type() instanceof ClientInteractEntityPacket.Attack ? NpcInteractType.ATTACK
-                    : NpcInteractType.INTERACT;
-            NPCInteractEvent clickEvent = new NPCInteractEvent(player, interactType, npc);
+            NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.INTERACT, npc);
+            EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
+        }
+
+        if (event.getPacket() instanceof ClientAttackPacket(int targetId)) {
+            NPC npc = Cytosis.get(NpcManager.class).getNPC(player, targetId);
+            if (npc == null) return;
+            NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.ATTACK, npc);
             EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
         }
     }

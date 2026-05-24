@@ -4,7 +4,9 @@ import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
+import net.minestom.server.instance.Clock;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.world.clock.WorldClock;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
@@ -46,12 +48,13 @@ public class TimeCommand extends CytosisCommand {
                 case "sunrise" -> timeToSet = 23000L;
                 case "sunset" -> timeToSet = 12000L;
                 case "freeze" -> {
-                    if (defaultInstance.getTimeRate() == 1) {
-                        defaultInstance.setTimeRate(0);
-                        sender.sendMessage(Msg.aqua("Time frozen."));
-                    } else if (defaultInstance.getTimeRate() == 0) {
-                        defaultInstance.setTimeRate(1);
+                    Clock clock = defaultInstance.clock(WorldClock.OVERWORLD);
+                    if (clock.paused()) {
+                        clock.resume();
                         sender.sendMessage(Msg.gold("Time unfrozen."));
+                    } else {
+                        clock.pause();
+                        sender.sendMessage(Msg.aqua("Time frozen."));
                     }
                 }
                 default -> {

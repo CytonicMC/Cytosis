@@ -45,7 +45,7 @@ public class FindCommand extends CytosisCommand {
                     .append(Component.text("[GO THERE]", NamedTextColor.GREEN, TextDecoration.BOLD)
                         .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT,
                             Component.text("Click to travel to server: '" + server + "'"))))
-                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/server " + server));
+                    .clickEvent(ClickEvent.runCommand("/server " + server));
                 player.sendMessage(message);
             }
 
