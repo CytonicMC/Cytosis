@@ -211,6 +211,8 @@ public class GlobalDatabase implements Bootstrappable {
                     uuid UUID,
                     "rank" VARCHAR(16),
                     name VARCHAR(16),
+                    first_join TIMESTAMP,
+                    last_seen TIMESTAMP,
                     PRIMARY KEY(uuid)
                 )
                 """).executeUpdate();
@@ -593,8 +595,9 @@ public class GlobalDatabase implements Bootstrappable {
         worker.submit(() -> {
             try (Connection conn = getConnection()) {
                 PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO cytonic_players (name, uuid, "rank")
-                    VALUES (?,?,?) ON CONFLICT (uuid) DO UPDATE SET name = EXCLUDED.name
+                    INSERT INTO cytonic_players (name, uuid, "rank", last_seen, first_join)
+                    VALUES (?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                    ON CONFLICT (uuid) DO UPDATE SET name = EXCLUDED.name, last_seen = EXCLUDED.last_seen
                     """);
                 ps.setString(1, player.getTrueUsername());
                 ps.setObject(2, player.getUuid());
