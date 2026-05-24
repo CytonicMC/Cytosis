@@ -1,12 +1,13 @@
 package net.cytonic.cytosis;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
@@ -70,7 +71,11 @@ public class CytosisBootstrap {
 
         Logger.info("Loading indexes");
         try {
-            IndexHolder.initialize(List.of(Objects.requireNonNull(PluginManager.PLUGINS_DIR.toFile().listFiles())));
+            List<File> plugins = new ArrayList<>();
+            if (PluginManager.PLUGINS_DIR.toFile().exists()) {
+                plugins.addAll(List.of(PluginManager.PLUGINS_DIR.toFile().listFiles()));
+            }
+            IndexHolder.initialize(plugins);
         } catch (IOException e) {
             Logger.error("Failed to initialize indexes: ", e);
             System.exit(122);
