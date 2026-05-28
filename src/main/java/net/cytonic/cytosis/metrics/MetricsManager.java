@@ -73,10 +73,10 @@ public class MetricsManager implements Bootstrappable {
     public void init() {
         if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
         this.cytosisContext = Cytosis.CONTEXT;
-
-        if (!cytosisContext.getFlags().contains("--no-metrics")) {
-            this.meter = Cytosis.get(CytosisOpenTelemetry.class).getMeter("cytosis");
-        } else Logger.info("Skipping metric sending due to the `--no-metrics` flag.");
+//todo figure out how to pass around server
+//        if (!cytosisContext.getFlags().contains("--no-metrics")) {
+//            this.meter = Cytosis.get(CytosisOpenTelemetry.class).getMeter("cytosis");
+//        } else Logger.info("Skipping metric sending due to the `--no-metrics` flag.");
     }
 
     /**

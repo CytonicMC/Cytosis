@@ -9,7 +9,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 /**
  * An interface for creating sideboards.
  */
-public interface SideboardCreator {
+public interface SideboardCreator<P extends CytosisPlayer> {
 
     /**
      * Creates the sideboard for the player
@@ -17,7 +17,7 @@ public interface SideboardCreator {
      * @param player The player to create the sideboard for
      * @return The Sideboard for the player
      */
-    Sideboard sideboard(CytosisPlayer player);
+    Sideboard sideboard(P player);
 
     /**
      * A method to create the lines for the sideboard
@@ -25,7 +25,7 @@ public interface SideboardCreator {
      * @param player The player
      * @return The list of components
      */
-    List<Component> lines(CytosisPlayer player);
+    List<Component> lines(P player);
 
     /**
      * Creates the title for the sideboard
@@ -33,5 +33,5 @@ public interface SideboardCreator {
      * @param player The player
      * @return The title in Component form
      */
-    Component title(CytosisPlayer player);
+    Component title(P player);
 }

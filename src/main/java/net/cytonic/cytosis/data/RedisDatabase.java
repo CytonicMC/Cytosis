@@ -13,17 +13,16 @@ import redis.clients.jedis.JedisPooled;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.config.CytosisSettings.RedisConfig;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.CytosisConfig.RedisConfig;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.environments.EnvironmentManager;
-import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class that holds the connection to the redis cache
  */
-@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
+@CytosisComponent(dependsOn = {EnvironmentManager.class})
 public class RedisDatabase implements Bootstrappable {
 
     /**
@@ -41,9 +40,9 @@ public class RedisDatabase implements Bootstrappable {
      * Initializes the connection to redis using the loaded settings and the Jedis client
      */
     public RedisDatabase() {
-        RedisConfig settings = Cytosis.get(CytosisSettings.class).getRedisConfig();
-        HostAndPort hostAndPort = new HostAndPort(settings.getHost(), settings.getPort());
-        JedisClientConfig config = DefaultJedisClientConfig.builder().password(settings.getPassword()).build();
+        RedisConfig settings = Cytosis.get(CytosisConfig.class).redis();
+        HostAndPort hostAndPort = new HostAndPort(settings.host(), settings.port());
+        JedisClientConfig config = DefaultJedisClientConfig.builder().password(settings.password()).build();
         this.jedis = new JedisPooled(hostAndPort, config);
         prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
     }

@@ -30,7 +30,7 @@ public class Column {
     public Column(Component name, PlayerListFavicon favicon, List<PlayerListEntry> entries) {
         this.name = name;
         this.favicon = favicon;
-        this.entries = entries;
+        this.entries = new ArrayList<>(entries);
     }
 
     /**

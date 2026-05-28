@@ -1,45 +1,28 @@
 package net.cytonic.cytosis.nicknames;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.List;
 
-import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import dev.minestomunited.entrypoint.codec.ExtraCodecs;
+import net.minestom.server.codec.Transcoder;
+import net.minestom.server.entity.PlayerSkin;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.data.objects.Tuple;
-import net.cytonic.cytosis.files.FileManager;
 
 public class SkinParser {
 
-    @SuppressWarnings("unchecked")
-    public static Tuple<String, String>[] parseSkinData() {
-        File file = Cytosis.get(FileManager.class)
-            .extractResource("skins.json", Path.of("skins.json"));
-        InputStreamReader reader = null;
-        try {
-            reader = new FileReader(file);
-        } catch (FileNotFoundException e) {
+    public static List<PlayerSkin> parseSkinData() {
+        try (InputStream stream = Cytosis.class.getResourceAsStream("/skins.json")) {
+            if (stream == null) throw new IllegalStateException("Skins file not found");
+
+            return ExtraCodecs.PLAYER_SKIN.list().decode(Transcoder.JSON,
+                    JsonParser.parseReader(new InputStreamReader(stream)))
+                .orElseThrow("Failed to decode skins file");
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        Gson gson = Cytosis.GSON;
-        List<Skin> skins = gson.fromJson(reader, SkinFile.class).skins;
-
-        return skins.stream().map(skin -> Tuple.of(skin.signature, skin.value)).toArray(Tuple[]::new);
-    }
-
-    static class SkinFile {
-
-        List<Skin> skins;
-    }
-
-    static class Skin {
-
-        String signature;
-        String value;
     }
 }

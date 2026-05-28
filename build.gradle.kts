@@ -17,11 +17,11 @@ plugins {
     id("checkstyle")
     id("io.ebean") version "17.6.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
+    id("dev.minestomunited.minestom-events") version "0.0.1-SNAPSHOT"
     id("org.kordamp.gradle.jandex") version "2.3.0"
 }
 
 group = "net.cytonic"
-version = property("version").toString()
 
 repositories {
     mavenCentral()
@@ -32,6 +32,8 @@ repositories {
             includeModule("net.minestom", "minestom")
         }
     }
+    mavenLocal()
+//    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 val alwaysShadow: Configuration by configurations.creating {
@@ -48,9 +50,9 @@ dependencies {
     // Always shadowed (in both thin and fat jars) - the essentials
     alwaysShade(libs.dependencydownload)
     alwaysShade(project(":protocol"))
+    downloadOrShade("dev.minestomunited.entrypoint:entrypoint:0.0.1-SNAPSHOTT")
 
     // Downloaded at runtime for thinJar, shadowed in fatJar
-    downloadOrShade(libs.minestom)
     downloadOrShade(libs.gson)
     downloadOrShade(libs.jnats)
     downloadOrShade(libs.okhttp)
@@ -62,8 +64,6 @@ dependencies {
     }
     downloadOrShade(libs.invui)
     downloadOrShade(libs.anvilInput)
-    downloadOrShade(libs.configurate)
-    downloadOrShade(libs.minimessage)
     downloadOrShade(libs.fastutil)
     downloadOrShade(libs.hikaricp)
     downloadOrShade(libs.reflections)
@@ -86,6 +86,8 @@ buildscript {
         classpath("io.smallrye:jandex:3.5.3")
     }
 }
+
+
 
 // alwaysShade: Always shadowed in both thin and fat jars
 fun DependencyHandler.alwaysShade(dependencyNotation: Any) {
@@ -154,6 +156,11 @@ migration {
     id = "cytosis"
     platform = POSTGRES
     databases = listOf("global", "environment")
+}
+
+minestomEvents {
+    compileOnly = true
+    outputPackage = "net.cytonic.cytosis.utils"
 }
 
 val buildIndex = tasks.register("indexMinestomEvents") {
@@ -315,9 +322,9 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
         downloadOrShadow
     )
 
-    manifest {
-        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
-    }
+//    manifest {
+//        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
+//    }
 }
 
 fun registerServerCopy(taskName: String, sourceTask: TaskProvider<ShadowJar>, propertyName: String) {
@@ -459,6 +466,13 @@ tasks.withType<Checkstyle>().configureEach {
 
 tasks.named("jandex") {
     finalizedBy(buildIndex)
+}
+
+afterEvaluate {
+    tasks.findByName("generateMigrationEnvironment")?.apply {
+        dependsOn("jandex")
+        dependsOn(buildIndex)
+    }
 }
 
 // Configure checkstyle tasks

@@ -26,10 +26,11 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.Column;
-import net.cytonic.cytosis.playerlist.DefaultPlayerListCreator;
 import net.cytonic.cytosis.playerlist.PlayerListEntry;
 import net.cytonic.cytosis.playerlist.PlayerListFavicon;
 import net.cytonic.cytosis.playerlist.PlayerlistCreator;
+import net.cytonic.cytosis.server.AbstractCytosisServer;
+import net.cytonic.cytosis.server.playerList.PlayerListService;
 
 /**
  * A class that manages the player list
@@ -37,46 +38,32 @@ import net.cytonic.cytosis.playerlist.PlayerlistCreator;
 @Setter
 @Getter
 @CytosisComponent
-public class PlayerListManager implements Bootstrappable {
+public class PlayerListManager<P extends CytosisPlayer> implements Bootstrappable {
 
     private final Map<UUID, Component[][]> playerComponents = new ExpiringMap<>();
     private final Map<UUID, PlayerInfoUpdatePacket.Property[][]> playerFavicons = new ExpiringMap<>();
     private UUID[][] listUuids; // <column, entry>
-    private PlayerlistCreator creator;
+    private PlayerlistCreator<P> creator;
+    private PlayerListService<P> playerListService;
     // in ticks
     private int updateInterval = 20;
 
-    /**
-     * The default player list manager constructor
-     */
-    public PlayerListManager() {
-
-    }
-
     @Override
     public void init() {
-        creator = new DefaultPlayerListCreator();
-        scheduleUpdate();
-        listUuids = new UUID[creator.getColumnCount()][20];
-        for (int i = 0; i < listUuids.length; i++) {
-            for (int j = 0; j < listUuids[i].length; j++) {
-                listUuids[i][j] = UUID.randomUUID();
+        //noinspection unchecked
+        playerListService = ((AbstractCytosisServer<P>) Cytosis.get(AbstractCytosisServer.class)).playerListService();
+        if (playerListService.supportsPlayerList()) {
+            creator = playerListService.creator();
+            updateInterval = playerListService.updateInterval();
+
+            scheduleUpdate();
+            listUuids = new UUID[creator.getColumnCount()][20];
+            for (int i = 0; i < listUuids.length; i++) {
+                for (int j = 0; j < listUuids[i].length; j++) {
+                    listUuids[i][j] = UUID.randomUUID();
+                }
             }
         }
-    }
-
-    public void setCreator(PlayerlistCreator creator) {
-        this.creator = creator;
-
-        listUuids = new UUID[creator.getColumnCount()][20];
-        for (int i = 0; i < listUuids.length; i++) {
-            for (int j = 0; j < listUuids[i].length; j++) {
-                listUuids[i][j] = UUID.randomUUID();
-            }
-        }
-
-        playerComponents.clear();
-        playerFavicons.clear();
     }
 
     /**
@@ -84,13 +71,18 @@ public class PlayerListManager implements Bootstrappable {
      *
      * @param player The player to set up
      */
-    public void setupPlayer(CytosisPlayer player) {
+    public void setupPlayer(P player) {
+        if (!playerListService.supportsPlayerList()) {
+            player.setListed(false);
+            return;
+        }
+
         player.sendPlayerListHeaderAndFooter(creator.header(player), creator.footer(player));
-        // remove them from the player list for everyone, but keep skin data
         PacketSendingUtils.broadcastPlayPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
-            new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(), List.of(
-                new PlayerInfoUpdatePacket.Property("textures", player.getSkin().textures(),
-                    player.getSkin().signature())), false, player.getLatency(), player.getGameMode(),
+            new PlayerInfoUpdatePacket.Entry(player.getUuid(), player.getUsername(),
+                player.getSkin() != null ? List.of(new PlayerInfoUpdatePacket.Property("textures",
+                    player.getSkin().textures(), player.getSkin().signature())) : List.of(),
+                false, player.getLatency(), player.getGameMode(),
                 player.getDisplayName(), null, -1, true)));
 
         player.sendPackets(createInjectPackets(player));
@@ -101,7 +93,7 @@ public class PlayerListManager implements Bootstrappable {
      *
      * @return the list of packets
      */
-    private List<SendablePacket> createInjectPackets(Player player) {
+    private List<SendablePacket> createInjectPackets(P player) {
         List<SendablePacket> packets = new ArrayList<>();
         if (!playerComponents.containsKey(player.getUuid())) {
             Component[][] components = new Component[creator.getColumnCount()][20];
@@ -140,8 +132,9 @@ public class PlayerListManager implements Bootstrappable {
         // remove online players too
         for (Player p : Cytosis.getOnlinePlayers()) {
             packets.add(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.UPDATE_LISTED,
-                new PlayerInfoUpdatePacket.Entry(p.getUuid(), p.getUsername(), List.of(
-                    new PlayerInfoUpdatePacket.Property("textures", p.getSkin().textures(), p.getSkin().signature())),
+                new PlayerInfoUpdatePacket.Entry(p.getUuid(), p.getUsername(),
+                    p.getSkin() != null ? List.of(new PlayerInfoUpdatePacket.Property("textures",
+                        p.getSkin().textures(), p.getSkin().signature())) : List.of(),
                     false, p.getLatency(), p.getGameMode(), p.getDisplayName(), null, -1, true)));
         }
         return packets;
@@ -152,7 +145,9 @@ public class PlayerListManager implements Bootstrappable {
      *
      * @param player the player to update
      */
-    public void update(CytosisPlayer player) {
+    public void update(P player) {
+        if (!playerListService.supportsPlayerList()) return;
+
         List<Column> columns = creator.createColumns(player);
         if (columns.size() != creator.getColumnCount()) {
             throw new IllegalArgumentException("Column count does not match size of column list");
@@ -166,10 +161,11 @@ public class PlayerListManager implements Bootstrappable {
     }
 
     /**
-     * Updates all the players tab menus
+     * Updates all player lists
      */
     public void updateAll() {
-        Cytosis.getOnlinePlayers().forEach(this::update);
+        //noinspection unchecked
+        Cytosis.getOnlinePlayers().forEach(p -> update((P) p));
     }
 
     /**
@@ -187,11 +183,11 @@ public class PlayerListManager implements Bootstrappable {
      * updated favicons, and columns. This method compares the current state of the player list data for the specified
      * player with the provided updated data and generates packets to reflect the changes.
      *
-     * @param player the unique identifier of the player whose player list is being updated
+     * @param player            the unique identifier of the player whose player list is being updated
      * @param updatedComponents a 2D array of components representing the updated display names in the player list
-     * @param updatedFavicons a 2D array of properties representing the updated favicons
-     *                        (player head textures) in the player list
-     * @param columns a list of column objects representing the data structure of the player list
+     * @param updatedFavicons   a 2D array of properties representing the updated favicons (player head textures) in the
+     *                          player list
+     * @param columns           a list of column objects representing the data structure of the player list
      * @return a list of {@code SendablePacket} objects representing the necessary updates to the player list
      */
     private List<SendablePacket> createUpdatePackets(UUID player, Component[][] updatedComponents,
@@ -218,16 +214,16 @@ public class PlayerListManager implements Bootstrappable {
     /**
      * Processes a single entry in the player list and creates update packets if needed
      *
-     * @param updatePackets the list to add update packets to
-     * @param favicons the current favicons
-     * @param components the current components
-     * @param updatedFavicons the updated favicons
+     * @param updatePackets     the list to add update packets to
+     * @param favicons          the current favicons
+     * @param components        the current components
+     * @param updatedFavicons   the updated favicons
      * @param updatedComponents the updated components
-     * @param columns the columns to compare with
-     * @param i the column index
-     * @param j the entry index
-     * @param order the order value for the entry
-     * @param isHeader whether this entry is a column header
+     * @param columns           the columns to compare with
+     * @param i                 the column index
+     * @param j                 the entry index
+     * @param order             the order value for the entry
+     * @param isHeader          whether this entry is a column header
      */
     private void processColumnEntry(List<SendablePacket> updatePackets,
         PlayerInfoUpdatePacket.Property[][] favicons,
@@ -269,12 +265,6 @@ public class PlayerListManager implements Bootstrappable {
         }
     }
 
-    /**
-     * Converts a list of columns to the components arrays
-     *
-     * @param columns the columns to convert
-     * @return an array with the components
-     */
     private Component[][] toComponents(List<Column> columns) {
         Component[][] components = new Component[creator.getColumnCount()][20];
         for (int i = 0; i < components.length; i++) {

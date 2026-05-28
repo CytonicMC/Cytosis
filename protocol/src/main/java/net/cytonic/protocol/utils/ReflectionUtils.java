@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @UtilityClass
 public class ReflectionUtils {
+
+    public static <S> ServiceLoader<S> getServiceLoader(Class<S> serviceClass) {
+        return ServiceLoader.load(serviceClass, serviceClass.getClassLoader());
+    }
 
     public static <T> T newInstance(Class<T> clazz) throws NoSuchMethodException {
         return newInstance(clazz, new LinkedHashMap<>());

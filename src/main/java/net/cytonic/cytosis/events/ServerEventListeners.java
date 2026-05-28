@@ -16,14 +16,12 @@ import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.network.packet.client.play.ClientAttackPacket;
 import net.minestom.server.network.packet.client.play.ClientInteractEntityPacket;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TpsCommand;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
-import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
@@ -60,6 +58,11 @@ public final class ServerEventListeners {
 
     public static double RAW_MSPT = 0;
     public static long MEM_USED = 0;
+
+    @SuppressWarnings("unchecked")
+    private static <T> T get(Class<?> clazz) {
+        return (T) Cytosis.get(clazz);
+    }
 
     @Listener
     @Priority(1)
@@ -119,11 +122,6 @@ public final class ServerEventListeners {
             player.kickInternal(Msg.whoops("This server is stopping"));
             return;
         }
-        if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
-            event.setSpawningInstance(Cytosis.get(InstanceContainer.class));
-        }
-        player.setRespawnPoint(
-            Cytosis.get(CytosisSettings.class).getServerConfig().getSpawnPos());
 
         // load things as easily as possible
         Cytosis.get(FriendManager.class).loadFriends(player.getUuid());
@@ -144,8 +142,10 @@ public final class ServerEventListeners {
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
         gdb.addPlayer(player);
-        Cytosis.get(SideboardManager.class).addPlayer(player);
-        Cytosis.get(PlayerListManager.class).setupPlayer(player);
+        SideboardManager<CytosisPlayer> sideboardManager = get(SideboardManager.class);
+        sideboardManager.addPlayer(player);
+        PlayerListManager<CytosisPlayer> playerListManager = get(PlayerListManager.class);
+        playerListManager.setupPlayer(player);
         Cytosis.get(RankManager.class).addPlayer(player);
         Cytosis.get(CommandHandler.class).recalculateCommands(player);
         if (player.getPreference(Preferences.VANISHED)) {
@@ -212,6 +212,7 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onQuit(PlayerDisconnectEvent event) {
+        System.out.println("QUIT QUIT QUIT");
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         ExpiringMap.expire(player.getUuid());
         Cytosis.get(NpcManager.class).removePlayer(player);

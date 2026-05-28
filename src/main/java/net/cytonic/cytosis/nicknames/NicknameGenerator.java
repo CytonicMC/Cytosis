@@ -3,8 +3,9 @@ package net.cytonic.cytosis.nicknames;
 import java.util.Map;
 import java.util.Random;
 
+import net.minestom.server.entity.PlayerSkin;
+
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.Tuple;
 
 public class NicknameGenerator {
 
@@ -54,7 +55,7 @@ public class NicknameGenerator {
     private static final Map<Character, String> LEET_MAP = Map.of('a', "4", 'e', "3", 'i', "1", 'o', "0", 's', "5", 't',
         "7");
 
-    private static final Tuple<String, String>[] SKIN_DATA = SkinParser.parseSkinData();
+    private static final PlayerSkin[] SKIN_DATA = SkinParser.parseSkinData().toArray(PlayerSkin[]::new);
 
     private static final Random RANDOM = new Random();
 
@@ -122,7 +123,7 @@ public class NicknameGenerator {
      *
      * @return A tuple containing the skin data. Signature, then value
      */
-    public static Tuple<String, String> generateSkin() {
+    public static PlayerSkin generateSkin() {
         return pickRandom(SKIN_DATA);
     }
 

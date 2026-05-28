@@ -15,7 +15,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.utils.IndexHolder;
 
@@ -25,7 +24,7 @@ import net.cytonic.protocol.utils.IndexHolder;
  *
  * @author Foxikle
  */
-@CytosisComponent(dependsOn = {PluginManager.class,MinecraftServer.class})
+@CytosisComponent
 public class EventHandler {
 
     private final Map<String, EventListener<? extends Event>> namespacedHandlers = new HashMap<>();

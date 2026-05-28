@@ -20,7 +20,7 @@ import static net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH;
 /**
  * A creator for the playerlist, for use with {@link net.cytonic.cytosis.managers.PlayerListManager}
  */
-public interface PlayerlistCreator {
+public interface PlayerlistCreator<P extends CytosisPlayer> {
 
     Function<CytosisPlayer, Column> PLAYER_COLUMN = (player) -> {
         List<PlayerListEntry> players = new ArrayList<>();
@@ -84,7 +84,7 @@ public interface PlayerlistCreator {
      * @param player The player to create {@link Column}s for
      * @return The list of categories
      */
-    List<Column> createColumns(CytosisPlayer player);
+    List<Column> createColumns(P player);
 
     /**
      * Creates the header for the playerlist
@@ -92,7 +92,7 @@ public interface PlayerlistCreator {
      * @param player The player to create the header for
      * @return The header in Component form
      */
-    Component header(CytosisPlayer player);
+    Component header(P player);
 
     /**
      * creates the footer for the playerlist
@@ -100,7 +100,7 @@ public interface PlayerlistCreator {
      * @param player The player to create the footer for
      * @return The footer in Component form
      */
-    Component footer(CytosisPlayer player);
+    Component footer(P player);
 
     /**
      * Gets the number of columns, between one and 4, inclusive.

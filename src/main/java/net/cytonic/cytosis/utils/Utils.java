@@ -22,7 +22,6 @@ import net.minestom.server.codec.Transcoder;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.plugins.loader.PluginClassLoader;
 
 /**
  * A class holding utility methods
@@ -162,13 +161,8 @@ public final class Utils {
 
     public static Class<?> loadClass(String clazz) {
         try {
-             return Class.forName(clazz, true, Thread.currentThread().getContextClassLoader());
-        } catch (ClassNotFoundException ignored) {}
-
-        for (PluginClassLoader loader : PluginClassLoader.LOADERS) {
-            try {
-                loader.loadClass(clazz);
-            } catch (ClassNotFoundException ignored) {}
+            return Class.forName(clazz, true, Thread.currentThread().getContextClassLoader());
+        } catch (ClassNotFoundException ignored) {
         }
 
         throw new RuntimeException(new ClassNotFoundException(clazz));

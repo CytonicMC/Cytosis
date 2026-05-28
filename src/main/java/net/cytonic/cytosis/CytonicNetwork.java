@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase.PlayerEntry;
 import net.cytonic.cytosis.data.RedisDatabase;
@@ -60,7 +60,7 @@ public class CytonicNetwork implements Bootstrappable {
             .put(Cytosis.CONTEXT.SERVER_ID,
                 new CytonicServer(Utils.getServerIP(),
                     Cytosis.CONTEXT.SERVER_ID,
-                    cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getPort(),
+                    cytosisContext.getComponent(CytosisConfig.class).port(),
                     cytosisContext.getServerGroup().type(),
                     cytosisContext.getServerGroup().group())
             );

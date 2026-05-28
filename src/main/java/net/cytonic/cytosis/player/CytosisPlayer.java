@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import dev.minestomunited.entrypoint.minestom.player.NetworkPlayer;
 import io.github.togar2.pvp.player.CombatPlayerImpl;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -60,7 +61,7 @@ import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
  * managers themselves.
  */
 @SuppressWarnings("unused")
-public class CytosisPlayer extends CombatPlayerImpl {
+public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
 
     private PlayerRank rank;
 
@@ -300,7 +301,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public @Nullable PlayerSkin getSkin() {
         if (isNicked()) {
             NicknameManager.NicknameData data = Cytosis.get(NicknameManager.class).getData(getUuid());
-            return new PlayerSkin(data.value(), data.signature());
+            if (data == null) {
+                return null;
+            }
+            return data.skin();
         }
         return super.getSkin();
     }

@@ -163,9 +163,9 @@ public class NickSetupCommand extends CytosisCommand {
                     }
                     switch (arg.toUpperCase()) {
                         case "DEFAULT" ->
-                            NICKNAME_DATA.computeIfPresent(player.getUuid(), (k, data) -> data.withSkin(null, null));
+                            NICKNAME_DATA.computeIfPresent(player.getUuid(), (k, data) -> data.withSkin(null));
                         case "REAL" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withSkin(player.getSkin().signature(), player.getSkin().textures()));
+                            (k, data) -> data.withSkin(player.getSkin()));
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
                             (k, data) -> data.withSkin(NicknameGenerator.generateSkin()));
                         default -> {
@@ -225,17 +225,18 @@ public class NickSetupCommand extends CytosisCommand {
             .author(Msg.aqua("CytonicMC Team"))
             .title(Msg.gold("Confirm Details"))
             .pages(Msg.mm("""
-                <black>Awesome! Your nickname is as follows! </black>
-                
-                <black>Name: '%s'</black>
-                <black>Rank: %s</black>
-                <black>Skin: %s</black>
-                
-                <click:run_command:'/nick setup skin SKIP'>» Change Name</click>
-                <click:run_command:'/nick setup'>» Start Over</click>
-                
-                <click:run_command:'/nick setup done'>» <b><dark_green>CONFIRM</dark_green></b></click>
-                """, data.nickname(), translateRank(data.rank()), NicknameManager.translateSkin(player, data.value())))
+                    <black>Awesome! Your nickname is as follows! </black>
+                    
+                    <black>Name: '%s'</black>
+                    <black>Rank: %s</black>
+                    <black>Skin: %s</black>
+                    
+                    <click:run_command:'/nick setup skin SKIP'>» Change Name</click>
+                    <click:run_command:'/nick setup'>» Start Over</click>
+                    
+                    <click:run_command:'/nick setup done'>» <b><dark_green>CONFIRM</dark_green></b></click>
+                    """, data.nickname(), translateRank(data.rank()),
+                NicknameManager.translateSkin(player, data.skin().textures())))
             .build();
     }
 }

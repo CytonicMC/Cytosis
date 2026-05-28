@@ -30,7 +30,7 @@ public class LineEffect extends StaticEffect {
         int steps = (int) (density * dist);
         double increment = dist / steps;
         List<Point> positions = Utils.list(pos1);
-        Vec normalized = Vec.fromPoint(pos2.sub(pos1)).normalize();
+        Vec normalized = pos2.sub(pos1).asVec().normalize();
         for (int i = 1; i < steps; i++) {
             double t = i * increment;
             positions.add(pos1.add(normalized.mul(t)));

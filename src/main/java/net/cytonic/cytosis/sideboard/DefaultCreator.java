@@ -8,12 +8,14 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.BuildInfo;
 import net.cytonic.cytosis.utils.Msg;
 
 /**
  * The default implementation of {@link SideboardCreator}; creating a baseline sideboard for Cytosis.
  */
-public class DefaultCreator implements SideboardCreator {
+//todo remove?
+public class DefaultCreator implements SideboardCreator<CytosisPlayer> {
 
     /**
      * The default constructor
@@ -34,7 +36,8 @@ public class DefaultCreator implements SideboardCreator {
             return List.of(Msg.mm("<gray>" + Cytosis.CONTEXT.SERVER_ID),
                 Msg.mm("<green>Players: " + Cytosis.get(CytonicNetwork.class)
                     .getOnlinePlayers()
-                    .size()), Msg.mm(""), Msg.mm("Cytosis v" + Cytosis.VERSION), Msg.mm(""), Msg.mm("<green>Rank: ")
+                    .size()), Msg.mm(""), Msg.mm("Cytosis v" + BuildInfo.BUILD_VERSION), Msg.mm(""),
+                Msg.mm("<green>Rank: ")
                     .append(Component.text(player.getRank()
                         .name(), (player.getRank()
                         .getTeamColor()))), Msg.mm("<green>Chat Channel<white>: " + player.getChatChannel()

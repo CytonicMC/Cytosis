@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import org.jetbrains.annotations.Nullable;
@@ -37,8 +38,7 @@ public interface NPCConfiguration {
     }
 
     @Nullable
-    String texture(CytosisPlayer player);
-
-    @Nullable
-    String signature(CytosisPlayer player);
+    default PlayerSkin skin(CytosisPlayer player) {
+        return null;
+    }
 }

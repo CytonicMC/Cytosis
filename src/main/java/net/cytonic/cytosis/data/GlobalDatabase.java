@@ -17,11 +17,7 @@ import java.util.concurrent.Executors;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
-import net.hollowcube.polar.PolarReader;
-import net.hollowcube.polar.PolarWorld;
-import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
@@ -30,22 +26,21 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.CytosisConfig.DatabaseConfig;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceData;
 import net.cytonic.cytosis.environments.EnvironmentManager;
-import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.PosSerializer;
 import net.cytonic.cytosis.utils.Utils;
 
 /**
  * The database object that handles data that is stored across network environments
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
+@CytosisComponent(dependsOn = {EnvironmentManager.class})
 public class GlobalDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
@@ -62,14 +57,14 @@ public class GlobalDatabase implements Bootstrappable {
     }
 
     protected static @NonNull HikariConfig getHikariConfig() {
-        CytosisSettings settings = Cytosis.get(CytosisSettings.class);
+        DatabaseConfig databaseConfig = Cytosis.get(CytosisConfig.class).database();
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s",
-            settings.getDatabaseConfig().getHost(),
-            settings.getDatabaseConfig().getPort(),
-            settings.getDatabaseConfig().getGlobalDatabase()));
-        config.setUsername(settings.getDatabaseConfig().getUser());
-        config.setPassword(settings.getDatabaseConfig().getPassword());
+            databaseConfig.host(),
+            databaseConfig.port(),
+            databaseConfig.globalDatabase()));
+        config.setUsername(databaseConfig.username());
+        config.setPassword(databaseConfig.password());
 
         // HikariCP optimizations
         config.setDriverClassName("org.postgresql.Driver");
@@ -607,155 +602,6 @@ public class GlobalDatabase implements Bootstrappable {
             } catch (SQLException e) {
                 Logger.error("An error occurred whilst setting the name of " + player.getUuid() + ".", e);
                 future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    public CompletableFuture<Void> addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint,
-        UUID worldUuid) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        if (!isConnected()) {
-            throw new IllegalStateException("The database must have an open connection to add a world!");
-        }
-
-        world.setCompression(PolarWorld.CompressionType.ZSTD);
-
-        worker.submit(() -> {
-            try (Connection conn = getConnection()) {
-                PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid)
-                    VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)
-                    """);
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ps.setBytes(3, PolarWriter.write(world));
-                ps.setString(4, PosSerializer.serialize(spawnPoint));
-                ps.setObject(5, worldUuid);
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a world!", e);
-            }
-            future.complete(null);
-        });
-        return future;
-    }
-
-    /**
-     * Retrieves a world from the database.
-     *
-     * @param worldName The name of the world to fetch.
-     * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}. If the world does not
-     * exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
-     * @throws IllegalStateException If the database connection is not open.
-     */
-    public CompletableFuture<PolarWorld> getWorld(String worldName) {
-        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
-        if (!isConnected()) {
-            throw new IllegalStateException("The database must have an open connection to fetch a world!");
-        }
-        worker.submit(() -> {
-            try (PreparedStatement ps = getConnection().prepareStatement(
-                "SELECT * FROM cytonic_worlds WHERE world_name = ?")) {
-                ps.setString(1, worldName);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.get(CytosisSettings.class)
-                        .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
-                    future.complete(world);
-                } else {
-                    Logger.error("The result set is empty!");
-                    throw new RuntimeException("World not found: " + worldName);
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching a world!", e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Retrieves a world from the database.
-     *
-     * @param worldName The name of the world to fetch.
-     * @param worldType The world type of the world to fetch.
-     * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}. If the world does not
-     * exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
-     * @throws IllegalStateException If the database connection is not open.
-     */
-    public CompletableFuture<PolarWorld> getWorld(String worldName, String worldType) {
-        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
-        if (!isConnected()) {
-            throw new IllegalStateException("The database must have an open connection to fetch a world!");
-        }
-        worker.submit(() -> {
-            try (PreparedStatement ps = getConnection().prepareStatement(
-                "SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.get(CytosisSettings.class)
-                        .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
-                    future.complete(world);
-                } else {
-                    Logger.error("The result set is empty!");
-                    throw new RuntimeException("World not found: " + worldName);
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching a world!", e);
-                future.completeExceptionally(e);
-                throw new RuntimeException(e);
-            }
-        });
-        return future;
-    }
-
-    public CompletableFuture<String> getWorldExtraData(String worldName, String worldType) {
-        CompletableFuture<String> future = new CompletableFuture<>();
-        if (!isConnected()) {
-            throw new IllegalStateException(
-                "The database must have an open connection to fetch the extra data from a world!");
-        }
-        worker.submit(() -> {
-            try (PreparedStatement ps = getConnection().prepareStatement(
-                "SELECT extra_data FROM cytonic_worlds WHERE world_name = ? AND world_type = ?")) {
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    future.complete(rs.getString("extra_data"));
-                } else {
-                    Logger.error("The result set is empty!");
-                    throw new RuntimeException("World data not found: " + worldName);
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching the extra data from a world!", e);
-                future.completeExceptionally(e);
-                throw new RuntimeException(e);
-            }
-        });
-        return future;
-    }
-
-    public CompletableFuture<Boolean> worldExists(String worldName) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        if (!isConnected()) {
-            throw new IllegalStateException("The database must have an open connection to fetch a world!");
-        }
-        worker.submit(() -> {
-            try (PreparedStatement ps = getConnection().prepareStatement(
-                "SELECT world_name FROM cytonic_worlds WHERE world_name = ?")) {
-                ps.setString(1, worldName);
-                ResultSet rs = ps.executeQuery();
-                future.complete(rs.next());
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching a world!", e);
-                future.completeExceptionally(e);
-                throw new RuntimeException(e);
             }
         });
         return future;

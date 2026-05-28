@@ -8,7 +8,7 @@ import net.kyori.adventure.util.Services;
 
 public interface NatsAPI {
 
-    NatsAPI INSTANCE = Services.service(NatsAPI.class).orElseThrow();
+    NatsAPI INSTANCE = Services.service(ReflectionUtils.getServiceLoader(NatsAPI.class), NatsAPI.class).orElseThrow();
 
     void subscribe(String channel, Consumer<Message> consumer);
 

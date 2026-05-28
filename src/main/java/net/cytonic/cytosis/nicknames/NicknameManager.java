@@ -8,12 +8,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.With;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.MetadataDef;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.network.packet.server.play.DestroyEntitiesPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
@@ -27,7 +29,6 @@ import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.data.objects.Tuple;
 import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
@@ -93,7 +94,8 @@ public class NicknameManager implements Bootstrappable {
         Component msg = player.trueFormattedName().append(Msg.aqua(" has been nicked to "))
             .append(player.formattedName())
             .append(
-                Msg.aqua(" (Skin: %s)!", Msg.stripTags(translateSkin(player, data.value()).replace("My", "Their"))));
+                Msg.aqua(" (Skin: %s)!",
+                    Msg.stripTags(translateSkin(player, data.skin().textures()).replace("My", "Their"))));
 
         Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_NICKNAME, Msg.snoop(msg));
     }
@@ -115,8 +117,9 @@ public class NicknameManager implements Bootstrappable {
         ArrayList<PlayerInfoUpdatePacket.Property> properties = new ArrayList<>();
         NicknameData data = getData(player.getUuid());
         if (data == null) return;
-        if (data.signature() != null && data.value() != null) {
-            properties.add(new PlayerInfoUpdatePacket.Property("textures", data.value(), data.signature()));
+        if (data.skin() != null) {
+            properties.add(
+                new PlayerInfoUpdatePacket.Property("textures", data.skin().textures(), data.skin().signature()));
         }
         PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(masked, data.nickname(), properties,
             false, 0, GameMode.SURVIVAL, null, null, 1, true);
@@ -241,14 +244,10 @@ public class NicknameManager implements Bootstrappable {
         }
     }
 
-    public record NicknameData(String nickname, PlayerRank rank, @Nullable String value, @Nullable String signature) {
+    @With
+    public record NicknameData(String nickname, PlayerRank rank, @Nullable PlayerSkin skin) {
 
-        public static final NicknameData EMPTY = new NicknameData("", PlayerRank.DEFAULT, null, null);
-
-        public NicknameData(String nickname, PlayerRank rank, Tuple<String, String> skin) {
-            this(nickname, rank, skin.getSecond(), skin.getFirst());
-
-        }
+        public static final NicknameData EMPTY = new NicknameData("", PlayerRank.DEFAULT, null);
 
         public static NicknameData parseBytes(byte[] serialized) {
             return Cytosis.GSON.fromJson(new String(serialized), NicknameData.class);
@@ -264,22 +263,6 @@ public class NicknameManager implements Bootstrappable {
 
         public String serializeAsString() {
             return Cytosis.GSON.toJson(this);
-        }
-
-        public NicknameData withRank(PlayerRank rank) {
-            return new NicknameData(nickname(), rank, value(), signature());
-        }
-
-        public NicknameData withSkin(Tuple<String, String> skin) {
-            return new NicknameData(nickname(), rank(), skin.getSecond(), skin.getFirst());
-        }
-
-        public NicknameData withSkin(String signature, String value) {
-            return new NicknameData(nickname(), rank(), value, signature);
-        }
-
-        public NicknameData withNickname(String nickname) {
-            return new NicknameData(nickname, rank(), value(), signature());
         }
     }
 }
