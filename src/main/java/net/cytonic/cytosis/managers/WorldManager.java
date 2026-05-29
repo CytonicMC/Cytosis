@@ -7,13 +7,14 @@ import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
 import net.kyori.adventure.key.Key;
+import net.minestom.server.instance.InstanceManager;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 
 @NoArgsConstructor
-@CytosisComponent(dependsOn = {net.minestom.server.instance.InstanceManager.class})
-public class InstanceManager {
+@CytosisComponent(dependsOn = {InstanceManager.class})
+public class WorldManager {
 
     public CompletableFuture<PolarWorld> loadWorld(Key key) {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();

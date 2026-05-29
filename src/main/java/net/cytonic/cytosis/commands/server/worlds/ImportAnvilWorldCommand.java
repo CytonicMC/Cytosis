@@ -15,7 +15,7 @@ import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.InstanceManager;
+import net.cytonic.cytosis.managers.WorldManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -51,7 +51,7 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             }
 
             Key key = context.get(keyArgument);
-            Cytosis.get(InstanceManager.class).saveWorld(key, world).whenComplete((_, throwable) -> {
+            Cytosis.get(WorldManager.class).saveWorld(key, world).whenComplete((_, throwable) -> {
                 if (throwable != null) {
                     sender.sendMessage(Msg.whoops("An error occurred! " + throwable.getMessage()));
                     Logger.error("An error occurred!", throwable);
