@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.particles.util;
 
+import java.util.Objects;
+
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -52,7 +54,7 @@ public class ParticleData {
     }
 
     public static ParticleData dust(String hexColor, float scale, int particleCount) {
-        Particle p = Particle.DUST.withProperties(TextColor.fromHexString(hexColor), scale);
+        Particle p = Particle.DUST.withProperties(Objects.requireNonNull(TextColor.fromHexString(hexColor)), scale);
         return new ParticleData(p, false, false, Pos.ZERO, 0, particleCount);
     }
 

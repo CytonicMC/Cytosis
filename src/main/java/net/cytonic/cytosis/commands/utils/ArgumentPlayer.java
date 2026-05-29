@@ -7,6 +7,7 @@ import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.network.NetworkBuffer;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.nicknames.NicknameManager;
@@ -33,11 +34,14 @@ public class ArgumentPlayer extends Argument<CytosisPlayer> {
             // not known by this name
             player = Cytosis.get(NicknameManager.class).getPlayerByNickname(input);
         }
+        if (player == null) {
+            throw new ArgumentSyntaxException("Player " + input + " does not exist!", input, 1);
+        }
         return player;
     }
 
     @Override
-    public ArgumentParserType parser() {
+    public @NonNull ArgumentParserType parser() {
         return ArgumentParserType.STRING;
     }
 

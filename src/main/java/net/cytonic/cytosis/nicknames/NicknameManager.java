@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +62,7 @@ public class NicknameManager implements Bootstrappable {
         if (skin == null) {
             return "<#BE9025>Steve/Alex skin</#BE9025>";
         }
-        if (skin.equals(player.getSkin().textures())) {
+        if (skin.equals(Objects.requireNonNull(player.getSkin()).textures())) {
             return "<#BE9025>My normal skin</#BE9025>";
         }
         return "<#BE9025>Random Skin</#BE9025>";
@@ -95,7 +96,8 @@ public class NicknameManager implements Bootstrappable {
             .append(player.formattedName())
             .append(
                 Msg.aqua(" (Skin: %s)!",
-                    Msg.stripTags(translateSkin(player, data.skin().textures()).replace("My", "Their"))));
+                    Msg.stripTags(
+                        translateSkin(player, Objects.requireNonNull(data.skin()).textures()).replace("My", "Their"))));
 
         Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_NICKNAME, Msg.snoop(msg));
     }
@@ -165,11 +167,9 @@ public class NicknameManager implements Bootstrappable {
             ArrayList<PlayerInfoUpdatePacket.Property> properties = new ArrayList<>();
 
             if (player.getTrueSkin() == null) return;
-            if (player.getTrueSkin().signature() != null && player.getTrueSkin().textures() != null) {
-                properties.add(new PlayerInfoUpdatePacket.Property("textures", player.getTrueSkin()
-                    .textures(), player.getTrueSkin()
-                    .signature()));
-            }
+            properties.add(new PlayerInfoUpdatePacket.Property("textures", player.getTrueSkin()
+                .textures(), player.getTrueSkin()
+                .signature()));
             PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(player.getUuid(),
                 player.getTrueUsername(), properties, false, 0, GameMode.SURVIVAL, null, null, 1, true);
             // remove the old player info and entity

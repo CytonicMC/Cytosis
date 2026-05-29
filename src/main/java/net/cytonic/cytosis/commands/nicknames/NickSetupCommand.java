@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.nicknames;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -236,7 +237,7 @@ public class NickSetupCommand extends CytosisCommand {
                     
                     <click:run_command:'/nick setup done'>» <b><dark_green>CONFIRM</dark_green></b></click>
                     """, data.nickname(), translateRank(data.rank()),
-                NicknameManager.translateSkin(player, data.skin().textures())))
+                NicknameManager.translateSkin(player, Objects.requireNonNull(data.skin()).textures())))
             .build();
     }
 }

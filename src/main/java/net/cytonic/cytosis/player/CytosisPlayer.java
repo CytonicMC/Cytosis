@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -91,7 +92,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
 
     public PlayerRank getRank() {
         if (isNicked()) {
-            return Cytosis.get(NicknameManager.class).getData(getUuid()).rank();
+            return Objects.requireNonNull(Cytosis.get(NicknameManager.class).getData(getUuid())).rank();
         }
 
         return getTrueRank();
@@ -323,7 +324,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
     @Override
     public @NotNull String getUsername() {
         if (isNicked()) {
-            return Cytosis.get(NicknameManager.class).getData(getUuid()).nickname();
+            return Objects.requireNonNull(Cytosis.get(NicknameManager.class).getData(getUuid())).nickname();
         }
         return getTrueUsername();
     }
@@ -373,7 +374,9 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
             case STAFF -> isStaff();
             case MOD -> isModerator();
             case ADMIN -> isAdmin();
-            case PARTY -> isInParty() && (isStaff() || !getParty().isMuted() || getParty().hasAuthority(getUuid()));
+            case PARTY ->
+                isInParty() && (isStaff() || !Objects.requireNonNull(getParty()).isMuted() || getParty().hasAuthority(
+                    getUuid()));
             default -> true;
         };
     }
@@ -542,7 +545,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
     }
 
     @Override
-    public void sendPacketToViewersAndSelf(SendablePacket packet) {
+    public void sendPacketToViewersAndSelf(@NonNull SendablePacket packet) {
         if (!(packet instanceof EntityMetaDataPacket p)) {
             super.sendPacketToViewersAndSelf(packet);
         }

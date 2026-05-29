@@ -58,7 +58,7 @@ public abstract class NPC {
 
     public NPC(NPCConfiguration config) {
         this.config = config;
-        String className = getClass().getSimpleName().replaceAll("NPC", "");
+        String className = getClass().getSimpleName().replace("NPC", "");
         this.name =
             config.chatName() != null ? config.chatName()
                 : Component.text(className.replaceAll("(?<=.)(?=\\p{Lu})", " "));

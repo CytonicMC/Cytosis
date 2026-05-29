@@ -13,7 +13,7 @@ public class SnooperAboutCommand extends CytosisCommand {
             player.sendMessage(Msg.splash("ABOUT SNOOPER!", "e829aa", "»").appendNewline()
                 .append(Msg.grey("""
                     Snooper is a network wide system for listening to messages from various parts of the network.
-                     You need to opt into channels 
+                     You need to opt into channels
                     """)));
 
         });
