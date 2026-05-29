@@ -75,7 +75,6 @@ public class CytosisBootstrap {
         cytosisContext.getComponent(CommandHandler.class).registerCytosisCommands();
         //This has to load after command registration
         cytosisContext.getComponent(CommandDisablingManager.class).loadRemotes();
-        initWorld();
 
         if (cytosisContext.isMetricsEnabled()) {
             Logger.info("Starting metric hooks");
@@ -83,7 +82,6 @@ public class CytosisBootstrap {
         }
 
         ShutdownHandler.init();
-//        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
         try {
             BootstrapRegistrationUtils.registerListeners(cytosisContext);
@@ -94,7 +92,6 @@ public class CytosisBootstrap {
         initViewFrame();
         Cytosis.get(EventHandler.class).init();
 
-        startServer();
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
         Logger.info("Server id = " + Cytosis.CONTEXT.SERVER_ID);
@@ -129,7 +126,6 @@ public class CytosisBootstrap {
      */
     private void initMinestom() {
         MinecraftServer.setBrandName("Cytosis");
-//        MinecraftServer.getBenchmarkManager().enable(Duration.ofSeconds(10L));
 
         Logger.info("Starting instance managers.");
         cytosisContext.registerComponent(MinecraftServer.getInstanceManager());
@@ -139,26 +135,12 @@ public class CytosisBootstrap {
         CommandManager commandManager = cytosisContext.registerComponent(MinecraftServer.getCommandManager());
         Logger.info("Setting console command sender.");
         cytosisContext.registerComponent(commandManager.getConsoleSender());
-    }
-
-    /**
-     * Initializes the world by setting up the necessary components and configurations required for the world to run
-     * properly.
-     */
-    private void initWorld() {
         Logger.info("Initializing block placements");
         BlockPlacementUtils.init();
         Logger.info("Adding a singed command packet handler");
         MinecraftServer.getPacketListenerManager().setPlayListener(ClientSignedCommandChatPacket.class,
             (packet, p) -> MinecraftServer.getPacketListenerManager()
                 .processClientPacket(new ClientCommandChatPacket(packet.message()), p.getPlayerConnection()));
-    }
-
-    private void startServer() {
-//        int port = cytosisContext.getComponent(CytosisSettings.class).getServerConfig().getPort();
-//        Logger.info("Server started on port " + port);
-//        cytosisContext.getComponent(MinecraftServer.class).start("0.0.0.0", port);
         MinecraftServer.getExceptionManager().setExceptionHandler(e -> Logger.error("Uncaught exception: ", e));
     }
-
 }
