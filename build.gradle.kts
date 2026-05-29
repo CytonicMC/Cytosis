@@ -33,6 +33,7 @@ repositories {
         }
     }
     mavenLocal()
+    //todo change when entrypoint merged
 //    maven("https://repo.minestom-united.dev/snapshots")
 }
 
@@ -87,8 +88,6 @@ buildscript {
         classpath("io.smallrye:jandex:3.5.3")
     }
 }
-
-
 
 // alwaysShade: Always shadowed in both thin and fat jars
 fun DependencyHandler.alwaysShade(dependencyNotation: Any) {
@@ -273,10 +272,6 @@ val thinShadow = tasks.register<ShadowJar>("thinShadow") {
 
     configurations = listOf(alwaysShadow)
 
-    manifest {
-        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
-    }
-
     archiveBaseName.set(project.name)
 }
 
@@ -322,10 +317,6 @@ val fatShadow = tasks.register<ShadowJar>("fatShadow") {
         alwaysShadow,
         downloadOrShadow
     )
-
-//    manifest {
-//        attributes["Main-Class"] = "net.cytonic.cytosis.bootstrap.Bootstrapper"
-//    }
 }
 
 fun registerServerCopy(taskName: String, sourceTask: TaskProvider<ShadowJar>, propertyName: String) {
