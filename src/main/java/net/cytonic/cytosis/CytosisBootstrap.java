@@ -15,7 +15,6 @@ import org.jboss.jandex.IndexView;
 
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisConfig;
-import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
@@ -23,7 +22,6 @@ import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
-import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.utils.IndexHolder;
 
@@ -100,30 +98,6 @@ public class CytosisBootstrap {
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
         Logger.info("Server id = " + Cytosis.CONTEXT.SERVER_ID);
-    }
-
-    private void shutdown() {
-        if (cytosisContext.isStopping()) return;
-
-        Cytosis.CONTEXT.setStopping(true);
-        Logger.info("Shutdown signal received!");
-
-        if (Cytosis.getOnlinePlayers().isEmpty()) {
-//            Cytosis.CONTEXT.shutdownHandler();
-            MinecraftServer.stopCleanly();
-            return;
-        }
-        if (Cytosis.get(Environment.class) == Environment.DEVELOPMENT) {
-            for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
-                player.kickInternal(Msg.red("Dev server shutting down"));
-            }
-            return;
-        }
-
-        System.out.println("SLOW SHUTDOWN");
-
-//        Cytosis.CONTEXT.shutdownHandler();
-        MinecraftServer.stopCleanly();
     }
 
     private void initViewFrame() {

@@ -19,6 +19,7 @@ import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.config.MetricsConfig;
 import net.cytonic.cytosis.logging.Logger;
 
 @CytosisComponent
@@ -26,45 +27,13 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
     private OpenTelemetrySdk sdk;
 
-    private static String getUrl() {
-        // these get read directly from env as the file manager isn't started yet.
-        String host = null;
-        int port = -1;
-
-        if (System.getenv("OTEL_PORT") != null) {
-            port = Integer.parseInt(System.getenv("OTEL_PORT"));
-        }
-        if (System.getenv("OTEL_HOSTNAME") != null) {
-            host = System.getenv("OTEL_HOSTNAME");
-        }
-
-        if (System.getProperty("OTEL_PORT") != null) {
-            port = Integer.parseInt(System.getProperty("OTEL_PORT"));
-        }
-        if (System.getProperty("OTEL_HOSTNAME") != null) {
-            host = System.getProperty("OTEL_HOSTNAME");
-        }
-
-        // disable otel support
-        if (port == -1 || host == null || host.isEmpty()) {
-            throw new IllegalArgumentException(
-                String.format("Invalid OTEL connection parameters: [PORT:%d, HOST: '%s']", port, host));
-        }
-
-        return "http://" + host + ":" + port;
-    }
 
     @Override
     public void init() {
+        MetricsConfig config = Cytosis.getServer().getConfigOrThrow(MetricsConfig.class);
+        if (!config.enabled()) return;
 
-        String url;
-        try {
-            url = getUrl();
-        } catch (Exception e) {
-            Logger.warn("Disabling metrics as the URL was invalid. (%s)", e.getMessage());
-            Cytosis.CONTEXT.setMetricsEnabled(false);
-            return;
-        }
+        String url = "http://" + config.host() + ":" + config.port();
 
         // Configure Span Exporter (for traces)
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder().setEndpoint(url)  // OTLP endpoint

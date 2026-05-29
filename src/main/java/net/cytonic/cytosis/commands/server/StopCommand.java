@@ -31,8 +31,6 @@ public class StopCommand extends CytosisCommand {
             if (!(s instanceof CytosisPlayer player)) return;
             int seconds = ctx.get(secondsArg);
             Cytosis.CONTEXT.setShutdownDuration(seconds);
-            //todo
-//            Cytosis.CONTEXT.setSlowShutdown(true);
             kill(player);
         }, secondsArg);
     }
