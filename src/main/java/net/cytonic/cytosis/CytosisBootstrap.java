@@ -3,6 +3,7 @@ package net.cytonic.cytosis;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 
+import dev.minestomunited.minestomevents.EventsNode;
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewFrame;
@@ -46,6 +47,9 @@ public class CytosisBootstrap {
 
         cytosisContext.registerComponent(server.getConfigOrThrow(CytosisConfig.class));
         cytosisContext.registerComponent(AbstractCytosisServer.class, server);
+        cytosisContext.registerComponent(server);
+
+        EventsNode.init(server.minestomService().eventNode());
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             try {

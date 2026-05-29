@@ -9,3 +9,4 @@ pluginManagement {
 }
 
 include(":protocol")
+include(":launcher")
