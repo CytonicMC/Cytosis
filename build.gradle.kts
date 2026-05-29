@@ -75,6 +75,7 @@ dependencies {
     downloadOrShade(libs.ebean.ddl)
     downloadOrShade(libs.ebean.migrations)
     downloadOrShade(libs.jandex)
+    downloadOrShade(libs.minio)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)

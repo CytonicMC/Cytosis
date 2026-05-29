@@ -23,6 +23,7 @@ joml = "1.10.8"
 ebean = "17.6.0"
 ebean-migrations = "14.3.0"
 jandex = "3.5.3"
+minio = "9.0.1"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -53,6 +54,7 @@ ebean-ddl = { module = "io.ebean:ebean-ddl-generator", version.ref = "ebean" }
 ebean-query = { module = "io.ebean:querybean-generator", version.ref = "ebean" }
 ebean-migrations = { module = "io.ebean:ebean-migration", version.ref = "ebean-migrations" }
 jandex = { module = "io.smallrye:jandex", version.ref = "jandex" }
+minio = { module = "io.minio:minio", version.ref = "minio" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]

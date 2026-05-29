@@ -10,6 +10,7 @@ public record CytosisConfig(
     DatabaseConfig database,
     RedisConfig redis,
     NatsConfig nats,
+    MinioConfig minio,
     int port
 ) implements Config {
 
@@ -17,6 +18,7 @@ public record CytosisConfig(
         "database", DatabaseConfig.CODEC, CytosisConfig::database,
         "redis", RedisConfig.CODEC, CytosisConfig::redis,
         "nats", NatsConfig.CODEC, CytosisConfig::nats,
+        "minio", MinioConfig.CODEC, CytosisConfig::minio,
         "port", Codec.INT, CytosisConfig::port,
         CytosisConfig::new
     );
@@ -68,6 +70,22 @@ public record CytosisConfig(
             "username", Codec.STRING, NatsConfig::username,
             "password", Codec.STRING, NatsConfig::password,
             NatsConfig::new
+        );
+    }
+
+    public record MinioConfig(
+        String host,
+        int port,
+        String username,
+        String password
+    ) {
+
+        public static final Codec<MinioConfig> CODEC = StructCodec.struct(
+            "host", Codec.STRING, MinioConfig::host,
+            "port", Codec.INT, MinioConfig::port,
+            "username", Codec.STRING, MinioConfig::username,
+            "password", Codec.STRING, MinioConfig::password,
+            MinioConfig::new
         );
     }
 }

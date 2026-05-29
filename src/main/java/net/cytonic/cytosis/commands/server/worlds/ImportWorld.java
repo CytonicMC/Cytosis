@@ -8,8 +8,7 @@ public class ImportWorld extends CytosisCommand {
     public ImportWorld() {
         super("importworld");
         setCondition(CommandUtils.IS_ADMIN);
-        //todo
-//        addSubcommand(new ImportAnvilWorldCommand());
-//        addSubcommand(new ImportPolarWorldCommand());
+        addSubcommand(new ImportAnvilWorldCommand());
+        addSubcommand(new ImportPolarWorldCommand());
     }
 }
