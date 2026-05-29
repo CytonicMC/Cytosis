@@ -33,9 +33,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public void deleteSession(UUID uuid) {
-        System.out.println("Deleting session " + uuid);
-        int result = DB.delete(SessionEntity.class, uuid);
-        System.out.println("Delete session result: " + result);
+        DB.delete(SessionEntity.class, uuid);
     }
 
     @Override

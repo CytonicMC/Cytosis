@@ -30,7 +30,6 @@ public class EbeanManager implements Bootstrappable {
 
     @Override
     public void init() {
-        System.setProperty("ebean.registerShutdownHook", "false");
         registerDatabase("global", Cytosis.get(GlobalDatabase.class).getDataSource());
         registerDatabase("environment", Cytosis.get(EnvironmentDatabase.class).getDataSource());
 

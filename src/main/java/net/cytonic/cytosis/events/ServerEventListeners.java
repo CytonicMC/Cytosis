@@ -59,11 +59,6 @@ public final class ServerEventListeners {
     public static double RAW_MSPT = 0;
     public static long MEM_USED = 0;
 
-    @SuppressWarnings("unchecked")
-    private static <T> T get(Class<?> clazz) {
-        return (T) Cytosis.get(clazz);
-    }
-
     @Listener
     @Priority(1)
     private void onPacketIn(PlayerPacketEvent event) {
@@ -142,9 +137,9 @@ public final class ServerEventListeners {
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
         gdb.addPlayer(player);
-        SideboardManager<CytosisPlayer> sideboardManager = get(SideboardManager.class);
+        SideboardManager<CytosisPlayer> sideboardManager = Cytosis.getGeneric(SideboardManager.class);
         sideboardManager.addPlayer(player);
-        PlayerListManager<CytosisPlayer> playerListManager = get(PlayerListManager.class);
+        PlayerListManager<CytosisPlayer> playerListManager = Cytosis.getGeneric(PlayerListManager.class);
         playerListManager.setupPlayer(player);
         Cytosis.get(RankManager.class).addPlayer(player);
         Cytosis.get(CommandHandler.class).recalculateCommands(player);
@@ -212,7 +207,6 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onQuit(PlayerDisconnectEvent event) {
-        System.out.println("QUIT QUIT QUIT");
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
         ExpiringMap.expire(player.getUuid());
         Cytosis.get(NpcManager.class).removePlayer(player);

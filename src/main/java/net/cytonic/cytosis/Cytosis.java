@@ -128,4 +128,9 @@ public final class Cytosis {
     public static <C> C get(Class<C> clazz) {
         return CONTEXT.getComponent(clazz);
     }
+
+    public static <T> T getGeneric(Class<?> clazz) {
+        //noinspection unchecked
+        return (T) Cytosis.get(clazz);
+    }
 }
