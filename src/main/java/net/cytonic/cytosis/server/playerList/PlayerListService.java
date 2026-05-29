@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.server.playerList;
 
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.playerlist.PlayerlistCreator;

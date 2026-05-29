@@ -4,7 +4,7 @@ import dev.minestomunited.entrypoint.config.Config;
 import dev.minestomunited.entrypoint.config.ConfigFile;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @ConfigFile("metrics")
 public record MetricsConfig(

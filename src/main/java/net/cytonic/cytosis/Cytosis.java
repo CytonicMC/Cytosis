@@ -92,6 +92,10 @@ public final class Cytosis {
         return players;
     }
 
+    public static <P extends CytosisPlayer> Set<P> getOnlinePlayers(Class<P> clazz) {
+        return getOnlinePlayers();
+    }
+
     /**
      * Gets the player if they are on THIS instance, by USERNAME
      *
@@ -106,6 +110,10 @@ public final class Cytosis {
         return Optional.ofNullable((P) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
+    public static <P extends CytosisPlayer> Optional<P> getPlayer(String username, Class<P> clazz) {
+        return getPlayer(username);
+    }
+
     /**
      * Gets the player by UUID
      *
@@ -118,6 +126,10 @@ public final class Cytosis {
         }
         //noinspection unchecked
         return Optional.ofNullable((P) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
+    }
+
+    public static <P extends CytosisPlayer> Optional<P> getPlayer(UUID uuid, Class<P> clazz) {
+        return getPlayer(uuid);
     }
 
     public static <S extends AbstractCytosisServer<P>, P extends CytosisPlayer> S getServer() {

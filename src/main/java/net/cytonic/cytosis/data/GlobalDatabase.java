@@ -20,7 +20,6 @@ import lombok.Getter;
 import net.minestom.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
@@ -56,7 +55,7 @@ public class GlobalDatabase implements Bootstrappable {
                 (t, e) -> Logger.error("An uncaught exception occurred on the thread: " + t.getName(), e)).factory());
     }
 
-    protected static @NonNull HikariConfig getHikariConfig() {
+    protected static HikariConfig getHikariConfig() {
         DatabaseConfig databaseConfig = Cytosis.get(CytosisConfig.class).database();
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s",

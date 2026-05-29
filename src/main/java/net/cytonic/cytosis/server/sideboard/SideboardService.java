@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.server.sideboard;
 
 import net.minestom.server.timer.TaskSchedule;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sideboard.SideboardCreator;

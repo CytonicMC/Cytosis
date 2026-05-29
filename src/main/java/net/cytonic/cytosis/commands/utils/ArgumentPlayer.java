@@ -7,7 +7,6 @@ import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.network.NetworkBuffer;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.nicknames.NicknameManager;
@@ -41,7 +40,7 @@ public class ArgumentPlayer extends Argument<CytosisPlayer> {
     }
 
     @Override
-    public @NonNull ArgumentParserType parser() {
+    public @NotNull ArgumentParserType parser() {
         return ArgumentParserType.STRING;
     }
 

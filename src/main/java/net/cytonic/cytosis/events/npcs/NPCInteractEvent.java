@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.event.trait.PlayerInstanceEvent;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import net.cytonic.cytosis.data.enums.NpcInteractType;
 import net.cytonic.cytosis.entity.npc.NPC;
@@ -26,7 +26,7 @@ public class NPCInteractEvent implements PlayerInstanceEvent, CancellableEvent {
     }
 
     @Override
-    public @NonNull Player getPlayer() {
+    public @NotNull Player getPlayer() {
         return player;
     }
 

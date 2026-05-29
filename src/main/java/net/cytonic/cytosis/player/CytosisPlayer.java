@@ -28,7 +28,6 @@ import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
@@ -330,7 +329,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
     }
 
     @Override
-    public void kick(@NonNull Component message) {
+    public void kick(@NotNull Component message) {
         kick(KickReason.UNKNOWN, message);
     }
 
@@ -535,7 +534,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull EntityMetaDataPacket getMetadataPacket() {
+    public @NotNull EntityMetaDataPacket getMetadataPacket() {
         if (!isVanished()) return super.getMetadataPacket();
         Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(metadata.getEntries());
         Metadata.Entry<Byte> entry = (Metadata.Entry<Byte>) entries.get(0);
@@ -545,7 +544,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
     }
 
     @Override
-    public void sendPacketToViewersAndSelf(@NonNull SendablePacket packet) {
+    public void sendPacketToViewersAndSelf(@NotNull SendablePacket packet) {
         if (!(packet instanceof EntityMetaDataPacket p)) {
             super.sendPacketToViewersAndSelf(packet);
         }
