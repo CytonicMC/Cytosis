@@ -5,6 +5,7 @@ create table cytonic_player_data (
   skin_signature                varchar not null,
   skin_textures                 varchar not null,
   ip                            varchar not null,
+  proxy                         varchar,
   version                       varchar not null,
   constraint pk_cytonic_player_data primary key (uuid)
 );
@@ -17,7 +18,7 @@ create table cytonic_sessions (
   skin_textures                 varchar not null,
   client_ip                     varchar not null,
   proxy                         varchar,
-  server_id                     varchar,
+  server_id                     varchar not null,
   version                       varchar not null,
   constraint pk_cytonic_sessions primary key (uuid)
 );
