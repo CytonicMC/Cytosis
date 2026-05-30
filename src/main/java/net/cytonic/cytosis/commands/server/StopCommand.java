@@ -1,10 +1,11 @@
 package net.cytonic.cytosis.commands.server;
 
+import java.io.IOException;
+
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.ShutdownHandler;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -36,7 +37,13 @@ public class StopCommand extends CytosisCommand {
     }
 
     private void kill(CytosisPlayer player) {
-        ShutdownHandler.shutdown();
+        try {
+            new ProcessBuilder("kill", "-INT", String.valueOf(ProcessHandle.current().pid()))
+                .inheritIO()
+                .start();
+        } catch (IOException e) {
+            player.sendMessage(Msg.serverError("An error occurred! %s", e.getMessage()));
+        }
         player.sendMessage(Msg.success("Dispatched the shutdown of this server!"));
     }
 }
