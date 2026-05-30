@@ -7,7 +7,10 @@ import dev.minestomunited.entrypoint.minestom.player.MinestomPlayerService;
 import dev.minestomunited.entrypoint.player.PlayerService;
 import dev.minestomunited.entrypoint.server.AbstractMinestomServer;
 import dev.minestomunited.entrypoint.session.SessionService;
+import net.minestom.server.Auth;
 
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.chat.ChatService;
 import net.cytonic.cytosis.server.player.PlayerServiceImpl;
@@ -27,6 +30,7 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         sessionService = new SessionServiceImpl();
         playerService = new PlayerServiceImpl();
         minestomService = new BasicMinestomService<>(registry, sessionService, playerService, playerProvider);
+        Cytosis.CONTEXT.registerComponent(getConfigOrThrow(CytosisConfig.class).environment());
     }
 
     @Override
@@ -42,6 +46,18 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     @Override
     public MinestomService<?> minestomService() {
         return minestomService;
+    }
+
+    @Override
+    public Auth auth() {
+        String secret = getConfigOrThrow(CytosisConfig.class).secret();
+        if (Cytosis.isDev() && secret == null) {
+            return new Auth.Online();
+        }
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalStateException("Velocity secret is null or empty when not dev!");
+        }
+        return new Auth.Velocity(secret);
     }
 
     public abstract ChatService<P> chatService();

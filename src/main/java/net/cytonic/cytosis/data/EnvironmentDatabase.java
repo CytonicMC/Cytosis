@@ -21,7 +21,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.config.CytosisConfig.DatabaseConfig;
-import net.cytonic.cytosis.environments.EnvironmentManager;
+import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
@@ -29,7 +29,7 @@ import net.cytonic.cytosis.logging.Logger;
  * some worlds are stored in {@link GlobalDatabase}.
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-@CytosisComponent(dependsOn = {EnvironmentManager.class})
+@CytosisComponent
 public class EnvironmentDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
@@ -40,7 +40,7 @@ public class EnvironmentDatabase implements Bootstrappable {
      * Creates and initializes a new EnvironmentDatabase
      */
     public EnvironmentDatabase() {
-        String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+        String prefix = Cytosis.get(Environment.class).getPrefix();
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the database worker thread: " + t.getName(),
@@ -65,7 +65,7 @@ public class EnvironmentDatabase implements Bootstrappable {
         if (!isConnected()) {
             HikariConfig config = GlobalDatabase.getHikariConfig();
             DatabaseConfig settings = Cytosis.get(CytosisConfig.class).database();
-            String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+            String prefix = Cytosis.get(Environment.class).getPrefix();
             config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s",
                 settings.host(),
                 settings.port(),

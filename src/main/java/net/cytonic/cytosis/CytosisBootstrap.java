@@ -16,6 +16,7 @@ import org.jboss.jandex.IndexView;
 
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
@@ -43,11 +44,16 @@ public class CytosisBootstrap {
 
     public void run() {
         long startTime = System.currentTimeMillis();
-        Logger.info("Starting Cytosis server");
 
-        cytosisContext.registerComponent(server.getConfigOrThrow(CytosisConfig.class));
+        CytosisConfig config = server.getConfigOrThrow(CytosisConfig.class);
+
+        Environment environment = config.environment();
+        Logger.info("Starting Cytosis server in environment %s", environment);
+
+        cytosisContext.registerComponent(config);
         cytosisContext.registerComponent(AbstractCytosisServer.class, server);
         cytosisContext.registerComponent(server);
+        cytosisContext.registerComponent(environment);
 
         EventsNode.init(server.minestomService().eventNode());
 

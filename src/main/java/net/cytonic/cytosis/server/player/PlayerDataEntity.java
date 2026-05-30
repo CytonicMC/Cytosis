@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Setter;
 import net.minestom.server.entity.PlayerSkin;
+import org.jetbrains.annotations.Nullable;
 
 @Setter
 @Entity
@@ -27,6 +28,9 @@ public class PlayerDataEntity extends Model implements PlayerData {
     private String skinTextures;
     @Column(nullable = false)
     private String ip;
+    @Column
+    @Nullable
+    private String proxy;
     @Column(nullable = false)
     private String version;
 
@@ -48,6 +52,11 @@ public class PlayerDataEntity extends Model implements PlayerData {
     @Override
     public String ip() {
         return ip;
+    }
+
+    @Override
+    public @Nullable String proxy() {
+        return proxy;
     }
 
     @Override

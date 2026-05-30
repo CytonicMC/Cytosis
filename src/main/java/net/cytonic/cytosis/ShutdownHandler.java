@@ -11,7 +11,6 @@ import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.title.Title;
 import net.minestom.server.MinecraftServer;
 
-import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
@@ -42,7 +41,7 @@ public class ShutdownHandler {
             return CompletableFuture.completedFuture(null);
         }
 
-        if (Cytosis.get(Environment.class) == Environment.DEVELOPMENT) {
+        if (Cytosis.isDev()) {
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
                 player.kickInternal(Msg.red("Dev server shutting down"));
             }

@@ -5,12 +5,16 @@ import dev.minestomunited.entrypoint.config.ConfigFile;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
 
+import net.cytonic.cytosis.environments.Environment;
+
 @ConfigFile("config")
 public record CytosisConfig(
     DatabaseConfig database,
     RedisConfig redis,
     NatsConfig nats,
     MinioConfig minio,
+    Environment environment,
+    String secret,
     int port
 ) implements Config {
 
@@ -19,6 +23,8 @@ public record CytosisConfig(
         "redis", RedisConfig.CODEC, CytosisConfig::redis,
         "nats", NatsConfig.CODEC, CytosisConfig::nats,
         "minio", MinioConfig.CODEC, CytosisConfig::minio,
+        "environment", Environment.CODEC, CytosisConfig::environment,
+        "secret", Codec.STRING.optional(), CytosisConfig::secret,
         "port", Codec.INT, CytosisConfig::port,
         CytosisConfig::new
     );

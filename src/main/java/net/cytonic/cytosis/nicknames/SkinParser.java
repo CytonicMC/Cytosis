@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import com.google.gson.JsonParser;
-import dev.minestomunited.entrypoint.codec.ExtraCodecs;
+import dev.minestomunited.entrypoint.codec.CodecUtils;
 import net.minestom.server.codec.Transcoder;
 import net.minestom.server.entity.PlayerSkin;
 
@@ -18,7 +18,7 @@ public class SkinParser {
         try (InputStream stream = Cytosis.class.getResourceAsStream("/skins.json")) {
             if (stream == null) throw new IllegalStateException("Skins file not found");
 
-            return ExtraCodecs.PLAYER_SKIN.list().decode(Transcoder.JSON,
+            return CodecUtils.PLAYER_SKIN.list().decode(Transcoder.JSON,
                     JsonParser.parseReader(new InputStreamReader(stream)))
                 .orElseThrow("Failed to decode skins file");
         } catch (IOException e) {

@@ -14,13 +14,12 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.config.CytosisConfig.RedisConfig;
 import net.cytonic.cytosis.environments.Environment;
-import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class that holds the connection to the redis cache
  */
-@CytosisComponent(dependsOn = {EnvironmentManager.class})
+@CytosisComponent
 public class RedisDatabase implements Bootstrappable {
 
     /**
@@ -46,7 +45,7 @@ public class RedisDatabase implements Bootstrappable {
                 .password(config.password())
                 .build())
             .build();
-        prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+        prefix = Cytosis.get(Environment.class).getPrefix();
     }
 
     @Override

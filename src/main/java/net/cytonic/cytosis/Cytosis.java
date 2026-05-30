@@ -22,6 +22,7 @@ import net.minestom.server.entity.Player;
 
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.config.MetricsConfig;
+import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
 import net.cytonic.protocol.adapters.InstantAdapter;
@@ -61,9 +62,9 @@ public final class Cytosis {
         EntryPoint.Builder<T> builder) {
         builder.registerConfig(CytosisConfig.class);
         builder.registerConfig(MetricsConfig.class, new MetricsConfig(false, null, 0));
-        builder.configSource(new JsonFileConfigSource(Path.of("")));
-        builder.configSource(new EnvironmentVariableConfigSource("cytosis_"));
-        builder.configFormat(new JsonCodecConfigFormat(Map.of(
+        builder.addConfigSource(new JsonFileConfigSource(Path.of("")));
+        builder.addConfigSource(new EnvironmentVariableConfigSource("cytosis_"));
+        builder.addConfigFormat(new JsonCodecConfigFormat(Map.of(
             CytosisConfig.class, CytosisConfig.CODEC,
             MetricsConfig.class, MetricsConfig.CODEC
         )));
@@ -144,5 +145,9 @@ public final class Cytosis {
     public static <T> T getGeneric(Class<?> clazz) {
         //noinspection unchecked
         return (T) Cytosis.get(clazz);
+    }
+
+    public static boolean isDev() {
+        return Cytosis.get(Environment.class) == Environment.DEVELOPMENT;
     }
 }

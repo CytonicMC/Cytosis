@@ -21,7 +21,6 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.config.CytosisConfig.NatsConfig;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.ProtocolHelper;
@@ -32,7 +31,7 @@ import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
-@CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class})
+@CytosisComponent(dependsOn = {CytonicNetwork.class})
 public class NatsManager implements Bootstrappable {
 
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();

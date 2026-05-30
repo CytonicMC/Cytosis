@@ -30,7 +30,6 @@ import net.cytonic.cytosis.config.CytosisConfig.DatabaseConfig;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.data.objects.preferences.PreferenceData;
-import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Utils;
@@ -39,7 +38,7 @@ import net.cytonic.cytosis.utils.Utils;
  * The database object that handles data that is stored across network environments
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-@CytosisComponent(dependsOn = {EnvironmentManager.class})
+@CytosisComponent
 public class GlobalDatabase implements Bootstrappable {
 
     private final ExecutorService worker;

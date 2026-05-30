@@ -17,7 +17,6 @@ import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.environments.Environment;
-import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -27,7 +26,7 @@ public class GrantCommand extends CytosisCommand {
 
     public GrantCommand() {
         super("grant");
-        Environment env = Cytosis.get(EnvironmentManager.class).getEnvironment();
+        Environment env = Cytosis.get(Environment.class);
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("You must specify a player!")));
 
