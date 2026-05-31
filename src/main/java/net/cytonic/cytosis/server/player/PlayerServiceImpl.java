@@ -7,12 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import dev.minestomunited.entrypoint.player.PlayerData;
 import dev.minestomunited.entrypoint.player.PlayerService;
 import io.ebean.DB;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayerServiceImpl implements PlayerService {
 
     private final Map<UUID, PlayerData> playerDataMap = new ConcurrentHashMap<>();
 
+    @Blocking
     @Override
     public void updatePlayerData(PlayerData playerData) {
         PlayerDataEntity playerDataEntity = new PlayerDataEntity();
@@ -25,6 +27,7 @@ public class PlayerServiceImpl implements PlayerService {
         playerDataMap.put(playerData.uuid(), playerData);
     }
 
+    @Blocking
     @Override
     public void unloadPlayerData(UUID playerId) {
         PlayerData data = playerDataMap.get(playerId);
@@ -34,6 +37,7 @@ public class PlayerServiceImpl implements PlayerService {
         playerDataMap.remove(playerId);
     }
 
+    @Blocking
     @Override
     public @Nullable PlayerData loadPlayerData(UUID playerId) {
         return playerDataMap.computeIfAbsent(playerId, k ->
