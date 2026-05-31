@@ -21,7 +21,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 
 import net.cytonic.cytosis.config.CytosisConfig;
-import net.cytonic.cytosis.config.MetricsConfig;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
@@ -61,12 +60,10 @@ public final class Cytosis {
     public static <T extends AbstractCytosisServer<? extends CytosisPlayer>> EntryPoint.Builder<T> applyToBuilder(
         EntryPoint.Builder<T> builder) {
         builder.registerConfig(CytosisConfig.class);
-        builder.registerConfig(MetricsConfig.class, new MetricsConfig(false, null, 0));
         builder.addConfigSource(new JsonFileConfigSource(Path.of("")));
         builder.addConfigSource(new EnvironmentVariableConfigSource());
         builder.addConfigFormat(new JsonCodecConfigFormat(Map.of(
-            CytosisConfig.class, CytosisConfig.CODEC,
-            MetricsConfig.class, MetricsConfig.CODEC
+            CytosisConfig.class, CytosisConfig.CODEC
         )));
 
         System.setProperty("minestom.shutdown-on-signal", "false");

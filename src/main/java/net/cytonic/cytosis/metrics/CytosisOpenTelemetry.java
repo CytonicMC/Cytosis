@@ -19,7 +19,8 @@ import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.MetricsConfig;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.CytosisConfig.MetricsConfig;
 import net.cytonic.cytosis.logging.Logger;
 
 @CytosisComponent
@@ -30,7 +31,7 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
     @Override
     public void init() {
-        MetricsConfig config = Cytosis.getServer().getConfigOrThrow(MetricsConfig.class);
+        MetricsConfig config = Cytosis.getServer().getConfigOrThrow(CytosisConfig.class).metrics();
         if (!config.enabled()) return;
 
         String url = "http://" + config.host() + ":" + config.port();

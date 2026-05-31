@@ -4,6 +4,7 @@ import dev.minestomunited.entrypoint.config.Config;
 import dev.minestomunited.entrypoint.config.ConfigFile;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.environments.Environment;
 
@@ -13,6 +14,7 @@ public record CytosisConfig(
     RedisConfig redis,
     NatsConfig nats,
     MinioConfig minio,
+    MetricsConfig metrics,
     Environment environment,
     String secret,
     int port
@@ -23,6 +25,7 @@ public record CytosisConfig(
         "redis", RedisConfig.CODEC, CytosisConfig::redis,
         "nats", NatsConfig.CODEC, CytosisConfig::nats,
         "minio", MinioConfig.CODEC, CytosisConfig::minio,
+        "metrics", MetricsConfig.CODEC.optional(new MetricsConfig(false, null, -1)), CytosisConfig::metrics,
         "environment", Environment.CODEC, CytosisConfig::environment,
         "secret", Codec.STRING.optional(), CytosisConfig::secret,
         "port", Codec.INT, CytosisConfig::port,
@@ -92,6 +95,20 @@ public record CytosisConfig(
             "username", Codec.STRING, MinioConfig::username,
             "password", Codec.STRING, MinioConfig::password,
             MinioConfig::new
+        );
+    }
+
+    public record MetricsConfig(
+        boolean enabled,
+        @Nullable String host,
+        int port
+    ) {
+
+        public static final Codec<MetricsConfig> CODEC = StructCodec.struct(
+            "enabled", Codec.BOOLEAN, MetricsConfig::enabled,
+            "host", Codec.STRING, MetricsConfig::host,
+            "port", Codec.INT, MetricsConfig::port,
+            MetricsConfig::new
         );
     }
 }
