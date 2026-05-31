@@ -38,8 +38,8 @@ public class SideboardManager<P extends CytosisPlayer> implements Bootstrappable
 
     @Override
     public void init() {
-        //noinspection unchecked
-        sideboardService = ((AbstractCytosisServer<P>) Cytosis.get(AbstractCytosisServer.class)).sideboardService();
+        sideboardService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
+            .sideboardService();
         if (sideboardService.supportsSideboard()) {
             sideboardCreator = sideboardService.sideboardCreator();
             autoUpdateBoards(sideboardService.scheduale());

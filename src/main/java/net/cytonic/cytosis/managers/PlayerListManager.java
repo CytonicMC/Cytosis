@@ -50,8 +50,8 @@ public class PlayerListManager<P extends CytosisPlayer> implements Bootstrappabl
 
     @Override
     public void init() {
-        //noinspection unchecked
-        playerListService = ((AbstractCytosisServer<P>) Cytosis.get(AbstractCytosisServer.class)).playerListService();
+        playerListService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
+           .playerListService();
         if (playerListService.supportsPlayerList()) {
             creator = playerListService.creator();
             updateInterval = playerListService.updateInterval();
