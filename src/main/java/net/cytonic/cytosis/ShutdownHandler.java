@@ -16,6 +16,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Events;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.data.enums.KickReason;
 
 public class ShutdownHandler {
 
@@ -43,7 +44,7 @@ public class ShutdownHandler {
 
         if (Cytosis.isDev()) {
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
-                player.kickInternal(Msg.red("Dev server shutting down"));
+                player.kickInternal(Msg.red("Server shutting down"));
             }
             internalShutdown();
             return CompletableFuture.completedFuture(null);
@@ -85,8 +86,11 @@ public class ShutdownHandler {
                 System.err.println("Interrupted!");
                 Thread.currentThread().interrupt();
             }
-            Cytosis.getOnlinePlayers().forEach(player ->
-                player.kickInternal(Msg.red("Server shutting down!")));
+
+            for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
+                player.kick(KickReason.SERVER_STOP, Msg.red("Server shutting down"));
+            }
+
             if (Cytosis.getOnlinePlayers().isEmpty()) {
                 future.complete(null);
             }

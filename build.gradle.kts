@@ -32,9 +32,7 @@ repositories {
             includeModule("net.minestom", "minestom")
         }
     }
-    mavenLocal()
-    //todo change when entrypoint merged
-//    maven("https://repo.minestom-united.dev/snapshots")
+    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 val alwaysShadow: Configuration by configurations.creating {
@@ -51,7 +49,8 @@ dependencies {
     // Always shadowed (in both thin and fat jars) - the essentials
     alwaysShade(libs.dependencydownload)
     alwaysShade(project(":protocol"))
-    downloadOrShade("dev.minestomunited.entrypoint:entrypoint:0.0.1-SNAPSHOTT")
+    downloadOrShade(libs.entrypoint)
+    downloadOrShade(libs.codecutils)
 
     // Downloaded at runtime for thinJar, shadowed in fatJar
     downloadOrShade(libs.gson)
@@ -77,6 +76,7 @@ dependencies {
     downloadOrShade(libs.ebean.migrations)
     downloadOrShade(libs.jandex)
     downloadOrShade(libs.minio)
+    downloadOrShade(libs.minimessage)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)

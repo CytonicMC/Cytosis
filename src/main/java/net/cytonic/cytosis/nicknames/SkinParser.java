@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import com.google.gson.JsonParser;
-import dev.minestomunited.entrypoint.codec.CodecUtils;
+import dev.minestomunited.common.codecUtils.CodecUtils;
 import net.minestom.server.codec.Transcoder;
 import net.minestom.server.entity.PlayerSkin;
 

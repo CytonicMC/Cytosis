@@ -12,9 +12,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://repo.foxikle.dev/cytonic")
-    mavenLocal()
-    //todo change when entrypoint merged
-//    maven("https://repo.minestom-united.dev/snapshots")
+    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 dependencies {

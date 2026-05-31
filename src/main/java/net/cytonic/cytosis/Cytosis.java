@@ -63,7 +63,7 @@ public final class Cytosis {
         builder.registerConfig(CytosisConfig.class);
         builder.registerConfig(MetricsConfig.class, new MetricsConfig(false, null, 0));
         builder.addConfigSource(new JsonFileConfigSource(Path.of("")));
-        builder.addConfigSource(new EnvironmentVariableConfigSource("cytosis_"));
+        builder.addConfigSource(new EnvironmentVariableConfigSource());
         builder.addConfigFormat(new JsonCodecConfigFormat(Map.of(
             CytosisConfig.class, CytosisConfig.CODEC,
             MetricsConfig.class, MetricsConfig.CODEC
