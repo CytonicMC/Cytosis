@@ -7,6 +7,8 @@ import dev.minestomunited.entrypoint.minestom.player.MinestomPlayerService;
 import dev.minestomunited.entrypoint.player.PlayerService;
 import dev.minestomunited.entrypoint.server.AbstractMinestomServer;
 import dev.minestomunited.entrypoint.session.SessionService;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import net.minestom.server.Auth;
 
 import net.cytonic.cytosis.Cytosis;
@@ -18,6 +20,8 @@ import net.cytonic.cytosis.server.playerList.PlayerListService;
 import net.cytonic.cytosis.server.session.SessionServiceImpl;
 import net.cytonic.cytosis.server.sideboard.SideboardService;
 
+@Getter
+@Accessors(fluent = true)
 public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends AbstractMinestomServer {
 
     private final SessionService sessionService;
@@ -31,21 +35,6 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         playerService = new PlayerServiceImpl();
         minestomService = new BasicMinestomService<>(registry, sessionService, playerService, playerProvider);
         Cytosis.CONTEXT.registerComponent(getConfigOrThrow(CytosisConfig.class).environment());
-    }
-
-    @Override
-    public SessionService sessionService() {
-        return sessionService;
-    }
-
-    @Override
-    public PlayerService playerService() {
-        return playerService;
-    }
-
-    @Override
-    public MinestomService<?> minestomService() {
-        return minestomService;
     }
 
     @Override

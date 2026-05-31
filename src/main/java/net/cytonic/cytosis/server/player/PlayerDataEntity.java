@@ -8,12 +8,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.minestom.server.entity.PlayerSkin;
 import org.jetbrains.annotations.Nullable;
 
 @Setter
 @Entity
+@Getter
+@Accessors(fluent = true)
 @Table(name = "cytonic_player_data")
 public class PlayerDataEntity extends Model implements PlayerData {
 
@@ -35,32 +39,7 @@ public class PlayerDataEntity extends Model implements PlayerData {
     private String version;
 
     @Override
-    public UUID uuid() {
-        return uuid;
-    }
-
-    @Override
-    public String username() {
-        return username;
-    }
-
-    @Override
     public PlayerSkin playerSkin() {
         return new PlayerSkin(skinTextures, skinSignature);
-    }
-
-    @Override
-    public String ip() {
-        return ip;
-    }
-
-    @Override
-    public @Nullable String proxy() {
-        return proxy;
-    }
-
-    @Override
-    public String version() {
-        return version;
     }
 }

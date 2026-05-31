@@ -16,11 +16,11 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public void updatePlayerData(PlayerData playerData) {
         PlayerDataEntity playerDataEntity = new PlayerDataEntity();
-        playerDataEntity.setUuid(playerData.uuid());
-        playerDataEntity.setUsername(playerData.username());
-        playerDataEntity.setSkinSignature(playerData.playerSkin().signature());
-        playerDataEntity.setSkinTextures(playerData.playerSkin().textures());
-        playerDataEntity.setVersion(playerData.version());
+        playerDataEntity.uuid(playerData.uuid());
+        playerDataEntity.username(playerData.username());
+        playerDataEntity.skinSignature(playerData.playerSkin().signature());
+        playerDataEntity.skinTextures(playerData.playerSkin().textures());
+        playerDataEntity.version(playerData.version());
         playerDataEntity.save();
         playerDataMap.put(playerData.uuid(), playerData);
     }

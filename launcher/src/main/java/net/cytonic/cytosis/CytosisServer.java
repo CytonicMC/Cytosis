@@ -1,6 +1,8 @@
 package net.cytonic.cytosis;
 
 import dev.minestomunited.entrypoint.config.ConfigRegistry;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
@@ -9,6 +11,8 @@ import net.cytonic.cytosis.server.chat.DefaultChatServiceImpl;
 import net.cytonic.cytosis.server.playerList.PlayerListService;
 import net.cytonic.cytosis.server.sideboard.SideboardService;
 
+@Getter
+@Accessors(fluent = true)
 public class CytosisServer extends AbstractCytosisServer<CytosisPlayer> {
 
     private final ChatService<CytosisPlayer> chatService;
@@ -20,21 +24,6 @@ public class CytosisServer extends AbstractCytosisServer<CytosisPlayer> {
         chatService = new DefaultChatServiceImpl<>();
         playerListService = new PlayerListService.Noop<>();
         sideboardService = new SideboardService.Noop<>();
-    }
-
-    @Override
-    public ChatService<CytosisPlayer> chatService() {
-        return chatService;
-    }
-
-    @Override
-    public PlayerListService<CytosisPlayer> playerListService() {
-        return playerListService;
-    }
-
-    @Override
-    public SideboardService<CytosisPlayer> sideboardService() {
-        return sideboardService;
     }
 
     @Override

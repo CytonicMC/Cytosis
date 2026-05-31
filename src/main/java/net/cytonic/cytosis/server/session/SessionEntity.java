@@ -9,12 +9,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.minestom.server.entity.PlayerSkin;
 import org.jetbrains.annotations.Nullable;
 
 @Setter
 @Entity
+@Getter
+@Accessors(fluent = true)
 @Table(name = "cytonic_sessions")
 public class SessionEntity extends Model implements PlayerSession {
 
@@ -40,42 +44,7 @@ public class SessionEntity extends Model implements PlayerSession {
     private String version;
 
     @Override
-    public UUID uuid() {
-        return uuid;
-    }
-
-    @Override
-    public String username() {
-        return username;
-    }
-
-    @Override
     public PlayerSkin playerSkin() {
         return new PlayerSkin(skinTextures, skinSignature);
-    }
-
-    @Override
-    public Instant createdAt() {
-        return createdAt;
-    }
-
-    @Override
-    public String clientIp() {
-        return clientIp;
-    }
-
-    @Override
-    public @Nullable String proxy() {
-        return proxy;
-    }
-
-    @Override
-    public String serverId() {
-        return serverId;
-    }
-
-    @Override
-    public String version() {
-        return version;
     }
 }

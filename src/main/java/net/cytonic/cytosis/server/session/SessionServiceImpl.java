@@ -16,17 +16,17 @@ public class SessionServiceImpl implements SessionService {
     public PlayerSession createSession(UUID uuid, String username, @Nullable PlayerSkin playerSkin, String ip,
         @Nullable String proxy, String version) {
         SessionEntity sessionEntity = new SessionEntity();
-        sessionEntity.setUuid(uuid);
-        sessionEntity.setUsername(username);
+        sessionEntity.uuid(uuid);
+        sessionEntity.username(username);
         if (playerSkin != null) {
-            sessionEntity.setSkinSignature(playerSkin.signature());
-            sessionEntity.setSkinTextures(playerSkin.textures());
+            sessionEntity.skinSignature(playerSkin.signature());
+            sessionEntity.skinTextures(playerSkin.textures());
         }
-        sessionEntity.setCreatedAt(Instant.now());
-        sessionEntity.setClientIp(ip);
-        sessionEntity.setProxy(proxy);
-        sessionEntity.setServerId("unknown");
-        sessionEntity.setVersion(version);
+        sessionEntity.createdAt(Instant.now());
+        sessionEntity.clientIp(ip);
+        sessionEntity.proxy(proxy);
+        sessionEntity.serverId(Cytosis.CONTEXT.SERVER_ID);
+        sessionEntity.version(version);
         sessionEntity.save();
         return sessionEntity;
     }
