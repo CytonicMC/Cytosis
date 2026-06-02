@@ -1,6 +1,6 @@
 package net.cytonic.cytosis.server;
 
-import dev.minestomunited.entrypoint.config.ConfigRegistry;
+import dev.minestomunited.common.config.ConfigRegistry;
 import dev.minestomunited.entrypoint.minestom.BasicMinestomService;
 import dev.minestomunited.entrypoint.minestom.MinestomService;
 import dev.minestomunited.entrypoint.minestom.player.MinestomPlayerService;
@@ -33,20 +33,26 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         super(registry);
         sessionService = new SessionServiceImpl();
         playerService = new PlayerServiceImpl();
-        minestomService = new BasicMinestomService<>(registry, sessionService, playerService, playerProvider);
+        minestomService = new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
         Cytosis.CONTEXT.registerComponent(getConfigOrThrow(CytosisConfig.class).environment());
     }
 
     @Override
     public Auth auth() {
-        String secret = getConfigOrThrow(CytosisConfig.class).secret();
-        if (Cytosis.isDev() && secret == null) {
+        if (isStandalone()) {
             return new Auth.Online();
         }
+
+        String secret = getConfigOrThrow(CytosisConfig.class).secret();
         if (secret == null || secret.isEmpty()) {
-            throw new IllegalStateException("Velocity secret is null or empty when not dev!");
+            throw new IllegalStateException("Velocity secret is null or empty!");
         }
         return new Auth.Velocity(secret);
+    }
+
+    @Override
+    public boolean isStandalone() {
+        return getConfigOrThrow(CytosisConfig.class).standalone();
     }
 
     public abstract ChatService<P> chatService();

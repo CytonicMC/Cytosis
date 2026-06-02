@@ -11,10 +11,10 @@ import java.util.UUID;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
+import dev.minestomunited.common.config.format.JsonCodecConfigFormat;
+import dev.minestomunited.common.config.source.EnvironmentVariableConfigSource;
+import dev.minestomunited.common.config.source.JsonFileConfigSource;
 import dev.minestomunited.entrypoint.EntryPoint;
-import dev.minestomunited.entrypoint.config.format.JsonCodecConfigFormat;
-import dev.minestomunited.entrypoint.config.source.EnvironmentVariableConfigSource;
-import dev.minestomunited.entrypoint.config.source.JsonFileConfigSource;
 import lombok.Getter;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
@@ -146,5 +146,9 @@ public final class Cytosis {
 
     public static boolean isDev() {
         return Cytosis.get(Environment.class) == Environment.DEVELOPMENT;
+    }
+
+    public static boolean isStandalone() {
+        return get(CytosisConfig.class).standalone();
     }
 }

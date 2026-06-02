@@ -31,6 +31,16 @@ tasks.named<JavaExec>("run") {
     workingDir = file("run")
 }
 
-application {
-    mainClass.set("net.cytonic.cytosis.CytosisMain")
+tasks {
+    application {
+        mainClass.set("net.cytonic.cytosis.CytosisMain")
+    }
+    shadowJar {
+        archiveFileName.set("cytosis.jar")
+        archiveClassifier.set("")
+        mergeServiceFiles()
+    }
+    jar {
+        enabled = false
+    }
 }

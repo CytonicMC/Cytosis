@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.config;
 
-import dev.minestomunited.entrypoint.config.Config;
-import dev.minestomunited.entrypoint.config.ConfigFile;
+import dev.minestomunited.common.config.Config;
+import dev.minestomunited.common.config.ConfigFile;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,8 @@ public record CytosisConfig(
     MetricsConfig metrics,
     Environment environment,
     String secret,
-    int port
+    int port,
+    boolean standalone
 ) implements Config {
 
     public static final Codec<CytosisConfig> CODEC = StructCodec.struct(
@@ -29,6 +30,7 @@ public record CytosisConfig(
         "environment", Environment.CODEC, CytosisConfig::environment,
         "secret", Codec.STRING.optional(), CytosisConfig::secret,
         "port", Codec.INT, CytosisConfig::port,
+        "standalone", Codec.BOOLEAN.optional(false), CytosisConfig::standalone,
         CytosisConfig::new
     );
 

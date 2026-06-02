@@ -1,6 +1,6 @@
 package net.cytonic.cytosis;
 
-import dev.minestomunited.entrypoint.config.ConfigRegistry;
+import dev.minestomunited.common.config.ConfigRegistry;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 

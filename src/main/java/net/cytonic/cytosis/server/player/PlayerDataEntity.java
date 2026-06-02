@@ -26,9 +26,11 @@ public class PlayerDataEntity extends Model implements PlayerData {
     private UUID uuid;
     @Column(nullable = false)
     private String username;
-    @Column(nullable = false)
+    @Column
+    @Nullable
     private String skinSignature;
-    @Column(nullable = false)
+    @Column
+    @Nullable
     private String skinTextures;
     @Column(nullable = false)
     private String ip;
@@ -39,7 +41,11 @@ public class PlayerDataEntity extends Model implements PlayerData {
     private String version;
 
     @Override
+    @Nullable
     public PlayerSkin playerSkin() {
+        if (skinTextures == null || skinSignature == null) {
+            return null;
+        }
         return new PlayerSkin(skinTextures, skinSignature);
     }
 }

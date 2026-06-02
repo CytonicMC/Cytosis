@@ -38,7 +38,8 @@ public class SessionEntity extends Model implements PlayerSession {
     @Column
     @Nullable
     private String proxy;
-    @Column(nullable = false)
+    @Column
+    @Nullable
     private String serverId;
     @Column(nullable = false)
     private String version;

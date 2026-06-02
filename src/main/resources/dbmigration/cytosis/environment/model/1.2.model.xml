@@ -4,8 +4,8 @@
         <createTable name="cytonic_player_data" identityType="external" pkName="pk_cytonic_player_data">
             <column name="uuid" type="uuid" primaryKey="true" identity="true"/>
             <column name="username" type="varchar" notnull="true"/>
-            <column name="skin_signature" type="varchar" notnull="true"/>
-            <column name="skin_textures" type="varchar" notnull="true"/>
+            <column name="skin_signature" type="varchar"/>
+            <column name="skin_textures" type="varchar"/>
             <column name="ip" type="varchar" notnull="true"/>
             <column name="proxy" type="varchar"/>
             <column name="version" type="varchar" notnull="true"/>
@@ -18,7 +18,7 @@
             <column name="created_at" type="timestamp" notnull="true"/>
             <column name="client_ip" type="varchar" notnull="true"/>
             <column name="proxy" type="varchar"/>
-            <column name="server_id" type="varchar" notnull="true"/>
+            <column name="server_id" type="varchar"/>
             <column name="version" type="varchar" notnull="true"/>
         </createTable>
     </changeSet>
