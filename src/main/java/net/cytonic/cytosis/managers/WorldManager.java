@@ -18,7 +18,7 @@ public class WorldManager {
 
     public CompletableFuture<PolarWorld> loadWorld(Key key) {
         CompletableFuture<PolarWorld> future = new CompletableFuture<>();
-        Cytosis.get(MinioManager.class).downloadObject(
+        Cytosis.get(GarageManager.class).downloadObject(
             "cytonic-worlds",
             "/" + key.namespace() + "/" + key.value() + ".polar"
         ).whenComplete((data, throwable) -> {
@@ -32,7 +32,7 @@ public class WorldManager {
     }
 
     public CompletableFuture<Void> saveWorld(Key key, PolarWorld world) {
-        return Cytosis.get(MinioManager.class).uploadObject(
+        return Cytosis.get(GarageManager.class).uploadObject(
             "cytonic-worlds",
             "/" + key.namespace() + "/" + key.value() + ".polar",
             PolarWriter.write(world)

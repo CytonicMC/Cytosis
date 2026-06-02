@@ -13,7 +13,7 @@ public record CytosisConfig(
     DatabaseConfig database,
     RedisConfig redis,
     NatsConfig nats,
-    MinioConfig minio,
+    GarageConfig garage,
     MetricsConfig metrics,
     Environment environment,
     String secret,
@@ -25,7 +25,7 @@ public record CytosisConfig(
         "database", DatabaseConfig.CODEC, CytosisConfig::database,
         "redis", RedisConfig.CODEC, CytosisConfig::redis,
         "nats", NatsConfig.CODEC, CytosisConfig::nats,
-        "minio", MinioConfig.CODEC, CytosisConfig::minio,
+        "garage", GarageConfig.CODEC, CytosisConfig::garage,
         "metrics", MetricsConfig.CODEC.optional(new MetricsConfig(false, null, -1)), CytosisConfig::metrics,
         "environment", Environment.CODEC, CytosisConfig::environment,
         "secret", Codec.STRING.optional(), CytosisConfig::secret,
@@ -84,19 +84,19 @@ public record CytosisConfig(
         );
     }
 
-    public record MinioConfig(
+    public record GarageConfig(
         String host,
         int port,
         String username,
         String password
     ) {
 
-        public static final Codec<MinioConfig> CODEC = StructCodec.struct(
-            "host", Codec.STRING, MinioConfig::host,
-            "port", Codec.INT, MinioConfig::port,
-            "username", Codec.STRING, MinioConfig::username,
-            "password", Codec.STRING, MinioConfig::password,
-            MinioConfig::new
+        public static final Codec<GarageConfig> CODEC = StructCodec.struct(
+            "host", Codec.STRING, GarageConfig::host,
+            "port", Codec.INT, GarageConfig::port,
+            "username", Codec.STRING, GarageConfig::username,
+            "password", Codec.STRING, GarageConfig::password,
+            GarageConfig::new
         );
     }
 

@@ -58,7 +58,7 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
                     return;
                 }
                 sender.sendMessage(
-                    Msg.success("Successfully imported world '%s' into %s MinIO!",
+                    Msg.success("Successfully imported world '%s' into %s Garage!",
                         context.get(keyArgument).asString(), Cytosis.get(Environment.class)));
             });
         }, path, keyArgument);

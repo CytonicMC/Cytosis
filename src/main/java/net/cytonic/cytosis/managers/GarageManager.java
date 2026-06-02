@@ -12,32 +12,33 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisConfig;
-import net.cytonic.cytosis.config.CytosisConfig.MinioConfig;
+import net.cytonic.cytosis.config.CytosisConfig.GarageConfig;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
 
 @CytosisComponent
-public class MinioManager implements Bootstrappable {
+public class GarageManager implements Bootstrappable {
 
     private MinioClient client;
     private final ExecutorService worker;
 
 
-    public MinioManager() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisMinioWorker")
+    public GarageManager() {
+        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisGarageWorker")
             .uncaughtExceptionHandler(
-                (t, e) -> Logger.error("An uncaught exception occurred on the minio worker thread: " + t.getName(),
+                (t, e) -> Logger.error("An uncaught exception occurred on the garage worker thread: " + t.getName(),
                     e)).factory());
     }
 
     @Override
     public void init() {
-        MinioConfig databaseConfig = Cytosis.get(CytosisConfig.class).minio();
+        GarageConfig config = Cytosis.get(CytosisConfig.class).garage();
 
         client = MinioClient
             .builder()
-            .endpoint(databaseConfig.host() + ":" + databaseConfig.port())
-            .credentials(databaseConfig.username(), databaseConfig.password())
+            .endpoint(config.host() + ":" + config.port())
+            .credentials(config.username(), config.password())
+            .region("garage")
             .build();
 
         Cytosis.CONTEXT.registerComponent(client);
@@ -48,7 +49,7 @@ public class MinioManager implements Bootstrappable {
         try {
             client.close();
         } catch (Exception e) {
-            Logger.error("An error occurred whilest shutting down minio", e);
+            Logger.error("An error occurred whilest shutting down MinIO", e);
         }
     }
 
