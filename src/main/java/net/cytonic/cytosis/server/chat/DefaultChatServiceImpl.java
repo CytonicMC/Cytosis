@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Preferences;
 
 public class DefaultChatServiceImpl<P extends CytosisPlayer> implements ChatService<P> {
 
@@ -14,6 +15,9 @@ public class DefaultChatServiceImpl<P extends CytosisPlayer> implements ChatServ
             .appendSpace()
             .append(Component.text(originalMessage, player.getRank().getChatColor()));
 
-        Cytosis.getOnlinePlayers().forEach((p) -> p.sendMessage(message));
+        Cytosis.getOnlinePlayers().forEach((p) -> {
+            if (p.getPreference(Preferences.IGNORED_CHAT_CHANNELS).all()) return;
+            p.sendMessage(message);
+        });
     }
 }
