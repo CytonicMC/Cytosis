@@ -38,41 +38,9 @@ jobs:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
-  docker:
-    if: github.repository == 'CytonicMC/Cytosis'
-    runs-on: ubuntu-latest
-    env:
-      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up JDK 25
-        uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-read-only: false
-
-      - name: Assemble Jar
-        run: ./gradlew --build-cache --parallel fatJar
-        env:
-          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-          REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
-
-      - name: Login to GHCR
-        run: echo $GHCR_TOKEN | docker login ghcr.io -u CytonicMC --password-stdin
-
-      - name: Build and push Docker Image for multiple platforms
-        run: |
-          docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/cytonicmc/cytosis:latest -f docker/basic/Dockerfile . --push
-
   build-plugins:
     if: github.repository == 'CytonicMC/Cytosis'
-    needs: [ publish, docker ]
+    needs: [ publish ]
     runs-on: ubuntu-latest
     steps:
       - name: Build bedwars

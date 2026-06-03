@@ -243,7 +243,7 @@ tasks.register("fatJar") {
     description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
     dependsOn(":protocol:assemble")
     dependsOn(fatShadow)
-    finalizedBy("copyFatToPrimary", "copyFatToSecondary", "copyJarForDocker", "copyFatToLibs")
+    finalizedBy("copyFatToPrimary", "copyFatToSecondary", "copyFatToLibs")
 }
 
 tasks.register("thinJar") {
@@ -339,13 +339,6 @@ registerServerCopy("copyFatToSecondary", fatShadow, "server_dir2")
 
 registerServerCopy("copyThinToPrimary", thinShadow, "server_dir")
 registerServerCopy("copyThinToSecondary", thinShadow, "server_dir2")
-
-tasks.register<Copy>("copyJarForDocker") {
-    dependsOn(fatShadow)
-    from(fatShadow.get().archiveFile)
-    into(layout.buildDirectory.dir("docker"))
-    rename { "cytosis.jar" }
-}
 
 tasks.register<Copy>("copyFatToLibs") {
     dependsOn(fatShadow)
