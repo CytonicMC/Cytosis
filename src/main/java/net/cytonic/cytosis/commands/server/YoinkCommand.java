@@ -55,6 +55,11 @@ public class YoinkCommand extends CytosisCommand {
                 return;
             }
 
+            if (Cytosis.getPlayer(uuid).isPresent()) {
+                player.sendMessage(Msg.whoops("The player " + playerName + " is already on your server!"));
+                return;
+            }
+
             Cytosis.get(SendPlayerToServerPacketPublisher.class)
                 .sendPlayerToServer(uuid, Cytosis.CONTEXT.currentServer());
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
