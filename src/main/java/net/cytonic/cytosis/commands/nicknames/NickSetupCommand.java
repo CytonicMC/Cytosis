@@ -45,10 +45,9 @@ public class NickSetupCommand extends CytosisCommand {
               features would reveal your nickname status. (ie. /fly)'><gray><i>(note)</hover></black>
             
             <click:run_command:'/nick setup rank DEFAULT'>» <gray>DEFAULT</click>
-            <click:run_command:'/nick setup rank NOBLE'>» <dark_purple>[NOBLE]</click>
-            <click:run_command:'/nick setup rank VALIENT'>» <dark_green>[VALIENT]</click>
-            <click:run_command:'/nick setup rank MASTER'>» <dark_red>[MASTER]</click>
-            <click:run_command:'/nick setup rank CELESTIAL'>» <dark_aqua>[CELESTIAL]</click>
+            <click:run_command:'/nick setup rank CORTEX'>» <dark_purple>[CORTEX]</click>
+            <click:run_command:'/nick setup rank SYNAPSE'>» <dark_green>[SYNAPSE]</click>
+            <click:run_command:'/nick setup rank NEXUS'>» <gold>[NEXUS]</click>
             """))
         .build();
 
@@ -94,8 +93,8 @@ public class NickSetupCommand extends CytosisCommand {
             player.openBook(WARNING_BOOK);
         });
         ArgumentWord verb = new ArgumentWord("verb").from("agree", "done", "rank", "skin", "name");
-        ArgumentWord verbArg = new ArgumentWord("verbArg").from("DEFAULT", "NOBLE", "VALIENT", "MASTER", "CELESTIAL",
-            "REAL", "RANDOM", "SET", "SKIP");
+        ArgumentWord verbArg = new ArgumentWord("verbArg").from("DEFAULT", "CORTEX", "SYNAPSE", "NEXUS", "REAL",
+            "RANDOM", "SET", "SKIP");
         verbArg.setDefaultValue("not set");
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
