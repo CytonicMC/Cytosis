@@ -25,7 +25,7 @@ public class ImportPolarWorldCommand extends CytosisCommand {
         super("polar");
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(
-            Msg.whoops("Usage: /importworld polar <path/to/polar/world> <name> [type]")));
+            Msg.whoops("Usage: /importworld polar <path/to/polar/world> <key>")));
 
         ArgumentWord path = new ArgumentWord("path");
         ArgumentResourceLocation keyArgument = new ArgumentResourceLocation("key");
