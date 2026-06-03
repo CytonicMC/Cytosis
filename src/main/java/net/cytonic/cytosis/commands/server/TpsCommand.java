@@ -20,15 +20,13 @@ public class TpsCommand extends CytosisCommand {
         super("tps");
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            boolean newVal = !player.getPreference(Preferences.TPS_DEBUG);
-            player.updatePreference(Preferences.TPS_DEBUG, newVal);
-            if (newVal) {
+            player.togglePreference(Preferences.TPS_DEBUG, () -> {
                 player.sendMessage(Msg.success("Showing server performance metrics!"));
                 player.showBossBar(BAR);
-            } else {
+            }, () -> {
                 player.sendMessage(Msg.success("Hiding server performance metrics!"));
                 player.scheduleNextTick(_ -> player.hideBossBar(BAR));
-            }
+            });
         });
     }
 }

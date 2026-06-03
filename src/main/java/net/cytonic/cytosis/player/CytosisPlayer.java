@@ -35,6 +35,7 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.objects.preferences.ToggleablePreference;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -128,6 +129,16 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
      */
     public <T> void updatePreference(Preference<T> namespace, T value) {
         Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
+    }
+
+    public void togglePreference(ToggleablePreference preference, Runnable onTrue, Runnable onFalse) {
+        boolean value = !getPreference(preference);
+        if (value) {
+            onTrue.run();
+        } else {
+            onFalse.run();
+        }
+        Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), preference, value);
     }
 
     /**

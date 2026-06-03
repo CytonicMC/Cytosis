@@ -22,16 +22,13 @@ public class VanishCommand extends CytosisCommand {
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             VanishManager vanishManager = Cytosis.get(VanishManager.class);
-
-            if (player.getPreference(Preferences.VANISHED)) {
+            player.togglePreference(Preferences.VANISHED, () -> {
+                player.sendMessage(Msg.splash("VANISHED!", "787072", "Vanish is now enabled!"));
+                vanishManager.enableVanish(player);
+            }, () -> {
                 player.sendMessage(Msg.splash("UNVANISHED!", "cec4c6", "Vanish is now disabled!"));
-                player.updatePreference(Preferences.VANISHED, false);
                 vanishManager.disableVanish(player);
-                return;
-            }
-            player.sendMessage(Msg.splash("VANISHED!", "787072", "Vanish is now enabled!"));
-            player.updatePreference(Preferences.VANISHED, true);
-            vanishManager.enableVanish(player);
+            });
         });
     }
 }

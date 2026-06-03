@@ -12,7 +12,7 @@ public class SnooperHelpBlind extends CytosisCommand {
             .appendNewline()
             .append(Msg.grey("""
                 Stops listening to the specified channel. If you would like to temporarily silence all notifications \
-                 from snooper, use "/snooper mute". You can re-enable the notifications with "/snooper unmute".\
+                 from snooper, use "/snooper mute". You can re-enable the notifications with "/snooper mute".\
                 """));
 
     public SnooperHelpBlind() {
