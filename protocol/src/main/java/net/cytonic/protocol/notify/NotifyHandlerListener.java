@@ -1,11 +1,12 @@
 package net.cytonic.protocol.notify;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,6 +14,7 @@ import net.cytonic.protocol.NotifyData;
 import net.cytonic.protocol.ProtocolHelper;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.utils.ExcludeFromIndex;
+import net.cytonic.protocol.utils.InstanceResolver;
 import net.cytonic.protocol.utils.NotifyHandler;
 import net.cytonic.protocol.utils.ReflectionUtils;
 
@@ -83,7 +85,9 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
     @Override
     public void onMessage(T message, NotifyData notifyData) {
         try {
-            Object instance = ReflectionUtils.newInstance(method.getDeclaringClass());
+            Object instance = Modifier.isStatic(method.getModifiers())
+                ? null
+                : Objects.requireNonNull(InstanceResolver.INSTANCE).resolve(method.getDeclaringClass());
             method.setAccessible(true);
             if (method.getParameterCount() == 1) {
                 method.invoke(instance, message);
@@ -99,7 +103,7 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
                     "Method " + method.getName() + "'s second parameter must be NotifyData");
             }
             method.invoke(instance, message, notifyData);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
