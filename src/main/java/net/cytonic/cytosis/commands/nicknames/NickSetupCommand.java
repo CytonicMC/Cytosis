@@ -83,7 +83,7 @@ public class NickSetupCommand extends CytosisCommand {
     public NickSetupCommand() {
         super("setup");
         setCondition(CommandUtils.IS_STAFF);
-        setDefaultExecutor((sender, context) -> {
+        setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (player.isNicked()) {
                 player.sendMessage(Msg.whoops(
@@ -138,7 +138,7 @@ public class NickSetupCommand extends CytosisCommand {
                         sender.sendMessage(Msg.whoops("Invalid rank '%s'!", arg));
                         return;
                     }
-                    NICKNAME_DATA.computeIfPresent(player.getUuid(), (k, data) -> data.withRank(rank));
+                    NICKNAME_DATA.computeIfPresent(player.getUuid(), (_, data) -> data.withRank(rank));
                     player.openBook(SKIN_BOOK);
                 }
                 case "skin" -> {
@@ -153,7 +153,7 @@ public class NickSetupCommand extends CytosisCommand {
                     }
 
                     if (arg.equals("SKIP")) {
-                        player.openBook(NAME_BOOK); // we can do this since if it's null, it's just a steve skin
+                        player.openBook(NAME_BOOK); // we can do this since if it's null, it's just a Steve skin
                         return;
                     }
 
@@ -163,11 +163,11 @@ public class NickSetupCommand extends CytosisCommand {
                     }
                     switch (arg.toUpperCase()) {
                         case "DEFAULT" ->
-                            NICKNAME_DATA.computeIfPresent(player.getUuid(), (k, data) -> data.withSkin(null));
+                            NICKNAME_DATA.computeIfPresent(player.getUuid(), (_, data) -> data.withSkin(null));
                         case "REAL" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withSkin(player.getSkin()));
+                            (_, data) -> data.withSkin(player.getSkin()));
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withSkin(NicknameGenerator.generateSkin()));
+                            (_, data) -> data.withSkin(NicknameGenerator.generateSkin()));
                         default -> {
                         }
                     }
@@ -201,7 +201,7 @@ public class NickSetupCommand extends CytosisCommand {
                             }
                         }
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withNickname(NicknameGenerator.generateUsername()));
+                            (_, data) -> data.withNickname(NicknameGenerator.generateUsername()));
                         default -> {
                         }
                     }

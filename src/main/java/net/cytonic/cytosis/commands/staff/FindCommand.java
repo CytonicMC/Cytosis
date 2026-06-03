@@ -26,7 +26,7 @@ public class FindCommand extends CytosisCommand {
     public FindCommand() {
         super("find");
         setCondition(CommandUtils.IS_STAFF);
-        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<RED>You must specify a player!")));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.mm("<RED>You must specify a player!")));
         addSyntax((sender, context) -> {
             if (sender instanceof final CytosisPlayer player) {
                 String playerName = context.get(CommandUtils.NETWORK_PLAYERS);
