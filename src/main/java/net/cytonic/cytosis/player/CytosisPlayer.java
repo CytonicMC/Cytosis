@@ -5,9 +5,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import dev.minestomunited.entrypoint.minestom.player.NetworkPlayer;
 import io.github.togar2.pvp.player.CombatPlayerImpl;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -26,7 +28,6 @@ import net.minestom.server.network.player.PlayerConnection;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
@@ -34,6 +35,7 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.objects.preferences.ToggleablePreference;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionbarManager;
 import net.cytonic.cytosis.managers.ChatManager;
@@ -60,7 +62,7 @@ import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
  * managers themselves.
  */
 @SuppressWarnings("unused")
-public class CytosisPlayer extends CombatPlayerImpl {
+public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
 
     private PlayerRank rank;
 
@@ -90,7 +92,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
     public PlayerRank getRank() {
         if (isNicked()) {
-            return Cytosis.get(NicknameManager.class).getData(getUuid()).rank();
+            return Objects.requireNonNull(Cytosis.get(NicknameManager.class).getData(getUuid())).rank();
         }
 
         return getTrueRank();
@@ -127,6 +129,16 @@ public class CytosisPlayer extends CombatPlayerImpl {
      */
     public <T> void updatePreference(Preference<T> namespace, T value) {
         Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
+    }
+
+    public void togglePreference(ToggleablePreference preference, Runnable onTrue, Runnable onFalse) {
+        boolean value = !getPreference(preference);
+        if (value) {
+            onTrue.run();
+        } else {
+            onFalse.run();
+        }
+        Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), preference, value);
     }
 
     /**
@@ -300,7 +312,10 @@ public class CytosisPlayer extends CombatPlayerImpl {
     public @Nullable PlayerSkin getSkin() {
         if (isNicked()) {
             NicknameManager.NicknameData data = Cytosis.get(NicknameManager.class).getData(getUuid());
-            return new PlayerSkin(data.value(), data.signature());
+            if (data == null) {
+                return null;
+            }
+            return data.skin();
         }
         return super.getSkin();
     }
@@ -319,13 +334,13 @@ public class CytosisPlayer extends CombatPlayerImpl {
     @Override
     public @NotNull String getUsername() {
         if (isNicked()) {
-            return Cytosis.get(NicknameManager.class).getData(getUuid()).nickname();
+            return Objects.requireNonNull(Cytosis.get(NicknameManager.class).getData(getUuid())).nickname();
         }
         return getTrueUsername();
     }
 
     @Override
-    public void kick(@NonNull Component message) {
+    public void kick(@NotNull Component message) {
         kick(KickReason.UNKNOWN, message);
     }
 
@@ -369,7 +384,9 @@ public class CytosisPlayer extends CombatPlayerImpl {
             case STAFF -> isStaff();
             case MOD -> isModerator();
             case ADMIN -> isAdmin();
-            case PARTY -> isInParty() && (isStaff() || !getParty().isMuted() || getParty().hasAuthority(getUuid()));
+            case PARTY ->
+                isInParty() && (isStaff() || !Objects.requireNonNull(getParty()).isMuted() || getParty().hasAuthority(
+                    getUuid()));
             default -> true;
         };
     }
@@ -528,7 +545,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
 
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull EntityMetaDataPacket getMetadataPacket() {
+    public @NotNull EntityMetaDataPacket getMetadataPacket() {
         if (!isVanished()) return super.getMetadataPacket();
         Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(metadata.getEntries());
         Metadata.Entry<Byte> entry = (Metadata.Entry<Byte>) entries.get(0);
@@ -538,7 +555,7 @@ public class CytosisPlayer extends CombatPlayerImpl {
     }
 
     @Override
-    public void sendPacketToViewersAndSelf(SendablePacket packet) {
+    public void sendPacketToViewersAndSelf(@NotNull SendablePacket packet) {
         if (!(packet instanceof EntityMetaDataPacket p)) {
             super.sendPacketToViewersAndSelf(packet);
         }

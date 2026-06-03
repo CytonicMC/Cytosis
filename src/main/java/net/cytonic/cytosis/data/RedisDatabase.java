@@ -6,24 +6,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import redis.clients.jedis.DefaultJedisClientConfig;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisClientConfig;
-import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.RedisClient;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.config.CytosisSettings.RedisConfig;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.CytosisConfig.RedisConfig;
 import net.cytonic.cytosis.environments.Environment;
-import net.cytonic.cytosis.environments.EnvironmentManager;
-import net.cytonic.cytosis.files.FileManager;
 import net.cytonic.cytosis.logging.Logger;
 
 /**
  * A class that holds the connection to the redis cache
  */
-@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
+@CytosisComponent
 public class RedisDatabase implements Bootstrappable {
 
     /**
@@ -31,7 +27,7 @@ public class RedisDatabase implements Bootstrappable {
      */
     public static final String GLOBAL_COOLDOWNS_KEY = "global_cooldowns";
     private final String prefix;
-    private final JedisPooled jedis;
+    private final RedisClient client;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
         .uncaughtExceptionHandler(
             (throwable, runnable) -> Logger.error("An error occurred on the CytosisRedisWorker", throwable))
@@ -41,11 +37,15 @@ public class RedisDatabase implements Bootstrappable {
      * Initializes the connection to redis using the loaded settings and the Jedis client
      */
     public RedisDatabase() {
-        RedisConfig settings = Cytosis.get(CytosisSettings.class).getRedisConfig();
-        HostAndPort hostAndPort = new HostAndPort(settings.getHost(), settings.getPort());
-        JedisClientConfig config = DefaultJedisClientConfig.builder().password(settings.getPassword()).build();
-        this.jedis = new JedisPooled(hostAndPort, config);
-        prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+        RedisConfig config = Cytosis.get(CytosisConfig.class).redis();
+
+        this.client = RedisClient.builder()
+            .hostAndPort(config.host(), config.port())
+            .clientConfig(DefaultJedisClientConfig.builder()
+                .password(config.password())
+                .build())
+            .build();
+        prefix = Cytosis.get(Environment.class).getPrefix();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class RedisDatabase implements Bootstrappable {
     @Override
     public void shutdown() {
         worker.shutdown();
-        jedis.close();
+        client.close();
         Logger.info("Disconnected from Redis!");
     }
 
@@ -70,7 +70,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the set
      */
     public Set<String> getSet(String key) {
-        return jedis.smembers(prefix + key);
+        return client.smembers(prefix + key);
     }
 
     /**
@@ -80,11 +80,11 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value
      */
     public void setValue(String key, String value) {
-        jedis.set(prefix + key, value);
+        client.set(prefix + key, value);
     }
 
     public String getValue(String key) {
-        return jedis.get(prefix + key);
+        return client.get(prefix + key);
     }
 
     /**
@@ -94,7 +94,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value(s)
      */
     public void addValue(String key, String... value) {
-        jedis.sadd(prefix + key, value);
+        client.sadd(prefix + key, value);
     }
 
     /**
@@ -104,7 +104,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value(s)
      */
     public void removeValue(String key, String... value) {
-        jedis.srem(prefix + key, value);
+        client.srem(prefix + key, value);
     }
 
     /**
@@ -115,7 +115,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value the value of the key value pair
      */
     public void addToHash(String hash, String key, String value) {
-        jedis.hset(prefix + hash, key, value);
+        client.hset(prefix + hash, key, value);
     }
 
     /**
@@ -125,7 +125,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param key  the field in the hash
      */
     public void removeFromHash(String hash, String key) {
-        jedis.hdel(prefix + hash, key);
+        client.hdel(prefix + hash, key);
     }
 
     /**
@@ -135,7 +135,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the map of values
      */
     public Map<String, String> getHash(String hash) {
-        return jedis.hgetAll(prefix + hash);
+        return client.hgetAll(prefix + hash);
     }
 
     /**
@@ -146,7 +146,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the value stored in the hash
      */
     public String getFromHash(String hash, String key) {
-        return jedis.hget(prefix + hash, key);
+        return client.hget(prefix + hash, key);
     }
 
     /**
@@ -158,7 +158,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the set of keys associated with the pattern
      */
     public Set<String> getKeys(String pattern) {
-        return jedis.keys(pattern);
+        return client.keys(pattern);
     }
 
     /**
@@ -168,7 +168,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the set
      */
     public Set<String> getGlobalSet(String key) {
-        return jedis.smembers(key);
+        return client.smembers(key);
     }
 
     /**
@@ -178,11 +178,11 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value
      */
     public void setGlobalValue(String key, String value) {
-        jedis.set(key, value);
+        client.set(key, value);
     }
 
     public String getGlobalValue(String key) {
-        return jedis.get(key);
+        return client.get(key);
     }
 
     /**
@@ -192,7 +192,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value(s)
      */
     public void addGlobalValue(String key, String... value) {
-        jedis.sadd(key, value);
+        client.sadd(key, value);
     }
 
     /**
@@ -202,7 +202,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value value(s)
      */
     public void removeGlobalValue(String key, String... value) {
-        jedis.srem(key, value);
+        client.srem(key, value);
     }
 
     /**
@@ -213,7 +213,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param value the value of the key value pair
      */
     public void addToGlobalHash(String hash, String key, String value) {
-        jedis.hset(hash, key, value);
+        client.hset(hash, key, value);
     }
 
     /**
@@ -223,7 +223,7 @@ public class RedisDatabase implements Bootstrappable {
      * @param key  the field in the hash
      */
     public void removeFromGlobalHash(String hash, String key) {
-        jedis.hdel(hash, key);
+        client.hdel(hash, key);
     }
 
     /**
@@ -233,7 +233,7 @@ public class RedisDatabase implements Bootstrappable {
      * @return the map of values
      */
     public Map<String, String> getGlobalHash(String hash) {
-        return jedis.hgetAll(hash);
+        return client.hgetAll(hash);
     }
 
     /**
@@ -244,19 +244,19 @@ public class RedisDatabase implements Bootstrappable {
      * @return the value stored in the hash
      */
     public String getFromGlobalHash(String hash, String key) {
-        return jedis.hget(hash, key);
+        return client.hget(hash, key);
     }
 
     public Set<String> getSet(String key, Environment environment) {
-        return jedis.smembers(environment.getPrefix() + key);
+        return client.smembers(environment.getPrefix() + key);
     }
 
     public void removeFromSet(String key, String toRemove, Environment environment) {
-        jedis.srem(environment.getPrefix() + key, toRemove);
+        client.srem(environment.getPrefix() + key, toRemove);
     }
 
     public void addToSet(String key, String toAdd, Environment environment) {
-        jedis.sadd(environment.getPrefix() + key, toAdd);
+        client.sadd(environment.getPrefix() + key, toAdd);
     }
 
 

@@ -16,7 +16,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.environments.Environment;
-import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
@@ -25,7 +24,7 @@ public class StatusCommand extends CytosisCommand {
 
     public StatusCommand() {
         super("status");
-        Environment env = Cytosis.get(EnvironmentManager.class).getEnvironment();
+        Environment env = Cytosis.get(Environment.class);
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("You must specify a player!")));
 

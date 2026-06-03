@@ -11,13 +11,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.config.CytosisSettings;
+import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.protocol.data.enums.KickReason;
 
 /**
  * Holds references to all Cytosis components for dependency passing.
@@ -37,13 +35,12 @@ public class CytosisContext {
     private Map<Class<?>, List<Consumer<?>>> availabilityConsumers = new HashMap<>();
 
     // Misc
-    private List<String> flags;
     private boolean metricsEnabled = false;
     private boolean stopping = false;
     @Nullable
     private Instant shutdownAt = null;
-    private boolean slowShutdown = Cytosis.IS_NOMAD;
     private boolean sendErrorsThroughSnooper = false;
+    private int shutdownDuration = 60;
 
 
     /**
@@ -183,18 +180,8 @@ public class CytosisContext {
 
     public CytonicServer currentServer() {
         return new CytonicServer(Utils.getServerIP(), SERVER_ID,
-            getComponent(CytosisSettings.class).getServerConfig().getPort(),
+            getComponent(CytosisConfig.class).port(),
             getServerGroup().type(),
             getServerGroup().group());
-    }
-
-    public void shutdownHandler() {
-        Cytosis.getOnlinePlayers().forEach(onlinePlayer ->
-            onlinePlayer.kick(KickReason.SERVER_STOP, Msg.red("This server is shutting down.")));
-
-        // shutdown bootstrappable components
-        components.values().stream().filter(component -> component instanceof Bootstrappable)
-            .map(Bootstrappable.class::cast).forEach(Bootstrappable::shutdown);
-        Logger.info("Cytosis has been shut down.");
     }
 }

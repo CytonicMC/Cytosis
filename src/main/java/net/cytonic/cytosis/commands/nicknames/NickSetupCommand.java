@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.nicknames;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,10 +45,9 @@ public class NickSetupCommand extends CytosisCommand {
               features would reveal your nickname status. (ie. /fly)'><gray><i>(note)</hover></black>
             
             <click:run_command:'/nick setup rank DEFAULT'>» <gray>DEFAULT</click>
-            <click:run_command:'/nick setup rank NOBLE'>» <dark_purple>[NOBLE]</click>
-            <click:run_command:'/nick setup rank VALIENT'>» <dark_green>[VALIENT]</click>
-            <click:run_command:'/nick setup rank MASTER'>» <dark_red>[MASTER]</click>
-            <click:run_command:'/nick setup rank CELESTIAL'>» <dark_aqua>[CELESTIAL]</click>
+            <click:run_command:'/nick setup rank CORTEX'>» <dark_purple>[CORTEX]</click>
+            <click:run_command:'/nick setup rank SYNAPSE'>» <dark_green>[SYNAPSE]</click>
+            <click:run_command:'/nick setup rank NEXUS'>» <gold>[NEXUS]</click>
             """))
         .build();
 
@@ -83,7 +83,7 @@ public class NickSetupCommand extends CytosisCommand {
     public NickSetupCommand() {
         super("setup");
         setCondition(CommandUtils.IS_STAFF);
-        setDefaultExecutor((sender, context) -> {
+        setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (player.isNicked()) {
                 player.sendMessage(Msg.whoops(
@@ -93,8 +93,8 @@ public class NickSetupCommand extends CytosisCommand {
             player.openBook(WARNING_BOOK);
         });
         ArgumentWord verb = new ArgumentWord("verb").from("agree", "done", "rank", "skin", "name");
-        ArgumentWord verbArg = new ArgumentWord("verbArg").from("DEFAULT", "NOBLE", "VALIENT", "MASTER", "CELESTIAL",
-            "REAL", "RANDOM", "SET", "SKIP");
+        ArgumentWord verbArg = new ArgumentWord("verbArg").from("DEFAULT", "CORTEX", "SYNAPSE", "NEXUS", "REAL",
+            "RANDOM", "SET", "SKIP");
         verbArg.setDefaultValue("not set");
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
@@ -138,7 +138,7 @@ public class NickSetupCommand extends CytosisCommand {
                         sender.sendMessage(Msg.whoops("Invalid rank '%s'!", arg));
                         return;
                     }
-                    NICKNAME_DATA.computeIfPresent(player.getUuid(), (k, data) -> data.withRank(rank));
+                    NICKNAME_DATA.computeIfPresent(player.getUuid(), (_, data) -> data.withRank(rank));
                     player.openBook(SKIN_BOOK);
                 }
                 case "skin" -> {
@@ -153,7 +153,7 @@ public class NickSetupCommand extends CytosisCommand {
                     }
 
                     if (arg.equals("SKIP")) {
-                        player.openBook(NAME_BOOK); // we can do this since if it's null, it's just a steve skin
+                        player.openBook(NAME_BOOK); // we can do this since if it's null, it's just a Steve skin
                         return;
                     }
 
@@ -163,11 +163,11 @@ public class NickSetupCommand extends CytosisCommand {
                     }
                     switch (arg.toUpperCase()) {
                         case "DEFAULT" ->
-                            NICKNAME_DATA.computeIfPresent(player.getUuid(), (k, data) -> data.withSkin(null, null));
+                            NICKNAME_DATA.computeIfPresent(player.getUuid(), (_, data) -> data.withSkin(null));
                         case "REAL" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withSkin(player.getSkin().signature(), player.getSkin().textures()));
+                            (_, data) -> data.withSkin(player.getSkin()));
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withSkin(NicknameGenerator.generateSkin()));
+                            (_, data) -> data.withSkin(NicknameGenerator.generateSkin()));
                         default -> {
                         }
                     }
@@ -201,7 +201,7 @@ public class NickSetupCommand extends CytosisCommand {
                             }
                         }
                         case "RANDOM" -> NICKNAME_DATA.computeIfPresent(player.getUuid(),
-                            (k, data) -> data.withNickname(NicknameGenerator.generateUsername()));
+                            (_, data) -> data.withNickname(NicknameGenerator.generateUsername()));
                         default -> {
                         }
                     }
@@ -225,17 +225,18 @@ public class NickSetupCommand extends CytosisCommand {
             .author(Msg.aqua("CytonicMC Team"))
             .title(Msg.gold("Confirm Details"))
             .pages(Msg.mm("""
-                <black>Awesome! Your nickname is as follows! </black>
-                
-                <black>Name: '%s'</black>
-                <black>Rank: %s</black>
-                <black>Skin: %s</black>
-                
-                <click:run_command:'/nick setup skin SKIP'>» Change Name</click>
-                <click:run_command:'/nick setup'>» Start Over</click>
-                
-                <click:run_command:'/nick setup done'>» <b><dark_green>CONFIRM</dark_green></b></click>
-                """, data.nickname(), translateRank(data.rank()), NicknameManager.translateSkin(player, data.value())))
+                    <black>Awesome! Your nickname is as follows! </black>
+                    
+                    <black>Name: '%s'</black>
+                    <black>Rank: %s</black>
+                    <black>Skin: %s</black>
+                    
+                    <click:run_command:'/nick setup skin SKIP'>» Change Name</click>
+                    <click:run_command:'/nick setup'>» Start Over</click>
+                    
+                    <click:run_command:'/nick setup done'>» <b><dark_green>CONFIRM</dark_green></b></click>
+                    """, data.nickname(), translateRank(data.rank()),
+                NicknameManager.translateSkin(player, Objects.requireNonNull(data.skin()).textures())))
             .build();
     }
 }

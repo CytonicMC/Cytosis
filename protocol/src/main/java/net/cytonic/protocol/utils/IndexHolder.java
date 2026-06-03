@@ -24,7 +24,7 @@ public class IndexHolder {
     private static IndexHolder instance;
     private final IndexView compositeIndex;
 
-    private IndexHolder(List<File> pluginJars) throws IOException {
+    private IndexHolder() throws IOException {
         long start = System.nanoTime();
         List<IndexView> indices = new ArrayList<>();
 
@@ -49,11 +49,6 @@ public class IndexHolder {
 //            // Thin jar - Minestom was downloaded at runtime, find the jar
 //            indices.add(indexJar(findJarForClass("io.github.togar2.pvp.MinestomPvP"), "io.github.togar2.pvp.events"));
 //        }
-
-        // Add each plugin's index
-        for (File jar : pluginJars) {
-            indices.add(indexJar(jar));
-        }
 
         this.compositeIndex = CompositeIndex.create(indices);
         log.info(String.format("Built indices in %.2fms", (System.nanoTime() - start) / 1.0e6));
@@ -111,9 +106,9 @@ public class IndexHolder {
             .getPath());
     }
 
-    public static synchronized void initialize(List<File> pluginJars) throws IOException {
+    public static synchronized void initialize() throws IOException {
         if (instance != null) throw new IllegalStateException("Already initialized");
-        instance = new IndexHolder(pluginJars);
+        instance = new IndexHolder();
     }
 
     public static IndexView get() {

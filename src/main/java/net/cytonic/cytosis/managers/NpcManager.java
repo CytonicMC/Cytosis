@@ -15,7 +15,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.plugins.PluginManager;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.utils.ExcludeFromIndex;
 import net.cytonic.protocol.utils.IndexHolder;
@@ -23,7 +22,7 @@ import net.cytonic.protocol.utils.IndexHolder;
 /**
  * A class that manages NPCs
  */
-@CytosisComponent(dependsOn = PluginManager.class)
+@CytosisComponent
 public class NpcManager implements Bootstrappable {
 
     @Getter
@@ -47,7 +46,6 @@ public class NpcManager implements Bootstrappable {
                     throw new RuntimeException("Failed to initialize NPC", e);
                 }
             });
-
 
         MinecraftServer.getSchedulerManager().scheduleTask(() -> {
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {

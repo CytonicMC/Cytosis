@@ -4,11 +4,10 @@ import java.util.List;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.InstanceContainer;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.entity.npc.pathfinding.Path;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
@@ -17,6 +16,8 @@ public interface NPCConfiguration {
     List<Component> holograms(CytosisPlayer player);
 
     Pos position(CytosisPlayer player);
+
+    Instance instance();
 
     @Nullable
     default Path path(CytosisPlayer player) {
@@ -32,13 +33,8 @@ public interface NPCConfiguration {
         return null;
     }
 
-    default Instance instance() {
-        return Cytosis.get(InstanceContainer.class);
+    @Nullable
+    default PlayerSkin skin(CytosisPlayer player) {
+        return null;
     }
-
-    @Nullable
-    String texture(CytosisPlayer player);
-
-    @Nullable
-    String signature(CytosisPlayer player);
 }

@@ -18,10 +18,9 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.config.CytosisSettings.NatsConfig;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.CytosisConfig.NatsConfig;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.environments.EnvironmentManager;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.ProtocolHelper;
@@ -32,13 +31,12 @@ import static io.nats.client.ConnectionListener.Events.CONNECTED;
 import static io.nats.client.ConnectionListener.Events.RECONNECTED;
 import static io.nats.client.ConnectionListener.Events.RESUBSCRIBED;
 
-@CytosisComponent(dependsOn = {CytonicNetwork.class, EnvironmentManager.class})
+@CytosisComponent(dependsOn = {CytonicNetwork.class})
 public class NatsManager implements Bootstrappable {
 
     private final ConcurrentLinkedDeque<PublishContainer> publishQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<RequestContainer> requestQueue = new ConcurrentLinkedDeque<>();
     private final ConcurrentLinkedDeque<SubscribeContainer> subscribeQueue = new ConcurrentLinkedDeque<>();
-    private CytosisSettings cytosisSettings;
     private volatile Connection connection;
     private boolean started = false;
 
@@ -46,14 +44,9 @@ public class NatsManager implements Bootstrappable {
     public void init() {
         //this needs to be here since NatsAPIImpl depends on NatsManager
         ProtocolHelper.init();
-        this.cytosisSettings = Cytosis.get(CytosisSettings.class);
 
-        if (!Cytosis.CONTEXT.getFlags().contains("--ci-test")) {
-            setup();
-            fetchServers();
-        } else {
-            Logger.warn("Skipping NATS manager setup for CI test!");
-        }
+        setup();
+        fetchServers();
 
         MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
             Logger.info("Registering server with Cydian!");
@@ -73,7 +66,7 @@ public class NatsManager implements Bootstrappable {
             Cytosis.CONTEXT.getServerGroup().type(),
             Utils.getServerIP(),
             Cytosis.CONTEXT.SERVER_ID,
-            Cytosis.get(CytosisSettings.class).getServerConfig().getPort(),
+            Cytosis.get(CytosisConfig.class).port(),
             Instant.now(),
             Cytosis.CONTEXT.getServerGroup().group()
         ).publish(isStartup ? Subjects.SERVER_REGISTER : Subjects.SERVER_SHUTDOWN);
@@ -97,10 +90,10 @@ public class NatsManager implements Bootstrappable {
 
     @SneakyThrows
     public void setup() {
-        NatsConfig natsConfig = cytosisSettings.getNatsConfig();
+        NatsConfig natsConfig = Cytosis.get(CytosisConfig.class).nats();
         Options options = Options.builder().server(
-                "nats://" + natsConfig.getUser() + ":" + natsConfig.getPassword() + "@"
-                    + natsConfig.getHost() + ":" + natsConfig.getPort())
+                "nats://" + natsConfig.username() + ":" + natsConfig.password() + "@"
+                    + natsConfig.host() + ":" + natsConfig.port())
             .connectionListener(setupConnectionListener()).errorListener(new ErrorListener() {
                 @Override
                 public void errorOccurred(Connection conn, String error) {

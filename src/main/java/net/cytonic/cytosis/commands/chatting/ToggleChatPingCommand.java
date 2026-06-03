@@ -11,15 +11,10 @@ public class ToggleChatPingCommand extends CytosisCommand {
         super("togglechatping");
 
         setDefaultExecutor((sender, ignored) -> {
-            if (sender instanceof CytosisPlayer player) {
-                if (player.getPreference(Preferences.CHAT_MESSAGE_PING)) {
-                    player.updatePreference(Preferences.CHAT_MESSAGE_PING, false);
-                    player.sendMessage(Msg.success("Chat message pings are now <red>disabled<grey>!"));
-                } else {
-                    player.updatePreference(Preferences.CHAT_MESSAGE_PING, true);
-                    player.sendMessage(Msg.success("Chat message pings are now <green>enabled<grey>!"));
-                }
-            }
+            if (!(sender instanceof CytosisPlayer player)) return;
+            player.togglePreference(Preferences.CHAT_MESSAGE_PING, () ->
+                    player.sendMessage(Msg.success("Chat message pings are now <green>enabled<grey>!")),
+                () -> player.sendMessage(Msg.success("Chat message pings are now <red>disabled<grey>!")));
         });
     }
 }

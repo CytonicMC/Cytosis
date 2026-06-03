@@ -85,9 +85,15 @@ public class ChatManager implements Bootstrappable {
                 channel.name()));
             return;
         }
-        Component channelComponent = channel.getPrefix();
+
+        if (channel == ChatChannel.ALL) {
+            Cytosis.getServer().chatService().handleAllChat(player, originalMessage);
+            return;
+        }
 
         Component message = Component.text("");
+
+        Component channelComponent = channel.getPrefix();
         if (channel.isShouldDeanonymize()) {
             message = message.append(channelComponent).append(player.trueFormattedName())
                 .append(Component.text(":", player.getTrueRank().getChatColor())).appendSpace()
@@ -104,25 +110,6 @@ public class ChatManager implements Bootstrappable {
             recipients = channel.getRecipientFunction().apply(player);
         }
 
-        if (channel == ChatChannel.ALL) {
-            //todo: this may want to become instance based
-            Component finalMessage = message;
-            Cytosis.getOnlinePlayers().forEach((p) -> {
-                // todo: admins see real name?
-                if (player.getUuid().equals(p.getUuid())) {
-                    p.sendMessage(channelComponent.append(player.trueFormattedName())
-                        .append(Component.text(":", player.getTrueRank().getChatColor()))
-                        .appendSpace()
-                        .append(Component.text(originalMessage, player.getTrueRank()
-                            .getChatColor())));
-                    return;
-                }
-                if (!p.getPreference(Preferences.IGNORED_CHAT_CHANNELS).getForChannel(channel)) {
-                    p.sendMessage(finalMessage);
-                }
-            });
-            return;
-        }
         new ChatMessageNotifyPacket.Packet(recipients, channel, new JsonComponent(message), player.getUuid()).publish();
     }
 

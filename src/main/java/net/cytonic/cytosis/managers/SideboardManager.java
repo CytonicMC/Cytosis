@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
@@ -18,7 +17,8 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.sideboard.DefaultCreator;
+import net.cytonic.cytosis.server.AbstractCytosisServer;
+import net.cytonic.cytosis.server.sideboard.SideboardService;
 import net.cytonic.cytosis.sideboard.Sideboard;
 import net.cytonic.cytosis.sideboard.SideboardCreator;
 
@@ -27,19 +27,23 @@ import net.cytonic.cytosis.sideboard.SideboardCreator;
  */
 @NoArgsConstructor
 @CytosisComponent(dependsOn = {NicknameManager.class})
-public class SideboardManager implements Bootstrappable {
+public class SideboardManager<P extends CytosisPlayer> implements Bootstrappable {
 
     private final Map<UUID, Sideboard> sideboards = new ExpiringMap<>();
     @Getter
     @Nullable
     private Task task = null;
-    @Getter
-    @Setter
-    private SideboardCreator sideboardCreator = new DefaultCreator();
+    private SideboardCreator<P> sideboardCreator;
+    private SideboardService<P> sideboardService;
 
     @Override
     public void init() {
-        autoUpdateBoards(TaskSchedule.seconds(1));
+        sideboardService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
+            .sideboardService();
+        if (sideboardService.supportsSideboard()) {
+            sideboardCreator = sideboardService.sideboardCreator();
+            autoUpdateBoards(sideboardService.scheduale());
+        }
     }
 
     @Override
@@ -52,7 +56,8 @@ public class SideboardManager implements Bootstrappable {
      *
      * @param player the player
      */
-    public void addPlayer(CytosisPlayer player) {
+    public void addPlayer(P player) {
+        if (!sideboardService.supportsSideboard()) return;
         sideboards.put(player.getUuid(), sideboardCreator.sideboard(player));
     }
 
@@ -64,8 +69,9 @@ public class SideboardManager implements Bootstrappable {
     }
 
     public void updatePlayersNow() {
+        if (!sideboardService.supportsSideboard()) return;
         sideboards.forEach((uuid, sideboard) -> {
-            Optional<CytosisPlayer> player = Cytosis.getPlayer(uuid);
+            Optional<P> player = Cytosis.getPlayer(uuid);
             if (player.isEmpty()) {
                 sideboard.delete();
                 sideboards.remove(uuid);

@@ -199,9 +199,11 @@ public class BlockPlacementUtils {
                 boolean east = state.instance().getBlock(pos.add(1, 0, 0)).isSolid();
 
                 // Set block states for connection
-                return currentBlock.withProperty("north", north ? "true" : "false")
-                    .withProperty("south", south ? "true" : "false").withProperty("west", west ? "true" : "false")
-                    .withProperty("east", east ? "true" : "false");
+                return currentBlock
+                    .withProperty("north", Boolean.toString(north))
+                    .withProperty("south", Boolean.toString(south))
+                    .withProperty("east", Boolean.toString(east))
+                    .withProperty("west", Boolean.toString(west));
             }
 
             @Override
@@ -395,7 +397,7 @@ public class BlockPlacementUtils {
         if (yaw >= -45 && yaw <= 45) {
             return "north";
         }
-        if (yaw > 45 && yaw < 135) {
+        if (yaw > 45) {
             return "east";
         }
 
@@ -413,7 +415,7 @@ public class BlockPlacementUtils {
         if (yaw >= -45 && yaw <= 45) {
             return "south";
         }
-        if (yaw > 45 && yaw < 135) {
+        if (yaw > 45) {
             return "west";
         }
 

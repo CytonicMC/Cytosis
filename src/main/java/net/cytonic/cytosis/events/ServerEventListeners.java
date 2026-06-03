@@ -16,14 +16,12 @@ import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.network.packet.client.play.ClientAttackPacket;
 import net.minestom.server.network.packet.client.play.ClientInteractEntityPacket;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.server.TpsCommand;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
-import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.enums.ChatChannel;
@@ -119,11 +117,6 @@ public final class ServerEventListeners {
             player.kickInternal(Msg.whoops("This server is stopping"));
             return;
         }
-        if (!Cytosis.CONTEXT.getFlags().contains("--no-instance")) {
-            event.setSpawningInstance(Cytosis.get(InstanceContainer.class));
-        }
-        player.setRespawnPoint(
-            Cytosis.get(CytosisSettings.class).getServerConfig().getSpawnPos());
 
         // load things as easily as possible
         Cytosis.get(FriendManager.class).loadFriends(player.getUuid());
@@ -144,8 +137,10 @@ public final class ServerEventListeners {
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
         gdb.addPlayer(player);
-        Cytosis.get(SideboardManager.class).addPlayer(player);
-        Cytosis.get(PlayerListManager.class).setupPlayer(player);
+        SideboardManager<CytosisPlayer> sideboardManager = Cytosis.getGeneric(SideboardManager.class);
+        sideboardManager.addPlayer(player);
+        PlayerListManager<CytosisPlayer> playerListManager = Cytosis.getGeneric(PlayerListManager.class);
+        playerListManager.setupPlayer(player);
         Cytosis.get(RankManager.class).addPlayer(player);
         Cytosis.get(CommandHandler.class).recalculateCommands(player);
         if (player.getPreference(Preferences.VANISHED)) {

@@ -7,6 +7,7 @@ import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.PlayerSkin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,20 +16,18 @@ public class NPCEntityImpl extends EntityCreature {
 
     private final String username;
 
-    private final String skinTexture;
-    private final String skinSignature;
+    @Nullable
+    private final PlayerSkin skin;
     private final List<Component> holograms;
 
     public NPCEntityImpl(
         String username,
-        @Nullable String skinTexture,
-        @Nullable String skinSignature,
+        @Nullable PlayerSkin skin,
         @NotNull List<Component> holograms) {
         super(EntityType.PLAYER, UUID.randomUUID());
         this.username = username;
 
-        this.skinTexture = skinTexture;
-        this.skinSignature = skinSignature;
+        this.skin = skin;
         this.holograms = holograms;
         setNoGravity(true);
     }

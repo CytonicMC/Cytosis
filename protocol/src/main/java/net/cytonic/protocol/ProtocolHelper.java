@@ -56,7 +56,7 @@ public class ProtocolHelper {
             .forEach(o -> ProtocolHelper.PROTOCOL_OBJECTS.put(ReflectionUtils.getTypeName(o.getClass(), 0), o));
 
         List<NotifyListener<?>> notifyListeners = new ArrayList<>();
-        index.getAllKnownSubclasses(NotifyListener.class).stream()
+        index.getAllKnownImplementations(NotifyListener.class).stream()
             .filter(classInfo -> !classInfo.isAbstract() && !classInfo.isInterface())
             .filter(classInfo -> !classInfo.hasAnnotation(ExcludeFromIndex.class))
             .map(classInfo -> {

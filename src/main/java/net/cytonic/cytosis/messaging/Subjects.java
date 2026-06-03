@@ -1,17 +1,14 @@
 package net.cytonic.cytosis.messaging;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.environments.EnvironmentManager;
+import net.cytonic.cytosis.environments.Environment;
 
 /**
  * A list of every subject used by the NATS server
  */
 public class Subjects {
 
-    public static final String PREFIX = Cytosis.CONTEXT
-        .getComponent(EnvironmentManager.class)
-        .getEnvironment()
-        .getPrefix();
+    public static final String PREFIX = Cytosis.get(Environment.class).getPrefix();
 
     //parties
     public static final String PARTY_JOIN_REQUEST_BYPASS = "party.join.request.bypass";

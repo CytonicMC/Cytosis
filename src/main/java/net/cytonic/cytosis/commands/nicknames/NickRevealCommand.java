@@ -23,10 +23,6 @@ public class NickRevealCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             CytosisPlayer player = context.get(CommandUtils.ONLINE_PLAYERS);
-            if (player == null) {
-                sender.sendMessage(Msg.whoops("Player not found!"));
-                return;
-            }
 
             if (!player.isNicked()) {
                 sender.sendMessage(Msg.whoops("").append(player.formattedName().append(Msg.grey(" is not nicked!"))));

@@ -11,9 +11,9 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.display.BlockDisplayMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public class DisplayLine extends Entity {
 
@@ -42,7 +42,7 @@ public class DisplayLine extends Entity {
     }
 
     @Override
-    public @NonNull CompletableFuture<Void> setInstance(@NonNull Instance instance) {
+    public @NotNull CompletableFuture<Void> setInstance(@NotNull Instance instance) {
         return super.setInstance(instance, spawnPosition);
     }
 }

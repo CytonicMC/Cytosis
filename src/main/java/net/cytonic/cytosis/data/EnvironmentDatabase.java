@@ -14,27 +14,22 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.hollowcube.polar.PolarReader;
-import net.hollowcube.polar.PolarWorld;
-import net.hollowcube.polar.PolarWriter;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.Pos;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisSettings;
-import net.cytonic.cytosis.environments.EnvironmentManager;
-import net.cytonic.cytosis.files.FileManager;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.CytosisConfig.DatabaseConfig;
+import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.PosSerializer;
 
 /**
  * A class handling Cytosis database transactions within its environment. Things like player ranks, punishments, and
  * some worlds are stored in {@link GlobalDatabase}.
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-@CytosisComponent(dependsOn = {FileManager.class, EnvironmentManager.class})
+@CytosisComponent
 public class EnvironmentDatabase implements Bootstrappable {
 
     private final ExecutorService worker;
@@ -45,7 +40,7 @@ public class EnvironmentDatabase implements Bootstrappable {
      * Creates and initializes a new EnvironmentDatabase
      */
     public EnvironmentDatabase() {
-        String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+        String prefix = Cytosis.get(Environment.class).getPrefix();
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisDatabaseWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the database worker thread: " + t.getName(),
@@ -69,12 +64,12 @@ public class EnvironmentDatabase implements Bootstrappable {
     public void connect() {
         if (!isConnected()) {
             HikariConfig config = GlobalDatabase.getHikariConfig();
-            CytosisSettings settings = Cytosis.get(CytosisSettings.class);
-            String prefix = Cytosis.get(EnvironmentManager.class).getEnvironment().getPrefix();
+            DatabaseConfig settings = Cytosis.get(CytosisConfig.class).database();
+            String prefix = Cytosis.get(Environment.class).getPrefix();
             config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s",
-                settings.getDatabaseConfig().getHost(),
-                settings.getDatabaseConfig().getPort(),
-                prefix + settings.getDatabaseConfig().getName()));
+                settings.host(),
+                settings.port(),
+                prefix + settings.database()));
             this.dataSource = new HikariDataSource(config);
             try {
                 // Test the connection
@@ -121,32 +116,9 @@ public class EnvironmentDatabase implements Bootstrappable {
      * Creates the database tables
      */
     public void createTables() {
-        createWorldTable();
         createPlayerJoinsTable();
     }
 
-
-    /**
-     * Creates the world table
-     */
-    public void createWorldTable() {
-        try (Connection conn = getConnection()) {
-            conn.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS cytonic_worlds (
-                    world_name VARCHAR(255),
-                    world_type TEXT,
-                    last_modified TIMESTAMP,
-                    world_data BYTEA,
-                    spawn_point TEXT,
-                    extra_data TEXT,
-                    uuid UUID,
-                    PRIMARY KEY(world_name)
-                )
-                """).executeUpdate();
-        } catch (SQLException e) {
-            Logger.error("An error occurred whilst creating the `cytonic_worlds` table.", e);
-        }
-    }
 
     /**
      * Create the player join logging table
@@ -159,149 +131,6 @@ public class EnvironmentDatabase implements Bootstrappable {
         } catch (SQLException e) {
             Logger.error("An error occurred whilst creating the `cytonic_player_joins` table.", e);
         }
-    }
-
-    public CompletableFuture<Void> addWorld(String worldName, String worldType, PolarWorld world, Pos spawnPoint,
-        UUID worldUuid) {
-        checkConditions();
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        world.setCompression(PolarWorld.CompressionType.ZSTD);
-
-        worker.submit(() -> {
-            try (Connection conn = getConnection()) {
-                PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO cytonic_worlds (world_name, world_type, last_modified, world_data, spawn_point, uuid)
-                    VALUES (?,?, CURRENT_TIMESTAMP,?,?,?)
-                    """);
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ps.setBytes(3, PolarWriter.write(world));
-                ps.setString(4, PosSerializer.serialize(spawnPoint));
-                ps.setObject(5, worldUuid);
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Logger.error("An error occurred whilst adding a world!", e);
-            }
-            future.complete(null);
-        });
-        return future;
-    }
-
-    /**
-     * Retrieves a world from the database.
-     *
-     * @param worldName The name of the world to fetch.
-     * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}. If the world does not
-     * exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
-     * @throws IllegalStateException If the database connection is not open.
-     */
-    public CompletableFuture<PolarWorld> getWorld(String worldName) {
-        checkConditions();
-        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
-
-        worker.submit(() -> {
-            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
-                PreparedStatement ps = conn.prepareStatement("SELECT * FROM cytonic_worlds WHERE world_name = ?");
-                ps.setString(1, worldName);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.get(CytosisSettings.class)
-                        .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
-                    future.complete(world);
-                } else {
-                    Logger.error("The result set is empty!");
-                    future.completeExceptionally(new RuntimeException("World not found: " + worldName));
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching a world!", e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    /**
-     * Retrieves a world from the database.
-     *
-     * @param worldName The name of the world to fetch.
-     * @param worldType The world type of the world to fetch.
-     * @return A {@link CompletableFuture} that completes with the fetched {@link PolarWorld}. If the world does not
-     * exist in the database, the future will complete exceptionally with a {@link RuntimeException}.
-     * @throws IllegalStateException If the database connection is not open.
-     */
-    public CompletableFuture<PolarWorld> getWorld(String worldName, String worldType) {
-        checkConditions();
-        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
-
-        worker.submit(() -> {
-            try (Connection conn = Cytosis.get(GlobalDatabase.class).getConnection()) {
-                PreparedStatement ps = conn.prepareStatement(
-                    "SELECT * FROM cytonic_worlds WHERE world_name = ? AND world_type = ?");
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    PolarWorld world = PolarReader.read(rs.getBytes("world_data"));
-                    Cytosis.get(CytosisSettings.class)
-                        .getServerConfig().setSpawnPos(PosSerializer.deserialize(rs.getString("spawn_point")));
-                    future.complete(world);
-                } else {
-                    Logger.error("The result set is empty!");
-                    future.completeExceptionally(new RuntimeException("World not found: " + worldName));
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching a world!", e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
-    }
-
-    public CompletableFuture<String> getWorldExtraData(String worldName, String worldType) {
-        checkConditions();
-        CompletableFuture<String> future = new CompletableFuture<>();
-
-        worker.submit(() -> {
-            try (Connection conn = getConnection()) {
-                PreparedStatement ps = conn.prepareStatement(
-                    "SELECT extra_data FROM cytonic_worlds WHERE world_name = ? AND world_type = ?");
-                ps.setString(1, worldName);
-                ps.setString(2, worldType);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    future.complete(rs.getString("extra_data"));
-                } else {
-                    Logger.error("The result set is empty!");
-                    future.completeExceptionally(new RuntimeException("World data not found: " + worldName));
-                }
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching the extra data from a world!", e);
-                future.completeExceptionally(e);
-                throw new RuntimeException(e);
-            }
-        });
-        return future;
-    }
-
-    public CompletableFuture<Boolean> worldExists(String worldName) {
-        checkConditions();
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-
-        worker.submit(() -> {
-            try (Connection conn = getConnection()) {
-                PreparedStatement ps = conn.prepareStatement(
-                    "SELECT world_name FROM cytonic_worlds WHERE world_name = ?");
-                ps.setString(1, worldName);
-                ResultSet rs = ps.executeQuery();
-                future.complete(rs.next());
-            } catch (Exception e) {
-                Logger.error("An error occurred whilst fetching a world!", e);
-                future.completeExceptionally(e);
-            }
-        });
-        return future;
     }
 
     /**

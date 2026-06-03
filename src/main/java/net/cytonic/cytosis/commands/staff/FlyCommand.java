@@ -36,20 +36,19 @@ public class FlyCommand extends CytosisCommand {
     }
 
     private void execute(CytosisPlayer player, float speed, boolean overwrite) {
-        if (!player.getPreference(Preferences.FLY) || player.getPreference(Preferences.FLY_SPEED) != speed) {
+        player.togglePreference(Preferences.FLY, () -> {
             player.setAllowFlying(true);
             player.setFlying(true);
             player.setFlyingSpeed(speed * 0.05F);
             player.sendMessage(Msg.green("Flight enabled at %.2fx speed.", speed));
-            player.updatePreference(Preferences.FLY, true);
-            if (overwrite) {
-                player.updatePreference(Preferences.FLY_SPEED, speed);
-            }
-        } else {
+        }, () -> {
             player.setAllowFlying(false);
             player.setFlying(false);
             player.sendMessage(Msg.red("Flight disabled."));
-            player.updatePreference(Preferences.FLY, false);
+        });
+
+        if (player.getPreference(Preferences.FLY_SPEED) != speed && overwrite) {
+            player.updatePreference(Preferences.FLY_SPEED, speed);
         }
     }
 }

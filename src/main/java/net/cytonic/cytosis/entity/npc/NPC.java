@@ -58,7 +58,7 @@ public abstract class NPC {
 
     public NPC(NPCConfiguration config) {
         this.config = config;
-        String className = getClass().getSimpleName().replaceAll("NPC", "");
+        String className = getClass().getSimpleName().replace("NPC", "");
         this.name =
             config.chatName() != null ? config.chatName()
                 : Component.text(className.replaceAll("(?<=.)(?=\\p{Lu})", " "));
@@ -112,8 +112,7 @@ public abstract class NPC {
 
             NPCEntityImpl entity = new NPCEntityImpl(
                 username,
-                config.texture(player),
-                config.signature(player),
+                config.skin(player),
                 holograms
             );
             entity.setInstance(config.instance(), npcPos);
@@ -189,9 +188,9 @@ public abstract class NPC {
 
     private void sendPackets(CytosisPlayer player, NPCEntityImpl entity) {
         List<PlayerInfoUpdatePacket.Property> properties = new ArrayList<>();
-        if (entity.getSkinTexture() != null && entity.getSkinSignature() != null) {
-            properties.add(new PlayerInfoUpdatePacket.Property("textures", entity.getSkinTexture(),
-                entity.getSkinSignature()));
+        if (entity.getSkin() != null) {
+            properties.add(new PlayerInfoUpdatePacket.Property("textures", entity.getSkin().textures(),
+                entity.getSkin().signature()));
         }
         Pos npcPos = entity.getPosition();
         player.sendPackets(

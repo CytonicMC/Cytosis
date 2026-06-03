@@ -14,12 +14,9 @@ public class SnooperMuteCommand extends CytosisCommand {
 
         setDefaultExecutor((s, _) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            if (player.getPreference(Preferences.MUTE_SNOOPER)) {
-                player.sendMessage(Msg.whoops("You have already muted snooper!"));
-                return;
-            }
-            player.updatePreference(Preferences.MUTE_SNOOPER, true);
-            player.sendMessage(Msg.redSplash("MUTED!", "Snooper has been muted."));
+            player.togglePreference(Preferences.MUTE_SNOOPER, () ->
+                    player.sendMessage(Msg.redSplash("MUTED!", "Snooper has been muted")),
+                () -> player.sendMessage(Msg.greenSplash("UNMUTED!", "Snooper has been unmuted")));
         });
     }
 }

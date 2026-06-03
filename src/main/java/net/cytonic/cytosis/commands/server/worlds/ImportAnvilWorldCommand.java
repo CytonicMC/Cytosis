@@ -3,28 +3,21 @@ package net.cytonic.cytosis.commands.server.worlds;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
 
 import net.hollowcube.polar.AnvilPolar;
-import net.hollowcube.polar.PolarLoader;
 import net.hollowcube.polar.PolarWorld;
-import net.minestom.server.MinecraftServer;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.InstanceManager;
-import net.minestom.server.instance.anvil.AnvilLoader;
-import net.minestom.server.timer.TaskSchedule;
+import net.minestom.server.command.builder.arguments.minecraft.ArgumentResourceLocation;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.data.GlobalDatabase;
+import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.managers.WorldManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.polar.EntityAnvilLoader;
-import net.cytonic.cytosis.utils.polar.PolarExtension;
 
 public class ImportAnvilWorldCommand extends CytosisCommand {
 
@@ -32,14 +25,12 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
         super("anvil");
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(
-            Msg.whoops("Usage: /importworld anvil \"<path/to/world/folder>\" <name> [type]")));
+            Msg.whoops("Usage: /importworld anvil \"<path/to/world/folder>\" <key>")));
 
         ArgumentWord path = new ArgumentWord("path");
-        ArgumentWord name = new ArgumentWord("name");
-        ArgumentWord type = new ArgumentWord("type");
-        type.setDefaultValue("anvil-imported");
+        ArgumentResourceLocation keyArgument = new ArgumentResourceLocation("key");
         addSyntax((sender, context) -> {
-            if (!(sender instanceof CytosisPlayer player)) return;
+            if (!(sender instanceof CytosisPlayer)) return;
             Path readPath = Path.of(context.get(path));
             if (!(Files.exists(readPath) && Files.isReadable(readPath))) {
                 sender.sendMessage(Msg.whoops("The path you specified does not exist!"));
@@ -50,12 +41,6 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
                 return;
             }
 
-            AnvilLoader loader = new EntityAnvilLoader(readPath);
-            InstanceManager instanceManager = Cytosis.get(InstanceManager.class);
-            InstanceContainer c = instanceManager.createInstanceContainer(loader);
-            player.setInstance(c);
-
-
             PolarWorld world;
             try {
                 world = AnvilPolar.anvilToPolar(readPath);
@@ -65,22 +50,17 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
                 return;
             }
 
-            PolarLoader polarLoader = new PolarLoader(world);
-            polarLoader.setWorldAccess(new PolarExtension());
-            polarLoader.saveInstance(c);
-
-            UUID uuid = UUID.randomUUID();
-            Cytosis.get(GlobalDatabase.class)
-                .addWorld(context.get(name), context.get(type), world, Pos.ZERO, uuid)
-                .whenComplete((result, error) -> {
-                    MinecraftServer.getSchedulerManager()
-                        .buildTask(() -> instanceManager.unregisterInstance(c))
-                        .delay(TaskSchedule.seconds(1)).schedule();
-                    sender.sendMessage(
-                        Msg.success("Successfully imported world '%s' into the global database. UUID: %s",
-                            context.get(name)
-                        .replace("_", ""), uuid.toString()));
-                });
-        }, path, name, type);
+            Key key = context.get(keyArgument);
+            Cytosis.get(WorldManager.class).saveWorld(key, world).whenComplete((_, throwable) -> {
+                if (throwable != null) {
+                    sender.sendMessage(Msg.whoops("An error occurred! " + throwable.getMessage()));
+                    Logger.error("An error occurred!", throwable);
+                    return;
+                }
+                sender.sendMessage(
+                    Msg.success("Successfully imported world '%s' into %s Garage!",
+                        context.get(keyArgument).asString(), Cytosis.get(Environment.class)));
+            });
+        }, path, keyArgument);
     }
 }

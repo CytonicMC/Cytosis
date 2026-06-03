@@ -5,12 +5,12 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.instance.Clock;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.world.clock.WorldClock;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
 /**
@@ -27,7 +27,7 @@ public class TimeCommand extends CytosisCommand {
         ArgumentWord timeArgument = ArgumentType.Word("time")
             .from("day", "night", "noon", "midnight", "sunrise", "sunset", "freeze");
         ArgumentInteger timeInteger = ArgumentType.Integer("timeInteger");
-        timeArgument.setSuggestionCallback((sender, cmdc, suggestion) -> {
+        timeArgument.setSuggestionCallback((_, _, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("day"));
             suggestion.addEntry(new SuggestionEntry("night"));
             suggestion.addEntry(new SuggestionEntry("noon"));
@@ -36,10 +36,11 @@ public class TimeCommand extends CytosisCommand {
             suggestion.addEntry(new SuggestionEntry("sunset"));
             suggestion.addEntry(new SuggestionEntry("freeze"));
         });
-        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.red("Usage: /time (time)")));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.red("Usage: /time (time)")));
         addSyntax((sender, context) -> {
-            InstanceContainer defaultInstance = Cytosis.get(InstanceContainer.class);
-            long timeToSet = defaultInstance.getTime();
+            if (!(sender instanceof CytosisPlayer player)) return;
+            Instance instance = player.getInstance();
+            long timeToSet = instance.getTime();
             switch (context.get(timeArgument).toLowerCase()) {
                 case "day" -> timeToSet = 1000L;
                 case "night" -> timeToSet = 13000L;
@@ -48,7 +49,7 @@ public class TimeCommand extends CytosisCommand {
                 case "sunrise" -> timeToSet = 23000L;
                 case "sunset" -> timeToSet = 12000L;
                 case "freeze" -> {
-                    Clock clock = defaultInstance.clock(WorldClock.OVERWORLD);
+                    Clock clock = instance.clock(WorldClock.OVERWORLD);
                     if (clock.paused()) {
                         clock.resume();
                         sender.sendMessage(Msg.gold("Time unfrozen."));
@@ -61,11 +62,12 @@ public class TimeCommand extends CytosisCommand {
                     // won't ever happen
                 }
             }
-            defaultInstance.setTime(timeToSet);
+            instance.setTime(timeToSet);
         }, timeArgument);
         addSyntax((sender, context) -> {
-            InstanceContainer defaultInstance = Cytosis.get(InstanceContainer.class);
-            defaultInstance.setTime(context.get(timeInteger)); // Set time to input
+            if (!(sender instanceof CytosisPlayer player)) return;
+            Instance instance = player.getInstance();
+            instance.setTime(context.get(timeInteger)); // Set time to input
             sender.sendMessage(Msg.green("Time set to " + context.get(timeInteger) + "."));
         }, timeInteger);
     }

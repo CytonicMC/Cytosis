@@ -33,11 +33,14 @@ public class ArgumentPlayer extends Argument<CytosisPlayer> {
             // not known by this name
             player = Cytosis.get(NicknameManager.class).getPlayerByNickname(input);
         }
+        if (player == null) {
+            throw new ArgumentSyntaxException("Player " + input + " does not exist!", input, 1);
+        }
         return player;
     }
 
     @Override
-    public ArgumentParserType parser() {
+    public @NotNull ArgumentParserType parser() {
         return ArgumentParserType.STRING;
     }
 

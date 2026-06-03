@@ -13,6 +13,7 @@ import net.cytonic.cytosis.data.containers.SnoopsContainer;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.objects.preferences.JsonPreference;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
+import net.cytonic.cytosis.data.objects.preferences.ToggleablePreference;
 import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 
 /**
@@ -27,23 +28,23 @@ public class Preferences {
      */
     public static final Set<Preference<?>> ALL = new HashSet<>();
 
-    public static final Preference<Boolean> ACCEPT_FRIEND_REQUESTS = make("accept_friend_request", true);
-    public static final Preference<Boolean> ACCEPT_PARTY_INVITES = make("accept_party_invite", true);
-    public static final Preference<Boolean> SERVER_ALERTS = make("server_alerts", false);
+    public static final ToggleablePreference ACCEPT_FRIEND_REQUESTS = makeToggleable("accept_friend_request", true);
+    public static final ToggleablePreference ACCEPT_PARTY_INVITES = makeToggleable("accept_party_invite", true);
+    public static final ToggleablePreference SERVER_ALERTS = makeToggleable("server_alerts", false);
     public static final Preference<ChatChannel> CHAT_CHANNEL = make("chat_channel", ChatChannel.ALL);
     public static final JsonPreference<IgnoredChatChannelContainer> IGNORED_CHAT_CHANNELS = makeJson(
         "ignored_chat_channels", IgnoredChatChannelContainer.NONE);
     public static final JsonPreference<SnoopsContainer> LISTENING_SNOOPS = makeJson("listened_snoops",
         new SnoopsContainer(new HashSet<>()));
-    public static final Preference<Boolean> MUTE_SNOOPER = make("mute_snoops", false);
-    public static final Preference<Boolean> VANISHED = make("vanished", false);
+    public static final ToggleablePreference MUTE_SNOOPER = makeToggleable("mute_snoops", false);
+    public static final ToggleablePreference VANISHED = makeToggleable("vanished", false);
     public static final JsonPreference<NicknameData> NICKNAME_DATA = makeJson("nickname_data", NicknameData.class);
     public static final Preference<UUID> NICKED_UUID = make("nicked_uuid", UUID.class);
-    public static final Preference<Boolean> CHAT_MESSAGE_PING = make("chat_message_ping", false);
-    public static final Preference<Boolean> TPS_DEBUG = make("tps_debug", false);
-    public static final Preference<Boolean> FLY = make("fly", false);
+    public static final ToggleablePreference CHAT_MESSAGE_PING = makeToggleable("chat_message_ping", false);
+    public static final ToggleablePreference TPS_DEBUG = makeToggleable("tps_debug", false);
+    public static final ToggleablePreference FLY = makeToggleable("fly", false);
     public static final Preference<Float> FLY_SPEED = make("fly_speed", 1F);
-    public static final Preference<Boolean> REPORT_BANNED = make("report_banned", false);
+    public static final ToggleablePreference REPORT_BANNED = makeToggleable("report_banned", false);
 
 
     private static <T> Preference<T> make(String key, T def) {
@@ -72,6 +73,12 @@ public class Preferences {
 
     private static <T> JsonPreference<T> makeJson(String key, Class<T> clazz) {
         JsonPreference<T> val = new JsonPreference<>(Key.key("cytosis", key), clazz, null);
+        ALL.add(val);
+        return val;
+    }
+
+    private static ToggleablePreference makeToggleable(String key, boolean def) {
+        ToggleablePreference val = new ToggleablePreference(Key.key("cytosis", key), def);
         ALL.add(val);
         return val;
     }

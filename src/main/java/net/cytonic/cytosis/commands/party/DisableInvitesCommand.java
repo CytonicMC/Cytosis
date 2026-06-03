@@ -11,15 +11,13 @@ class DisableInvitesCommand extends CytosisCommand {
         super("disableinvites");
         setDefaultExecutor((s, _) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            boolean newState = !player.getPreference(Preferences.ACCEPT_PARTY_INVITES);
-            player.updatePreference(Preferences.ACCEPT_PARTY_INVITES, newState);
-            if (newState) {
-                player.sendMessage(
-                    Msg.success("Other players will now be able to send you invitations to their parties."));
-            } else {
-                player.sendMessage(Msg.success(
-                    "Other players will now be <red>unable</red> to send you invitations to their parties."));
-            }
+            player.togglePreference(Preferences.ACCEPT_PARTY_INVITES, () ->
+                    player.sendMessage(
+                        Msg.success("Other players will now be able to send you invitations to their parties.")),
+                () ->
+                    player.sendMessage(
+                        Msg.success(
+                            "Other players will now be <red>unable</red> to send you invitations to their parties.")));
         });
     }
 }

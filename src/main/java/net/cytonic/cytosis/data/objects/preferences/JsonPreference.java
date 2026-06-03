@@ -35,7 +35,7 @@ public class JsonPreference<T> extends Preference<T> {
     }
 
     @Override
-    public Preference<T> withValue(@org.jspecify.annotations.Nullable T value) {
+    public Preference<T> withValue(@Nullable T value) {
         return new JsonPreference<>(getKey(), getType(), value, getSerializer(), getDeserializer());
     }
 

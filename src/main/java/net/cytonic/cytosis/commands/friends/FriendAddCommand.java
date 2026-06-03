@@ -42,8 +42,8 @@ public class FriendAddCommand extends CytosisCommand {
             String name = network.getLifetimePlayers().getByKey(target);
             Component targetComp = network.getCachedPlayerRanks().get(target).getPrefix().append(Component.text(name));
 
-            if (nicked) {
-                NicknameData data = nicknameManager.getData(target);
+            NicknameData data = nicknameManager.getData(target);
+            if (nicked && data != null) {
                 targetComp = data.rank().getPrefix().append(Component.text(data.nickname()));
             }
 

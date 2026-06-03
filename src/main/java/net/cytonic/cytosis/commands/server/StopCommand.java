@@ -8,7 +8,6 @@ import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.config.CytosisSettings;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -32,8 +31,7 @@ public class StopCommand extends CytosisCommand {
         addSyntax((s, ctx) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             int seconds = ctx.get(secondsArg);
-            Cytosis.get(CytosisSettings.class).getServerConfig().setShutdownDuration(seconds);
-            Cytosis.CONTEXT.setSlowShutdown(true);
+            Cytosis.CONTEXT.setShutdownDuration(seconds);
             kill(player);
         }, secondsArg);
     }

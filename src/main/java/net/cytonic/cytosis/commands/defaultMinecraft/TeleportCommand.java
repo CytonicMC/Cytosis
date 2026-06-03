@@ -34,10 +34,6 @@ public class TeleportCommand extends CytosisCommand {
     private static final CommandExecutor PLAYER_EXECUTOR = (sender, context) -> {
         if (sender instanceof CytosisPlayer player) {
             CytosisPlayer target = context.get(CommandUtils.ONLINE_PLAYERS);
-            if (target == null) {
-                player.sendMessage(Msg.whoops("Player not found!"));
-                return;
-            }
             player.teleport(target.getPosition());
             player.sendMessage(Msg.green("Teleported!"));
         }
