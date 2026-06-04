@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase.PlayerEntry;
 import net.cytonic.cytosis.data.RedisDatabase;
@@ -24,7 +23,6 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
-import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.impl.notify.PlayerChangeServerNotifyPacket;
 import net.cytonic.protocol.utils.NotifyHandler;
 
@@ -56,14 +54,7 @@ public class CytonicNetwork implements Bootstrappable {
         this.cytosisContext = Cytosis.CONTEXT;
         this.gdb = cytosisContext.getComponent(GlobalDatabase.class);
         importData();
-        getServers()
-            .put(Cytosis.CONTEXT.SERVER_ID,
-                new CytonicServer(Utils.getServerIP(),
-                    Cytosis.CONTEXT.SERVER_ID,
-                    cytosisContext.getComponent(CytosisConfig.class).port(),
-                    cytosisContext.getServerGroup().type(),
-                    cytosisContext.getServerGroup().group())
-            );
+        getServers().put(cytosisContext.SERVER_ID, cytosisContext.currentServer());
     }
 
     /**
