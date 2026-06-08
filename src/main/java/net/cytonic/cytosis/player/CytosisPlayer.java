@@ -37,7 +37,7 @@ import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.data.objects.preferences.Preference;
 import net.cytonic.cytosis.data.objects.preferences.ToggleablePreference;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.managers.ActionbarManager;
+import net.cytonic.cytosis.managers.ActionBarManager;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.managers.LocalCooldownManager;
@@ -300,7 +300,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
 
     @Override
     public void sendActionBar(@NotNull Component message) {
-        Cytosis.get(ActionbarManager.class).addToQueue(getUuid(), message);
+        Cytosis.get(ActionBarManager.class).addToQueue(getUuid(), message);
     }
 
     /**

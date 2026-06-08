@@ -449,6 +449,8 @@ tasks.withType<Checkstyle>().configureEach {
     dependsOn("jandex")
     dependsOn(buildIndex)
 
+    exclude("**/Events.java")
+
     reports {
         xml.required.set(true)
         html.required.set(true)

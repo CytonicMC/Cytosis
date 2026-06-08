@@ -1,15 +1,11 @@
 package net.cytonic.cytosis.managers;
 
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.network.packet.server.play.ActionBarPacket;
@@ -17,37 +13,47 @@ import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.actionBar.ActionBarCreator;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.events.Events;
-import net.cytonic.cytosis.utils.ActionbarSupplier;
+import net.cytonic.cytosis.data.objects.ExpiringMap;
+import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.server.AbstractCytosisServer;
+import net.cytonic.cytosis.server.actionBar.ActionBarService;
+import net.cytonic.cytosis.utils.Events;
 
 /**
  * The class that handles actionbar sending to players
  */
-@NoArgsConstructor
-@CytosisComponent(dependsOn = {NetworkCooldownManager.class})
-public class ActionbarManager implements Bootstrappable {
+@CytosisComponent
+public class ActionBarManager<P extends CytosisPlayer> implements Bootstrappable {
 
     private static final int DEFAULT_TICKS = 20;
 
     // Scheduled queue per player
-    private final Map<UUID, Queue<MessageEntry>> messageQueues = new ConcurrentHashMap<>();
+    private final ExpiringMap<Queue<MessageEntry>> messageQueues = new ExpiringMap<>();
     // Immediate-priority queue per player
-    private final Map<UUID, Queue<MessageEntry>> immediateQueues = new ConcurrentHashMap<>();
+    private final ExpiringMap<Queue<MessageEntry>> immediateQueues = new ExpiringMap<>();
     // Currently active message per player
-    private final Map<UUID, MessageEntry> currentMessages = new ConcurrentHashMap<>();
-
+    private final ExpiringMap<MessageEntry> currentMessages = new ExpiringMap<>();
     private final Set<UUID> cooldowns = ConcurrentHashMap.newKeySet();
-    @Setter
-    @Getter
-    private ActionbarSupplier defaultSupplier = ActionbarSupplier.DEFAULT;
+    private ActionBarCreator<P> actionBarCreator;
+    private ActionBarService<P> actionBarService;
 
     /**
      * Sets up the manager, registering event listeners, and starting the loop.
      */
     @Override
     public void init() {
-        Events.onConfig((player) -> {
+        actionBarService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
+            .actionBarService();
+
+        if (!actionBarService.supportsActionBar()) return;
+
+        actionBarCreator = actionBarService.actionBarCreator();
+
+        Events.onAsyncPlayerConfiguration(event -> {
+            if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
+
             messageQueues.put(player.getUuid(), new ConcurrentLinkedQueue<>());
             immediateQueues.put(player.getUuid(), new ConcurrentLinkedQueue<>());
             cooldowns.add(player.getUuid());
@@ -55,24 +61,21 @@ public class ActionbarManager implements Bootstrappable {
             MinecraftServer.getSchedulerManager().buildTask(() -> cooldowns.remove(player.getUuid()))
                 .delay(TaskSchedule.tick(5)).schedule();
         });
-        Events.onLeave((player) -> {
-            messageQueues.remove(player.getUuid());
-            immediateQueues.remove(player.getUuid());
-            currentMessages.remove(player.getUuid());
-            cooldowns.remove(player.getUuid());
-        });
+        Events.onPlayerDisconnect((event) ->
+            cooldowns.remove(event.getPlayer().getUuid()));
 
         // Run every tick to support custom durations and immediate overrides
         MinecraftServer.getSchedulerManager()
-            .scheduleTask(() -> messageQueues.forEach((uuid, ignored) -> handleQueueForPlayer(uuid)),
+            .scheduleTask(() -> messageQueues.forEach((uuid, _) -> handleQueueForPlayer(uuid)),
                 TaskSchedule.nextTick(), TaskSchedule.tick(1));
     }
 
     private void handleQueueForPlayer(UUID uuid) {
+        if (!actionBarService.supportsActionBar()) return;
         if (cooldowns.contains(uuid)) {
             return;
         }
-        Cytosis.getPlayer(uuid).ifPresentOrElse(p -> {
+        Cytosis.<P>getPlayer(uuid).ifPresentOrElse(p -> {
             MessageEntry active = currentMessages.get(uuid);
             if (active == null || active.remainingTicks <= 0) {
                 Queue<MessageEntry> iq = immediateQueues.get(uuid);
@@ -85,7 +88,7 @@ public class ActionbarManager implements Bootstrappable {
                     currentMessages.put(uuid, active);
                 } else {
                     // we have to use a packet here to avoid an endless recursion
-                    p.sendPacket(new ActionBarPacket(defaultSupplier.getActionbar(p)));
+                    p.sendPacket(new ActionBarPacket(actionBarCreator.getActionBar(p)));
                     return;
                 }
             }
@@ -154,15 +157,17 @@ public class ActionbarManager implements Bootstrappable {
      * @param ticks   how long to display, in ticks
      */
     public void addImmediate(UUID uuid, Component message, int ticks) {
-        if (ticks <= 0) {
-            return;
+        if (actionBarService.supportsActionBar()) {
+            if (ticks <= 0) {
+                return;
+            }
+            Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new ConcurrentLinkedQueue<>());
+            MessageEntry entry = new MessageEntry(message, ticks);
+            queue.add(entry);
+            currentMessages.put(uuid, entry);
+            // we have to use a packet here to avoid an endless recursion
+            Cytosis.getPlayer(uuid).ifPresent(p -> p.sendPacket(new ActionBarPacket(message)));
         }
-        Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new ConcurrentLinkedQueue<>());
-        MessageEntry entry = new MessageEntry(message, ticks);
-        queue.add(entry);
-        currentMessages.put(uuid, entry);
-        // we have to use a packet here to avoid an endless recursion
-        Cytosis.getPlayer(uuid).ifPresent(p -> p.sendPacket(new ActionBarPacket(message)));
     }
 
     /**
