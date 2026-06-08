@@ -51,8 +51,6 @@ tasks.named("jar") {
     dependsOn(renameJandex)
 }
 
-
-
 publishing {
     repositories {
         maven {
