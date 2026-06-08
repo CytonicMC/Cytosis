@@ -13,7 +13,7 @@ public interface SideboardService<P extends CytosisPlayer> {
     @Nullable
     SideboardCreator<P> sideboardCreator();
 
-    default TaskSchedule scheduale() {
+    default TaskSchedule schedule() {
         return TaskSchedule.seconds(1);
     }
 

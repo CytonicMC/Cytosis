@@ -42,7 +42,7 @@ public class SideboardManager<P extends CytosisPlayer> implements Bootstrappable
             .sideboardService();
         if (sideboardService.supportsSideboard()) {
             sideboardCreator = sideboardService.sideboardCreator();
-            autoUpdateBoards(sideboardService.scheduale());
+            autoUpdateBoards(sideboardService.schedule());
         }
     }
 
