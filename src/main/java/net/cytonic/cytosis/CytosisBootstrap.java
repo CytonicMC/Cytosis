@@ -1,7 +1,8 @@
 package net.cytonic.cytosis;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
 import dev.minestomunited.minestomevents.EventsNode;
 import me.devnatan.AnvilInputFeature;
@@ -11,8 +12,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
-import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
 
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisConfig;
@@ -21,10 +20,11 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.metrics.MetricsHooks;
+import net.cytonic.cytosis.nicknames.NicknameEntryMenu;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
+import net.cytonic.cytosis.snooper.SnooperMenu;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
-import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.utils.IndexHolder;
 
 /**
@@ -111,21 +111,14 @@ public class CytosisBootstrap {
         Logger.info("Initializing view frame");
         ViewFrame viewFrame = ViewFrame.create();
 
-        IndexView index = IndexHolder.get();
+        List<View> menus = new ArrayList<>(List.of(
+            new NicknameEntryMenu(), new SnooperMenu()
+        ));
+        menus.addAll(server.menuService().getMenus());
 
-        index.getAllKnownSubclasses(View.class).stream()
-            .filter(ci -> ci.name().startsWith(DotName.createSimple("net.cytonic")))
-            .forEach(ci -> {
-                try {
-                    Class<?> clazz = Utils.loadClass(ci.name().toString());
-                    Constructor<?> constructor = clazz.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    View instance = (View) constructor.newInstance();
-                    viewFrame.with(instance);
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading menu views!", e);
-                }
-            });
+        for (View menu : menus) {
+            viewFrame.with(menu);
+        }
 
         viewFrame.install(AnvilInputFeature.AnvilInput);
         cytosisContext.registerComponent(viewFrame.register());

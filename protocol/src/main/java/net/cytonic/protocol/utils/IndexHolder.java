@@ -28,8 +28,16 @@ public class IndexHolder {
         long start = System.nanoTime();
         List<IndexView> indices = new ArrayList<>();
 
-        // Add cytosis' index (from resources)
         try (InputStream is = getClass().getResourceAsStream("/META-INF/jandex.idx")) {
+            if (is != null) indices.add(new IndexReader(is).read());
+        }
+
+        // Add cytosis' index (from resources)
+        try (InputStream is = getClass().getResourceAsStream("/META-INF/cytosis-jandex.idx")) {
+            if (is != null) indices.add(new IndexReader(is).read());
+        }
+
+        try (InputStream is = getClass().getResourceAsStream("/META-INF/minestom-jandex.idx")) {
             if (is != null) indices.add(new IndexReader(is).read());
         }
 

@@ -45,16 +45,15 @@ public class PlayerListManager<P extends CytosisPlayer> implements Bootstrappabl
     private UUID[][] listUuids; // <column, entry>
     private PlayerlistCreator<P> creator;
     private PlayerListService<P> playerListService;
-    // in ticks
-    private int updateInterval = 20;
+    private TaskSchedule schedule;
 
     @Override
     public void init() {
         playerListService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
-           .playerListService();
+            .playerListService();
         if (playerListService.supportsPlayerList()) {
             creator = playerListService.creator();
-            updateInterval = playerListService.updateInterval();
+            schedule = playerListService.schedule();
 
             scheduleUpdate();
             listUuids = new UUID[creator.getColumnCount()][20];
@@ -175,7 +174,7 @@ public class PlayerListManager<P extends CytosisPlayer> implements Bootstrappabl
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             updateAll();
             scheduleUpdate();
-        }).delay(TaskSchedule.tick(updateInterval)).schedule();
+        }).delay(schedule).schedule();
     }
 
     /**

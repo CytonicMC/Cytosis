@@ -169,8 +169,9 @@ val buildIndex = tasks.register("indexMinestomEvents") {
 
     // Depend on configuration resolution so the jar is present
     dependsOn(configurations["downloadOrShadow"])
+    dependsOn(renameJandex)
 
-    val outputFile = layout.buildDirectory.file("resources/main/META-INF/jandex.idx")
+    val outputFile = layout.buildDirectory.file("resources/main/META-INF/minestom-jandex.idx")
     outputs.file(outputFile)
 
     doLast {
@@ -354,6 +355,15 @@ tasks.register<Copy>("copyThinToLibs") {
     rename { "cytosis.jar" }
 }
 
+val renameJandex by tasks.registering(Copy::class) {
+    dependsOn(tasks.named("jandex"))
+
+    from(layout.buildDirectory.file("resources/main/META-INF/jandex.idx"))
+    into(layout.buildDirectory.dir("resources/main/META-INF"))
+
+    rename("jandex.idx", "cytosis-jandex.idx")
+}
+
 tasks.shadowJar {
     enabled = false
 }
@@ -438,6 +448,8 @@ checkstyle {
 tasks.withType<Checkstyle>().configureEach {
     dependsOn("jandex")
     dependsOn(buildIndex)
+
+    exclude("**/Events.java")
 
     reports {
         xml.required.set(true)

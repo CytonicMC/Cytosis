@@ -1,4 +1,4 @@
-package net.cytonic.cytosis.utils;
+package net.cytonic.cytosis.actionBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +7,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Msg;
 
 @FunctionalInterface
-public interface ActionbarSupplier {
+public interface ActionBarCreator<P extends CytosisPlayer> {
 
-    ActionbarSupplier EMPTY = player -> Component.empty();
-    ActionbarSupplier DEFAULT = player -> {
+    ActionBarCreator<? extends CytosisPlayer> EMPTY = _ -> Component.empty();
+    ActionBarCreator<? extends CytosisPlayer> DEFAULT = player -> {
         List<Component> statuses = new ArrayList<>();
 
         if (player.isVanished()) {
@@ -32,5 +33,5 @@ public interface ActionbarSupplier {
             .append(Msg.mm("."));
     };
 
-    Component getActionbar(CytosisPlayer player);
+    Component getActionBar(P player);
 }
