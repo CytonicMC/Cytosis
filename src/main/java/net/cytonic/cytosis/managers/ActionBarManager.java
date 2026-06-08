@@ -37,14 +37,13 @@ public class ActionBarManager<P extends CytosisPlayer> implements Bootstrappable
     private final ExpiringMap<MessageEntry> currentMessages = new ExpiringMap<>();
     private final Set<UUID> cooldowns = ConcurrentHashMap.newKeySet();
     private ActionBarCreator<P> actionBarCreator;
-    private ActionBarService<P> actionBarService;
 
     /**
      * Sets up the manager, registering event listeners, and starting the loop.
      */
     @Override
     public void init() {
-        actionBarService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
+        ActionBarService<P> actionBarService = Cytosis.<AbstractCytosisServer<P>>getGeneric(AbstractCytosisServer.class)
             .actionBarService();
 
         if (!actionBarService.supportsActionBar()) return;
@@ -71,7 +70,6 @@ public class ActionBarManager<P extends CytosisPlayer> implements Bootstrappable
     }
 
     private void handleQueueForPlayer(UUID uuid) {
-        if (!actionBarService.supportsActionBar()) return;
         if (cooldowns.contains(uuid)) {
             return;
         }
@@ -157,17 +155,15 @@ public class ActionBarManager<P extends CytosisPlayer> implements Bootstrappable
      * @param ticks   how long to display, in ticks
      */
     public void addImmediate(UUID uuid, Component message, int ticks) {
-        if (actionBarService.supportsActionBar()) {
-            if (ticks <= 0) {
-                return;
-            }
-            Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new ConcurrentLinkedQueue<>());
-            MessageEntry entry = new MessageEntry(message, ticks);
-            queue.add(entry);
-            currentMessages.put(uuid, entry);
-            // we have to use a packet here to avoid an endless recursion
-            Cytosis.getPlayer(uuid).ifPresent(p -> p.sendPacket(new ActionBarPacket(message)));
+        if (ticks <= 0) {
+            return;
         }
+        Queue<MessageEntry> queue = immediateQueues.computeIfAbsent(uuid, u -> new ConcurrentLinkedQueue<>());
+        MessageEntry entry = new MessageEntry(message, ticks);
+        queue.add(entry);
+        currentMessages.put(uuid, entry);
+        // we have to use a packet here to avoid an endless recursion
+        Cytosis.getPlayer(uuid).ifPresent(p -> p.sendPacket(new ActionBarPacket(message)));
     }
 
     /**
