@@ -171,7 +171,7 @@ val buildIndex = tasks.register("indexMinestomEvents") {
     dependsOn(configurations["downloadOrShadow"])
     dependsOn(renameJandex)
 
-    val outputFile = layout.buildDirectory.file("resources/main/META-INF/jandex.idx")
+    val outputFile = layout.buildDirectory.file("resources/main/META-INF/minestom-jandex.idx")
     outputs.file(outputFile)
 
     doLast {

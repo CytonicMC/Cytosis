@@ -37,6 +37,10 @@ public class IndexHolder {
             if (is != null) indices.add(new IndexReader(is).read());
         }
 
+        try (InputStream is = getClass().getResourceAsStream("/META-INF/minestom-jandex.idx")) {
+            if (is != null) indices.add(new IndexReader(is).read());
+        }
+
         try (InputStream is = IndexHolder.class.getResourceAsStream("/META-INF/protocol-jandex.idx")) {
             if (is != null) indices.add(new IndexReader(is).read());
         }
