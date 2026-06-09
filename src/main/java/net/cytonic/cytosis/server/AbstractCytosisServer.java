@@ -1,5 +1,8 @@
 package net.cytonic.cytosis.server;
 
+import java.net.URL;
+import java.util.List;
+
 import dev.minestomunited.common.config.ConfigRegistry;
 import dev.minestomunited.entrypoint.minestom.BasicMinestomService;
 import dev.minestomunited.entrypoint.minestom.MinestomService;
@@ -11,6 +14,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.Auth;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisConfig;
@@ -61,6 +65,11 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     public abstract Key serverType();
 
     public abstract void onShutdown();
+
+    @OverrideOnly
+    public List<URL> extraJandexFiles() {
+        return List.of();
+    }
 
     public abstract ChatService<P> chatService();
 

@@ -67,7 +67,7 @@ public class CytosisBootstrap {
 
         Logger.info("Loading indexes");
         try {
-            IndexHolder.initialize();
+            IndexHolder.initialize(server.extraJandexFiles());
         } catch (IOException e) {
             Logger.error("Failed to initialize indexes: ", e);
             System.exit(122);
