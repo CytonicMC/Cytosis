@@ -12,7 +12,8 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://repo.foxikle.dev/cytonic")
-    maven("https://repo.minestom-united.dev/snapshots")
+    //todo add back when repo back up
+//    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 dependencies {
