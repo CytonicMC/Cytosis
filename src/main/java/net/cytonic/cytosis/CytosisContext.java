@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.data.objects.ServerGroup;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
 
@@ -26,7 +25,6 @@ public class CytosisContext {
 
     // The instance ID is used to identify the server
     public final String SERVER_ID = generateID();
-    private ServerGroup serverGroup = new ServerGroup("cytonic", "lobby");
 
     // map for bootstrappable services
     private Map<Class<?>, Object> components = new HashMap<>();
@@ -179,9 +177,11 @@ public class CytosisContext {
     }
 
     public CytonicServer currentServer() {
-        return new CytonicServer(Utils.getServerIP(), SERVER_ID,
+        return new CytonicServer(
+            Utils.getServerIP(),
+            SERVER_ID,
             getComponent(CytosisConfig.class).port(),
-            getServerGroup().type(),
-            getServerGroup().group());
+            Cytosis.getServer().serverType()
+        );
     }
 }

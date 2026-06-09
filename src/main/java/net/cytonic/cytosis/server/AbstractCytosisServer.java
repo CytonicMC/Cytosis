@@ -9,6 +9,7 @@ import dev.minestomunited.entrypoint.server.AbstractMinestomServer;
 import dev.minestomunited.entrypoint.session.SessionService;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.Auth;
 
 import net.cytonic.cytosis.Cytosis;
@@ -57,6 +58,10 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         return getConfigOrThrow(CytosisConfig.class).standalone();
     }
 
+    public abstract Key serverType();
+
+    public abstract void onShutdown();
+
     public abstract ChatService<P> chatService();
 
     public abstract PlayerListService<P> playerListService();
@@ -66,6 +71,4 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     public abstract ActionBarService<P> actionBarService();
 
     public abstract MenuService menuService();
-
-    public abstract void onShutdown();
 }

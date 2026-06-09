@@ -136,7 +136,7 @@ public class MetricsManager implements Bootstrappable {
         longsCounters.get(counterName).add(value,
             Attributes.builder().putAll(extraAttributes)
                 .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
                 .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
                 .build());
     }
@@ -159,7 +159,7 @@ public class MetricsManager implements Bootstrappable {
         doublesCounters.get(counterName).add(value,
             Attributes.builder().putAll(extraAttributes)
                 .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
                 .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
                 .build());
     }
@@ -185,7 +185,7 @@ public class MetricsManager implements Bootstrappable {
             observableDoubleMeasurement -> observableDoubleMeasurement.record(function.apply(null),
                 Attributes.builder().putAll(extraAttributes)
                     .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                    .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                    .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
                     .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
                     .build()));
     }
@@ -209,7 +209,7 @@ public class MetricsManager implements Bootstrappable {
             call -> call.record(function.apply(null),
                 Attributes.builder().putAll(extraAttributes)
                     .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                    .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                    .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
                     .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
                     .build()));
     }
@@ -259,7 +259,7 @@ public class MetricsManager implements Bootstrappable {
         doubleHistograms.get(histogram).record(value,
             Attributes.builder().putAll(extraAttributes)
                 .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
                 .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
                 .build());
     }
@@ -281,7 +281,7 @@ public class MetricsManager implements Bootstrappable {
         longHistograms.get(histogram).record(value,
             Attributes.builder().putAll(extraAttributes)
                 .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), cytosisContext.getServerGroup().humanReadable())
+                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
                 .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
                 .build());
     }

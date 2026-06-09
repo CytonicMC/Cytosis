@@ -23,8 +23,7 @@ public class ServerStatusNotifyListener {
             }
             if (player.getPreference(Preferences.SERVER_ALERTS)) {
                 player.sendMessage(
-                    Msg.network("Server %s of type %s:%s has been started!",
-                        packet.id(), server.group(), server.type()));
+                    Msg.network("Server %s of type %s has been started!", packet.id(), server.type().asString()));
             }
         });
     }
@@ -40,9 +39,7 @@ public class ServerStatusNotifyListener {
                 return;
             }
             if (player.getPreference(Preferences.SERVER_ALERTS)) {
-                player.sendMessage(
-                    Msg.network("Server %s of type %s:%s has been shut down!",
-                        packet.id(), server.group(), server.type()));
+                player.sendMessage(Msg.network("Server %s of type %s has been shut down!", packet.id(), server.type()));
             }
         });
     }
