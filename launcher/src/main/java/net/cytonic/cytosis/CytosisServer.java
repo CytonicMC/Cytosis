@@ -3,6 +3,7 @@ package net.cytonic.cytosis;
 import dev.minestomunited.common.config.ConfigRegistry;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.key.Key;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
@@ -30,6 +31,11 @@ public class CytosisServer extends AbstractCytosisServer<CytosisPlayer> {
         sideboardService = new SideboardService.Noop<>();
         menuService = new MenuService.Noop();
         actionBarService = new ActionBarService.Noop<>();
+    }
+
+    @Override
+    public Key serverType() {
+        return Key.key("cytosis", "launcher");
     }
 
     @Override
