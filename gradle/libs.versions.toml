@@ -26,6 +26,7 @@ jandex = "3.5.3"
 minio = "9.0.1"
 entrypoint = "0.0.1-SNAPSHOT"
 codecutils = "0.0.1-SNAPSHOT"
+mongo = "5.8.0"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -59,6 +60,7 @@ jandex = { module = "io.smallrye:jandex", version.ref = "jandex" }
 minio = { module = "io.minio:minio", version.ref = "minio" }
 entrypoint = { module = "dev.minestomunited.entrypoint:entrypoint", version.ref = "entrypoint" }
 codecutils = { module = "dev.minestomunited.common:codec-utils", version.ref = "codecutils" }
+mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]

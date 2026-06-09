@@ -58,6 +58,7 @@ dependencies {
     downloadOrShade(libs.okhttp)
     downloadOrShade(libs.polar)
     downloadOrShade(libs.jedis)
+    downloadOrShade(libs.mongo)
     downloadOrShade(libs.guava)
     downloadOrShade(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
