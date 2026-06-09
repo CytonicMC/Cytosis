@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import lombok.experimental.UtilityClass;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.condition.CommandCondition;
@@ -17,7 +16,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 
 @UtilityClass
 public class CommandUtils {
@@ -49,7 +47,6 @@ public class CommandUtils {
         }
         return player.isStaff();
     };
-    public static final Component COMMAND_DISABLED = Msg.redSplash("DISABLED!", "This command has been disabled.");
     public static final ArgumentWord LIFETIME_PLAYERS = ArgumentType.Word("lifetime_player");
     public static final ArgumentWord NETWORK_PLAYERS = ArgumentType.Word("network_player");
     public static final ArgumentPlayer ONLINE_PLAYERS = new ArgumentPlayer();
