@@ -25,7 +25,7 @@ ebean-migrations = "14.3.0"
 jandex = "3.5.3"
 minio = "9.0.1"
 entrypoint = "0.0.1-SNAPSHOT"
-codecutils = "0.0.1-SNAPSHOT"
+codecutils = "0.0.1-SNAPSHOT-INSTANT"
 mongo = "5.8.0"
 
 [libraries]
