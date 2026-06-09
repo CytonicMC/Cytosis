@@ -27,6 +27,7 @@ minio = "9.0.1"
 entrypoint = "0.0.1-SNAPSHOT"
 codecutils = "0.0.1-SNAPSHOT-INSTANT"
 mongo = "5.8.0"
+minestomevents = "0.0.1-SNAPSHOT"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -61,6 +62,7 @@ minio = { module = "io.minio:minio", version.ref = "minio" }
 entrypoint = { module = "dev.minestomunited.entrypoint:entrypoint", version.ref = "entrypoint" }
 codecutils = { module = "dev.minestomunited.common:codec-utils", version.ref = "codecutils" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
+minestomevents = { module = "dev.minestomunited:minestom-events-core", version.ref = "minestomevents" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]
