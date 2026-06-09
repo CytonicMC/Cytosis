@@ -85,7 +85,7 @@ dependencies {
 buildscript {
     repositories { mavenCentral() }
     dependencies {
-        classpath("io.smallrye:jandex:3.5.3")
+        classpath("io.smallrye:jandex:3.6.0")
     }
 }
 
