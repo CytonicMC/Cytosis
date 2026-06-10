@@ -53,6 +53,7 @@ public final class DurationParser {
         return Instant.now().plus(duration);
     }
 
+
     /**
      * Converts an Instant to a duration string
      *
@@ -64,9 +65,24 @@ public final class DurationParser {
         if (instant == null) {
             return null;
         }
+
         Duration duration = Duration.between(Instant.now(), instant);
         if (duration.isNegative()) {
             duration = Duration.between(instant, Instant.now()); // work for inverted durations
+        }
+        return unparse(duration, spacing);
+    }
+
+    /**
+     * Converts an duration to a string
+     *
+     * @param duration The duration to convert to string
+     * @param spacing  The spacing between tokens; a spacing of " " would result a string similar to "1y 29d 4h 10m 3s"
+     * @return The duration string representing the duration
+     */
+    public static String unparse(@Nullable Duration duration, String spacing) {
+        if (duration == null) {
+            return null;
         }
 
         long years = Math.abs(duration.toDays() / 365);
@@ -95,7 +111,7 @@ public final class DurationParser {
             builder.append("<1s").append(spacing);
         }
 
-        return builder.toString();
+        return builder.toString().trim();
     }
 
     /**
