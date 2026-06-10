@@ -32,8 +32,6 @@ repositories {
             includeModule("net.minestom", "minestom")
         }
     }
-    //todo add back when repo back up
-//    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 val alwaysShadow: Configuration by configurations.creating {
