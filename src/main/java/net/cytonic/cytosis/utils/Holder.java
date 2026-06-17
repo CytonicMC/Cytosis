@@ -32,7 +32,7 @@ public class Holder<T> {
      *
      * @param value the new value, not null
      */
-    @Contract(value = "null -> fail", pure = true)
+    @Contract(pure = true)
     public void set(@NotNull final T value) {
         this.value = Objects.requireNonNull(value);
     }
