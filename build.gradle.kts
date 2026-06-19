@@ -17,7 +17,7 @@ plugins {
     id("checkstyle")
     id("io.ebean") version "17.8.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
-    id("dev.minestomunited.minestom-events") version "0.0.1-SNAPSHOT"
+    id("dev.minestom-united.minestom-events") version "0.0.2"
     id("org.kordamp.gradle.jandex") version "2.3.0"
 }
 
@@ -32,7 +32,6 @@ repositories {
             includeModule("net.minestom", "minestom")
         }
     }
-    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 val alwaysShadow: Configuration by configurations.creating {
