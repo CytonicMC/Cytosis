@@ -24,7 +24,7 @@ ebean = "17.10.0"
 ebean-migrations = "14.3.0"
 jandex = "3.6.0"
 minio = "9.0.1"
-entrypoint = "0.0.2"
+entrypoint = "0.0.1"
 codecutils = "0.0.2"
 
 [libraries]
