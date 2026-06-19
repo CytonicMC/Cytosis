@@ -144,7 +144,7 @@ public class CytosisCommand extends Command {
      * {@code This command is not available here!}
      */
     public void unavailable() {
-        disabled = true;
+        unavailable = true;
     }
 
 }
