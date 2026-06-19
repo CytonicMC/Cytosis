@@ -109,6 +109,15 @@ public class CytosisCommand extends Command {
     }
 
     /**
+     * Disables this command. Admins can still execute the command, though. See {@link #unavailable()} for an
+     * unbypassable alternative. The default message is used when this command is executed:
+     * {@code This command has been disabled.}
+     */
+    public void disabed() {
+        disabled = true;
+    }
+
+    /**
      * Makes this command unavailable. Typically used in an environment where this command has no effect/function. This
      * is unbypassable.
      *
@@ -127,6 +136,15 @@ public class CytosisCommand extends Command {
      */
     public void unavailable(@NotNull String mini) {
         unavailable(Msg.mm(mini));
+    }
+
+    /**
+     * Makes this command unavailable. Typically used in an environment where this command has no effect/function. This
+     * is unbypassable. The default message is used when this command is executed:
+     * {@code This command is not available here!}
+     */
+    public void unavailable() {
+        unavailable = true;
     }
 
 }
