@@ -2,6 +2,8 @@ package net.cytonic.protocol.impl.objects;
 
 import java.util.UUID;
 
+import net.kyori.adventure.key.Key;
+
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.impl.objects.SendPlayerToServerTypeProtocolObject.Packet;
@@ -14,7 +16,7 @@ public class SendPlayerToServerTypeProtocolObject extends ProtocolObject<Packet,
         return "players.send.generic";
     }
 
-    public record Packet(UUID player, String group, String type) implements Message<Packet, SendPlayerResponse> {
+    public record Packet(UUID player, Key type) implements Message<Packet, SendPlayerResponse> {
 
     }
 }

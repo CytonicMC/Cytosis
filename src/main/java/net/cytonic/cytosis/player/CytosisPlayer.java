@@ -573,8 +573,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
             name = "A server";
         }
 
-        Cytosis.get(SendPlayerToServerPacketPublisher.class)
-            .sendPlayerToGenericServer(getUuid(), key.namespace(), key.value(), name);
+        Cytosis.get(SendPlayerToServerPacketPublisher.class).sendPlayerToGenericServer(getUuid(), key, name);
     }
 
     public void closeBook() {

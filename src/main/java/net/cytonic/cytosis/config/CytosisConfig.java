@@ -12,6 +12,7 @@ import net.cytonic.cytosis.environments.Environment;
 public record CytosisConfig(
     DatabaseConfig database,
     RedisConfig redis,
+    MongoConfig mongo,
     NatsConfig nats,
     GarageConfig garage,
     MetricsConfig metrics,
@@ -24,6 +25,7 @@ public record CytosisConfig(
     public static final Codec<CytosisConfig> CODEC = StructCodec.struct(
         "database", DatabaseConfig.CODEC, CytosisConfig::database,
         "redis", RedisConfig.CODEC, CytosisConfig::redis,
+        "mongo", MongoConfig.CODEC, CytosisConfig::mongo,
         "nats", NatsConfig.CODEC, CytosisConfig::nats,
         "garage", GarageConfig.CODEC, CytosisConfig::garage,
         "metrics", MetricsConfig.CODEC.optional(new MetricsConfig(false, null, -1)), CytosisConfig::metrics,
@@ -66,6 +68,31 @@ public record CytosisConfig(
             "password", Codec.STRING, RedisConfig::password,
             RedisConfig::new
         );
+    }
+
+    public record MongoConfig(
+        String user,
+        String password,
+        String host,
+        int port,
+        String database) {
+
+        public static final Codec<MongoConfig> CODEC = StructCodec.struct(
+            "user", Codec.STRING, MongoConfig::user,
+            "password", Codec.STRING, MongoConfig::password,
+            "host", Codec.STRING, MongoConfig::host,
+            "port", Codec.INT, MongoConfig::port,
+            "database", Codec.STRING, MongoConfig::database,
+            MongoConfig::new
+        );
+
+        public String url() {
+            boolean hasCreds = user != null && !user.isBlank();
+
+            String authPart = hasCreds ? user + ":" + (password == null ? "" : password) + "@" : "";
+
+            return "mongodb://" + authPart + host + ":" + port + "?authSource=admin";
+        }
     }
 
     public record NatsConfig(

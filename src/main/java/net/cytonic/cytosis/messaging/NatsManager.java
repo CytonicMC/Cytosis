@@ -63,12 +63,11 @@ public class NatsManager implements Bootstrappable {
 
     private void sendServerStatusPacket(boolean isStartup) {
         new ServerStatusNotifyPacket.Packet(
-            Cytosis.CONTEXT.getServerGroup().type(),
             Utils.getServerIP(),
             Cytosis.CONTEXT.SERVER_ID,
             Cytosis.get(CytosisConfig.class).port(),
             Instant.now(),
-            Cytosis.CONTEXT.getServerGroup().group()
+            Cytosis.getServer().serverType()
         ).publish(isStartup ? Subjects.SERVER_REGISTER : Subjects.SERVER_SHUTDOWN);
     }
 

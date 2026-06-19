@@ -57,6 +57,7 @@ dependencies {
     downloadOrShade(libs.okhttp)
     downloadOrShade(libs.polar)
     downloadOrShade(libs.jedis)
+    downloadOrShade(libs.mongo)
     downloadOrShade(libs.guava)
     downloadOrShade(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
@@ -76,6 +77,7 @@ dependencies {
     downloadOrShade(libs.jandex)
     downloadOrShade(libs.minio)
     downloadOrShade(libs.minimessage)
+    downloadOrShade(libs.minestomevents)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)

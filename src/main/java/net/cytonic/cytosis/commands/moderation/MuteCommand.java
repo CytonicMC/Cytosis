@@ -52,7 +52,7 @@ public class MuteCommand extends CytosisCommand {
 
                 final String target = context.get(playerArg);
                 final String rawDur = context.get(durationArg);
-                final Instant dur = DurationParser.parse(rawDur);
+                final Instant dur = DurationParser.parseInstant(rawDur);
 
                 mutePlayer(actor, target, dur);
             }

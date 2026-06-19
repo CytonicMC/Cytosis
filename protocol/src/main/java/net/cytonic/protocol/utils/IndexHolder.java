@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -24,25 +25,31 @@ public class IndexHolder {
     private static IndexHolder instance;
     private final IndexView compositeIndex;
 
-    private IndexHolder() throws IOException {
+    private IndexHolder(List<URL> extraFiles) throws IOException {
         long start = System.nanoTime();
         List<IndexView> indices = new ArrayList<>();
 
-        try (InputStream is = getClass().getResourceAsStream("/META-INF/jandex.idx")) {
+        try (InputStream is = IndexHolder.class.getResourceAsStream("/META-INF/jandex.idx")) {
             if (is != null) indices.add(new IndexReader(is).read());
         }
 
         // Add cytosis' index (from resources)
-        try (InputStream is = getClass().getResourceAsStream("/META-INF/cytosis-jandex.idx")) {
+        try (InputStream is = IndexHolder.class.getResourceAsStream("/META-INF/cytosis-jandex.idx")) {
             if (is != null) indices.add(new IndexReader(is).read());
         }
 
-        try (InputStream is = getClass().getResourceAsStream("/META-INF/minestom-jandex.idx")) {
+        try (InputStream is = IndexHolder.class.getResourceAsStream("/META-INF/minestom-jandex.idx")) {
             if (is != null) indices.add(new IndexReader(is).read());
         }
 
         try (InputStream is = IndexHolder.class.getResourceAsStream("/META-INF/protocol-jandex.idx")) {
             if (is != null) indices.add(new IndexReader(is).read());
+        }
+
+        for (URL extraFile : extraFiles) {
+            try (InputStream is = extraFile.openStream()) {
+                if (is != null) indices.add(new IndexReader(is).read());
+            }
         }
 
 //        if (Boolean.parseBoolean(System.getProperty("cytosis.dependencies_bundled"))) {
@@ -115,8 +122,12 @@ public class IndexHolder {
     }
 
     public static synchronized void initialize() throws IOException {
+        initialize(List.of());
+    }
+
+    public static synchronized void initialize(List<URL> extraFiles) throws IOException {
         if (instance != null) throw new IllegalStateException("Already initialized");
-        instance = new IndexHolder();
+        instance = new IndexHolder(extraFiles);
     }
 
     public static IndexView get() {
