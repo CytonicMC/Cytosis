@@ -1,7 +1,5 @@
 package net.cytonic.cytosis.managers;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,9 +13,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.entity.npc.NPC;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.protocol.utils.ExcludeFromIndex;
-import net.cytonic.protocol.utils.IndexHolder;
+import net.cytonic.protocol.utils.JandexUtils;
 
 /**
  * A class that manages NPCs
@@ -30,22 +26,7 @@ public class NpcManager implements Bootstrappable {
 
     @Override
     public void init() {
-
-        IndexHolder.get().getAllKnownSubclasses(NPC.class).stream()
-            .filter(ci -> !ci.isAbstract() && !ci.isInterface())
-            .filter(ci -> !ci.hasAnnotation(ExcludeFromIndex.class))
-            .map(ci -> Utils.loadClass(ci.name().toString()))
-            .forEach(clazz -> {
-                try {
-                    Constructor<?> constructor = clazz.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    NPC npc = (NPC) constructor.newInstance();
-                    npc.register();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                         NoSuchMethodException e) {
-                    throw new RuntimeException("Failed to initialize NPC", e);
-                }
-            });
+        JandexUtils.getExtendedClasses(NPC.class).forEach(NPC::register);
 
         MinecraftServer.getSchedulerManager().scheduleTask(() -> {
             for (CytosisPlayer player : Cytosis.getOnlinePlayers()) {
