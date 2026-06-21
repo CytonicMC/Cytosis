@@ -1,8 +1,6 @@
 package net.cytonic.cytosis;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import dev.minestomunited.minestomevents.EventsNode;
 import me.devnatan.AnvilInputFeature;
@@ -20,12 +18,11 @@ import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.CommandDisablingManager;
 import net.cytonic.cytosis.metrics.MetricsHooks;
-import net.cytonic.cytosis.nicknames.NicknameEntryMenu;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
-import net.cytonic.cytosis.snooper.SnooperMenu;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
 import net.cytonic.protocol.utils.IndexHolder;
+import net.cytonic.protocol.utils.JandexUtils;
 
 /**
  * Main bootstrap class responsible for initializing and starting the Cytosis server. This class orchestrates the entire
@@ -111,14 +108,7 @@ public class CytosisBootstrap {
         Logger.info("Initializing view frame");
         ViewFrame viewFrame = ViewFrame.create();
 
-        List<View> menus = new ArrayList<>(List.of(
-            new NicknameEntryMenu(), new SnooperMenu()
-        ));
-        menus.addAll(server.menuService().getMenus());
-
-        for (View menu : menus) {
-            viewFrame.with(menu);
-        }
+        JandexUtils.getExtendedClasses(View.class).forEach(viewFrame::with);
 
         viewFrame.install(AnvilInputFeature.AnvilInput);
         cytosisContext.registerComponent(viewFrame.register());
