@@ -21,7 +21,6 @@ import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.actionBar.ActionBarService;
 import net.cytonic.cytosis.server.chat.ChatService;
-import net.cytonic.cytosis.server.menu.MenuService;
 import net.cytonic.cytosis.server.player.PlayerServiceImpl;
 import net.cytonic.cytosis.server.playerList.PlayerListService;
 import net.cytonic.cytosis.server.session.SessionServiceImpl;
@@ -78,6 +77,4 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     public abstract SideboardService<P> sideboardService();
 
     public abstract ActionBarService<P> actionBarService();
-
-    public abstract MenuService menuService();
 }

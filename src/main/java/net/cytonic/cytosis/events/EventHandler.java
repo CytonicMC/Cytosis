@@ -15,8 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.protocol.utils.IndexHolder;
+import net.cytonic.protocol.utils.JandexUtils;
 
 /**
  * EventHandler class is responsible for handling events and managing listeners. It provides methods to register,
@@ -37,16 +36,10 @@ public class EventHandler {
     public void findEvents() {
         AtomicInteger counter = new AtomicInteger(0);
         long start = System.nanoTime();
-        IndexHolder.get().getAllKnownImplementations(Event.class)
-            .forEach(ci -> {
-                try {
-                    Class<?> clazz = Utils.loadClass(ci.name().toString());
-                    globalEventHandler.addListener(clazz.asSubclass(Event.class), this::handleEvent);
-                    counter.incrementAndGet();
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading Event class!", e);
-                }
-            });
+        JandexUtils.getImplementedClassesClass(Event.class).forEach(clazz -> {
+            globalEventHandler.addListener(clazz, this::handleEvent);
+            counter.incrementAndGet();
+        });
         Logger.info("Found %d indexed event classes in %.2fms.", counter.get(), (System.nanoTime() - start) / 1.0e6);
     }
 
