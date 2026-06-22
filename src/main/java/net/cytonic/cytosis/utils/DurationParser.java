@@ -28,7 +28,26 @@ public final class DurationParser {
      * parsable data, or an {@link Instant} with the specified duration from now.
      */
     @Nullable
-    public static Instant parse(String input) {
+    public static Instant parseInstant(String input) {
+        if (input == null) {
+            return null;
+        }
+        Duration duration = parse(input);
+        if (duration == null) {
+            return null;
+        }
+        return Instant.now().plus(duration);
+    }
+
+    /**
+     * Parses a duration from a string akin to "1y5d6h23m12s" `-1` provides a null, representing a permanant value
+     *
+     * @param input The string to parse the value from
+     * @return null if the duration is permanant, returns {@link Instant#now()} if the input doesn't contain any
+     * parsable data, or an {@link Instant} with the specified duration from now.
+     */
+    @Nullable
+    public static Duration parse(String input) {
         if (input.equalsIgnoreCase("-1")) {
             return null;
         }
@@ -49,9 +68,9 @@ public final class DurationParser {
                 default -> duration;
             };
         }
-
-        return Instant.now().plus(duration);
+        return duration;
     }
+
 
     /**
      * Converts an Instant to a duration string
@@ -64,9 +83,24 @@ public final class DurationParser {
         if (instant == null) {
             return null;
         }
+
         Duration duration = Duration.between(Instant.now(), instant);
         if (duration.isNegative()) {
             duration = Duration.between(instant, Instant.now()); // work for inverted durations
+        }
+        return unparse(duration, spacing);
+    }
+
+    /**
+     * Converts an duration to a string
+     *
+     * @param duration The duration to convert to string
+     * @param spacing  The spacing between tokens; a spacing of " " would result a string similar to "1y 29d 4h 10m 3s"
+     * @return The duration string representing the duration
+     */
+    public static String unparse(@Nullable Duration duration, String spacing) {
+        if (duration == null) {
+            return null;
         }
 
         long years = Math.abs(duration.toDays() / 365);
@@ -95,7 +129,7 @@ public final class DurationParser {
             builder.append("<1s").append(spacing);
         }
 
-        return builder.toString();
+        return builder.toString().trim();
     }
 
     /**

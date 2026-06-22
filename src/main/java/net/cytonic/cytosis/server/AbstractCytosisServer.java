@@ -1,5 +1,8 @@
 package net.cytonic.cytosis.server;
 
+import java.net.URL;
+import java.util.List;
+
 import dev.minestomunited.common.config.ConfigRegistry;
 import dev.minestomunited.entrypoint.minestom.BasicMinestomService;
 import dev.minestomunited.entrypoint.minestom.MinestomService;
@@ -9,11 +12,14 @@ import dev.minestomunited.entrypoint.server.AbstractMinestomServer;
 import dev.minestomunited.entrypoint.session.SessionService;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.Auth;
+import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.server.actionBar.ActionBarService;
 import net.cytonic.cytosis.server.chat.ChatService;
 import net.cytonic.cytosis.server.player.PlayerServiceImpl;
 import net.cytonic.cytosis.server.playerList.PlayerListService;
@@ -55,11 +61,20 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         return getConfigOrThrow(CytosisConfig.class).standalone();
     }
 
+    public abstract Key serverType();
+
+    public abstract void onShutdown();
+
+    @OverrideOnly
+    public List<URL> extraJandexFiles() {
+        return List.of();
+    }
+
     public abstract ChatService<P> chatService();
 
     public abstract PlayerListService<P> playerListService();
 
     public abstract SideboardService<P> sideboardService();
 
-    public abstract void onShutdown();
+    public abstract ActionBarService<P> actionBarService();
 }

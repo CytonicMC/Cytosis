@@ -27,15 +27,14 @@ import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.Snoops;
-import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
-import net.cytonic.cytosis.events.Events;
 import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Events;
 import net.cytonic.cytosis.utils.MetadataPacketBuilder;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
@@ -48,14 +47,19 @@ public class NicknameManager implements Bootstrappable {
     private final Map<UUID, UUID> maskedUuids = new ConcurrentHashMap<>();
     private RankManager rankManager;
     private RedisDatabase redis;
-    private EnvironmentDatabase db;
 
     public NicknameManager() {
         // remove them from this memory cache
-        Events.onNetworkLeave(event -> {
+        Events.onPlayerLeaveNetwork(event -> {
             nicknames.remove(event.player());
             maskedUuids.remove(event.player());
         });
+    }
+
+    @Override
+    public void init() {
+        this.rankManager = Cytosis.get(RankManager.class);
+        this.redis = Cytosis.get(RedisDatabase.class);
     }
 
     public static String translateSkin(CytosisPlayer player, String skin) {
@@ -66,13 +70,6 @@ public class NicknameManager implements Bootstrappable {
             return "<#BE9025>My normal skin</#BE9025>";
         }
         return "<#BE9025>Random Skin</#BE9025>";
-    }
-
-    @Override
-    public void init() {
-        this.rankManager = Cytosis.get(RankManager.class);
-        this.db = Cytosis.get(EnvironmentDatabase.class);
-        this.redis = Cytosis.get(RedisDatabase.class);
     }
 
     public boolean isNicked(UUID player) {

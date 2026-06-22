@@ -1,6 +1,5 @@
 package net.cytonic.cytosis;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,10 +13,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import net.minestom.server.event.Event;
-import org.jboss.jandex.AnnotationTarget.Kind;
 
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.EventHandler;
@@ -26,9 +23,8 @@ import net.cytonic.cytosis.events.api.Async;
 import net.cytonic.cytosis.events.api.Listener;
 import net.cytonic.cytosis.events.api.Priority;
 import net.cytonic.cytosis.logging.Logger;
-import net.cytonic.cytosis.utils.Utils;
-import net.cytonic.protocol.utils.ExcludeFromIndex;
-import net.cytonic.protocol.utils.IndexHolder;
+import net.cytonic.protocol.utils.InstanceResolver;
+import net.cytonic.protocol.utils.JandexUtils;
 
 /**
  * Utility class for registering Cytosis components and listeners.
@@ -72,20 +68,10 @@ public final class BootstrapRegistrationUtils {
     /**
      * Scans the classpath for classes annotated with @CytosisComponent.
      *
-     * @return list of candidate component classes
+     * @return set of candidate component classes
      */
     private static Set<Class<?>> scanAnnotatedComponents() {
-        return IndexHolder.get().getAnnotations(CytosisComponent.class).stream()
-            .filter(ai -> ai.target().kind() == Kind.CLASS)
-            .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
-            .map(ai -> {
-                try {
-                    return Utils.loadClass(ai.target().asClass().name().toString());
-                } catch (Exception e) {
-                    throw new RuntimeException(
-                        "Failed to load annotated component class " + ai.target().asClass().name(), e);
-                }
-            }).collect(Collectors.toSet());
+        return new HashSet<>(JandexUtils.getAnnotatedClassesClass(CytosisComponent.class));
     }
 
     /**
@@ -354,49 +340,13 @@ public final class BootstrapRegistrationUtils {
      * @param counter      atomic counter for listener naming
      */
     private static void scanAndRegisterListeners(EventHandler eventHandler, AtomicInteger counter) {
-        Map<Class<?>, Object> instances = new HashMap<>();
-
-        IndexHolder.get().getAnnotations(Listener.class).stream()
-            .filter(ai -> ai.target().kind() == Kind.METHOD)
-            .filter(ai -> !ai.target().hasAnnotation(ExcludeFromIndex.class))
-            .forEach(ai -> {
-                Class<?> clazz = Utils.loadClass(ai.target().asMethod().declaringClass().name().toString());
-
-                Method method;
-                try {
-                    method = clazz.getDeclaredMethod(
-                        ai.target().asMethod().name(),
-                        ai.target().asMethod().parameterTypes().stream()
-                            .map(type -> Utils.loadClass(type.name().toString()))
-                            .toArray(Class[]::new)
-                    );
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException(
-                        "Failed to load annotated listener method " + ai.target().asMethod().name(), e);
-                }
-
-                Object instance = instances.computeIfAbsent(clazz, BootstrapRegistrationUtils::createListenerInstance);
-                registerListenerMethod(method, instance, eventHandler, counter);
-            });
-    }
-
-
-    /**
-     * Creates an instance of the listener class.
-     *
-     * @param clazz the class to instantiate
-     * @return instance of the class, or null if instantiation failed
-     */
-    private static Object createListenerInstance(Class<?> clazz) {
-        try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            return constructor.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException e) {
-            Logger.error("The class " + clazz.getSimpleName()
-                + " needs to have a public, no argument constructor to have an @Listener in it!", e);
-            return null;
+        for (Method method : JandexUtils.getAnnotatedMethods(Listener.class)) {
+            try {
+                registerListenerMethod(method, InstanceResolver.INSTANCE.resolve(method.getDeclaringClass()),
+                    eventHandler, counter);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load annotated listener method " + method.getName(), e);
+            }
         }
     }
 

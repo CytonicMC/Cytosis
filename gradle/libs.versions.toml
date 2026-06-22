@@ -8,9 +8,9 @@ guava = "33.6.0-jre"
 jedis = "7.5.2"
 jnats = "2.25.3"
 log4j = "2.26.0"
-minestompvp = "2025.12.29-1.21.11"
+minestompvp = "2026.05.30-26.1.1"
 postgresql = "42.7.11"
-okhttp = "5.3.2"
+okhttp = "5.4.0"
 opentelemetry = "1.63.0"
 polar = "1.15.1"
 invui = "0.1.0-SNAPSHOT"
@@ -19,13 +19,15 @@ reflections = "0.10.2"
 lombokwarningfix = "4.0.5"
 fastutil = "8.5.18"
 hikaricp = "7.0.2"
-joml = "1.10.8"
-ebean = "17.8.0"
+joml = "1.10.9"
+ebean = "17.10.0"
 ebean-migrations = "14.3.0"
-jandex = "3.5.3"
+jandex = "3.6.0"
 minio = "9.0.1"
-entrypoint = "0.0.1-SNAPSHOT"
-codecutils = "0.0.1-SNAPSHOT"
+entrypoint = "0.0.2"
+codecutils = "0.0.2"
+mongo = "5.8.0"
+minestomevents = "0.0.2"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -57,8 +59,10 @@ ebean-query = { module = "io.ebean:querybean-generator", version.ref = "ebean" }
 ebean-migrations = { module = "io.ebean:ebean-migration", version.ref = "ebean-migrations" }
 jandex = { module = "io.smallrye:jandex", version.ref = "jandex" }
 minio = { module = "io.minio:minio", version.ref = "minio" }
-entrypoint = { module = "dev.minestomunited.entrypoint:entrypoint", version.ref = "entrypoint" }
-codecutils = { module = "dev.minestomunited.common:codec-utils", version.ref = "codecutils" }
+entrypoint = { module = "dev.minestom-united:entrypoint", version.ref = "entrypoint" }
+codecutils = { module = "dev.minestom-united.common:codec-utils", version.ref = "codecutils" }
+mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
+minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]

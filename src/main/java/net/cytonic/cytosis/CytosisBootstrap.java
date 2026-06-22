@@ -1,7 +1,6 @@
 package net.cytonic.cytosis;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 
 import dev.minestomunited.minestomevents.EventsNode;
 import me.devnatan.AnvilInputFeature;
@@ -11,8 +10,6 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
-import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
 
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisConfig;
@@ -24,8 +21,8 @@ import net.cytonic.cytosis.metrics.MetricsHooks;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
 import net.cytonic.cytosis.utils.BlockPlacementUtils;
-import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.utils.IndexHolder;
+import net.cytonic.protocol.utils.JandexUtils;
 
 /**
  * Main bootstrap class responsible for initializing and starting the Cytosis server. This class orchestrates the entire
@@ -67,7 +64,7 @@ public class CytosisBootstrap {
 
         Logger.info("Loading indexes");
         try {
-            IndexHolder.initialize();
+            IndexHolder.initialize(server.extraJandexFiles());
         } catch (IOException e) {
             Logger.error("Failed to initialize indexes: ", e);
             System.exit(122);
@@ -111,21 +108,7 @@ public class CytosisBootstrap {
         Logger.info("Initializing view frame");
         ViewFrame viewFrame = ViewFrame.create();
 
-        IndexView index = IndexHolder.get();
-
-        index.getAllKnownSubclasses(View.class).stream()
-            .filter(ci -> ci.name().startsWith(DotName.createSimple("net.cytonic")))
-            .forEach(ci -> {
-                try {
-                    Class<?> clazz = Utils.loadClass(ci.name().toString());
-                    Constructor<?> constructor = clazz.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    View instance = (View) constructor.newInstance();
-                    viewFrame.with(instance);
-                } catch (Exception e) {
-                    Logger.error("An error occurred whilst loading menu views!", e);
-                }
-            });
+        JandexUtils.getExtendedClasses(View.class).forEach(viewFrame::with);
 
         viewFrame.install(AnvilInputFeature.AnvilInput);
         cytosisContext.registerComponent(viewFrame.register());

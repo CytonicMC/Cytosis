@@ -10,7 +10,7 @@ public class WhereAmiCommand extends CytosisCommand {
 
     public WhereAmiCommand() {
         super("whereami", "version");
-        setDefaultExecutor((sender, context) -> {
+        setDefaultExecutor((sender, _) ->
             sender.sendMessage(Msg.yellowSplash("SERVER INFO!", "Here is some basic server information:")
                 .appendNewline().append(Msg.mm("<gold>Server ID: </gold><gray>" + Cytosis.CONTEXT.SERVER_ID))
                 .appendNewline()
@@ -23,9 +23,7 @@ public class WhereAmiCommand extends CytosisCommand {
                 .appendNewline()
                 .append(Msg.gold("Built: <gray>" + DurationParser.unparseFull(BuildInfo.BUILT_AT) + " ago"))
                 .appendNewline()
-                .append(Msg.gold("Server Type: <gray>" + Cytosis.CONTEXT.getServerGroup()
-                    .humanReadable()))
-                .appendNewline());
-        });
+                .append(Msg.gold("Server Type: <gray>" + Cytosis.getServer().serverType().asString()))
+                .appendNewline()));
     }
 }

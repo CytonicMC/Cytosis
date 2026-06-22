@@ -1,7 +1,7 @@
 package net.cytonic.cytosis.data.objects.preferences;
 
 import net.kyori.adventure.key.Key;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class ToggleablePreference extends Preference<Boolean> {
 

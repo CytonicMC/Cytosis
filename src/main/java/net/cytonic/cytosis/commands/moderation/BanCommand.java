@@ -56,7 +56,7 @@ public class BanCommand extends CytosisCommand {
                 final String player = context.get(CommandUtils.LIFETIME_PLAYERS);
                 final String reason = context.get(reasonArg).getReason();
                 final String rawDur = context.get(durationArg);
-                final Instant dur = DurationParser.parse(rawDur);
+                final Instant dur = DurationParser.parseInstant(rawDur);
 
                 UUID uuid = PlayerUtils.resolveUuid(player);
                 if (uuid == null) {

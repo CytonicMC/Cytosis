@@ -15,9 +15,9 @@ plugins {
     id("net.kyori.blossom") version "2.2.0"
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
-    id("io.ebean") version "17.6.0"
+    id("io.ebean") version "17.8.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
-    id("dev.minestomunited.minestom-events") version "0.0.1-SNAPSHOT"
+    id("dev.minestom-united.minestom-events") version "0.0.2"
     id("org.kordamp.gradle.jandex") version "2.3.0"
 }
 
@@ -32,7 +32,6 @@ repositories {
             includeModule("net.minestom", "minestom")
         }
     }
-    maven("https://repo.minestom-united.dev/snapshots")
 }
 
 val alwaysShadow: Configuration by configurations.creating {
@@ -58,6 +57,7 @@ dependencies {
     downloadOrShade(libs.okhttp)
     downloadOrShade(libs.polar)
     downloadOrShade(libs.jedis)
+    downloadOrShade(libs.mongo)
     downloadOrShade(libs.guava)
     downloadOrShade(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
@@ -77,6 +77,7 @@ dependencies {
     downloadOrShade(libs.jandex)
     downloadOrShade(libs.minio)
     downloadOrShade(libs.minimessage)
+    downloadOrShade(libs.minestomevents)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
@@ -85,7 +86,7 @@ dependencies {
 buildscript {
     repositories { mavenCentral() }
     dependencies {
-        classpath("io.smallrye:jandex:3.5.3")
+        classpath("io.smallrye:jandex:3.6.0")
     }
 }
 
@@ -169,8 +170,9 @@ val buildIndex = tasks.register("indexMinestomEvents") {
 
     // Depend on configuration resolution so the jar is present
     dependsOn(configurations["downloadOrShadow"])
+    dependsOn(renameJandex)
 
-    val outputFile = layout.buildDirectory.file("resources/main/META-INF/jandex.idx")
+    val outputFile = layout.buildDirectory.file("resources/main/META-INF/minestom-jandex.idx")
     outputs.file(outputFile)
 
     doLast {
@@ -354,6 +356,15 @@ tasks.register<Copy>("copyThinToLibs") {
     rename { "cytosis.jar" }
 }
 
+val renameJandex by tasks.registering(Copy::class) {
+    dependsOn(tasks.named("jandex"))
+
+    from(layout.buildDirectory.file("resources/main/META-INF/jandex.idx"))
+    into(layout.buildDirectory.dir("resources/main/META-INF"))
+
+    rename("jandex.idx", "cytosis-jandex.idx")
+}
+
 tasks.shadowJar {
     enabled = false
 }
@@ -438,6 +449,8 @@ checkstyle {
 tasks.withType<Checkstyle>().configureEach {
     dependsOn("jandex")
     dependsOn(buildIndex)
+
+    exclude("**/Events.java")
 
     reports {
         xml.required.set(true)

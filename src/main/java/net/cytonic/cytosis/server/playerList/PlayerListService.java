@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.server.playerList;
 
+import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -12,8 +13,8 @@ public interface PlayerListService<P extends CytosisPlayer> {
     @Nullable
     PlayerlistCreator<P> creator();
 
-    default int updateInterval() {
-        return 20;
+    default TaskSchedule schedule() {
+        return TaskSchedule.seconds(1);
     }
 
     @SuppressWarnings("unused")

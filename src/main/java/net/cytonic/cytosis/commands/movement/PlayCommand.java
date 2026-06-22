@@ -1,11 +1,12 @@
 package net.cytonic.cytosis.commands.movement;
 
+import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.utils.Msg;
 
 public class PlayCommand extends CytosisCommand {
@@ -16,12 +17,13 @@ public class PlayCommand extends CytosisCommand {
         setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("Invalid Syntax! Usage: /play <game>")));
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
+
             SendPlayerToServerPacketPublisher publisher = Cytosis.get(SendPlayerToServerPacketPublisher.class);
             switch (context.get(word).toLowerCase()) {
                 case "gg", "gilded", "gilded_gorge" -> publisher
-                    .sendPlayerToGenericServer(player.getUuid(), "gilded_gorge", "hub", "Gilded Gorge");
+                    .sendPlayerToGenericServer(player.getUuid(), Key.key("gorge", "misthaven"), "Gilded Gorge");
                 case "bw", "bedwars" -> //todo: Some sort of logic for game queuing
-                    publisher.sendPlayerToGenericServer(player.getUuid(), "bedwars", "solos", "BedWars");
+                    publisher.sendPlayerToGenericServer(player.getUuid(), Key.key("bedwars:lobby"), "Bedwars");
                 default -> sender.sendMessage(Msg.whoops("Unknown game '%s'!", context.get(word)));
             }
         }, word);

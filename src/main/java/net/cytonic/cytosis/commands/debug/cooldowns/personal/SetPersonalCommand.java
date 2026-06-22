@@ -44,7 +44,7 @@ public class SetPersonalCommand extends CytosisCommand {
                 return;
             }
 
-            Instant expiry = DurationParser.parse(String.join(" ", duration));
+            Instant expiry = DurationParser.parseInstant(String.join(" ", duration));
             Key node = Key.key(context.get(nodeArg));
             ncm.setPersonal(player.getUuid(), node, expiry);
             player.sendMessage(
