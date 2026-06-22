@@ -52,8 +52,8 @@ public class EbeanManager implements Bootstrappable {
 
     private List<Class<?>> scanForEbeanClasses() {
         List<Class<?>> classes = new ArrayList<>();
-        JandexUtils.getAnnotatedClasses(Entity.class).forEach(it -> classes.add(it.getClass()));
-        JandexUtils.getAnnotatedClasses(Embeddable.class).forEach(it -> classes.add(it.getClass()));
+        classes.addAll(JandexUtils.getAnnotatedClassesClass(Entity.class));
+        classes.addAll(JandexUtils.getAnnotatedClassesClass(Embeddable.class));
         return classes;
     }
 
