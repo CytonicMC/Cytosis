@@ -25,9 +25,9 @@ import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
 import net.cytonic.protocol.adapters.InstantAdapter;
-import net.cytonic.protocol.adapters.JsonComponentAdapter;
 import net.cytonic.protocol.adapters.KeyAdapter;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.adapters.StringComponentAdapter;
+import net.cytonic.protocol.data.objects.StringComponent;
 
 /**
  * The main class for Cytosis
@@ -40,7 +40,7 @@ public final class Cytosis {
     public static final Gson GSON = new GsonBuilder()
         .registerTypeAdapter(Key.class, new KeyAdapter())
         .registerTypeAdapter(Instant.class, new InstantAdapter())
-        .registerTypeAdapter(JsonComponent.class, new JsonComponentAdapter())
+        .registerTypeAdapter(StringComponent.class, new StringComponentAdapter())
         .registerTypeAdapterFactory(new KeyAdapter())
         .enableComplexMapKeySerialization()
         .setStrictness(Strictness.LENIENT)

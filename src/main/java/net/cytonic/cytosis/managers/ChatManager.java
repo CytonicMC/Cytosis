@@ -23,7 +23,7 @@ import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
 /**
@@ -110,7 +110,8 @@ public class ChatManager implements Bootstrappable {
             recipients = channel.getRecipientFunction().apply(player);
         }
 
-        new ChatMessageNotifyPacket.Packet(recipients, channel, new JsonComponent(message), player.getUuid()).publish();
+        new ChatMessageNotifyPacket.Packet(recipients, channel, new StringComponent(message),
+            player.getUuid()).publish();
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {
@@ -134,7 +135,7 @@ public class ChatManager implements Bootstrappable {
             .append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE));
         new ChatMessageNotifyPacket.Packet(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
-            new JsonComponent(component), player.getUuid()).publish();
+            new StringComponent(component), player.getUuid()).publish();
         player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » "))
             .append(Component.text(message, NamedTextColor.WHITE)));
     }

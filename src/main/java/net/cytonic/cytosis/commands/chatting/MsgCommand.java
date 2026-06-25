@@ -16,7 +16,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
 public class MsgCommand extends CytosisCommand {
@@ -73,7 +73,8 @@ public class MsgCommand extends CytosisCommand {
             .append(actor.getRank().getPrefix().append(Msg.mm(actor.getUsername())).append(Msg.mm("<dark_aqua> » ")))
             .append(Component.text(message, NamedTextColor.WHITE));
         Cytosis.get(ChatManager.class).logMessage(recipient, actor.getUuid(), message, ChatChannel.PRIVATE_MESSAGE);
-        new ChatMessageNotifyPacket.Packet(Set.of(recipient), ChatChannel.PRIVATE_MESSAGE, new JsonComponent(component),
+        new ChatMessageNotifyPacket.Packet(Set.of(recipient), ChatChannel.PRIVATE_MESSAGE,
+            new StringComponent(component),
             actor.getUuid()).publish();
         actor.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(targetRank.getPrefix().append(
                 Msg.mm(Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(recipient))))

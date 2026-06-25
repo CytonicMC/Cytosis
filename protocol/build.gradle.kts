@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "net.cytonic"
-version = "1.3.2-SNAPSHOT"
+version = "1.3.3-SNAPSHOT"
 
 repositories {
     mavenCentral()

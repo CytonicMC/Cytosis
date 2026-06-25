@@ -18,7 +18,7 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.cytonic.protocol.data.enums.KickReason;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
 
 public class KickCommand extends CytosisCommand {
@@ -62,7 +62,7 @@ public class KickCommand extends CytosisCommand {
                 Cytosis.get(SnooperManager.class)
                     .sendSnoop(Snoops.PLAYER_KICK, Msg.snoop(snoop));
                 new PlayerKickNotifyPacket.Packet(uuid, KickReason.COMMAND,
-                    new JsonComponent(Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason))).publish();
+                    new StringComponent(Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason))).publish();
             }
         }, CommandUtils.NETWORK_PLAYERS, reasonArg);
     }

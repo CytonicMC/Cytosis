@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket.Packet;
 
 public class ChatMessageNotifyPacket extends NoResponse<Packet> {
@@ -20,10 +20,10 @@ public class ChatMessageNotifyPacket extends NoResponse<Packet> {
     public record Packet(
         @Nullable Set<UUID> recipients,
         String channel,
-        JsonComponent message,
+        StringComponent message,
         @Nullable UUID sender) implements Message<Packet, Void> {
 
-        public Packet(@Nullable Set<UUID> recipients, Enum<?> channel, JsonComponent message,
+        public Packet(@Nullable Set<UUID> recipients, Enum<?> channel, StringComponent message,
             @Nullable UUID sender) {
             this(recipients, channel.name(), message, sender);
         }
