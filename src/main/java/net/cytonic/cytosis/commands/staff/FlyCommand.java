@@ -5,6 +5,7 @@ import net.minestom.server.command.builder.arguments.number.ArgumentFloat;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
@@ -19,7 +20,7 @@ public class FlyCommand extends CytosisCommand {
      */
     public FlyCommand() {
         super("fly");
-        setCondition(CommandUtils.IS_STAFF);
+        setCondition(CommandUtils.withRankOrStaff(PlayerRank.CORTEX, PlayerRank.SYNAPSE, PlayerRank.NEXUS));
         ArgumentFloat speedArg = ArgumentType.Float("speed");
         speedArg.between(0.1F, 5F);
 
