@@ -97,7 +97,7 @@ public class CommandHandler implements Bootstrappable {
             new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(), new NickRevealCommand(),
             new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand(),
             new WhitelistCommand(), new PartyCommand(), new PartyChatCommand(), new TpsCommand(), new ReportCommand(),
-            new DummyCommand(), new LinkCommand());
+            new DummyCommand(), new LinkCommand(), new MiniMessageCommand());
     }
 
     /**
