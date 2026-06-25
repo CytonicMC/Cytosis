@@ -1,16 +1,16 @@
 package net.cytonic.cytosis.managers;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
@@ -34,10 +34,27 @@ import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 @CytosisComponent(dependsOn = {PreferenceManager.class})
 public class ChatManager implements Bootstrappable {
 
+    public static final Map<String, String> EMOJIS = Map.ofEntries(
+        Map.entry(":3", "<#f2a7f5>•⩊•</#f2a7f5>"),
+        Map.entry(":skull:", "<red>☠</red>"),
+        Map.entry("^_^", "<#ecce75>(˶ˆᗜˆ˵)</#ecce75>"),
+        Map.entry(">:(", "<red>︵ヽ(`▭´)ﾉ︵</red>"),
+        Map.entry("<3", "<#c361eb>⸜(｡˃ ᵕ ˂ )⸝♡</#c361eb>"),
+        Map.entry("</3", "<red>\uD83D\uDC94</red>"),
+        Map.entry("._.", "⊙﹏⊙"),
+        Map.entry(";-;", "<#4354f4>(ￗ﹏ￗ)</#4354f4>"),
+        Map.entry(":yoo:", "(╭☞⚆ᗜ⚆)╭☞"),
+        Map.entry(":shrug:", "¯\\(ツ)/¯"),
+        Map.entry(":yay:", "⸜( ˙˘˙)⸝"),
+        Map.entry("+1", "(ദ്ദി˙ᗜ˙)"),
+        Map.entry(":rip:", "<red>\uD83E\uDEA6</red>"),
+        Map.entry(":cat:", "ᓚᘏᗢ"),
+        Map.entry(":)", "❀◕ ‿ ◕❀")
+    );
     private final Cache<UUID, UUID> openPrivateChannels = CacheBuilder.newBuilder()
-        .expireAfterWrite(5L, TimeUnit.MINUTES)
-        .expireAfterAccess(5L, TimeUnit.MINUTES).build();
-
+        .expireAfterWrite(Duration.ofMinutes(5))
+        .expireAfterAccess(Duration.ofMinutes(5))
+        .build();
     private PreferenceManager preferenceManager;
 
     @Override
@@ -73,35 +90,34 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
-        if (channel == ChatChannel.PRIVATE_MESSAGE) {
-            handlePrivateMessage(originalMessage, player);
+        if (channel == ChatChannel.ALL) {
+            Cytosis.getServer().chatService().handleAllChat(player, originalMessage);
             return;
         }
 
-        logMessage(null, player.getUuid(), originalMessage, channel);
+        String msg = translateEmojis(Msg.stripTags(originalMessage), player.getTrueRank());
+        if (channel == ChatChannel.PRIVATE_MESSAGE) {
+            handlePrivateMessage(msg, player);
+            return;
+        }
 
         if (!player.canSendToChannel(channel)) {
             player.sendMessage(Msg.whoops("You cannot currently send messages on the <gold>%s</gold> channel.",
                 channel.name()));
             return;
         }
+        String color = player.getTrueRank().getChatColor();
+        msg = color + ": " + msg;
 
-        if (channel == ChatChannel.ALL) {
-            Cytosis.getServer().chatService().handleAllChat(player, originalMessage);
-            return;
-        }
+        logMessage(null, player.getUuid(), msg, channel);
 
         Component message = Component.text("");
 
-        Component channelComponent = channel.getPrefix();
+        Component chan = channel.getPrefix();
         if (channel.isShouldDeanonymize()) {
-            message = message.append(channelComponent).append(player.trueFormattedName())
-                .append(Component.text(":", player.getTrueRank().getChatColor())).appendSpace()
-                .append(Component.text(originalMessage, player.getTrueRank().getChatColor()));
+            message = message.append(chan).append(player.trueFormattedName()).append(Msg.mm(msg));
         } else {
-            message = message.append(channelComponent).append(player.formattedName())
-                .append(Component.text(":", player.getRank().getChatColor())).appendSpace()
-                .append(Component.text(originalMessage, player.getRank().getChatColor()));
+            message = message.append(chan).append(player.formattedName()).append(Msg.mm(msg));
         }
 
         Set<UUID> recipients = null;
@@ -115,13 +131,13 @@ public class ChatManager implements Bootstrappable {
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player) {
-        if (!openPrivateChannels.asMap().containsKey(player.getUuid())) {
+        UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
+        if (uuid == null) {
             player.setChatChannel(ChatChannel.ALL);
             player.sendMessage(Msg.red("Your active conversation has expired, so you were put in the ALL channel."));
             return;
         }
 
-        UUID uuid = openPrivateChannels.getIfPresent(player.getUuid());
         PlayerRank recipientRank = Cytosis.get(RankManager.class).getPlayerRank(uuid).orElseThrow();
 
         logMessage(uuid, player.getUuid(), message, ChatChannel.PRIVATE_MESSAGE);
@@ -130,14 +146,13 @@ public class ChatManager implements Bootstrappable {
             .append(Component.text(Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .getByKey(uuid), recipientRank.getTeamColor()));
 
-        Component component = Msg.mm("<dark_aqua>From <reset>")
+        Component component = Msg.mm("<dark_aqua>From </dark_aqua>")
             .append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername())))
-            .append(Msg.mm("<dark_aqua> » "))
-            .append(Component.text(message, NamedTextColor.WHITE));
+            .append(Msg.mm("<dark_aqua> » <white>%s", message));
         new ChatMessageNotifyPacket.Packet(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
             new StringComponent(component), player.getUuid()).publish();
-        player.sendMessage(Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » "))
-            .append(Component.text(message, NamedTextColor.WHITE)));
+        player.sendMessage(
+            Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » <white>%s", message)));
     }
 
     public void openPrivateMessage(CytosisPlayer player, UUID uuid) {
@@ -162,5 +177,36 @@ public class ChatManager implements Bootstrappable {
             msg.setRecipient(recipient);
             msg.save();
         });
+    }
+
+    public String translateEmojis(String message, PlayerRank rank) {
+        if (!rank.isHigherOrEqualTo(PlayerRank.SYNAPSE)) return message;
+
+        StringBuilder result = new StringBuilder();
+        int i = 0;
+
+        while (i < message.length()) {
+            String matched = null;
+            String replacement = null;
+
+            for (Map.Entry<String, String> entry : EMOJIS.entrySet()) {
+                String key = entry.getKey();
+                if (message.startsWith(key, i)) {
+                    matched = key;
+                    replacement = entry.getValue();
+                    break;
+                }
+            }
+
+            if (matched != null) {
+                result.append(replacement);
+                i += matched.length();
+            } else {
+                result.append(message.charAt(i));
+                i++;
+            }
+        }
+
+        return result.toString();
     }
 }
