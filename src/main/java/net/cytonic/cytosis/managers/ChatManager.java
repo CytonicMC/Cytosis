@@ -90,12 +90,13 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
+        originalMessage = Msg.stripTags(originalMessage);
         if (channel == ChatChannel.ALL) {
             Cytosis.getServer().chatService().handleAllChat(player, originalMessage);
             return;
         }
 
-        String msg = translateEmojis(Msg.stripTags(originalMessage), player.getTrueRank());
+        String msg = translateEmojis(originalMessage, player.getTrueRank());
         if (channel == ChatChannel.PRIVATE_MESSAGE) {
             handlePrivateMessage(msg, player);
             return;
@@ -146,13 +147,13 @@ public class ChatManager implements Bootstrappable {
             .append(Component.text(Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .getByKey(uuid), recipientRank.getTeamColor()));
 
-        Component component = Msg.mm("<dark_aqua>From </dark_aqua>")
+        Component component = Msg.mm("<dark_aqua>From</dark_aqua> ")
             .append(player.getTrueRank().getPrefix().append(Msg.mm(player.getTrueUsername())))
-            .append(Msg.mm("<dark_aqua> » <white>%s", message));
+            .append(Msg.mm("<dark_aqua> » </dark_aqua>%s", message));
         new ChatMessageNotifyPacket.Packet(Set.of(Objects.requireNonNull(uuid)), ChatChannel.PRIVATE_MESSAGE,
             new StringComponent(component), player.getUuid()).publish();
         player.sendMessage(
-            Msg.mm("<dark_aqua>To <reset>").append(recipient).append(Msg.mm("<dark_aqua> » <white>%s", message)));
+            Msg.mm("<dark_aqua>To</dark_aqua> ").append(recipient).append(Msg.mm("<dark_aqua> » <white>%s", message)));
     }
 
     public void openPrivateMessage(CytosisPlayer player, UUID uuid) {
