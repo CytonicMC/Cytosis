@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.messaging;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiConsumer;
@@ -117,7 +118,8 @@ public class NatsManager implements Bootstrappable {
 
                 RequestContainer request;
                 while ((request = requestQueue.poll()) != null) {
-                    connection.request(request.channel, request.data).whenComplete(request.consumer);
+                    connection.requestWithTimeout(request.channel, request.data, Duration.ofSeconds(20))
+                        .whenComplete(request.consumer);
                 }
 
                 SubscribeContainer subscribe;
@@ -156,7 +158,7 @@ public class NatsManager implements Bootstrappable {
         channel = Subjects.applyPrefix(channel);
         Connection conn = connection;
         if (conn != null) {
-            conn.request(channel, data).whenComplete(consumer);
+            conn.requestWithTimeout(channel, data, Duration.ofSeconds(20)).whenComplete(consumer);
             return;
         }
 
