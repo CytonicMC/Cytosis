@@ -13,7 +13,7 @@ public class ReplyCommand extends CytosisCommand {
     public ReplyCommand() {
         super("reply", "r");
         var msgArgument = ArgumentType.StringArray("msg");
-        setDefaultExecutor((sender, context) -> {
+        setDefaultExecutor((sender, _) -> {
             sender.sendMessage(Msg.whoops("You must have a message to reply with!"));
         });
         addSyntax((sender, context) -> {
@@ -27,7 +27,7 @@ public class ReplyCommand extends CytosisCommand {
                 return;
             }
 
-            chatManager.handlePrivateMessage(msg, player);
+            chatManager.handlePrivateMessage(msg, player, null);
         }, msgArgument);
     }
 }

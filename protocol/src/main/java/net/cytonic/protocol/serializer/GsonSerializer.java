@@ -9,9 +9,9 @@ import lombok.AllArgsConstructor;
 import net.kyori.adventure.key.Key;
 
 import net.cytonic.protocol.adapters.InstantAdapter;
-import net.cytonic.protocol.adapters.JsonComponentAdapter;
 import net.cytonic.protocol.adapters.KeyAdapter;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.adapters.StringComponentAdapter;
+import net.cytonic.protocol.data.objects.StringComponent;
 
 @AllArgsConstructor
 public class GsonSerializer<T> implements Serializer<T> {
@@ -19,7 +19,7 @@ public class GsonSerializer<T> implements Serializer<T> {
     public static final Gson GSON = new GsonBuilder()
         .registerTypeAdapter(Key.class, new KeyAdapter())
         .registerTypeAdapter(Instant.class, new InstantAdapter())
-        .registerTypeAdapter(JsonComponent.class, new JsonComponentAdapter())
+        .registerTypeAdapter(StringComponent.class, new StringComponentAdapter())
         .registerTypeAdapterFactory(new KeyAdapter())
         .enableComplexMapKeySerialization()
         .setStrictness(Strictness.LENIENT)

@@ -2,6 +2,7 @@ package net.cytonic.cytosis.commands.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import lombok.experimental.UtilityClass;
@@ -16,25 +17,26 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.utils.Utils;
 
 @UtilityClass
 public class CommandUtils {
 
-    public static final CommandCondition IS_MODERATOR = (commandSender, s) -> {
+    public static final CommandCondition IS_MODERATOR = (commandSender, _) -> {
         if (!(commandSender instanceof CytosisPlayer player)) {
             return false;
         }
         return player.isModerator();
     };
 
-    public static final CommandCondition IS_HELPER = (commandSender, s) -> {
+    public static final CommandCondition IS_HELPER = (commandSender, _) -> {
         if (!(commandSender instanceof CytosisPlayer player)) {
             return false;
         }
         return player.isHelper();
     };
 
-    public static final CommandCondition IS_ADMIN = (commandSender, s) -> {
+    public static final CommandCondition IS_ADMIN = (commandSender, _) -> {
         if (!(commandSender instanceof CytosisPlayer player)) {
             return false;
         }
@@ -52,7 +54,7 @@ public class CommandUtils {
     public static final ArgumentPlayer ONLINE_PLAYERS = new ArgumentPlayer();
 
     static {
-        LIFETIME_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
+        LIFETIME_PLAYERS.setSuggestionCallback((_, ctx, suggestion) -> {
             List<SuggestionEntry> options = new ArrayList<>();
             Cytosis.get(CytonicNetwork.class).getLifetimePlayers()
                 .forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
@@ -60,7 +62,7 @@ public class CommandUtils {
                 .forEach(s -> options.add(new SuggestionEntry(s)));
             filterEntries(ctx.get(LIFETIME_PLAYERS), options).forEach(suggestion::addEntry);
         });
-        NETWORK_PLAYERS.setSuggestionCallback((sender, ctx, suggestion) -> {
+        NETWORK_PLAYERS.setSuggestionCallback((_, ctx, suggestion) -> {
             List<SuggestionEntry> options = new ArrayList<>();
             Cytosis.get(CytonicNetwork.class).getOnlinePlayers()
                 .forEach((uuid, name) -> options.add(new SuggestionEntry(name)));
@@ -82,12 +84,19 @@ public class CommandUtils {
         }).toList();
     }
 
-    public static CommandCondition withRank(PlayerRank rank) {
-        return (sender, commandString) -> {
+    public static CommandCondition withRankOrStaff(PlayerRank... ranks) {
+        List<PlayerRank> ranklist = Utils.list(ranks);
+        ranklist.addAll(Utils.list(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER));
+        return withRank(ranklist.toArray(new PlayerRank[0]));
+    }
+
+    public static CommandCondition withRank(PlayerRank... ranks) {
+        EnumSet<PlayerRank> rankset = EnumSet.copyOf(List.of(ranks));
+        return (sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) {
                 return false;
             }
-            return player.getTrueRank() == rank;
+            return rankset.contains(player.getTrueRank());
         };
     }
 }

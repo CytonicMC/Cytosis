@@ -154,15 +154,10 @@ public class FriendManager implements Bootstrappable {
      * @param uuid the player who logged out
      */
     public void sendLogoutMessage(UUID uuid) {
-        PlayerRank rank = network.getCachedPlayerRanks().get(uuid);
-        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix()
-                .append(Component.text(network
-                    .getLifetimePlayers()
-                    .getByKey(uuid))))
-            .append(Msg.mm("<gray> left."));
+        Component msg = Msg.darkAqua("Friend » %s <gray>left.", network.getTrueMiniName(uuid));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
-                player.sendMessage(message);
+                player.sendMessage(msg);
             }
         });
     }
@@ -173,15 +168,10 @@ public class FriendManager implements Bootstrappable {
      * @param uuid the player who logged in
      */
     public void sendLoginMessage(UUID uuid) {
-        PlayerRank rank = network.getCachedPlayerRanks().get(uuid);
-        Component message = Msg.mm("<dark_aqua>Friend » </dark_aqua>").append(rank.getPrefix()
-                .append(Component.text(network
-                    .getLifetimePlayers()
-                    .getByKey(uuid))))
-            .append(Msg.mm("<gray> joined."));
+        Component msg = Msg.darkAqua("Friend » %s <gray>joined.", network.getTrueMiniName(uuid));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
-                player.sendMessage(message);
+                player.sendMessage(msg);
             }
         });
     }

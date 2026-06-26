@@ -16,7 +16,7 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
 public class YoinkCommand extends CytosisCommand {
@@ -66,7 +66,7 @@ public class YoinkCommand extends CytosisCommand {
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
                 .append(Msg.mm("<gray> pulled you to their server!"));
             new ChatMessageNotifyPacket.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE,
-                new JsonComponent(component), null).publish();
+                new StringComponent(component), null).publish();
         }), playerArgument);
     }
 }

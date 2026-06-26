@@ -5,7 +5,7 @@ import java.util.UUID;
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.NoResponse;
 import net.cytonic.protocol.data.enums.KickReason;
-import net.cytonic.protocol.data.objects.JsonComponent;
+import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket.Packet;
 
 public class PlayerKickNotifyPacket extends NoResponse<Packet> {
@@ -15,7 +15,7 @@ public class PlayerKickNotifyPacket extends NoResponse<Packet> {
         return "players.kick";
     }
 
-    public record Packet(UUID uuid, KickReason reason, JsonComponent message) implements Message<Packet, Void> {
+    public record Packet(UUID uuid, KickReason reason, StringComponent message) implements Message<Packet, Void> {
 
     }
 }

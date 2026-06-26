@@ -15,41 +15,41 @@ public enum PlayerRank {
     /**
      * The [OWNER] rank
      */
-    OWNER(Msg.mm("<gold>[<dark_red>⛨</dark_red>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
+    OWNER(Msg.mm("<gold>[<dark_red>⛨</dark_red>]</gold> "), NamedTextColor.AQUA, "<white>"),
     /**
      * The [ADMIN] rank
      */
-    ADMIN(Msg.mm("<gold>[<red>⛨</red>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
+    ADMIN(Msg.mm("<gold>[<red>⛨</red>]</gold> "), NamedTextColor.AQUA, "<white>"),
     /**
      * The [MOD] rank
      */
-    MODERATOR(Msg.mm("<gold>[<green>⛨</green>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
+    MODERATOR(Msg.mm("<gold>[<green>⛨</green>]</gold> "), NamedTextColor.AQUA, "<white>"),
     /**
      * The [HELPER] rank
      */
-    HELPER(Msg.mm("<gold>[<aqua>⛨</aqua>]</gold> "), NamedTextColor.AQUA, NamedTextColor.WHITE),
+    HELPER(Msg.mm("<gold>[<aqua>⛨</aqua>]</gold> "), NamedTextColor.AQUA, "<white>"),
 
     // player ranks
     /**
      * The [NEXUS] rank
      */
-    NEXUS(Msg.mm("<gold>[NEXUS]</gold> "), NamedTextColor.GOLD, NamedTextColor.WHITE),
+    NEXUS(Msg.mm("<gold>☆</gold> "), NamedTextColor.GOLD, "<white>"),
     /**
      * The [SYNAPSE] rank
      */
-    SYNAPSE(Msg.mm("<dark_green>[SYNAPSE]</dark_green> "), NamedTextColor.DARK_GREEN, NamedTextColor.WHITE),
+    SYNAPSE(Msg.mm("<dark_green>\uD83D\uDC09</dark_green> "), NamedTextColor.DARK_GREEN, "<white>"),
     /**
      * The [CORTEX] rank
      */
-    CORTEX(Msg.mm("<dark_purple>[CORTEX]</dark_purple> "), NamedTextColor.DARK_PURPLE, NamedTextColor.WHITE),
+    CORTEX(Msg.mm("<dark_purple>✞</dark_purple> "), NamedTextColor.DARK_PURPLE, "<white>"),
     /**
      * The [DEFAULT] rank
      */
-    DEFAULT(Msg.mm(""), NamedTextColor.GRAY, NamedTextColor.GRAY);
+    DEFAULT(Msg.mm(""), NamedTextColor.GRAY, "<gray>");
 
     private final Component prefix;
     private final NamedTextColor teamColor;
-    private final NamedTextColor chatColor;
+    private final String chatColor;
 
     /**
      * Creates a Rank object
@@ -58,7 +58,7 @@ public enum PlayerRank {
      * @param teamColor The color of the player's name tag, and their name in chat
      * @param chatColor The color of the player's chat message
      */
-    PlayerRank(Component prefix, NamedTextColor teamColor, NamedTextColor chatColor) {
+    PlayerRank(Component prefix, NamedTextColor teamColor, String chatColor) {
         this.prefix = prefix;
         this.teamColor = teamColor;
         this.chatColor = chatColor;
