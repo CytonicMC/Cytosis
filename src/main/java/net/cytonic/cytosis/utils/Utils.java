@@ -72,6 +72,7 @@ public final class Utils {
         try {
             serverIP = getInternalIP();
             if (serverIP == null) {
+                Logger.warn("Failed to find tailscale address! Defaulting to local host address.");
                 serverIP = InetAddress.getLocalHost().getHostAddress();
             }
         } catch (UnknownHostException e) {
@@ -88,7 +89,7 @@ public final class Utils {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {
             NetworkInterface iface = interfaces.nextElement();
-            if (iface.getDisplayName().contains("tailscale")) {
+            if (iface.getName().equals("tailscale0")) {
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     InetAddress addr = addresses.nextElement();
@@ -98,7 +99,7 @@ public final class Utils {
                 }
             }
         }
-        return null; // No other IP found (Docker or Tailscale)
+        return null; // No other IP found
     }
 
     @SuppressWarnings("unchecked")
