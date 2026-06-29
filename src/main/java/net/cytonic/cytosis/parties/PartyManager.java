@@ -23,6 +23,7 @@ import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Utils;
 import net.cytonic.protocol.data.objects.Party;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
@@ -30,8 +31,6 @@ import net.cytonic.protocol.impl.responses.GenericResponse;
 public class PartyManager implements Bootstrappable {
 
     public static final String LINE = "<#83cae4><st>                                                                               </st></#83cae4>";
-    private static final Type PARTY_LIST = new TypeToken<List<Party>>() {
-    }.getType();
     @Getter
     private final Map<UUID, Party> parties = new ConcurrentHashMap<>();
     private final CytonicNetwork cn = Cytosis.get(CytonicNetwork.class);
@@ -681,13 +680,14 @@ public class PartyManager implements Bootstrappable {
 
     @Override
     public void init() {
+        //todo: Convert this to protocol
         Cytosis.get(NatsManager.class)
             .request(Subjects.PREFIX + "party.fetch.request", new byte[0], (message, throwable) -> {
                 if (throwable != null) {
                     Logger.error("Failed to fetch active party list: ", throwable);
                     return;
                 }
-                List<Party> partyList = Cytosis.GSON.fromJson(new String(message.getData()), PARTY_LIST);
+                List<Party> partyList = Utils.parseJson(new String(message.getData()), Party.CODEC.list());
                 parties.putAll(partyList.stream().collect(Collectors.toMap(Party::getId, Function.identity())));
                 Logger.info("Loaded active parties");
             });

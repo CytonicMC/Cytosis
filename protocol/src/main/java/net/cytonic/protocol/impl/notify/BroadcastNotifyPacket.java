@@ -24,7 +24,7 @@ public class BroadcastNotifyPacket extends NotifyPacket<Packet> {
     public record Packet(Component message) implements Message<Packet, Void> {
 
         public static final Codec<Packet> CODEC = StructCodec.struct(
-            "message", ProtocolCodecUtils.MINI_MESSAGE, Packet::message,
+            "message", ProtocolCodecUtils.COMPONENT, Packet::message,
             Packet::new
         );
     }

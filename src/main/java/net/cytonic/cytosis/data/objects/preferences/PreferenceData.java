@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.managers.PreferenceManager;
+import net.cytonic.cytosis.utils.Utils;
 
 /**
  * A class holding a user's preference data.
@@ -133,8 +134,7 @@ public class PreferenceData {
      * @return the JSON data of this object
      */
     public String serialize() {
-        return Cytosis.GSON.toJson(CODEC.encode(Transcoder.JSON, this)
-            .orElseThrow("Failed to serialize user preferences!"));
+        return Utils.toJson(this, CODEC);
     }
 
     public Set<Key> keys() {

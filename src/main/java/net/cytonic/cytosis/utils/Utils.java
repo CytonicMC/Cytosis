@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.utils;
 
-import java.lang.reflect.Type;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonParser;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -22,6 +20,7 @@ import net.minestom.server.codec.Transcoder;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.protocol.utils.ProtocolCodecUtils;
 
 /**
  * A class holding utility methods
@@ -37,17 +36,10 @@ public final class Utils {
      * A decimal format rounding to two decimal places
      */
     public static final DecimalFormat FOUR_PLACES = new DecimalFormat("0.0000");
-    /**
-     * A type token for a list of UUIDs
-     */
-    public final static Type UUID_LIST = new TypeToken<List<UUID>>() {
-    }.getType();
-    /**
-     * A type token for a set of UUIDs
-     */
-    public final static Type UUID_SET = new TypeToken<Set<UUID>>() {
-    }.getType();
-
+    public static final Codec<@Nullable Set<UUID>> UUID_SET = ProtocolCodecUtils.nullSafeOptional(
+        Codec.UUID_STRING.set());
+    public static final Codec<@Nullable List<UUID>> UUID_LIST = ProtocolCodecUtils.nullSafeOptional(
+        Codec.UUID_STRING.list());
     public static final Codec<Instant> INSTANT = Codec.STRING.transform(Instant::parse, Instant::toString);
 
     /**

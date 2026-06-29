@@ -33,9 +33,9 @@ public class ChatMessageNotifyPacket extends NoResponse<Packet> {
     ) implements Message<Packet, Void> {
 
         public static final Codec<Packet> CODEC = StructCodec.struct(
-            "recipients", Codec.UUID_STRING.set().optional(), Packet::recipients,
+            "recipients", ProtocolCodecUtils.nullSafeOptional(Codec.UUID_STRING.set()), Packet::recipients,
             "channel", Codec.STRING, Packet::channel,
-            "message", ProtocolCodecUtils.MINI_MESSAGE, Packet::message,
+            "message", ProtocolCodecUtils.COMPONENT, Packet::message,
             "sender", Codec.UUID_STRING.optional(), Packet::sender,
             Packet::new
         );

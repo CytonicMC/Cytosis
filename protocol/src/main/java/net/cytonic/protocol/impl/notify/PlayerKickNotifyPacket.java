@@ -29,7 +29,7 @@ public class PlayerKickNotifyPacket extends NoResponse<Packet> {
         public static final Codec<Packet> CODEC = StructCodec.struct(
             "uuid", Codec.UUID_STRING, Packet::uuid,
             "reason", KickReason.CODEC, Packet::reason,
-            "message", ProtocolCodecUtils.MINI_MESSAGE, Packet::message,
+            "message", ProtocolCodecUtils.COMPONENT, Packet::message,
             Packet::new
         );
     }

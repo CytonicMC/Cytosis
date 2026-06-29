@@ -3,6 +3,7 @@ package net.cytonic.cytosis.data.enums;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.minestom.server.codec.Codec;
 
 import net.cytonic.cytosis.utils.Msg;
 
@@ -46,7 +47,7 @@ public enum PlayerRank {
      * The [DEFAULT] rank
      */
     DEFAULT(Msg.mm(""), NamedTextColor.GRAY, "<gray>");
-
+    public static final Codec<PlayerRank> CODEC = Codec.Enum(PlayerRank.class);
     private final Component prefix;
     private final NamedTextColor teamColor;
     private final String chatColor;
