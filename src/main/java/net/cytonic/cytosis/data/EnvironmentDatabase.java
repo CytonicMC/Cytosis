@@ -119,7 +119,6 @@ public class EnvironmentDatabase implements Bootstrappable {
         createPlayerJoinsTable();
     }
 
-
     /**
      * Create the player join logging table
      */

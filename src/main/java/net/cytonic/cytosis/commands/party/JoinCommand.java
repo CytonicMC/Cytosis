@@ -11,7 +11,7 @@ import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class JoinCommand extends CytosisCommand {
 
@@ -33,7 +33,7 @@ class JoinCommand extends CytosisCommand {
             Cytosis.get(PartyManager.class).joinParty(playerID, player.getUuid())
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party join: ", throwable);
-                    return new PartyResponse(false, "INTERNAL_ERROR");
+                    return new GenericResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {

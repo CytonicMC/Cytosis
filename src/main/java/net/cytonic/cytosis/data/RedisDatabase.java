@@ -30,7 +30,7 @@ public class RedisDatabase implements Bootstrappable {
     private final RedisClient client;
     private final ExecutorService worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisRedisWorker")
         .uncaughtExceptionHandler(
-            (throwable, runnable) -> Logger.error("An error occurred on the CytosisRedisWorker", throwable))
+            (_, throwable) -> Logger.error("An error occurred on the CytosisRedisWorker", throwable))
         .factory());
 
     /**
@@ -258,6 +258,4 @@ public class RedisDatabase implements Bootstrappable {
     public void addToSet(String key, String toAdd, Environment environment) {
         client.sadd(environment.getPrefix() + key, toAdd);
     }
-
-
 }

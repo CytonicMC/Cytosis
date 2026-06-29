@@ -1,4 +1,4 @@
-package net.cytonic.protocol.adapters;
+package net.cytonic.cytosis.adapters;
 
 import java.io.IOException;
 

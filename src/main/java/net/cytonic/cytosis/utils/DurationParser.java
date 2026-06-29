@@ -71,7 +71,6 @@ public final class DurationParser {
         return duration;
     }
 
-
     /**
      * Converts an Instant to a duration string
      *

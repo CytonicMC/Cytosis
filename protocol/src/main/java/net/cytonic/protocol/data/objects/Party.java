@@ -5,22 +5,33 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 
 @Data
+@AllArgsConstructor
 public class Party {
 
+    public static final Codec<Party> CODEC = StructCodec.struct(
+        "id", Codec.UUID_STRING, Party::getId,
+        "current_leader", Codec.UUID_STRING, Party::getLeader,
+        "muted", Codec.BOOLEAN, Party::isMuted,
+        "open", Codec.BOOLEAN, Party::isOpen,
+        "open_invited", Codec.BOOLEAN, Party::isOpenInvites,
+        "moderators", Codec.UUID_STRING.set(), Party::getModerators,
+        "members", Codec.UUID_STRING.set(), Party::getMembers,
+        "active_invites", Codec.UUID_STRING.mapValue(PartyInvite.CODEC), Party::getActiveInvites,
+        Party::new
+    );
     private final UUID id;
-    @SerializedName("current_leader")
     private UUID leader;
     private boolean muted;
     private boolean open;
-    @SerializedName("open_invited")
     private boolean openInvites;
     private Set<UUID> moderators;
     private Set<UUID> members;
-    @SerializedName("active_invites")
     private Map<UUID, PartyInvite> activeInvites;
 
     public Set<UUID> getAllPlayers() {

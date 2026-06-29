@@ -24,7 +24,7 @@ import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 @CytosisComponent(dependsOn = {NatsManager.class, CytonicNetwork.class})
 public class PartyManager implements Bootstrappable {
@@ -551,16 +551,16 @@ public class PartyManager implements Bootstrappable {
         }
     }
 
-    public CompletableFuture<PartyResponse> joinParty(UUID player, UUID sender) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> joinParty(UUID player, UUID sender) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(player);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "TARGET_NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "TARGET_NOT_IN_PARTY"));
         }
 
         if (Cytosis.getPlayer(sender).isEmpty()) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "SENDER_NOT_FOUND"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "SENDER_NOT_FOUND"));
         }
         String subj = Cytosis.getPlayer(sender).get().isAdmin() ? Subjects.PARTY_JOIN_REQUEST_BYPASS
             : Subjects.PARTY_JOIN_REQUEST_COMMAND;
@@ -568,102 +568,102 @@ public class PartyManager implements Bootstrappable {
         return Cytosis.get(PartyPacketsPublisher.class).sendOnePlayer(sender, subj, future, party);
     }
 
-    public CompletableFuture<PartyResponse> kickPlayer(UUID sender, UUID player) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> kickPlayer(UUID sender, UUID player) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
             Subjects.PARTY_KICK_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> transferPlayer(UUID sender, UUID player) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> transferPlayer(UUID sender, UUID player) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
             .sendTwoPlayer(sender, player, future, party, Subjects.PARTY_TRANSFER_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> promotePlayer(UUID sender, UUID player) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> promotePlayer(UUID sender, UUID player) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
             Subjects.PARTY_PROMOTE_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> demotePlayer(UUID sender, UUID player) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> demotePlayer(UUID sender, UUID player) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class).sendTwoPlayer(sender, player, future, party,
             Subjects.PARTY_DEMOTE_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> disbandParty(UUID sender) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> disbandParty(UUID sender) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
             .sendOnePlayer(sender, Subjects.PARTY_DISBAND_REQUEST, future, party);
     }
 
-    public CompletableFuture<PartyResponse> muteParty(UUID sender, boolean state) {
+    public CompletableFuture<GenericResponse> muteParty(UUID sender, boolean state) {
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
             .sendState(sender, party.getId(), state, Subjects.PARTY_STATE_MUTE_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> openParty(UUID sender, boolean state) {
+    public CompletableFuture<GenericResponse> openParty(UUID sender, boolean state) {
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
             .sendState(sender, party.getId(), state, Subjects.PARTY_STATE_OPEN_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> openPartyInvites(UUID sender, boolean state) {
+    public CompletableFuture<GenericResponse> openPartyInvites(UUID sender, boolean state) {
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)
             .sendState(sender, party.getId(), state, Subjects.PARTY_STATE_OPEN_INVITES_REQUEST);
     }
 
-    public CompletableFuture<PartyResponse> yoinkParty(UUID sender) {
-        CompletableFuture<PartyResponse> future = new CompletableFuture<>();
+    public CompletableFuture<GenericResponse> yoinkParty(UUID sender) {
+        CompletableFuture<GenericResponse> future = new CompletableFuture<>();
 
         Party party = getPlayerParty(sender);
         if (party == null) {
-            return CompletableFuture.completedFuture(new PartyResponse(false, "NOT_IN_PARTY"));
+            return CompletableFuture.completedFuture(new GenericResponse(false, "NOT_IN_PARTY"));
         }
 
         return Cytosis.get(PartyPacketsPublisher.class)

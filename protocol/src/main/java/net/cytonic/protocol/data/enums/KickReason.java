@@ -1,6 +1,7 @@
 package net.cytonic.protocol.data.enums;
 
 import lombok.Getter;
+import net.minestom.server.codec.Codec;
 
 /**
  * An enum holding data about kick reasons
@@ -32,7 +33,7 @@ public enum KickReason {
      * Kicked due to the kick command
      */
     COMMAND(false);
-
+    public static final Codec<KickReason> CODEC = Codec.Enum(KickReason.class);
     private final boolean rescuable;
 
     /**

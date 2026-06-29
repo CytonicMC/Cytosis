@@ -58,7 +58,6 @@ public class MongoDatabase implements Bootstrappable {
         return codec.decode(Transcoder.JSON, JsonParser.parseString(json)).orElseThrow();
     }
 
-
     @Blocking
     public <T> void setDocument(String documentId, String collection, String database, T obj, Codec<T> codec) {
         String json = codec.encode(Transcoder.JSON, obj).orElseThrow().toString();
@@ -70,7 +69,6 @@ public class MongoDatabase implements Bootstrappable {
     public <T> T getDocument(String documentId, String collection, Codec<T> codec) {
         return getDocument(documentId, collection, this.database, codec);
     }
-
 
     @Blocking
     public <T> void setDocument(String documentId, String collection, T obj, Codec<T> codec) {
@@ -86,7 +84,6 @@ public class MongoDatabase implements Bootstrappable {
         if (doc == null) return null;
         return doc.toJson();
     }
-
 
     @Blocking
     public void setDocumentJson(String documentId, String collection, String database, String json) {

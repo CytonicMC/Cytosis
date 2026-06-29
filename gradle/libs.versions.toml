@@ -28,6 +28,7 @@ entrypoint = "0.0.2"
 codecutils = "0.0.2"
 mongo = "5.8.0"
 minestomevents = "0.0.2"
+codec = "0.0.2"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -63,6 +64,7 @@ entrypoint = { module = "dev.minestom-united:entrypoint", version.ref = "entrypo
 codecutils = { module = "dev.minestom-united.common:codec-utils", version.ref = "codecutils" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }
+codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
 
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]

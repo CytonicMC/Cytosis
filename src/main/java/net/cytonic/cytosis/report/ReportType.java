@@ -20,21 +20,24 @@ public interface ReportType<T extends ReportType<T>> extends ReportTypes {
      *
      * @return the Key of this type
      */
-    @NotNull Key getKey();
+    @NotNull
+    Key getKey();
 
     /**
      * The Codec to be used to serialize and deserialize the Context Object for the report type.
      *
      * @return The codec to be used. Note: It is only used for JSON.
      */
-    @NotNull Codec<? extends ReportContext<T>> getContextCodec(); // used to parse their context
+    @NotNull
+    Codec<? extends ReportContext<T>> getContextCodec(); // used to parse their context
 
     /**
      * The name of this report type used in menus and messages.
      *
      * @return The component to use.
      */
-    @NotNull Component getDisplayName();
+    @NotNull
+    Component getDisplayName();
 
     /**
      * The menu that is used to customize a report. It can lead to as many further menus, using click callbacks. At the
@@ -44,5 +47,6 @@ public interface ReportType<T extends ReportType<T>> extends ReportTypes {
      * @param target The UUID of the user being reported.
      * @return the book menu
      */
-    @NotNull Book getCustomizerBook(String user, UUID target);
+    @NotNull
+    Book getCustomizerBook(String user, UUID target);
 }

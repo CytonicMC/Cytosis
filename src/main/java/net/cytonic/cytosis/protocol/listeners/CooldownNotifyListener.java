@@ -16,7 +16,7 @@ public class CooldownNotifyListener implements NotifyListener<Packet> {
         NetworkCooldownManager cooldownManager = Cytosis.get(NetworkCooldownManager.class);
         switch (message.type()) {
             case PERSONAL ->
-                cooldownManager.setPersonal(message.userUUID(), message.namespace(), message.expiry(), false);
+                cooldownManager.setPersonal(message.player(), message.namespace(), message.expiry(), false);
             case GLOBAL -> cooldownManager.setGlobal(message.namespace(), message.expiry(), false);
             default -> throw new IllegalArgumentException("Unsupported target: " + message.type());
         }

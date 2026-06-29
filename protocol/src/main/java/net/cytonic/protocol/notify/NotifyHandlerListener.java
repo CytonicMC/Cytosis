@@ -44,7 +44,7 @@ public class NotifyHandlerListener<T> implements NotifyListener<T> {
         }
 
         String subject = handler.subject();
-        boolean hasSubject = subject != null && !subject.isEmpty();
+        boolean hasSubject = !subject.isEmpty();
         boolean hasStringConstructor = hasConstructor(test.getClass(), new Class[]{String.class});
 
         if (hasSubject && hasStringConstructor) {

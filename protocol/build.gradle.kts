@@ -7,13 +7,14 @@ plugins {
 }
 
 group = "net.cytonic"
-version = "1.3.3-SNAPSHOT"
+version = "1.3.4-SNAPSHOT"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compileOnly(libs.codec)
     implementation(libs.gson)
     implementation(libs.minimessage)
     implementation(libs.adventure.serializer.gson)

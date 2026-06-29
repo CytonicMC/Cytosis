@@ -46,7 +46,6 @@ public class Preferences {
     public static final Preference<Float> FLY_SPEED = make("fly_speed", 1F);
     public static final ToggleablePreference REPORT_BANNED = makeToggleable("report_banned", false);
 
-
     private static <T> Preference<T> make(String key, T def) {
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) def.getClass();
