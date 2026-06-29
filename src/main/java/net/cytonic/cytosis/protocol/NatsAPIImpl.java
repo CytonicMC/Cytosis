@@ -39,8 +39,8 @@ public class NatsAPIImpl implements NatsAPI {
     }
 
     private static void log(String message, Object... args) {
-//        if (Boolean.getBoolean("nats_debug")) {
+        if (Boolean.getBoolean("nats_debug")) {
             Logger.debug(message, args);
-//        }
+        }
     }
 }
