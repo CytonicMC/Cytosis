@@ -10,13 +10,13 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.gradleup.shadow") version "9.4.2"
+    id("com.gradleup.shadow") version "9.4.3"
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.5.0"
     id("net.kyori.blossom") version "2.2.0"
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
-    id("io.ebean") version "17.8.0"
+    id("io.ebean") version "17.11.2"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.2"
     id("com.github.vlsi.jandex") version "3.0.2"
@@ -427,7 +427,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "13.5.0"
+    toolVersion = "13.7.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
