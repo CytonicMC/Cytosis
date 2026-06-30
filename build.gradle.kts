@@ -457,6 +457,7 @@ afterEvaluate {
 
 // Configure checkstyle tasks
 tasks.named<Checkstyle>("checkstyleMain") {
+    dependsOn("processJandexIndex")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
     reports {
