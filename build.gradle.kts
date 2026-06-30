@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.vlsi.jandex.JandexTask
 import io.ebean.annotation.Platform.POSTGRES
 import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 import org.jboss.jandex.IndexWriter
@@ -18,7 +19,7 @@ plugins {
     id("io.ebean") version "17.11.2"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.2"
-    id("org.kordamp.gradle.jandex") version "2.3.0"
+    id("com.github.vlsi.jandex") version "3.0.2"
 }
 
 group = "net.cytonic"
@@ -153,6 +154,7 @@ fun DependencyHandler.downloadOrShade(
     addDependencyTo(this, "runtimeDownloadOnly", resolved, dependencyConfiguration)
     addDependencyTo(this, "downloadOrShadow", resolved, dependencyConfiguration)
 }
+
 migration {
     id = "cytosis"
     platform = POSTGRES
@@ -170,7 +172,7 @@ val buildIndex = tasks.register("indexMinestomEvents") {
 
     // Depend on configuration resolution so the jar is present
     dependsOn(configurations["downloadOrShadow"])
-    dependsOn(renameJandex)
+    dependsOn("ebeanEnhance")
 
     val outputFile = layout.buildDirectory.file("resources/main/META-INF/minestom-jandex.idx")
     outputs.file(outputFile)
@@ -184,13 +186,6 @@ val buildIndex = tasks.register("indexMinestomEvents") {
             .first { it.name == "minestom" }
             .file
 
-        val classesDir = layout.buildDirectory.dir("classes/java/main").get().asFile
-        classesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "class" }
-            .forEach { file ->
-                file.inputStream().use(indexer::index)
-            }
-
         JarFile(minestomJar).use { jar ->
             jar.entries().asSequence()
                 .filter { entry ->
@@ -203,7 +198,6 @@ val buildIndex = tasks.register("indexMinestomEvents") {
         }
         val idx = indexer.complete()
 
-
         val out = outputFile.get().asFile
         out.parentFile.mkdirs()
         out.outputStream().use { IndexWriter(it).write(idx) }
@@ -211,7 +205,6 @@ val buildIndex = tasks.register("indexMinestomEvents") {
 }
 
 tasks.withType<Javadoc> {
-    dependsOn("jandex")
     dependsOn(buildIndex)
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
@@ -259,7 +252,6 @@ tasks.register("thinJar") {
 val thinShadow = tasks.register<ShadowJar>("thinShadow") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-    dependsOn("jandex")
     dependsOn(buildIndex)
 
     exclude("META-INF/*.SF")
@@ -299,12 +291,9 @@ configurations {
 val fatShadow = tasks.register<ShadowJar>("fatShadow") {
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-    dependsOn("jandex")
     dependsOn(buildIndex)
 
-
     mergeServiceFiles()
-//    exclude("META-INF/jandex.idx")
 
     archiveClassifier.set("all")
     destinationDirectory.set(layout.buildDirectory.dir("temp"))
@@ -356,13 +345,12 @@ tasks.register<Copy>("copyThinToLibs") {
     rename { "cytosis.jar" }
 }
 
-val renameJandex by tasks.registering(Copy::class) {
-    dependsOn(tasks.named("jandex"))
+jandex {
+    toolVersion = "3.6.0"
+}
 
-    from(layout.buildDirectory.file("resources/main/META-INF/jandex.idx"))
-    into(layout.buildDirectory.dir("resources/main/META-INF"))
-
-    rename("jandex.idx", "cytosis-jandex.idx")
+tasks.named<JandexTask>("jandexMain") {
+    indexFile = file("build/jandex/jandexMain/cytosis-jandex.idx")
 }
 
 tasks.shadowJar {
@@ -447,7 +435,6 @@ checkstyle {
 }
 
 tasks.withType<Checkstyle>().configureEach {
-    dependsOn("jandex")
     dependsOn(buildIndex)
 
     exclude("**/Events.java")
@@ -462,19 +449,15 @@ tasks.withType<Checkstyle>().configureEach {
     isIgnoreFailures = true
 }
 
-tasks.named("jandex") {
-    finalizedBy(buildIndex)
-}
-
 afterEvaluate {
     tasks.findByName("generateMigrationEnvironment")?.apply {
-        dependsOn("jandex")
         dependsOn(buildIndex)
     }
 }
 
 // Configure checkstyle tasks
 tasks.named<Checkstyle>("checkstyleMain") {
+    dependsOn("processJandexIndex")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
     dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
     reports {
