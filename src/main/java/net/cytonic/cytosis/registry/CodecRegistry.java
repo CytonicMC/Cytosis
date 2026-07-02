@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.registry;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.kyori.adventure.key.Key;
@@ -17,15 +16,11 @@ public abstract class CodecRegistry<T extends Keyed> extends Registry<T> {
     private final String path;
     private final List<String> extraPaths;
 
-    public CodecRegistry(Key id, Codec<T> codec, String path) {
-        this(id, codec, path, new ArrayList<>());
-    }
-
-    public CodecRegistry(Key id, Codec<T> codec, String path, List<String> extraPaths) {
+    public CodecRegistry(Key id, Codec<T> codec, String path, String... extraPaths) {
         super(id);
         this.codec = codec;
         this.path = path;
-        this.extraPaths = extraPaths;
+        this.extraPaths = List.of(extraPaths);
         reload();
     }
 

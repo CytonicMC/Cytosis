@@ -16,17 +16,17 @@ public class JsonFileUtils {
             .orElseThrow("Failed to parse file : " + path);
     }
 
-    public static <T> List<T> parseFilesWithCodec(Codec<T> codec, String path) {
+    public static <T> List<T> parseFilesWithCodec(Codec<T> codec, String dir) {
         List<T> list = new ArrayList<>();
-        for (InputStreamReader reader : ResourceUtils.getResourceFiles(path)) {
+        for (InputStreamReader reader : ResourceUtils.getResourceFiles(dir)) {
             list.add(codec.decode(Transcoder.JSON, JsonParser.parseReader(reader)).orElseThrow());
         }
         return list;
     }
 
-    public static <T> List<T> parseFilesWithListCodec(Codec<@Unmodifiable List<T>> codec, String path) {
+    public static <T> List<T> parseFilesWithListCodec(Codec<@Unmodifiable List<T>> codec, String dir) {
         List<T> list = new ArrayList<>();
-        for (InputStreamReader reader : ResourceUtils.getResourceFiles(path)) {
+        for (InputStreamReader reader : ResourceUtils.getResourceFiles(dir)) {
             list.addAll(codec.decode(Transcoder.JSON, JsonParser.parseReader(reader)).orElseThrow());
         }
         return list;
