@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
+import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.cytonic.cytosis.data.containers.IgnoredChatChannelContainer;
@@ -33,19 +34,21 @@ public class Preferences {
     public static final ToggleablePreference SERVER_ALERTS = makeToggleable("server_alerts", false);
     public static final Preference<ChatChannel> CHAT_CHANNEL = make("chat_channel", ChatChannel.ALL);
     public static final JsonPreference<IgnoredChatChannelContainer> IGNORED_CHAT_CHANNELS = makeJson(
-        "ignored_chat_channels", IgnoredChatChannelContainer.NONE);
-    public static final JsonPreference<SnoopsContainer> LISTENING_SNOOPS = makeJson("listened_snoops",
-        new SnoopsContainer(new HashSet<>()));
+        "ignored_chat_channels", IgnoredChatChannelContainer.class,
+        IgnoredChatChannelContainer.CODEC, IgnoredChatChannelContainer.NONE);
+    public static final JsonPreference<SnoopsContainer> LISTENING_SNOOPS = makeJson(
+        "listened_snoops", SnoopsContainer.class,
+        SnoopsContainer.CODEC, new SnoopsContainer(new HashSet<>()));
     public static final ToggleablePreference MUTE_SNOOPER = makeToggleable("mute_snoops", false);
     public static final ToggleablePreference VANISHED = makeToggleable("vanished", false);
-    public static final JsonPreference<NicknameData> NICKNAME_DATA = makeJson("nickname_data", NicknameData.class);
+    public static final JsonPreference<NicknameData> NICKNAME_DATA = makeJson("nickname_data", NicknameData.class,
+        NicknameData.CODEC);
     public static final Preference<UUID> NICKED_UUID = make("nicked_uuid", UUID.class);
     public static final ToggleablePreference CHAT_MESSAGE_PING = makeToggleable("chat_message_ping", false);
     public static final ToggleablePreference TPS_DEBUG = makeToggleable("tps_debug", false);
     public static final ToggleablePreference FLY = makeToggleable("fly", false);
     public static final Preference<Float> FLY_SPEED = make("fly_speed", 1F);
     public static final ToggleablePreference REPORT_BANNED = makeToggleable("report_banned", false);
-
 
     private static <T> Preference<T> make(String key, T def) {
         @SuppressWarnings("unchecked")
@@ -62,19 +65,14 @@ public class Preferences {
         return val;
     }
 
-    private static <T> JsonPreference<T> makeJson(String key, T def) {
-        @SuppressWarnings("unchecked")
-        Class<T> type = (Class<T>) def.getClass();
-
-        JsonPreference<T> val = new JsonPreference<>(Key.key("cytosis", key), type, def);
+    private static <T> JsonPreference<T> makeJson(String key, Class<T> clazz, Codec<T> codec, T def) {
+        JsonPreference<T> val = new JsonPreference<>(Key.key("cytosis", key), clazz, codec, def);
         ALL.add(val);
         return val;
     }
 
-    private static <T> JsonPreference<T> makeJson(String key, Class<T> clazz) {
-        JsonPreference<T> val = new JsonPreference<>(Key.key("cytosis", key), clazz, null);
-        ALL.add(val);
-        return val;
+    private static <T> JsonPreference<T> makeJson(String key, Class<T> clazz, Codec<T> codec) {
+        return makeJson(key, clazz, codec, null);
     }
 
     private static ToggleablePreference makeToggleable(String key, boolean def) {

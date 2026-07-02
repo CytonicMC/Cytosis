@@ -33,6 +33,16 @@ public interface SplashProvider {
         public String snoop() {
             return "<b><#F873F9>SNOOP!</#F873F9></b>";
         }
+
+        @Override
+        public String enabled() {
+            return "<b><green>ENABLED!</green></b>";
+        }
+
+        @Override
+        public String disabled() {
+            return "<b><red>DISABLED!</red></b>";
+        }
     };
 
     String serverError();
@@ -46,4 +56,8 @@ public interface SplashProvider {
     String tip();
 
     String snoop();
+
+    String enabled();
+
+    String disabled();
 }

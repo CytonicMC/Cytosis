@@ -53,7 +53,6 @@ dependencies {
     downloadOrShade(libs.codecutils)
 
     // Downloaded at runtime for thinJar, shadowed in fatJar
-    downloadOrShade(libs.gson)
     downloadOrShade(libs.jnats)
     downloadOrShade(libs.okhttp)
     downloadOrShade(libs.polar)

@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +38,7 @@ import net.cytonic.cytosis.utils.Utils;
 /**
  * The database object that handles data that is stored across network environments
  */
-@SuppressWarnings({"UnusedReturnValue", "unused"})
+@SuppressWarnings({"UnusedReturnValue"})
 @CytosisComponent
 public class GlobalDatabase implements Bootstrappable {
 
@@ -107,7 +108,7 @@ public class GlobalDatabase implements Bootstrappable {
                 this.dataSource = new HikariDataSource(config);
 
                 // Test the connection
-                try (Connection conn = dataSource.getConnection()) {
+                try (Connection _ = dataSource.getConnection()) {
                     Logger.info("Successfully connected to the Global Database!");
                 }
             } catch (SQLException e) {
@@ -461,7 +462,7 @@ public class GlobalDatabase implements Bootstrappable {
 
                 RedisDatabase redis = Cytosis.get(RedisDatabase.class);
                 BanData data = new BanData(reason, toExpire, true);
-                redis.addToGlobalHash("banned_players", uuid.toString(), Cytosis.GSON.toJson(data));
+                redis.addToGlobalHash("banned_players", uuid.toString(), Utils.toJson(data, BanData.CODEC));
 
                 future.complete(null);
             } catch (SQLException e) {
@@ -676,7 +677,10 @@ public class GlobalDatabase implements Bootstrappable {
                 ps.setObject(1, player);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    future.complete(Cytosis.GSON.fromJson(rs.getString("friends"), Utils.UUID_SET));
+                    future.complete(Objects.requireNonNullElse(
+                        Utils.parseJson(rs.getString("friends"), Utils.UUID_SET),
+                        Set.of()
+                    ));
                 } else {
                     future.complete(new HashSet<>());
                 }
@@ -696,9 +700,8 @@ public class GlobalDatabase implements Bootstrappable {
                     VALUES (?, ?) ON CONFLICT (uuid) DO UPDATE SET friends = EXCLUDED.friends
                     """);
                 friends.remove(player); // prevent self as a friend somehow
-                String serialized = Cytosis.GSON.toJson(friends, Utils.UUID_SET);
                 ps.setObject(1, player);
-                ps.setString(2, serialized);
+                ps.setString(2, Utils.toJson(friends, Utils.UUID_SET));
                 ps.executeUpdate();
             } catch (Exception e) {
                 Logger.error("Failed to persist friend data!", e);

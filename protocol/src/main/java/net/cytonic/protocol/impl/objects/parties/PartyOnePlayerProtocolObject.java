@@ -2,18 +2,19 @@ package net.cytonic.protocol.impl.objects.parties;
 
 import java.util.UUID;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
 import net.cytonic.protocol.impl.objects.parties.PartyOnePlayerProtocolObject.Packet;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartyOnePlayerProtocolObject extends ProtocolObject<Packet, PartyResponse> {
+public class PartyOnePlayerProtocolObject extends ProtocolObject<Packet, GenericResponse> {
 
     private String subject;
 
@@ -22,12 +23,25 @@ public class PartyOnePlayerProtocolObject extends ProtocolObject<Packet, PartyRe
         return subject;
     }
 
-    public record Packet(
-        @SerializedName("party_id")
-        UUID party,
-        @SerializedName("player_id")
-        UUID player
-    ) implements Message<Packet, PartyResponse> {
+    @Override
+    public Codec<Packet> getCodec() {
+        return Packet.CODEC;
+    }
 
+    @Override
+    public Codec<GenericResponse> getReturnCodec() {
+        return GenericResponse.CODEC;
+    }
+
+    public record Packet(
+        UUID party,
+        UUID player
+    ) implements Message<Packet, GenericResponse> {
+
+        public static final Codec<Packet> CODEC = StructCodec.struct(
+            "party_id", Codec.UUID_STRING, Packet::party,
+            "player_id", Codec.UUID_STRING, Packet::player,
+            Packet::new
+        );
     }
 }

@@ -25,7 +25,7 @@ public class ChatMessageNotifyListener implements NotifyListener<Packet> {
     public void onMessage(Packet message, NotifyData notifyData) {
         ChatChannel channel = ChatChannel.valueOf(message.channel());
 
-        Component component = message.message().getComponent();
+        Component component = message.message();
 
         Set<UUID> recipients;
         if (channel.isSupportsSelectiveRecipients()) {

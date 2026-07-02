@@ -19,9 +19,9 @@ public class ServerAlertsCommand extends CytosisCommand {
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            player.togglePreference(Preferences.SERVER_ALERTS, () ->
-                    player.sendMessage(Msg.red("Server alerts are now disabled!")),
-                () -> player.sendMessage(Msg.green("Server alerts are now enabled!"))
+            player.togglePreference(Preferences.SERVER_ALERTS,
+                () -> player.sendMessage(Msg.enabled("Server alerts")),
+                () -> player.sendMessage(Msg.disabled("Server alerts"))
             );
         });
     }

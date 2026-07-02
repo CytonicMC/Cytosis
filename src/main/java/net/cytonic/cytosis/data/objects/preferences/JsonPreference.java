@@ -3,46 +3,30 @@ package net.cytonic.cytosis.data.objects.preferences;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.key.Key;
+import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.utils.Utils;
 
 @Getter
 @Setter
 public class JsonPreference<T> extends Preference<T> {
 
-    //todo: use codecs :)
-    private JsonPreferenceSerializer<T> serializer = Cytosis.GSON::toJson;
-    private JsonPreferenceDeserializer<T> deserializer = data -> Cytosis.GSON.fromJson(data, getType());
+    private final Codec<T> codec;
 
-    /**
-     * Creates a new {@link JsonPreference}, with an optionally null value. The type must be specified manually
-     *
-     * @param key   the namespace
-     * @param type  the type of the preference
-     * @param value the default value, nullable
-     */
-    public JsonPreference(Key key, Class<T> type, @Nullable T value) {
+    public JsonPreference(Key key, Class<T> type, Codec<T> codec, @Nullable T value) {
         super(type, key, value);
-    }
-
-    public JsonPreference(Key key, Class<T> type, @Nullable T value, JsonPreferenceSerializer<T> serializer,
-        JsonPreferenceDeserializer<T> deserializer) {
-        super(type, key, value);
-        this.serializer = serializer;
-        this.deserializer = deserializer;
+        this.codec = codec;
     }
 
     @Override
     public Preference<T> withValue(@Nullable T value) {
-        return new JsonPreference<>(getKey(), getType(), value, getSerializer(), getDeserializer());
+        return new JsonPreference<>(getKey(), getType(), getCodec(), value);
     }
 
     @Override
     public Preference<T> fromStorage(StoredPreference preference) {
-        return new JsonPreference<>(getKey(), getType(), deserialize(preference.getValue()), getSerializer(),
-            getDeserializer());
+        return new JsonPreference<>(getKey(), getType(), getCodec(), deserialize(preference.getValue()));
     }
 
     @Override
@@ -52,14 +36,14 @@ public class JsonPreference<T> extends Preference<T> {
 
     @Override
     public JsonPreference<T> clone() {
-        return new JsonPreference<>(getKey(), getType(), Utils.clone(getValue()), serializer, deserializer);
+        return new JsonPreference<>(getKey(), getType(), getCodec(), Utils.clone(getValue()));
     }
 
     public String serialize() {
-        return serializer.serialize(getValue());
+        return Utils.toJson(getValue(), codec);
     }
 
     public T deserialize(String data) {
-        return deserializer.deserialize(data);
+        return Utils.parseJson(data, codec);
     }
 }

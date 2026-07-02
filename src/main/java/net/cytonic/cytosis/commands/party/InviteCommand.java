@@ -14,7 +14,7 @@ import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Preferences;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class InviteCommand extends CytosisCommand {
 
@@ -42,7 +42,7 @@ class InviteCommand extends CytosisCommand {
             Cytosis.get(PartyPacketsPublisher.class).sendInvite(player.getUuid(), playerID)
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party invite: ", throwable);
-                    return new PartyResponse(false, "INTERNAL_ERROR");
+                    return new GenericResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {

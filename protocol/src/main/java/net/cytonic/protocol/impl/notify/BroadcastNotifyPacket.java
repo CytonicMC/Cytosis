@@ -1,9 +1,13 @@
 package net.cytonic.protocol.impl.notify;
 
+import net.kyori.adventure.text.Component;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
+
 import net.cytonic.protocol.Message;
-import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.BroadcastNotifyPacket.Packet;
 import net.cytonic.protocol.notify.NotifyPacket;
+import net.cytonic.protocol.utils.ProtocolCodecUtils;
 
 public class BroadcastNotifyPacket extends NotifyPacket<Packet> {
 
@@ -12,7 +16,16 @@ public class BroadcastNotifyPacket extends NotifyPacket<Packet> {
         return "chat.broadcast";
     }
 
-    public record Packet(StringComponent message) implements Message<Packet, Void> {
+    @Override
+    public Codec<Packet> getCodec() {
+        return Packet.CODEC;
+    }
 
+    public record Packet(Component message) implements Message<Packet, Void> {
+
+        public static final Codec<Packet> CODEC = StructCodec.struct(
+            "message", ProtocolCodecUtils.COMPONENT, Packet::message,
+            Packet::new
+        );
     }
 }

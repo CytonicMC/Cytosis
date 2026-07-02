@@ -15,7 +15,6 @@ public class VectorUtils {
         return new Vec(vector.x(), vector.y(), vector.z());
     }
 
-
     public static Vector3f composef(Point raw) {
         return new Vector3f((float) raw.x(), (float) raw.y(), (float) raw.z());
     }

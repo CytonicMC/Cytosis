@@ -66,6 +66,14 @@ public interface Msg {
         return mm(PROVIDER.get().snoop()).append(Msg.mm("<!i><!b>").append(component));
     }
 
+    static Component enabled(String str) {
+        return mm(PROVIDER.get().enabled() + " <gray>" + str + " are now <green>enabled</green>!");
+    }
+
+    static Component disabled(String str) {
+        return mm(PROVIDER.get().disabled() + " <gray>" + str + " are now <red>disabled</red>!");
+    }
+
     static Component aquaSplash(String splash, String text, Object... args) {
         return mm("<aqua><b>" + splash + "</b></aqua><gray> " + text, args);
     }

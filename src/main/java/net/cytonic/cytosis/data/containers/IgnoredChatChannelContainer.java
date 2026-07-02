@@ -1,13 +1,30 @@
 package net.cytonic.cytosis.data.containers;
 
 import lombok.With;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 
 import net.cytonic.cytosis.data.enums.ChatChannel;
 
 @With
-public record IgnoredChatChannelContainer(boolean all, boolean party, boolean league, boolean admin, boolean mod,
-                                          boolean staff) {
+public record IgnoredChatChannelContainer(
+    boolean all,
+    boolean party,
+    boolean league,
+    boolean admin,
+    boolean mod,
+    boolean staff
+) {
 
+    public static final Codec<IgnoredChatChannelContainer> CODEC = StructCodec.struct(
+        "all", Codec.BOOLEAN, IgnoredChatChannelContainer::all,
+        "party", Codec.BOOLEAN, IgnoredChatChannelContainer::party,
+        "league", Codec.BOOLEAN, IgnoredChatChannelContainer::league,
+        "admin", Codec.BOOLEAN, IgnoredChatChannelContainer::admin,
+        "mod", Codec.BOOLEAN, IgnoredChatChannelContainer::mod,
+        "staff", Codec.BOOLEAN, IgnoredChatChannelContainer::staff,
+        IgnoredChatChannelContainer::new
+    );
     public static final IgnoredChatChannelContainer NONE =
         new IgnoredChatChannelContainer(false, false, false, false, false, false);
 

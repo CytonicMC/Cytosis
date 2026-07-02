@@ -16,7 +16,6 @@ import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
 public class YoinkCommand extends CytosisCommand {
@@ -24,7 +23,7 @@ public class YoinkCommand extends CytosisCommand {
     public YoinkCommand() {
         super("yoink", "pullhere", "warpplayertothiserver", "pullplayertothisserver");
         setCondition(CommandUtils.IS_STAFF);
-        setDefaultExecutor((sender, context) -> sender.sendMessage(Msg.whoops("You need to specify a player!")));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("You need to specify a player!")));
 
         var playerArgument = ArgumentType.Word("player");
         playerArgument.setSuggestionCallback(
@@ -65,8 +64,7 @@ public class YoinkCommand extends CytosisCommand {
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
                 .append(Msg.mm("<gray> pulled you to their server!"));
-            new ChatMessageNotifyPacket.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE,
-                new StringComponent(component), null).publish();
+            new ChatMessageNotifyPacket.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE, component, null).publish();
         }), playerArgument);
     }
 }

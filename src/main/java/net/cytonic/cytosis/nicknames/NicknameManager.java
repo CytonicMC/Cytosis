@@ -9,8 +9,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dev.minestomunited.common.codecUtils.CodecUtils;
 import lombok.With;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
@@ -244,22 +247,13 @@ public class NicknameManager implements Bootstrappable {
     @With
     public record NicknameData(String nickname, PlayerRank rank, @Nullable PlayerSkin skin) {
 
+        public static final Codec<NicknameData> CODEC = StructCodec.struct(
+            "nickname", Codec.STRING, NicknameData::nickname,
+            "rank", PlayerRank.CODEC, NicknameData::rank,
+            "skin", CodecUtils.PLAYER_SKIN.optional(), NicknameData::skin,
+            NicknameData::new
+        );
+
         public static final NicknameData EMPTY = new NicknameData("", PlayerRank.DEFAULT, null);
-
-        public static NicknameData parseBytes(byte[] serialized) {
-            return Cytosis.GSON.fromJson(new String(serialized), NicknameData.class);
-        }
-
-        public static NicknameData parseString(String s) {
-            return Cytosis.GSON.fromJson(s, NicknameData.class);
-        }
-
-        public byte[] serialize() {
-            return Cytosis.GSON.toJson(this).getBytes();
-        }
-
-        public String serializeAsString() {
-            return Cytosis.GSON.toJson(this);
-        }
     }
 }

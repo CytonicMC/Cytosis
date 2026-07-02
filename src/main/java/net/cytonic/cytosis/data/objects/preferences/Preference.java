@@ -17,7 +17,6 @@ public class Preference<T> {
 
     private final T value;
 
-
     /**
      * Creates a new {@link Preference}, with an optionally null value. The type must be specified manually
      *
@@ -39,7 +38,6 @@ public class Preference<T> {
             "Stored preference key does not match runtime preference key! " + preference.getKey() + " != " + key);
         return new Preference<>(type, key, parseValue(preference.getValue()));
     }
-
 
     public StoredPreference toStorage() {
         if (value == null) {
