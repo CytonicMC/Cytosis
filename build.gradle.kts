@@ -16,7 +16,7 @@ plugins {
     id("net.kyori.blossom") version "2.2.0"
     id("net.kyori.indra.git") version "4.0.0"
     id("checkstyle")
-    id("io.ebean") version "17.11.2"
+    id("io.ebean") version "19.1.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.2"
     id("com.github.vlsi.jandex") version "3.0.2"
