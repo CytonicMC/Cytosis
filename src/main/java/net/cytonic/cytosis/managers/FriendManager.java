@@ -7,9 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.codec.Codec;
 import net.minestom.server.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
@@ -23,7 +21,6 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.utils.ProtocolCodecUtils;
 
 /**
  * A class to manage friends
@@ -32,9 +29,6 @@ import net.cytonic.protocol.utils.ProtocolCodecUtils;
 @CytosisComponent(dependsOn = {PreferenceManager.class, NatsManager.class, EnvironmentDatabase.class,
     CytonicNetwork.class}, priority = 10)
 public class FriendManager implements Bootstrappable {
-
-    public static final Codec<@Nullable Set<UUID>> UUID_SET = ProtocolCodecUtils.nullSafeOptional(
-        Codec.UUID_STRING.set());
 
     private final Map<UUID, Set<UUID>> friends = new ExpiringMap<>();
     private CytonicNetwork network;
