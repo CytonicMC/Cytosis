@@ -33,7 +33,6 @@ jobs:
       - name: Run Checkstyle
         run: ./gradlew --build-cache --parallel checkstyleMain checkstyleTest
       - name: Upload Checkstyle results
-        if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: checkstyle-results

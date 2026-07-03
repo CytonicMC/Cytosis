@@ -1,31 +1,32 @@
-package net.cytonic.cytosis.utils;
+package net.cytonic.cytosis.registry;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.Getter;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 
-/**
- * A simple registry superclass
- * <p>
- * This class was written by unjoinable, and the contributors to his MinigameLib. All credit goes to him.
- * <a
- * href="https://github.com/unjoinable/MinigameLib/blob/master/src/main/java/io/github/unjoinable/minigamelib/api/registry/Registry.java">GitHub</a>
- *
- * @param <K> The registry key type.
- * @param <V> The registry value type.
- */
-@SuppressWarnings("unused")
-public abstract class Registry<K, V> implements Iterable<V> {
+public abstract class Registry<V extends Keyed> implements Iterable<V> {
 
-    private final Map<K, V> objects;
+    @Getter
+    protected final Key id;
+    protected final Map<Key, V> objects;
 
     /**
      * Creates the instance of registry
      */
-    public Registry() {
+    protected Registry(Key id) {
+        this.id = id;
         this.objects = new ConcurrentHashMap<>();
+    }
+
+    protected Registry(Key id, Map<Key, V> objects) {
+        this.id = id;
+        this.objects = objects;
     }
 
     /**
@@ -35,21 +36,12 @@ public abstract class Registry<K, V> implements Iterable<V> {
      * @return The value from the key provided.
      * @throws IllegalArgumentException In case if an invalid key is provided.
      */
-    public V get(K key) {
+    public V get(Key key) {
         if (objects.containsKey(key)) {
             return objects.get(key);
         } else {
             throw new IllegalArgumentException("Object with key " + key + " does not exist in the registry");
         }
-    }
-
-    /**
-     * @param key          The key to look for.
-     * @param defaultValue Default value.
-     * @return The value.
-     */
-    public V getOrDefault(K key, V defaultValue) {
-        return objects.getOrDefault(key, defaultValue);
     }
 
     /**
@@ -59,21 +51,22 @@ public abstract class Registry<K, V> implements Iterable<V> {
      * @param value The value of the key to be inserted.
      * @throws IllegalArgumentException In case if the key already exists in the registry, or the key is null.
      */
-    public void add(K key, V value) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key cannot be null");
-        }
+    public void add(Key key, V value) {
         if (objects.containsKey(key)) {
             throw new IllegalArgumentException("Object already exists in the registry with key " + key);
         }
         objects.put(key, value);
     }
 
+    public void add(V value) {
+        add(value.key(), value);
+    }
+
     /**
      * @param key The key which is to be removed from the registry.
      * @throws IllegalArgumentException When the object is not present in the registry this exception is thrown.
      */
-    public void remove(K key) {
+    public void remove(Key key) {
         if (objects.containsKey(key)) {
             objects.remove(key);
         } else {
@@ -85,19 +78,35 @@ public abstract class Registry<K, V> implements Iterable<V> {
      * @param key The object to check if it exists in the registry.
      * @return If the object is present or not.
      */
-    public boolean contains(K key) {
+    public boolean contains(Key key) {
         return objects.containsKey(key);
     }
 
     /**
      * @return Returns the map of all present objects in the registry
      */
-    public Map<K, V> getAllObjects() {
+    public Map<Key, V> getMap() {
         return objects;
     }
 
+    public Set<Key> keys() {
+        return objects.keySet();
+    }
+
+    public Collection<V> values() {
+        return objects.values();
+    }
+
+    public int size() {
+        return objects.size();
+    }
+
+    public Collection<V> all() {
+        return objects.values();
+    }
+
     @Override
-    public @NotNull Iterator<V> iterator() {
+    public Iterator<V> iterator() {
         return objects.values().iterator();
     }
 }
