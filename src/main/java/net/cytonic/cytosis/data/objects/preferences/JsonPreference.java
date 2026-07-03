@@ -7,6 +7,7 @@ import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.utils.ProtocolCodecUtils;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class JsonPreference<T> extends Preference<T> {
 
     public JsonPreference(Key key, Class<T> type, Codec<T> codec, @Nullable T value) {
         super(type, key, value);
-        this.codec = codec;
+        this.codec = ProtocolCodecUtils.nullSafeOptional(codec);
     }
 
     @Override
