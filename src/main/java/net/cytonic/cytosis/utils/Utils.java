@@ -36,9 +36,11 @@ public final class Utils {
      * A decimal format rounding to two decimal places
      */
     public static final DecimalFormat FOUR_PLACES = new DecimalFormat("0.0000");
-    public static final Codec<@Nullable Set<UUID>> UUID_SET = ProtocolCodecUtils.nullSafeOptional(
+    public static final Codec<Set<UUID>> UUID_SET = Codec.UUID_STRING.set();
+    public static final Codec<@Nullable Set<UUID>> UUID_SET_SAFE = ProtocolCodecUtils.nullSafeOptional(
         Codec.UUID_STRING.set());
-    public static final Codec<@Nullable List<UUID>> UUID_LIST = ProtocolCodecUtils.nullSafeOptional(
+    public static final Codec<List<UUID>> UUID_LIST = Codec.UUID_STRING.list();
+    public static final Codec<@Nullable List<UUID>> UUID_LIST_SAFE = ProtocolCodecUtils.nullSafeOptional(
         Codec.UUID_STRING.list());
     public static final Codec<Instant> INSTANT = Codec.STRING.transform(Instant::parse, Instant::toString);
 

@@ -678,7 +678,7 @@ public class GlobalDatabase implements Bootstrappable {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     future.complete(Objects.requireNonNullElse(
-                        Utils.parseJson(rs.getString("friends"), Utils.UUID_SET),
+                        Utils.parseJson(rs.getString("friends"), Utils.UUID_SET_SAFE),
                         Set.of()
                     ));
                 } else {
