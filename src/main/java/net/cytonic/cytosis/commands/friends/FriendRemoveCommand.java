@@ -43,10 +43,7 @@ public class FriendRemoveCommand extends CytosisCommand {
                 return;
             }
 
-            CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
-            String name = network.getLifetimePlayers().getByKey(target);
-            Component targetComp = network.getCachedPlayerRanks().get(target).getPrefix()
-                .append(Component.text(name));
+            String name = Players.miniNameFragile(context.get(playerArg));
 
             if (!Cytosis.get(FriendManager.class).getFriends(player.getUuid()).contains(target)) {
                 player.sendMessage(
