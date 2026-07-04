@@ -46,7 +46,7 @@ public interface Msg {
         return mm(PROVIDER.get().whoops() + "<gray> " + str, args);
     }
 
-    static Component serverError(String str, Object... args) {
+    static Component error(String str, Object... args) {
         return mm(PROVIDER.get().serverError() + "<gray> " + str, args);
     }
 

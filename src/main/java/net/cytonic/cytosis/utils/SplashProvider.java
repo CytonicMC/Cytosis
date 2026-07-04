@@ -6,7 +6,7 @@ public interface SplashProvider {
 
         @Override
         public String serverError() {
-            return "<b><red>SERVER ERROR!</red></b>";
+            return "<b><red>ERROR!</red></b>";
         }
 
         @Override
