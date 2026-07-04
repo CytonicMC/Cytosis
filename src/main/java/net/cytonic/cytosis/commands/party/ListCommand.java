@@ -8,6 +8,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.data.objects.Party;
 
 class ListCommand extends CytosisCommand {
@@ -30,7 +31,7 @@ class ListCommand extends CytosisCommand {
             } else {
                 leader.append("<red>• ");
             }
-            leader.append(cn.getMiniName(p.getLeader()));
+            leader.append(Players.miniName(p.getLeader()));
 
             StringBuilder moderators = new StringBuilder();
             for (UUID moderator : p.getModerators()) {
@@ -40,7 +41,7 @@ class ListCommand extends CytosisCommand {
                     moderators.append("<red>• ");
                 }
                 moderators
-                    .append(cn.getMiniName(moderator))
+                    .append(Players.miniName(moderator))
                     .append(" ");
             }
 
@@ -52,7 +53,7 @@ class ListCommand extends CytosisCommand {
                     members.append("<red>• ");
                 }
                 members
-                    .append(cn.getMiniName(member))
+                    .append(Players.miniName(member))
                     .append(" ");
             }
             StringBuilder msg = new StringBuilder();

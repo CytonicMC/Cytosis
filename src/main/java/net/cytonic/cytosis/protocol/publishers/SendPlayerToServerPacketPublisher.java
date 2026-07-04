@@ -32,12 +32,12 @@ public class SendPlayerToServerPacketPublisher {
             }
             Player player = Cytosis.getPlayer(uuid).get();
             if (throwable != null) {
-                player.sendMessage(Msg.serverError("An error occurred whilst sending you to %s!", server.id()));
+                player.sendMessage(Msg.error("An error occurred whilst sending you to %s!", server.id()));
             }
 
             if (!response.success()) {
                 player.sendMessage(
-                    Msg.serverError("An error occurred whilst sending you to %s! <red>(%s)</red>", server.id(),
+                    Msg.error("An error occurred whilst sending you to %s! <red>(%s)</red>", server.id(),
                         response.message()));
             } else {
                 player.sendMessage(Msg.network("Sending you to %s!", server.id()));
@@ -52,14 +52,14 @@ public class SendPlayerToServerPacketPublisher {
             }
             Player p = Cytosis.getPlayer(player).get();
             if (throwable != null) {
-                p.sendMessage(Msg.serverError("An error occurred whilst sending you to %s!",
+                p.sendMessage(Msg.error("An error occurred whilst sending you to %s!",
                     displayName == null ? "a server" : displayName));
                 Logger.error("An error occurred whilst sending " + player + " to a generic " + type.asString()
                     + "! <red>(%s)</red>", throwable);
             }
 
             if (!response.success()) {
-                p.sendMessage(Msg.serverError("An error occurred whilst sending you to %s! <red>(%s)</red>",
+                p.sendMessage(Msg.error("An error occurred whilst sending you to %s! <red>(%s)</red>",
                     displayName == null ? "a server" : displayName, response.message()));
             } else {
                 p.sendMessage(Msg.network("Sending you to %s!", displayName == null ? "a server" : displayName));

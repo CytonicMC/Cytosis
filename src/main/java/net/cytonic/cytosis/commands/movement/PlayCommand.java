@@ -29,13 +29,13 @@ public class PlayCommand extends CytosisCommand {
                     new PlayProtocolObject.Packet(player.getUuid()).request("gorge.player.spawn_server", (val, t) -> {
                         if (t != null) {
                             player.sendMessage(
-                                Msg.serverError("Failed to send you to Gilded Gorge! Please try again later."));
+                                Msg.error("Failed to send you to Gilded Gorge! Please try again later."));
                             Logger.error("Failed to send player " + player.getUuid() + " to Gilded Gorge!", t);
                             return;
                         }
                         if (val.error() != null) {
                             player.sendMessage(
-                                Msg.serverError("Failed to send you to Gilded Gorge! Please try again later."));
+                                Msg.error("Failed to send you to Gilded Gorge! Please try again later."));
                             Logger.error("Failed to send player %s to Gilded Gorge. API Response: %s", player.getUuid(),
                                 val.error());
                         }

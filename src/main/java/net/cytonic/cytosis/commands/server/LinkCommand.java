@@ -15,13 +15,13 @@ public class LinkCommand extends CytosisCommand {
             player.sendMessage(Msg.grey("<i>Generating link token..."));
             new AccountLinkProtocolObject.Packet(player.getUuid()).request((response, throwable) -> {
                 if (throwable != null) {
-                    player.sendMessage(Msg.serverError("An error occurred whilst generating a token!"));
+                    player.sendMessage(Msg.error("An error occurred whilst generating a token!"));
                     Logger.error("Failed to generate link token: ", throwable);
                     return;
                 }
                 if (response.error() != null && !response.error().isEmpty()) {
                     player.sendMessage(
-                        Msg.serverError("An error occurred whilst generating a token! Please try again later"));
+                        Msg.error("An error occurred whilst generating a token! Please try again later"));
                     Logger.error("Failed to create link token. Server response: %s", response.error());
                     return;
                 }

@@ -2,7 +2,6 @@ package net.cytonic.cytosis.commands.party;
 
 import java.util.UUID;
 
-import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -13,6 +12,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
@@ -47,15 +47,15 @@ class InviteCommand extends CytosisCommand {
                     if (p.success()) return;
                     switch (p.message()) {
                         case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
+                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
                         case "ERR_SEND_TO_SELF" -> s.sendMessage(Msg.whoops("You cannot invite yourself!"));
                         case "ERR_ALREADY_IN_PARTY" -> s.sendMessage(Msg.whoops("%s<gray> is already in the party.",
-                            Cytosis.get(CytonicNetwork.class).getMiniName(playerID)));
+                            Players.miniName(playerID)));
                         case "ERR_NO_PERMISSION" ->
                             s.sendMessage(Msg.whoops("You don't have permission to send invitations."));
                         case "ERR_ALREADY_INVITED" ->
                             s.sendMessage(Msg.whoops("%s<gray> has already been invited to the party.",
-                                Cytosis.get(CytonicNetwork.class).getMiniName(playerID)));
+                                Players.miniName(playerID)));
                         default -> s.sendMessage(
                             Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
                                 p.message()));

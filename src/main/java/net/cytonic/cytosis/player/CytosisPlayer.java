@@ -34,19 +34,17 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.CytonicServer;
-import net.cytonic.cytosis.data.objects.preferences.Preference;
-import net.cytonic.cytosis.data.objects.preferences.ToggleablePreference;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionBarManager;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
-import net.cytonic.cytosis.managers.LocalCooldownManager;
-import net.cytonic.cytosis.managers.NetworkCooldownManager;
-import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.PartyManager;
+import net.cytonic.cytosis.player.trait.Cooldownable;
+import net.cytonic.cytosis.player.trait.Messagable;
+import net.cytonic.cytosis.player.trait.Preferable;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.protocol.publishers.SendPlayerToServerPacketPublisher;
 import net.cytonic.cytosis.utils.Msg;
@@ -61,7 +59,7 @@ import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
  * managers themselves.
  */
 @SuppressWarnings("unused")
-public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
+public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable {
 
     private PlayerRank rank;
 
@@ -115,112 +113,6 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
     @Internal
     public void setRankUnsafe(PlayerRank rank) {
         this.rank = rank;
-    }
-
-    /**
-     * Updates the preference
-     *
-     * @param namespace the namespace of the preference
-     * @param value     the value to set the preference
-     * @param <T>       the type of the preference value
-     * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
-     * @throws IllegalArgumentException if the preference and value are not of the same type
-     */
-    public <T> void updatePreference(Preference<T> namespace, T value) {
-        Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), namespace, value);
-    }
-
-    public void togglePreference(ToggleablePreference preference, Runnable onTrue, Runnable onFalse) {
-        boolean value = !getPreference(preference);
-        if (value) {
-            onTrue.run();
-        } else {
-            onFalse.run();
-        }
-        Cytosis.get(PreferenceManager.class).updatePlayerPreference(getUuid(), preference, value);
-    }
-
-    /**
-     * Gets all the possible preferences this player has. Some may not be registered in the {@link PreferenceManager}.
-     *
-     * @return the value stored in the preference
-     */
-    public Set<Key> getPreferenceKeys() {
-        return Cytosis.get(PreferenceManager.class).getPlayerKeys(getUuid());
-    }
-
-    /**
-     * Gets a preference value
-     *
-     * @param namespace the namespace of the preference
-     * @param <T>       the Type of the preference
-     * @return the value stored in the preference
-     * @throws IllegalArgumentException if the preference has not been registered with the {@link PreferenceManager}
-     */
-    public <T> T getPreference(Preference<T> namespace) {
-        return Cytosis.get(PreferenceManager.class).getPlayerPreference(getUuid(), namespace);
-    }
-
-    /**
-     * Determines if the specified cooldown is active for the player
-     *
-     * @param namespace the namespace of the cooldown
-     * @return the boolean true if the player is on cooldown
-     */
-    public boolean onNetworkCooldown(Key namespace) {
-        return Cytosis.get(NetworkCooldownManager.class).isOnPersonalCooldown(getUuid(), namespace);
-    }
-
-    /**
-     * Determines if the specified cooldown is active for the player, on this server
-     *
-     * @param namespace the namespace of the local cooldown
-     * @return the boolean true if the player is on cooldown on this server
-     */
-    public boolean onLocalCooldown(Key namespace) {
-        return Cytosis.get(LocalCooldownManager.class).isOnPersonalCooldown(getUuid(), namespace);
-    }
-
-    /**
-     * Sets the player's personal cooldown
-     *
-     * @param namespace the namespace of the cooldown
-     * @param expiry    the instant the cooldown is to expire
-     */
-    public void setNetworkCooldown(Key namespace, Instant expiry) {
-        Cytosis.get(NetworkCooldownManager.class).setPersonal(getUuid(), namespace, expiry);
-    }
-
-    /**
-     * Sets the player's personal local cooldown
-     *
-     * @param namespace the namespace of the local cooldown
-     * @param expiry    the instant the cooldown is to expire
-     */
-    public void setLocalCooldown(Key namespace, Instant expiry) {
-        Cytosis.get(LocalCooldownManager.class).setPersonalCooldown(getUuid(), namespace, expiry);
-    }
-
-    /**
-     * Gets the expiry of this player's network cooldown
-     *
-     * @param namespace the namespace of the cooldown
-     * @return the instant the specified cooldown expires. May be null if the player isn't on cooldown
-     */
-    @Nullable
-    public Instant getNetworkCooldown(Key namespace) {
-        return Cytosis.get(NetworkCooldownManager.class).getPersonalExpiry(getUuid(), namespace);
-    }
-
-    /**
-     * Gets the expiry of this player's local cooldown
-     *
-     * @param namespace the namespace of the cooldown
-     * @return the instant the specified cooldown expires. May be null if the player isn't on cooldown
-     */
-    @Nullable
-    public Instant getLocalCooldown(Key namespace) {
-        return Cytosis.get(LocalCooldownManager.class).getPersonalExpiry(getUuid(), namespace);
     }
 
     /**
@@ -506,8 +398,8 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
         if (!isNicked()) {
             super.updateNewViewer(player);
         } else {
-            Cytosis.get(NicknameManager.class)
-                .sendNicknamePacketsToPlayer(this, player, getPreference(Preferences.NICKED_UUID), false);
+            UUID masked = getPreference(Preferences.NICKNAME_DATA).uuid();
+            Cytosis.get(NicknameManager.class).sendNicknamePacketsToPlayer(this, player, masked, false);
         }
     }
 

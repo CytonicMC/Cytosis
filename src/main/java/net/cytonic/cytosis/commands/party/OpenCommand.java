@@ -37,15 +37,14 @@ class OpenCommand extends CytosisCommand {
                     if (p.success()) return;
                     switch (p.message()) {
                         case "INTERNAL_ERROR" ->
-                            sender.sendMessage(Msg.serverError("An error occurred whilst opening the party."));
+                            sender.sendMessage(Msg.error("An error occurred whilst opening the party."));
                         case "NOT_IN_PARTY", "ERR_INVALID_PARTY" ->
                             sender.sendMessage(Msg.whoops("You are not in a party."));
                         case "ERR_NO_PERMISSION" ->
                             sender.sendMessage(Msg.whoops("You must be the party leader to open the party."));
                         case "ERR_ALREADY_STATE" -> sender.sendMessage(
                             Msg.whoops("The party has already been %s.", state ? "opened" : "closed"));
-                        default ->
-                            sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.message()));
+                        default -> sender.sendMessage(Msg.error("An unknown error occurred. <red>(%s)", p.message()));
                     }
                 });
         }, stateArg);

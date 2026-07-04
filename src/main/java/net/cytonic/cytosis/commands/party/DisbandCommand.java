@@ -22,7 +22,7 @@ class DisbandCommand extends CytosisCommand {
                     if (p.success()) return;
                     switch (p.message()) {
                         case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
+                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
                         case "ERR_NOT_IN_PARTY", "NOT_IN_PARTY", "INVALID_PARTY" ->
                             s.sendMessage(Msg.whoops("You are not in a party."));
                         case "ERR_NOT_LEADER" -> s.sendMessage(Msg.whoops("You must be the leader to disband the party!"));

@@ -33,7 +33,6 @@ import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.PlayerListManager;
-import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -90,7 +89,6 @@ public class NicknameManager implements Bootstrappable {
         addToTrackedNicknames(playerUuid, data.nickname());
         sendNicknamePacketsToAll(player, masked, false);
         player.updatePreference(Preferences.NICKNAME_DATA, data);
-        player.updatePreference(Preferences.NICKED_UUID, masked);
 
         Component msg = player.trueFormattedName().append(Msg.aqua(" has been nicked to "))
             .append(player.formattedName())
@@ -158,7 +156,6 @@ public class NicknameManager implements Bootstrappable {
         sendRemovePackets(player);
         rankManager.setupCosmetics(player, player.getTrueRank());
         player.updatePreference(Preferences.NICKNAME_DATA, null);
-        player.updatePreference(Preferences.NICKED_UUID, null);
     }
 
     public void sendRemovePackets(CytosisPlayer player) {
@@ -185,13 +182,12 @@ public class NicknameManager implements Bootstrappable {
     }
 
     public void loadNickedPlayer(CytosisPlayer player) {
-        NicknameData data = Cytosis.get(PreferenceManager.class)
-            .getPlayerPreference(player.getUuid(), Preferences.NICKNAME_DATA);
-        UUID maskedUuid = player.getPreference(Preferences.NICKED_UUID);
+        NicknameData data = player.getPreference(Preferences.NICKNAME_DATA);
+        if (data == null) return;
+        UUID maskedUuid = data.uuid();
         if (maskedUuid == null) {
             maskedUuid = UUID.randomUUID();
         }
-        if (data == null) return;
         this.maskedUuids.put(player.getUuid(), maskedUuid);
         this.nicknames.put(player.getUuid(), data);
         addToTrackedNicknames(player.getUuid(), data.nickname());
@@ -245,15 +241,21 @@ public class NicknameManager implements Bootstrappable {
     }
 
     @With
-    public record NicknameData(String nickname, PlayerRank rank, @Nullable PlayerSkin skin) {
+    public record NicknameData(UUID uuid, String nickname, PlayerRank rank, @Nullable PlayerSkin skin) {
+
+        private static final UUID DEFAULT_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
         public static final Codec<NicknameData> CODEC = StructCodec.struct(
+            "uuid", Codec.UUID_STRING.optional(DEFAULT_UUID), NicknameData::uuid,
             "nickname", Codec.STRING, NicknameData::nickname,
             "rank", PlayerRank.CODEC, NicknameData::rank,
             "skin", CodecUtils.PLAYER_SKIN.optional(), NicknameData::skin,
             NicknameData::new
         );
+        public static final NicknameData EMPTY = new NicknameData(DEFAULT_UUID, "", PlayerRank.DEFAULT, null);
 
-        public static final NicknameData EMPTY = new NicknameData("", PlayerRank.DEFAULT, null);
+        public boolean isEmpty() {
+            return uuid.equals(DEFAULT_UUID);
+        }
     }
 }

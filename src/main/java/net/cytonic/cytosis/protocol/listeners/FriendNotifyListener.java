@@ -11,6 +11,7 @@ import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.notify.FriendNotifyPacket;
 import net.cytonic.protocol.utils.NotifyHandler;
 
@@ -114,18 +115,18 @@ public class FriendNotifyListener {
             if (player.getUuid().equals(packet.recipient())) {
                 player.sendMessage(FRIEND_LINE);
                 player.sendMessage(
-                    Msg.mm("%s<aqua> removed you from their friend list!", network.getTrueMiniName(packet.sender())));
+                    Msg.mm("%s<aqua> removed you from their friend list!", Players.trueMiniName(packet.sender())));
                 player.sendMessage(FRIEND_LINE);
             } else if (player.getUuid().equals(packet.sender())) {
                 player.sendMessage(FRIEND_LINE);
                 player.sendMessage(
-                    Msg.mm("<aqua>You removed %s from your friend list!", network.getTrueMiniName(packet.recipient())));
+                    Msg.mm("<aqua>You removed %s from your friend list!", Players.trueMiniName(packet.recipient())));
                 player.sendMessage(FRIEND_LINE);
             }
         }
     }
 
     private Component createComponent(UUID player) {
-        return Msg.mm(Cytosis.get(CytonicNetwork.class).getTrueMiniName(player));
+        return Msg.mm(Players.trueMiniName(player));
     }
 }

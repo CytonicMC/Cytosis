@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.managers;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -15,12 +16,12 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.EnvironmentDatabase;
 import net.cytonic.cytosis.data.GlobalDatabase;
-import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Players;
 
 /**
  * A class to manage friends
@@ -51,7 +52,7 @@ public class FriendManager implements Bootstrappable {
     public void loadFriends(UUID uuid) {
 
         db.loadFriends(uuid)
-            .thenAccept(uuids -> friends.put(uuid, uuids))
+            .thenAccept(uuids -> friends.put(uuid, new HashSet<>(uuids)))
             .exceptionally(throwable -> {
                 Logger.error("Failed to load friends!", throwable);
                 return null;
@@ -59,10 +60,10 @@ public class FriendManager implements Bootstrappable {
     }
 
     public void addCachedFriend(UUID uuid, UUID friend) {
-        Set<UUID> list = friends.computeIfAbsent(uuid, u -> ConcurrentHashMap.newKeySet());
+        Set<UUID> list = friends.computeIfAbsent(uuid, _ -> ConcurrentHashMap.newKeySet());
         list.add(friend);
 
-        Set<UUID> friendList = friends.computeIfAbsent(friend, u -> ConcurrentHashMap.newKeySet());
+        Set<UUID> friendList = friends.computeIfAbsent(friend, _ -> ConcurrentHashMap.newKeySet());
         friendList.add(uuid);
     }
 
@@ -80,7 +81,7 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void addFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        Set<UUID> list = friends.computeIfAbsent(uuid, u -> ConcurrentHashMap.newKeySet());
+        Set<UUID> list = friends.computeIfAbsent(uuid, _ -> ConcurrentHashMap.newKeySet());
         list.add(friend);
 
         db.updateFriends(uuid, list);
@@ -103,7 +104,7 @@ public class FriendManager implements Bootstrappable {
     }
 
     private void removeFriendRecursive(UUID uuid, UUID friend, boolean recursive) {
-        Set<UUID> list = friends.computeIfAbsent(uuid, u -> ConcurrentHashMap.newKeySet());
+        Set<UUID> list = friends.computeIfAbsent(uuid, _ -> ConcurrentHashMap.newKeySet());
         list.remove(friend);
 
         db.updateFriends(uuid, list);
@@ -129,12 +130,9 @@ public class FriendManager implements Bootstrappable {
             Msg.aquaSplash("Friends List", "(" + getFriends(player.getUuid()).size() + ") <dark_gray>»</dark_gray>"));
 
         for (UUID friend : getFriends(player.getUuid())) {
-            PlayerRank rank = network.getCachedPlayerRanks().get(friend);
             boolean online = network.getOnlinePlayers().containsKey(friend);
-            String name = network.getLifetimePlayers().getByKey(friend);
-            player.sendMessage(Msg.mm("<dark_gray>  > </dark_gray>")
-                .append(rank.getPrefix().append(Component.text(name)).append(Component.text(" - "))
-                    .append(online ? Msg.coloredBadge("ONLINE!", "green") : Msg.coloredBadge("OFFLINE :(", "red"))));
+            String name = Players.trueMiniName(friend);
+            player.sendMessage(Msg.mm(" %s %s", online ? "<green>◆</green>" : "<red>◇</red>", name));
         }
     }
 
@@ -154,7 +152,7 @@ public class FriendManager implements Bootstrappable {
      * @param uuid the player who logged out
      */
     public void sendLogoutMessage(UUID uuid) {
-        Component msg = Msg.darkAqua("Friend » %s <gray>left.", network.getTrueMiniName(uuid));
+        Component msg = Msg.darkAqua("Friend » %s <gray>left.", Players.trueMiniName(uuid));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
                 player.sendMessage(msg);
@@ -168,7 +166,7 @@ public class FriendManager implements Bootstrappable {
      * @param uuid the player who logged in
      */
     public void sendLoginMessage(UUID uuid) {
-        Component msg = Msg.darkAqua("Friend » %s <gray>joined.", network.getTrueMiniName(uuid));
+        Component msg = Msg.darkAqua("Friend » %s <gray>joined.", Players.trueMiniName(uuid));
         Cytosis.getOnlinePlayers().forEach(player -> {
             if (getFriends(player.getUuid()).contains(uuid)) {
                 player.sendMessage(msg);

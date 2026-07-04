@@ -24,7 +24,7 @@ class YoinkCommand extends CytosisCommand {
                     if (p.success()) return;
                     switch (p.message()) {
                         case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
+                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
                         case "ERR_NOT_IN_PARTY", "NOT_IN_PARTY", "INVALID_PARTY" ->
                             s.sendMessage(Msg.whoops("You are not in a party."));
                         case "ERR_ALREADY_LEADER" -> s.sendMessage(Msg.whoops("You are already the leader of this party!"));

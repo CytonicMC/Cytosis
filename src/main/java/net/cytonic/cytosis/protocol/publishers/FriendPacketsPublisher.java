@@ -33,7 +33,7 @@ public class FriendPacketsPublisher {
             CytosisPlayer player = playerOptional.get();
 
             if (throwable != null) {
-                player.sendMessage(Msg.serverError("An error occurred whilst sending your friend request!"));
+                player.sendMessage(Msg.error("An error occurred whilst sending your friend request!"));
             }
             if (response.success()) {
                 return;
@@ -49,7 +49,7 @@ public class FriendPacketsPublisher {
                 return;
             }
 
-            player.sendMessage(Msg.serverError("Failed to send your friend request to ").append(recipient)
+            player.sendMessage(Msg.error("Failed to send your friend request to ").append(recipient)
                 .append(Msg.mm("<gray>! Error: " + response.message())));
 
             Logger.error(
@@ -74,7 +74,7 @@ public class FriendPacketsPublisher {
         if (throwable != null) {
             if (recipient != null) {
                 Cytosis.getPlayer(recipient)
-                    .ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process your friend request!")));
+                    .ifPresent(player -> player.sendMessage(Msg.error("Failed to process your friend request!")));
             }
             Logger.error("Internal error upon processing a friend acceptance.", throwable);
         }
@@ -94,7 +94,7 @@ public class FriendPacketsPublisher {
 
         if (recipient != null) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                Msg.serverError("Failed to process accepting your friend request: " + response.message())));
+                Msg.error("Failed to process accepting your friend request: " + response.message())));
         }
         Logger.info("Failed to accept friend request: " + response.code());
     }
@@ -114,7 +114,7 @@ public class FriendPacketsPublisher {
         if (throwable != null) {
             if (recipient != null) {
                 Cytosis.getPlayer(recipient).ifPresent(
-                    player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request!")));
+                    player -> player.sendMessage(Msg.error("Failed to process declining your friend request!")));
             }
             Logger.error("Internal error upon processing a friend decline.", throwable);
         }
@@ -135,7 +135,7 @@ public class FriendPacketsPublisher {
 
         if (recipient != null) {
             Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                Msg.serverError("Failed to process declining your friend request: " + response.message())));
+                Msg.error("Failed to process declining your friend request: " + response.message())));
         }
         Logger.info("Failed to accept friend request: " + response.code());
     }

@@ -2,7 +2,6 @@ package net.cytonic.cytosis.commands.party;
 
 import java.util.UUID;
 
-import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -11,6 +10,7 @@ import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class JoinCommand extends CytosisCommand {
@@ -38,15 +38,15 @@ class JoinCommand extends CytosisCommand {
                     if (p.success()) return;
                     switch (p.message()) {
                         case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
+                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
                         case "TARGET_NOT_IN_PARTY", "INVALID_PARTY" -> s.sendMessage(Msg.whoops("%s is not in a party.",
-                            Cytosis.get(CytonicNetwork.class).getMiniName(playerID)));
+                            Players.miniName(playerID)));
                         case "SENDER_NOT_FOUND" ->
                             s.sendMessage(Msg.whoops("Somehow you went missing! Please explain how you managed that ;)"));
                         case "ERR_ALREADY_IN_PARTY" -> s.sendMessage(Msg.whoops("You're already in a party."));
                         case "ERR_NO_INVITE" ->
                             s.sendMessage(Msg.whoops("You do not have an invite to join %s<gray>'s party.",
-                                Cytosis.get(CytonicNetwork.class).getMiniName(playerID)));
+                                Players.miniName(playerID)));
                         default -> s.sendMessage(
                             Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
                                 p.message()));

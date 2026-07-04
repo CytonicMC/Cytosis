@@ -45,7 +45,7 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             try {
                 world = AnvilPolar.anvilToPolar(readPath);
             } catch (IOException e) {
-                sender.sendMessage(Msg.serverError("Failed to convert world! (%s)", e.getMessage()));
+                sender.sendMessage(Msg.error("Failed to convert world! (%s)", e.getMessage()));
                 Logger.error("Failed to convert world!", e);
                 return;
             }

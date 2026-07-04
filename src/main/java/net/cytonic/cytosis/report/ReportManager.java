@@ -12,13 +12,13 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Utils;
 
 @CytosisComponent
@@ -63,8 +63,8 @@ public class ReportManager {
 
             Cytosis.get(SnooperManager.class)
                 .sendSnoop(Snoops.REPORT_SUBMITTED, Msg.mm("%s submitted report %s against %s for %s.",
-                    Cytosis.get(CytonicNetwork.class).getTrueMiniName(report.reporter()), report.uuid(),
-                    Cytosis.get(CytonicNetwork.class).getTrueMiniName(report.player()),
+                    Players.trueMiniName(report.reporter()), report.uuid(),
+                    Players.trueMiniName(report.player()),
                     Msg.toMini(report.type().getDisplayName())));
             return null;
         });
@@ -109,7 +109,7 @@ public class ReportManager {
                     saveReport(report).whenComplete((_, throwable) -> {
                         if (throwable != null) {
                             p.sendMessage(
-                                Msg.serverError("Failed to save your report. (%s)", throwable.getCause().getMessage()));
+                                Msg.error("Failed to save your report. (%s)", throwable.getCause().getMessage()));
                             return;
                         }
                         p.sendMessage(Msg.success("Your report has been submitted. A member of staff will review it."));

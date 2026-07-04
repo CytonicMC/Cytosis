@@ -69,7 +69,7 @@ public class MuteCommand extends CytosisCommand {
         UUID uuid = network.getLifetimeFlattened().getByValue(target.toLowerCase());
         db.isMuted(uuid).whenComplete((muted, throwable1) -> {
             if (throwable1 != null) {
-                actor.sendMessage(Msg.serverError("An error occurred whilst finding if %s is muted!", target));
+                actor.sendMessage(Msg.error("An error occurred whilst finding if %s is muted!", target));
                 Logger.error("error checking mute status", throwable1);
                 return;
             }
@@ -79,7 +79,7 @@ public class MuteCommand extends CytosisCommand {
             }
             db.getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
                 if (throwable2 != null) {
-                    actor.sendMessage(Msg.serverError("An error occurred whilst finding %s's rank!", target));
+                    actor.sendMessage(Msg.error("An error occurred whilst finding %s's rank!", target));
                     Logger.error("error", throwable2);
                     return;
                 }
@@ -95,7 +95,7 @@ public class MuteCommand extends CytosisCommand {
                     .sendSnoop(Snoops.PLAYER_MUTE, Msg.snoop(snoop));
                 db.mutePlayer(uuid, duration).whenComplete((ignored, throwable3) -> {
                     if (throwable3 != null) {
-                        actor.sendMessage(Msg.serverError("An error occurred whilst muting %s!", target));
+                        actor.sendMessage(Msg.error("An error occurred whilst muting %s!", target));
                         return;
                     }
                     actor.sendMessage(Msg.greenSplash("MUTED!", "%s was successfully muted for %s.", target,

@@ -37,15 +37,14 @@ class MuteCommand extends CytosisCommand {
                     if (p.success()) return;
                     switch (p.message()) {
                         case "INTERNAL_ERROR" ->
-                            sender.sendMessage(Msg.serverError("An error occurred whilst muting the party."));
+                            sender.sendMessage(Msg.error("An error occurred whilst muting the party."));
                         case "NOT_IN_PARTY", "ERR_INVALID_PARTY" ->
                             sender.sendMessage(Msg.whoops("You are not in a party."));
                         case "ERR_NO_PERMISSION" ->
                             sender.sendMessage(Msg.whoops("You must be the party leader to mute the party."));
                         case "ERR_ALREADY_STATE" ->
                             sender.sendMessage(Msg.whoops("The party is already %s.", state ? "muted" : "unmuted"));
-                        default ->
-                            sender.sendMessage(Msg.serverError("An unknown error occurred. <red>(%s)", p.message()));
+                        default -> sender.sendMessage(Msg.error("An unknown error occurred. <red>(%s)", p.message()));
                     }
                 });
         }, stateArg);

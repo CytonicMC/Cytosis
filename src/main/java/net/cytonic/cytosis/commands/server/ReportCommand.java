@@ -5,7 +5,6 @@ import java.util.UUID;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.event.ClickEvent;
 
-import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
@@ -13,6 +12,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.report.ReportManager;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 
 public class ReportCommand extends CytosisCommand {
@@ -31,7 +31,7 @@ public class ReportCommand extends CytosisCommand {
             }
             String raw = ctx.get(CommandUtils.NETWORK_PLAYERS);
 
-            String mini = Cytosis.get(CytonicNetwork.class).getMiniNameFragile(raw);
+            String mini = Players.miniNameFragile(raw);
             if (mini == null) {
                 player.sendMessage(Msg.whoops("Could not find a player with the name '%s'.", raw));
                 return;

@@ -66,12 +66,20 @@ public interface Msg {
         return mm(PROVIDER.get().snoop()).append(Msg.mm("<!i><!b>").append(component));
     }
 
-    static Component enabled(String str) {
-        return mm(PROVIDER.get().enabled() + " <gray>" + str + " are now <green>enabled</green>!");
+    static Component enabledPlural(String str, Object... args) {
+        return mm(PROVIDER.get().enabled() + " <gray>" + str + " are now <green>enabled</green>!", args);
     }
 
-    static Component disabled(String str) {
-        return mm(PROVIDER.get().disabled() + " <gray>" + str + " are now <red>disabled</red>!");
+    static Component disabledPlural(String str, Object... args) {
+        return mm(PROVIDER.get().disabled() + " <gray>" + str + " are now <red>disabled</red>!", args);
+    }
+
+    static Component enabledSingle(String str, Object... args) {
+        return mm(PROVIDER.get().enabled() + " <gray>" + str + " is now <green>enabled</green>!", args);
+    }
+
+    static Component disabledSingle(String str, Object... args) {
+        return mm(PROVIDER.get().disabled() + " <gray>" + str + " is now <red>disabled</red>!", args);
     }
 
     static Component aquaSplash(String splash, String text, Object... args) {

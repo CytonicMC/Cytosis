@@ -46,7 +46,7 @@ public class ImportPolarWorldCommand extends CytosisCommand {
                 loader = new PolarLoader(readPath);
             } catch (IOException e) {
                 Logger.error("Failed to load world!", e);
-                player.sendMessage(Msg.serverError("Failed to load world! (%s)", e.getMessage()));
+                player.sendMessage(Msg.error("Failed to load world! (%s)", e.getMessage()));
                 return;
             }
 

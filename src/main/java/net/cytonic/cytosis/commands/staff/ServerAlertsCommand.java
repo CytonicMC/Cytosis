@@ -3,7 +3,6 @@ package net.cytonic.cytosis.commands.staff;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 
 /**
@@ -20,8 +19,8 @@ public class ServerAlertsCommand extends CytosisCommand {
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             player.togglePreference(Preferences.SERVER_ALERTS,
-                () -> player.sendMessage(Msg.enabled("Server alerts")),
-                () -> player.sendMessage(Msg.disabled("Server alerts"))
+                () -> player.enabledPlural("Server alerts"),
+                () -> player.disbledPlural("Server alerts")
             );
         });
     }
