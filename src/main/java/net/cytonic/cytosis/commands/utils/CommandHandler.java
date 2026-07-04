@@ -33,7 +33,6 @@ import net.cytonic.cytosis.commands.moderation.VanishCommand;
 import net.cytonic.cytosis.commands.movement.LobbyCommand;
 import net.cytonic.cytosis.commands.movement.PlayCommand;
 import net.cytonic.cytosis.commands.nicknames.NickCommand;
-import net.cytonic.cytosis.commands.nicknames.NickRevealCommand;
 import net.cytonic.cytosis.commands.party.PartyCommand;
 import net.cytonic.cytosis.commands.server.BroadcastCommand;
 import net.cytonic.cytosis.commands.server.LinkCommand;
@@ -94,7 +93,7 @@ public class CommandHandler implements Bootstrappable {
             new UnmuteCommand(), new KickCommand(), new MsgCommand(), new CooldownCommand(),
             new LoopCommand(), new RecalculatePermissionsCommand(), new YoinkCommand(), new ReplyCommand(),
             new SnooperCommand(), new PlayCommand(), new LobbyCommand(), new WhereAmiCommand(), new DisableCommand(),
-            new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(), new NickRevealCommand(),
+            new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(),
             new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand(),
             new WhitelistCommand(), new PartyCommand(), new PartyChatCommand(), new TpsCommand(), new ReportCommand(),
             new DummyCommand(), new LinkCommand(), new MiniMessageCommand());

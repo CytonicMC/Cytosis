@@ -86,8 +86,7 @@ public class NickSetupCommand extends CytosisCommand {
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (player.isNicked()) {
-                player.sendMessage(Msg.whoops(
-                    "You are already nicked! Use /nick reset to go back to your normal self and try again."));
+                player.whoops("You are already nicked! Use /nick reset to go back to your normal self and try again.");
                 return;
             }
             player.openBook(WARNING_BOOK);
