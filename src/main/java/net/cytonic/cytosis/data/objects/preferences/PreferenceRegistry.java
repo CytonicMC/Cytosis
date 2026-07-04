@@ -23,7 +23,6 @@ public class PreferenceRegistry {
 
     private final Map<Key, Preference<?>> preferences = new ConcurrentHashMap<>();
 
-
     /**
      * Writes a preference to the registry
      *
@@ -66,7 +65,6 @@ public class PreferenceRegistry {
         }
         return preferences.containsKey(key);
     }
-
 
     /**
      * The set of namespaces contained in this registry

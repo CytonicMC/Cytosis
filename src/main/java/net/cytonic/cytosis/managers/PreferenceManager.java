@@ -94,10 +94,10 @@ public class PreferenceManager implements Bootstrappable {
     /**
      * Update a player's preference data
      *
-     * @param uuid        the player to update
-     * @param key the id of the preference
-     * @param value       the preference to set
-     * @param <T>         the type of the preference
+     * @param uuid  the player to update
+     * @param key   the id of the preference
+     * @param value the preference to set
+     * @param <T>   the type of the preference
      * @throws IllegalStateException    if the player has no preference data
      * @throws IllegalArgumentException if the preference is of the incorrect type
      */
@@ -143,9 +143,9 @@ public class PreferenceManager implements Bootstrappable {
     /**
      * Gets the preference of a player, with a few more ways of throwing an error.
      *
-     * @param uuid      The player
-     * @param key the namespace
-     * @param <T>       the type of the preference
+     * @param uuid The player
+     * @param key  the namespace
+     * @param <T>  the type of the preference
      * @return the player's preference
      */
     @SuppressWarnings("unchecked")
@@ -171,7 +171,6 @@ public class PreferenceManager implements Bootstrappable {
         return preferenceData.getOrDefault(uuid, new PreferenceData(new ArrayList<>()))
             .keys();
     }
-
 
     /**
      * Gets the preference of a player

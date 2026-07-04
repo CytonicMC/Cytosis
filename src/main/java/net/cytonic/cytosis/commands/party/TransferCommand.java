@@ -10,7 +10,7 @@ import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class TransferCommand extends CytosisCommand {
 
@@ -31,7 +31,7 @@ class TransferCommand extends CytosisCommand {
             Cytosis.get(PartyManager.class).transferPlayer(player.getUuid(), playerID)
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party transfer: ", throwable);
-                    return new PartyResponse(false, "INTERNAL_ERROR");
+                    return new GenericResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {

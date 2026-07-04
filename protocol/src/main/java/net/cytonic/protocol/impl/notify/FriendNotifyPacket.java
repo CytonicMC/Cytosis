@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.ProtocolObject;
@@ -22,7 +24,23 @@ public class FriendNotifyPacket extends ProtocolObject<Packet, Response> {
         return subject;
     }
 
+    @Override
+    public Codec<Packet> getCodec() {
+        return Packet.CODEC;
+    }
+
+    @Override
+    public Codec<Response> getReturnCodec() {
+        return Response.CODEC;
+    }
+
     public record Packet(UUID sender, UUID recipient) implements Message<Packet, Response> {
+
+        public static final Codec<Packet> CODEC = StructCodec.struct(
+            "sender", Codec.UUID_STRING, Packet::sender,
+            "recipient", Codec.UUID_STRING, Packet::recipient,
+            Packet::new
+        );
 
         @Override
         public void publish(String subject) {

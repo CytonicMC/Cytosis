@@ -1,22 +1,17 @@
 package net.cytonic.cytosis;
 
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.Strictness;
 import dev.minestomunited.common.config.format.JsonCodecConfigFormat;
 import dev.minestomunited.common.config.source.EnvironmentVariableConfigSource;
 import dev.minestomunited.common.config.source.JsonFileConfigSource;
 import dev.minestomunited.entrypoint.EntryPoint;
 import lombok.Getter;
-import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 
@@ -24,32 +19,12 @@ import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.AbstractCytosisServer;
-import net.cytonic.protocol.adapters.InstantAdapter;
-import net.cytonic.protocol.adapters.KeyAdapter;
-import net.cytonic.protocol.adapters.StringComponentAdapter;
-import net.cytonic.protocol.data.objects.StringComponent;
 
 /**
  * The main class for Cytosis
  */
 @Getter
-@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public final class Cytosis {
-
-    // The instance of Gson for serializing and deserializing objects. (Mostly for preferences).
-    public static final Gson GSON = new GsonBuilder()
-        .registerTypeAdapter(Key.class, new KeyAdapter())
-        .registerTypeAdapter(Instant.class, new InstantAdapter())
-        .registerTypeAdapter(StringComponent.class, new StringComponentAdapter())
-        .registerTypeAdapterFactory(new KeyAdapter())
-        .enableComplexMapKeySerialization()
-        .setStrictness(Strictness.LENIENT)
-        .serializeNulls()
-        .create();
-
-    public static final Gson GO_GSON = GSON.newBuilder()
-        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
-        .create();
 
     public static final boolean IS_NOMAD = System.getenv().containsKey("NOMAD_JOB_ID");
     public static final CytosisContext CONTEXT = new CytosisContext();
@@ -108,7 +83,7 @@ public final class Cytosis {
         return Optional.ofNullable((P) MinecraftServer.getConnectionManager().getOnlinePlayerByUsername(username));
     }
 
-    public static <P extends CytosisPlayer> Optional<P> getPlayer(String username, Class<P> clazz) {
+    public static <P extends CytosisPlayer> Optional<P> getPlayer(String username, Class<P> ignoredClazz) {
         return getPlayer(username);
     }
 
@@ -126,7 +101,7 @@ public final class Cytosis {
         return Optional.ofNullable((P) MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid));
     }
 
-    public static <P extends CytosisPlayer> Optional<P> getPlayer(UUID uuid, Class<P> clazz) {
+    public static <P extends CytosisPlayer> Optional<P> getPlayer(UUID uuid, Class<P> ignoredClazz) {
         return getPlayer(uuid);
     }
 

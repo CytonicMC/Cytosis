@@ -108,7 +108,6 @@ public final class ServerEventListeners {
                 NamedTextColor.GOLD));
     }
 
-
     @Priority(1)
     @Listener
     private void onConfig(AsyncPlayerConfigurationEvent event) {

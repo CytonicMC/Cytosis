@@ -53,7 +53,6 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
 import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
 
@@ -527,7 +526,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer {
         if (reason == null) {
             reason = KickReason.UNKNOWN;
         }
-        new PlayerKickNotifyPacket.Packet(getUuid(), reason, new StringComponent(message)).publish();
+        new PlayerKickNotifyPacket.Packet(getUuid(), reason, message).publish();
     }
 
     public void kickInternal(Component msg) {

@@ -22,7 +22,6 @@ public class GarageManager implements Bootstrappable {
     private MinioClient client;
     private final ExecutorService worker;
 
-
     public GarageManager() {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisGarageWorker")
             .uncaughtExceptionHandler(

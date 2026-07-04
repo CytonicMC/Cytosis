@@ -17,7 +17,6 @@ import net.cytonic.protocol.utils.NotifyHandler;
 @CytosisComponent(dependsOn = PartyManager.class)
 public class PartyNotifyListener {
 
-
     @NotifyHandler(subject = Subjects.PARTY_JOIN_NOTIFY)
     private void handlePartyJoin(PartyOnePlayerProtocolObject.Packet packet) {
         Cytosis.get(PartyManager.class).trackPlayerJoin(packet.party(), packet.player());

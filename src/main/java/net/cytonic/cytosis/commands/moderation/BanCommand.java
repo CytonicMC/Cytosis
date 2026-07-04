@@ -25,7 +25,6 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.cytonic.protocol.data.enums.KickReason;
-import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
 
 /**
@@ -117,8 +116,7 @@ public class BanCommand extends CytosisCommand {
 
     private void handleSuccessfulBan(CytosisPlayer actor, UUID uuid, String player, String reason, Instant dur) {
         BanData banData = new BanData(reason, dur, true);
-        new PlayerKickNotifyPacket.Packet(uuid, KickReason.BANNED,
-            new StringComponent(Msg.formatBanMessage(banData))).publish();
+        new PlayerKickNotifyPacket.Packet(uuid, KickReason.BANNED, Msg.formatBanMessage(banData)).publish();
 
         String durationText = DurationParser.unparseFull(dur);
         actor.sendMessage(Msg.mm("<green>%s was successfully banned for %s.", player, durationText));

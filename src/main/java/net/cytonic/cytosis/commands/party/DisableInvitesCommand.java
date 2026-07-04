@@ -14,10 +14,8 @@ class DisableInvitesCommand extends CytosisCommand {
             player.togglePreference(Preferences.ACCEPT_PARTY_INVITES, () ->
                     player.sendMessage(
                         Msg.success("Other players will now be able to send you invitations to their parties.")),
-                () ->
-                    player.sendMessage(
-                        Msg.success(
-                            "Other players will now be <red>unable</red> to send you invitations to their parties.")));
+                () -> player.sendMessage(Msg.success(
+                    "Other players will now be <red>unable</red> to send you invitations to their parties.")));
         });
     }
 }

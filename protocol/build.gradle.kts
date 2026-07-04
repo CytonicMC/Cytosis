@@ -1,19 +1,22 @@
+import com.github.vlsi.jandex.JandexTask
+
 plugins {
     id("io.freefair.lombok") version "9.5.0"
     `maven-publish`
     `java-library`
     java
-    id("org.kordamp.gradle.jandex") version "2.3.0"
+    id("com.github.vlsi.jandex") version "3.0.2"
 }
 
 group = "net.cytonic"
-version = "1.3.3-SNAPSHOT"
+version = "1.3.4-SNAPSHOT"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compileOnly(libs.codec)
     implementation(libs.gson)
     implementation(libs.minimessage)
     implementation(libs.adventure.serializer.gson)
@@ -31,24 +34,12 @@ java {
     }
 }
 
-tasks {
-    javadoc {
-        dependsOn("jandex")
-        dependsOn(renameJandex)
-    }
+jandex {
+    toolVersion = "3.6.0"
 }
 
-val renameJandex by tasks.registering(Copy::class) {
-    dependsOn(tasks.named("jandex"))
-
-    from(layout.buildDirectory.file("resources/main/META-INF/jandex.idx"))
-    into(layout.buildDirectory.dir("resources/main/META-INF"))
-
-    rename("jandex.idx", "protocol-jandex.idx")
-}
-
-tasks.named("jar") {
-    dependsOn(renameJandex)
+tasks.named<JandexTask>("jandexMain") {
+    indexFile = file("build/jandex/jandexMain/protocol-jandex.idx")
 }
 
 publishing {

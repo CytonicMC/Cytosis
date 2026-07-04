@@ -40,7 +40,6 @@ public class CytosisContext {
     private boolean sendErrorsThroughSnooper = false;
     private int shutdownDuration = 60;
 
-
     /**
      * Generates a random Server ID:
      * <p>
@@ -152,7 +151,7 @@ public class CytosisContext {
             return;
         }
         availabilityConsumers
-            .computeIfAbsent(componentClass, k -> new ArrayList<>())
+            .computeIfAbsent(componentClass, _ -> new ArrayList<>())
             .add(consumer);
     }
 

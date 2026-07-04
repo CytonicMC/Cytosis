@@ -66,7 +66,7 @@ public class ProtocolHelper {
                         endpoint.getProtocolObject().serializeReturnToString(response));
                 }));
             } catch (Exception e) {
-                log.error("Error publishing response ", e);
+                log.error("Error publishing response for endpoint {}", endpoint.getClass().getName(), e);
             }
         });
     }
@@ -78,7 +78,7 @@ public class ProtocolHelper {
                 notifyListener.onMessage(
                     protocolObject.deserializeFromString(new String(message.getData())), new NotifyData(message));
             } catch (Exception e) {
-                log.error("Failed to handle message", e);
+                log.error("Error handling message for notify listener {}", notifyListener.getClass().getName(), e);
             }
         });
     }

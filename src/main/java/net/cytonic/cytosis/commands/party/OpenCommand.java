@@ -10,7 +10,7 @@ import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.Party;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class OpenCommand extends CytosisCommand {
 
@@ -31,7 +31,7 @@ class OpenCommand extends CytosisCommand {
             pm.openParty(player.getUuid(), state)
                 .exceptionally(throwable -> {
                     Logger.error("An error occurred whilst opening a party:", throwable);
-                    return new PartyResponse(false, "INTERNAL_ERROR");
+                    return new GenericResponse(false, "INTERNAL_ERROR");
                 })
                 .thenAccept(p -> {
                     if (p.success()) return;

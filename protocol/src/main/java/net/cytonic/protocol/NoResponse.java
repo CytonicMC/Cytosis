@@ -2,7 +2,8 @@ package net.cytonic.protocol;
 
 import java.util.function.BiConsumer;
 
-import net.cytonic.protocol.serializer.Serializer;
+import net.minestom.server.codec.Codec;
+
 import net.cytonic.protocol.utils.NatsAPI;
 
 public abstract class NoResponse<T> extends ProtocolObject<T, Void> {
@@ -21,7 +22,7 @@ public abstract class NoResponse<T> extends ProtocolObject<T, Void> {
     }
 
     @Override
-    public Serializer<Void> getReturnSerializer() {
+    public Codec<Void> getReturnCodec() {
         throw new UnsupportedOperationException("Don't implement NoResponse if you need a response!");
     }
 }

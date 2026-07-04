@@ -17,7 +17,6 @@ import net.cytonic.cytosis.utils.Preferences;
 
 public class ReportCommand extends CytosisCommand {
 
-
     public ReportCommand() {
         super("report");
 

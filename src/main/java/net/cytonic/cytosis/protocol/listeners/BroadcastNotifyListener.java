@@ -12,6 +12,6 @@ public class BroadcastNotifyListener implements NotifyListener<Packet> {
 
     @Override
     public void onMessage(Packet message, NotifyData notifyData) {
-        Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(message.message().getComponent()));
+        Cytosis.getOnlinePlayers().forEach(player -> player.sendMessage(message.message()));
     }
 }

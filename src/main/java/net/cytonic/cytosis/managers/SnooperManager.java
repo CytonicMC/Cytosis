@@ -28,7 +28,6 @@ import net.cytonic.cytosis.snooper.SnooperChannel;
 import net.cytonic.cytosis.snooper.SnooperReceiveEvent;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
-import net.cytonic.protocol.data.objects.StringComponent;
 import net.cytonic.protocol.impl.notify.SnooperNotifyPacket;
 
 @CytosisComponent(dependsOn = {EnvironmentDatabase.class, NatsManager.class})
@@ -100,7 +99,7 @@ public class SnooperManager implements Bootstrappable {
                     continue;
                 }
 
-                player.sendMessage(packet.message().getComponent());
+                player.sendMessage(packet.message());
             }
 
             // montior the snoops on this channel
@@ -148,7 +147,7 @@ public class SnooperManager implements Bootstrappable {
                 throwable.printStackTrace(System.err);
             }
         });
-        new SnooperNotifyPacket.Packet(new StringComponent(message)).publish(channel.channel());
+        new SnooperNotifyPacket.Packet(message).publish(channel.channel());
     }
 
     public void snoop(CytosisPlayer player, @NotNull String channel) {

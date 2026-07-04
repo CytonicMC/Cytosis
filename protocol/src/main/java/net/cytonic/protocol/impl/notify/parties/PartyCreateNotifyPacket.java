@@ -1,5 +1,8 @@
 package net.cytonic.protocol.impl.notify.parties;
 
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
+
 import net.cytonic.protocol.Message;
 import net.cytonic.protocol.data.objects.Party;
 import net.cytonic.protocol.impl.notify.parties.PartyCreateNotifyPacket.Packet;
@@ -12,7 +15,16 @@ public class PartyCreateNotifyPacket extends NotifyPacket<Packet> {
         return "party.create.notify";
     }
 
+    @Override
+    public Codec<Packet> getCodec() {
+        return Packet.CODEC;
+    }
+
     public record Packet(Party party) implements Message<Packet, Void> {
 
+        public static final Codec<Packet> CODEC = StructCodec.struct(
+            "party", Party.CODEC, Packet::party,
+            Packet::new
+        );
     }
 }

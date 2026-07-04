@@ -1,9 +1,11 @@
 package net.cytonic.cytosis.snooper;
 
 import net.kyori.adventure.key.Key;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.data.enums.PlayerRank;
+import net.cytonic.cytosis.utils.Utils;
 
 /**
  * Represents a channel or pathway a message can be sent to.
@@ -22,11 +24,18 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
  */
 public record SnooperChannel(String channel, Key id, byte recipients) {
 
+    public static final Codec<SnooperChannel> CODEC = StructCodec.struct(
+        "channel", Codec.STRING, SnooperChannel::channel,
+        "id", Codec.KEY, SnooperChannel::id,
+        "recipients", Codec.BYTE, SnooperChannel::recipients,
+        SnooperChannel::new
+    );
+
     public static SnooperChannel deserialize(String json) {
-        return Cytosis.GSON.fromJson(json, SnooperChannel.class);
+        return Utils.parseJson(json, CODEC);
     }
 
     public String serialize() {
-        return Cytosis.GSON.toJson(this);
+        return Utils.toJson(this, CODEC);
     }
 }

@@ -1,14 +1,18 @@
 package net.cytonic.protocol.serializer;
 
+import com.google.gson.JsonParser;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.Transcoder;
+
 public interface ReturnSerializable<T> {
 
-    Serializer<T> getReturnSerializer();
+    Codec<T> getReturnCodec();
 
     default String serializeReturnToString(T message) {
-        return getReturnSerializer().serialize(message);
+        return getReturnCodec().encode(Transcoder.JSON, message).orElseThrow().toString();
     }
 
     default T deserializeReturnFromString(String string) {
-        return getReturnSerializer().deserialize(string);
+        return getReturnCodec().decode(Transcoder.JSON, JsonParser.parseString(string)).orElseThrow();
     }
 }

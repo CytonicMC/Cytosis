@@ -28,7 +28,6 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
     private OpenTelemetrySdk sdk;
 
-
     @Override
     public void init() {
         MetricsConfig config = Cytosis.getServer().getConfigOrThrow(CytosisConfig.class).metrics();

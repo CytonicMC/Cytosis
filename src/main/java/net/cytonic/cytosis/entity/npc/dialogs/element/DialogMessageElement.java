@@ -1,6 +1,5 @@
 package net.cytonic.cytosis.entity.npc.dialogs.element;
 
-
 import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.entity.npc.dialogs.Dialog;

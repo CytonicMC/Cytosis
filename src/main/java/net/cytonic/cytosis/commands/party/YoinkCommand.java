@@ -7,7 +7,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.protocol.impl.responses.PartyResponse;
+import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class YoinkCommand extends CytosisCommand {
 
@@ -19,7 +19,7 @@ class YoinkCommand extends CytosisCommand {
             Cytosis.get(PartyManager.class).yoinkParty(player.getUuid())
                 .exceptionally(throwable -> {
                     Logger.error("Failed to process party disband: ", throwable);
-                    return new PartyResponse(false, "INTERNAL_ERROR");
+                    return new GenericResponse(false, "INTERNAL_ERROR");
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {
