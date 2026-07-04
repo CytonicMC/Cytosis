@@ -185,7 +185,7 @@ public final class ServerEventListeners {
                 return;
             }
             if (isMuted) {
-                player.sendMessage(Msg.whoops("You're currently muted."));
+                player.whoops("You're currently muted.");
                 return;
             }
 
@@ -195,11 +195,10 @@ public final class ServerEventListeners {
             if (player.canSendToChannel(channel)) {
                 chatManager.sendMessage(originalMessage, channel, player);
             } else {
-                player.sendMessage(Msg.whoops("It looks like you can't chat in the " + channel.name()
-                    .toLowerCase() + " channel. \uD83E\uDD14"));
+                player.whoops("It looks like you can't chat in the %s channel. \uD83E\uDD14",
+                    channel.name().toLowerCase());
                 chatManager.setChannel(player.getUuid(), ChatChannel.ALL);
             }
-
         });
     }
 

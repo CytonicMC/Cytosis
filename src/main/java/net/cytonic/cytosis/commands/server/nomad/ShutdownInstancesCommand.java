@@ -8,6 +8,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.ServerInstancingManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
@@ -23,23 +24,24 @@ public class ShutdownInstancesCommand extends CytosisCommand {
         super("shutdowninstances");
         setCondition(CommandUtils.IS_ADMIN);
         ArgumentWord typeArg = ArgumentType.Word("type").from("cytosis", "cynder");
-        typeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
+        typeArg.setSuggestionCallback((_, _, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("cytosis"));
             suggestion.addEntry(new SuggestionEntry("cynder"));
         });
 
-        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.whoops("Usage: /shutdowninstances (type)")));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.whoops("Usage: /shutdowninstances (type)")));
 
         addSyntax((sender, context) -> {
+            if (!(sender instanceof CytosisPlayer player)) return;
             String type = context.get(typeArg).toLowerCase();
             if (!ServerInstancingManager.isServerType(type)) {
-                sender.sendMessage(Msg.whoops("Invalid instance type!"));
+                player.whoops("Invalid instance type!");
                 return;
             }
 
             String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
             Cytosis.get(ServerInstancingManager.class).deleteAllServerInstances(type);
-            sender.sendMessage(Msg.success("Dispatched the deletion of all %s instances!", niceName));
+            player.success("Dispatched the deletion of all %s instances!", niceName);
         }, typeArg);
     }
 }

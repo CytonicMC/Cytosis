@@ -14,7 +14,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
-import net.cytonic.cytosis.utils.Msg;
 
 public class SetGlobalCommand extends CytosisCommand {
 
@@ -40,17 +39,15 @@ public class SetGlobalCommand extends CytosisCommand {
             String[] duration = context.get(durationArg);
 
             if (duration.length == 0) {
-                player.sendMessage(Msg.whoops("You must provide a duration!"));
+                player.whoops("You must provide a duration!");
                 return;
             }
 
             Instant expiry = DurationParser.parseInstant(String.join(" ", duration));
             Key node = Key.key(context.get(nodeArg));
             cooldown.setGlobal(node, expiry);
-            player.sendMessage(
-                Msg.success("Set the global cooldown <yellow>'%s'</yellow> to expire in %s.", node.asString(),
-                    DurationParser.unparseFull(expiry)));
-
+            player.success("Set the global cooldown <yellow>'%s'</yellow> to expire in %s.",
+                node.asString(), DurationParser.unparseFull(expiry));
         }, nodeArg, durationArg);
     }
 }

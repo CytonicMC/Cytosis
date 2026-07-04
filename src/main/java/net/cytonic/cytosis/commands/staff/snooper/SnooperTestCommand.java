@@ -18,7 +18,7 @@ public class SnooperTestCommand extends CytosisCommand {
         super("test");
         setCondition(CommandUtils.IS_ADMIN);
 
-        setDefaultExecutor((commandSender, commandContext) -> {
+        setDefaultExecutor((commandSender, _) -> {
             commandSender.sendMessage("Invalid syntax");
         });
 
@@ -30,7 +30,7 @@ public class SnooperTestCommand extends CytosisCommand {
             SnooperManager snooperManager = Cytosis.get(SnooperManager.class);
             SnooperChannel realChannel = snooperManager.getChannel(Key.key(rawChannel));
             if (realChannel == null) {
-                s.sendMessage(Msg.whoops("The channel '" + rawChannel + "' doesn't exist!"));
+                player.whoops("The channel '" + rawChannel + "' doesn't exist!");
                 return;
             }
 
@@ -38,7 +38,7 @@ public class SnooperTestCommand extends CytosisCommand {
             Component component = Msg.mm("<reset>" + rawMessage).appendNewline()
                 .append(Msg.mm("<reset><dark_gray><i>Sent by " + player.getUsername() + " via /snooper test"));
             snooperManager.sendSnoop(realChannel, Msg.snoop(component));
-            player.sendMessage(Msg.mm("<green>Sent snoop!"));
+            player.success("Sent snoop!");
         }, SnooperCommand.CHANNELS, message);
     }
 }

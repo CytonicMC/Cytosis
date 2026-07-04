@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.commands.chatting;
 
+import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 
 import net.cytonic.cytosis.Cytosis;
@@ -12,7 +13,7 @@ public class ReplyCommand extends CytosisCommand {
 
     public ReplyCommand() {
         super("reply", "r");
-        var msgArgument = ArgumentType.StringArray("msg");
+        ArgumentStringArray msgArgument = ArgumentType.StringArray("msg");
         setDefaultExecutor((sender, _) -> {
             sender.sendMessage(Msg.whoops("You must have a message to reply with!"));
         });
@@ -23,7 +24,7 @@ public class ReplyCommand extends CytosisCommand {
 
             ChatManager chatManager = Cytosis.get(ChatManager.class);
             if (!chatManager.hasOpenPrivateChannel(player)) {
-                player.sendMessage(Msg.whoops("You don't have an open conversation!"));
+                player.whoops("You don't have an open conversation!");
                 return;
             }
 

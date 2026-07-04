@@ -7,7 +7,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.ServerInstancingManager;
-import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Utils;
 
 public class UpdateInstancesCommand extends CytosisCommand {
@@ -18,17 +18,18 @@ public class UpdateInstancesCommand extends CytosisCommand {
         ArgumentWord typeArg = ArgumentType.Word("type").from(ServerInstancingManager.TYPES);
 
         addSyntax((sender, context) -> {
+            if (!(sender instanceof CytosisPlayer player)) return;
             String type = context.get(typeArg).toLowerCase();
             if (!ServerInstancingManager.isServerType(type)) {
-                sender.sendMessage(Msg.whoops("Invalid instance type!"));
+                player.whoops("Invalid instance type!");
                 return;
             }
 
             String niceName = Utils.captializeFirstLetters(type.replace("_", " "));
             Cytosis.get(ServerInstancingManager.class).updateServers(type);
-            sender.sendMessage(Msg.success(
+            player.success(
                 "Dispatched the update of every %s instance! It may be a while until every instance has been updated!",
-                niceName));
+                niceName);
         }, typeArg);
     }
 }

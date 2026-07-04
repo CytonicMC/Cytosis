@@ -25,25 +25,25 @@ public class ReportCommand extends CytosisCommand {
         addSyntax((s, ctx) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             if (player.getPreference(Preferences.REPORT_BANNED)) {
-                player.sendMessage(
-                    Msg.whoops("You are no longer able to submit reports due to your abuse of the report system."));
+                player.whoops("You are no longer able to submit reports due to your abuse of the report system.");
                 return;
             }
             String raw = ctx.get(CommandUtils.NETWORK_PLAYERS);
 
             String mini = Players.miniNameFragile(raw);
             if (mini == null) {
-                player.sendMessage(Msg.whoops("Could not find a player with the name '%s'.", raw));
+                player.whoops("Could not find a player with the name '%s'.", raw);
                 return;
             }
 
             UUID target = PlayerUtils.resolveUuid(raw);
             if (target == null) {
-                player.sendMessage(Msg.whoops("Could not find a player with the name '%s'.", raw));
+                player.whoops("Could not find a player with the name '%s'.", raw);
                 return;
             }
+
             if (player.getUuid().equals(target)) {
-                player.sendMessage(Msg.whoops("You cannot report yourself!"));
+                player.whoops("You cannot report yourself!");
                 return;
             }
 

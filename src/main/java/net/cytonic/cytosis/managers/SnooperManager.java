@@ -153,23 +153,23 @@ public class SnooperManager implements Bootstrappable {
     public void snoop(CytosisPlayer player, @NotNull String channel) {
         SnoopsContainer container = player.getPreference(Preferences.LISTENING_SNOOPS);
         if (container.snoops().contains(channel)) {
-            player.sendMessage(Msg.whoops(" You are already snooping on the channel '" + channel + "'"));
+            player.whoops(" You are already snooping on the channel '%s'", channel);
             return;
         }
         player.updatePreference(Preferences.LISTENING_SNOOPS, container.with(channel));
         player.sendMessage(
-            Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '" + channel + "' channel!"));
+            Msg.splash("SNOOPED!", "e829aa", "Successfully started snooping on the '%s' channel!", channel));
     }
 
     public void blind(CytosisPlayer player, @NotNull String channel) {
         SnoopsContainer container = player.getPreference(Preferences.LISTENING_SNOOPS);
         if (!container.snoops().contains(channel)) {
-            player.sendMessage(Msg.whoops("You are not snooping on the channel '" + channel + "'"));
+            player.whoops("You are not snooping on the channel '%s'", channel);
             return;
         }
         player.updatePreference(Preferences.LISTENING_SNOOPS, container.without(channel));
         player.sendMessage(
-            Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '" + channel + "' channel!"));
+            Msg.splash("DESNOOPED!", "ff0034", "Successfully stopped snooping on the '%s' channel!", channel));
     }
 
     /**

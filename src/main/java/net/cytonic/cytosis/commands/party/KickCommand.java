@@ -23,8 +23,7 @@ class KickCommand extends CytosisCommand {
             if (!(s instanceof CytosisPlayer player)) return;
             final UUID playerID = PlayerUtils.resolveUuid(context.get(PartyCommand.PARTY_PLAYER));
             if (playerID == null) {
-                s.sendMessage(
-                    Msg.whoops("Could not find the player '%s'", context.get(PartyCommand.PARTY_PLAYER)));
+                player.whoops("Could not find the player '%s'", context.get(PartyCommand.PARTY_PLAYER));
                 return;
             }
 
@@ -35,22 +34,17 @@ class KickCommand extends CytosisCommand {
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {
-                        case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
-                        case "NOT_IN_PARTY" -> s.sendMessage(Msg.whoops("You are not in a party!"));
-                        case "ERR_TARGET_NOT_IN_PARTY", "INVALID_PARTY" -> s.sendMessage(
-                            Msg.whoops("%s<gray> is not in the party.",
-                                Players.miniName(playerID)));
+                        case "INTERNAL_ERROR" -> player.error("An error occurred whilst processing your request.");
+                        case "NOT_IN_PARTY" -> player.whoops("You are not in a party!");
+                        case "ERR_TARGET_NOT_IN_PARTY", "INVALID_PARTY" -> player.whoops("%s is not in the party.",
+                            Players.miniName(playerID));
                         case "ERR_CANNOT_KICK_SELF" ->
-                            s.sendMessage(Msg.whoops("You cannot kick yourself. Use '/party leave' instead."));
-                        case "ERR_CANNOT_KICK_LEADER" ->
-                            s.sendMessage(Msg.whoops("You cannot kick the leader of the party."));
-                        case "ERR_NO_KICK_PERMISSION" ->
-                            s.sendMessage(Msg.whoops("You don't have the authority to kick players."));
-                        case "ERR_INVALID_PARTY" -> s.sendMessage(Msg.whoops("You don't seem to be in a party."));
-                        default -> s.sendMessage(
-                            Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
-                                p.message()));
+                            player.whoops("You cannot kick yourself. Use '/party leave' instead.");
+                        case "ERR_CANNOT_KICK_LEADER" -> player.whoops("You cannot kick the leader of the party.");
+                        case "ERR_NO_KICK_PERMISSION" -> player.whoops("You don't have the authority to kick players.");
+                        case "ERR_INVALID_PARTY" -> player.whoops("You don't seem to be in a party.");
+                        default -> player.whoops("An unknown error occurred while processing your request <red>(%s)",
+                            p.message());
                     }
                 });
 

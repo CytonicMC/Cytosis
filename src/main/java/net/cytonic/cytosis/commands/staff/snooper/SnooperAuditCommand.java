@@ -26,15 +26,14 @@ public class SnooperAuditCommand extends CytosisCommand {
 
         setDefaultExecutor((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            player.sendMessage(Msg.whoops("Invalid Syntax: /snooper audit <channel>"));
+            player.whoops("Invalid Syntax: /snooper audit <channel>");
         });
 
         addSyntax((s, c) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             String rawChannel = c.get(SnooperCommand.CHANNELS);
             if (!Cytosis.get(SnooperManager.class).getAllChannels(player).contains(rawChannel)) {
-                player.sendMessage(Msg.whoops(
-                    "The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
+                player.whoops("The channel '%s' either doesn't exist, or you don't have access to it.", rawChannel);
                 return;
             }
 
@@ -49,16 +48,13 @@ public class SnooperAuditCommand extends CytosisCommand {
                 ascending = false;
             }
 
-            Cytosis.CONTEXT
-                .getComponent(ViewFrame.class)
-                .open(
-                    SnooperMenu.class,
-                    player,
-                    ImmutableMap.of(
-                        "id", rawChannel,
-                        "search", searchFor,
-                        "ascending", ascending,
-                        "date", DateRange.SEVEN_DAYS));
+            Cytosis.get(ViewFrame.class).open(
+                SnooperMenu.class, player,
+                ImmutableMap.of(
+                    "id", rawChannel,
+                    "search", searchFor,
+                    "ascending", ascending,
+                    "date", DateRange.SEVEN_DAYS));
         }, SnooperCommand.CHANNELS, search);
     }
 }

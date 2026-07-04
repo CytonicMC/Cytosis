@@ -39,8 +39,8 @@ public class IgnoreChatChannelCommand extends CytosisCommand {
             };
 
             if (!player.canSendToChannel(channel)) {
-                player.sendMessage(Msg.whoops(
-                    "You cannot ignore the " + channel.name().toLowerCase() + " because you don't have access to it!"));
+                player.whoops("You cannot ignore the %s because you don't have access to it!",
+                    channel.name().toLowerCase());
                 return;
             }
             ignoreChannel(player, channel);

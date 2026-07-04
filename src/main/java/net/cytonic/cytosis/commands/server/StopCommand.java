@@ -9,7 +9,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 
 /**
  * A class representing the stop command
@@ -42,8 +41,8 @@ public class StopCommand extends CytosisCommand {
                 .inheritIO()
                 .start();
         } catch (IOException e) {
-            player.sendMessage(Msg.error("An error occurred! %s", e.getMessage()));
+            player.error("An error occurred! %s", e.getMessage());
         }
-        player.sendMessage(Msg.success("Dispatched the shutdown of this server!"));
+        player.success("Dispatched the shutdown of this server!");
     }
 }

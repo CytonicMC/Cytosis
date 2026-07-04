@@ -8,7 +8,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.data.objects.Party;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
@@ -36,15 +35,12 @@ class MuteCommand extends CytosisCommand {
                 .thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {
-                        case "INTERNAL_ERROR" ->
-                            sender.sendMessage(Msg.error("An error occurred whilst muting the party."));
-                        case "NOT_IN_PARTY", "ERR_INVALID_PARTY" ->
-                            sender.sendMessage(Msg.whoops("You are not in a party."));
-                        case "ERR_NO_PERMISSION" ->
-                            sender.sendMessage(Msg.whoops("You must be the party leader to mute the party."));
+                        case "INTERNAL_ERROR" -> player.error("An error occurred whilst muting the party.");
+                        case "NOT_IN_PARTY", "ERR_INVALID_PARTY" -> player.whoops("You are not in a party.");
+                        case "ERR_NO_PERMISSION" -> player.whoops("You must be the party leader to mute the party.");
                         case "ERR_ALREADY_STATE" ->
-                            sender.sendMessage(Msg.whoops("The party is already %s.", state ? "muted" : "unmuted"));
-                        default -> sender.sendMessage(Msg.error("An unknown error occurred. <red>(%s)", p.message()));
+                            player.whoops("The party is already %s.", state ? "muted" : "unmuted");
+                        default -> player.error("An unknown error occurred. <red>(%s)", p.message());
                     }
                 });
         }, stateArg);

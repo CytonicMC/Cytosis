@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
 /**
@@ -37,10 +38,10 @@ public class GamemodeCommand extends CytosisCommand {
             Component.text("The shorthand '" + exception.getInput() + "' is invalid!", NamedTextColor.RED)));
 
         addSyntax((sender, context) -> {
-            if (sender instanceof final Player player) {
+            if (sender instanceof final CytosisPlayer player) {
                 final GameMode gameMode = context.get(gameModeArgument);
                 player.setGameMode(gameMode);
-                player.sendMessage(Msg.success("Updated your gamemode to %s.", gameMode.name()));
+                player.success("Updated your gamemode to %s.", gameMode.name());
             }
         }, gameModeArgument);
 

@@ -30,39 +30,40 @@ public class KickCommand extends CytosisCommand {
         reasonArg.setDefaultValue(new String[]{"No", "reason", "specified."});
 
         addSyntax((sender, context) -> {
-            if (sender instanceof CytosisPlayer actor) {
-                if (!actor.isModerator()) {
-                    actor.sendMessage(Msg.red("You don't have permission to use this command!"));
-                    return;
-                }
-                final String player = context.get(CommandUtils.NETWORK_PLAYERS);
-                final String reason = String.join(" ", context.get(reasonArg));
+            if (!(sender instanceof CytosisPlayer actor)) return;
 
-                UUID uuid = PlayerUtils.resolveUuid(player);
-                if (uuid == null) {
-                    sender.sendMessage(Msg.whoops("The player '%s' either doesn't exist or is not online!", player));
-                    return;
-                }
-
-                PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
-                if (rank == null) {
-                    sender.sendMessage(Msg.whoops("Failed to fine %s's rank!", player));
-                    return;
-                }
-
-                if (rank.isStaffNotHelper()) {
-                    sender.sendMessage(Msg.mm("<red>" + player + " cannot be kicked!"));
-                    return;
-                }
-
-                Component snoop = actor.formattedName().append(Msg.grey("kicked "))
-                    .append(SnoopUtils.toTarget(uuid))
-                    .append(Msg.grey("for <yellow>" + reason + "</yellow>."));
-                Cytosis.get(SnooperManager.class)
-                    .sendSnoop(Snoops.PLAYER_KICK, Msg.snoop(snoop));
-                new PlayerKickNotifyPacket.Packet(uuid, KickReason.COMMAND,
-                    Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason)).publish();
+            if (!actor.isModerator()) {
+                actor.sendMessage(Msg.red("You don't have permission to use this command!"));
+                return;
             }
+            final String player = context.get(CommandUtils.NETWORK_PLAYERS);
+            final String reason = String.join(" ", context.get(reasonArg));
+
+            UUID uuid = PlayerUtils.resolveUuid(player);
+            if (uuid == null) {
+                actor.whoops("The player '%s' either doesn't exist or is not online!", player);
+                return;
+            }
+
+            PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
+            if (rank == null) {
+                actor.whoops("Failed to fine %s's rank!", player);
+                return;
+            }
+
+            if (rank.isStaffNotHelper()) {
+                actor.whoops("%s cannot be kicked!", player);
+                return;
+            }
+
+            Component snoop = actor.formattedName().append(Msg.grey("kicked "))
+                .append(SnoopUtils.toTarget(uuid))
+                .append(Msg.grey("for <yellow>" + reason + "</yellow>."));
+            Cytosis.get(SnooperManager.class)
+                .sendSnoop(Snoops.PLAYER_KICK, Msg.snoop(snoop));
+            new PlayerKickNotifyPacket.Packet(uuid, KickReason.COMMAND,
+                Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason)).publish();
+            
         }, CommandUtils.NETWORK_PLAYERS, reasonArg);
     }
 }

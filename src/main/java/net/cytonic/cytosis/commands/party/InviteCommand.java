@@ -28,14 +28,13 @@ class InviteCommand extends CytosisCommand {
             //todo: do something about deanonymizing players
             final UUID playerID = PlayerUtils.resolveUuid(context.get(CommandUtils.NETWORK_PLAYERS));
             if (playerID == null) {
-                s.sendMessage(
-                    Msg.whoops("Could not find the player '%s'", context.get(CommandUtils.NETWORK_PLAYERS)));
+                player.whoops("Could not find the player '%s'", context.get(CommandUtils.NETWORK_PLAYERS));
                 return;
             }
 
             if (!Cytosis.get(PreferenceManager.class).getPlayerPreference(playerID, Preferences.ACCEPT_PARTY_INVITES) ||
                 Cytosis.get(NicknameManager.class).isNicked(playerID)) {
-                s.sendMessage(Msg.whoops("That player has party invites disabled!"));
+                player.whoops("That player has party invites disabled!");
                 return;
             }
 
@@ -46,19 +45,15 @@ class InviteCommand extends CytosisCommand {
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {
-                        case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
-                        case "ERR_SEND_TO_SELF" -> s.sendMessage(Msg.whoops("You cannot invite yourself!"));
-                        case "ERR_ALREADY_IN_PARTY" -> s.sendMessage(Msg.whoops("%s<gray> is already in the party.",
-                            Players.miniName(playerID)));
-                        case "ERR_NO_PERMISSION" ->
-                            s.sendMessage(Msg.whoops("You don't have permission to send invitations."));
-                        case "ERR_ALREADY_INVITED" ->
-                            s.sendMessage(Msg.whoops("%s<gray> has already been invited to the party.",
-                                Players.miniName(playerID)));
-                        default -> s.sendMessage(
-                            Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
-                                p.message()));
+                        case "INTERNAL_ERROR" -> player.error("An error occurred whilst processing your request.");
+                        case "ERR_SEND_TO_SELF" -> player.whoops("You cannot invite yourself!");
+                        case "ERR_ALREADY_IN_PARTY" -> player.whoops("%s<gray> is already in the party.",
+                            Players.miniName(playerID));
+                        case "ERR_NO_PERMISSION" -> player.whoops("You don't have permission to send invitations.");
+                        case "ERR_ALREADY_INVITED" -> player.whoops("%s<gray> has already been invited to the party.",
+                            Players.miniName(playerID));
+                        default -> player.whoops("An unknown error occurred while processing your request <red>(%s)",
+                            p.message());
                     }
                 });
 

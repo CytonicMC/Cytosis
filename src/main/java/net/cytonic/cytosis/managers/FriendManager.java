@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.entity.Player;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
@@ -19,6 +18,7 @@ import net.cytonic.cytosis.data.GlobalDatabase;
 import net.cytonic.cytosis.data.objects.ExpiringMap;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.FriendPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
@@ -119,9 +119,9 @@ public class FriendManager implements Bootstrappable {
      *
      * @param player the player
      */
-    public void listFriends(Player player) {
+    public void listFriends(CytosisPlayer player) {
         if (getFriends(player.getUuid()).isEmpty()) {
-            player.sendMessage(Msg.whoops("You have no friends :("));
+            player.whoops("You have no friends :(");
             player.sendMessage(Msg.tip("Perhaps you should make some with /friend add <player>"));
             return;
         }

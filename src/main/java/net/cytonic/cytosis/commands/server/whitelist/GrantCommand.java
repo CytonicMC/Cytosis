@@ -39,7 +39,7 @@ public class GrantCommand extends CytosisCommand {
             String rawPlayer = context.get(playerArg);
             Environment environment = context.get(environmentArg);
             if (environment == Environment.PRODUCTION) {
-                player.sendMessage(Msg.whoops("There is no applicable whitelist for the Production Network!"));
+                player.whoops("There is no applicable whitelist for the Production Network!");
                 return;
             }
             try {
@@ -64,19 +64,19 @@ public class GrantCommand extends CytosisCommand {
     private void addWhiteList(UUID uuid, String msg, CytosisPlayer player, Environment environment) {
         PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
         if (rank != null && rank.isStaff()) {
-            player.sendMessage(Msg.whoops("'%s' already bypasses the whitelist!", msg));
+            player.whoops("'%s' already bypasses the whitelist!", msg);
             return;
         }
         RedisDatabase redis = Cytosis.get(RedisDatabase.class);
         if (redis.getSet("player_whitelist", environment).contains(uuid.toString())) {
-            player.sendMessage(Msg.whoops("'%s' is already whitelisted on the %s Network!", msg,
-                Utils.captializeFirstLetters(environment.name().toLowerCase())));
+            player.whoops("'%s' is already whitelisted on the %s Network!", msg,
+                Utils.captializeFirstLetters(environment.name().toLowerCase()));
             return;
         }
         redis.addToSet("player_whitelist", uuid.toString(), environment);
         Cytosis.get(SnooperManager.class).sendSnoop(Snoops.PLAYER_WHITELIST,
             Msg.snoop(player.trueFormattedName().append(Msg.grey(
                 " Added %s to the whitelist! <yellow><b><click:copy_to_clipboard:%s>[UUID]", msg, uuid.toString()))));
-        player.sendMessage(Msg.success("Successfully added '%s' to the whitelist!", msg));
+        player.success("Successfully added '%s' to the whitelist!", msg);
     }
 }

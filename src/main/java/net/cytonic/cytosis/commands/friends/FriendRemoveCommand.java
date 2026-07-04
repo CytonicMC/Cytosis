@@ -36,13 +36,12 @@ public class FriendRemoveCommand extends CytosisCommand {
             try {
                 targetObj = Players.offline(target);
             } catch (NullPointerException e) {
-                player.sendMessage(
-                    Msg.whoops("The player '%s' doesn't exist!", context.get(playerArg)));
+                player.whoops("The player '%s' doesn't exist!", context.get(playerArg));
                 return;
             }
 
             if (targetObj.uuid().equals(player.getUuid())) {
-                player.sendMessage(Msg.whoops("You cannot remove yourself from your friends list!"));
+                player.whoops("You cannot remove yourself from your friends list!");
                 return;
             }
 

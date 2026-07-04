@@ -108,11 +108,10 @@ public class ReportManager {
                 .clickEvent(Msg.callback(p -> {
                     saveReport(report).whenComplete((_, throwable) -> {
                         if (throwable != null) {
-                            p.sendMessage(
-                                Msg.error("Failed to save your report. (%s)", throwable.getCause().getMessage()));
+                            p.error("Failed to save your report. (%s)", throwable.getCause().getMessage());
                             return;
                         }
-                        p.sendMessage(Msg.success("Your report has been submitted. A member of staff will review it."));
+                        p.success("Your report has been submitted. A member of staff will review it.");
                     });
                     p.closeBook();
                 })))

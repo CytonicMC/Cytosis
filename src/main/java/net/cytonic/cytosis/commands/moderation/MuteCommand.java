@@ -26,7 +26,7 @@ public class MuteCommand extends CytosisCommand {
     public MuteCommand() {
         super("mute");
         setCondition(CommandUtils.IS_MODERATOR);
-        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.mm("<RED>Usage: /mute (player) (duration)")));
+        setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.red("Usage: /mute (player) (duration)")));
         ArgumentWord playerArg = ArgumentType.Word("target");
         playerArg.setSuggestionCallback((sender, ignored, suggestion) -> {
             if (sender instanceof CytosisPlayer player) {
@@ -36,7 +36,7 @@ public class MuteCommand extends CytosisCommand {
                 .forEach((uuid, name) -> suggestion.addEntry(new SuggestionEntry(name)));
         });
         ArgumentWord durationArg = ArgumentType.Word("duration");
-        durationArg.setSuggestionCallback((sender, context, suggestion) -> {
+        durationArg.setSuggestionCallback((_, _, suggestion) -> {
             suggestion.addEntry(new SuggestionEntry("1h"));
             suggestion.addEntry(new SuggestionEntry("12h"));
             suggestion.addEntry(new SuggestionEntry("1d"));
@@ -62,29 +62,29 @@ public class MuteCommand extends CytosisCommand {
     private void mutePlayer(CytosisPlayer actor, String target, Instant duration) {
         CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
         if (!network.getLifetimePlayers().containsValue(target)) {
-            actor.sendMessage(Msg.red("The player " + target + " doesn't exist!"));
+            actor.whoops("The player %s doesn't exist!", target);
             return;
         }
         GlobalDatabase db = Cytosis.get(GlobalDatabase.class);
         UUID uuid = network.getLifetimeFlattened().getByValue(target.toLowerCase());
         db.isMuted(uuid).whenComplete((muted, throwable1) -> {
             if (throwable1 != null) {
-                actor.sendMessage(Msg.error("An error occurred whilst finding if %s is muted!", target));
+                actor.error("An error occurred whilst finding if %s is muted!", target);
                 Logger.error("error checking mute status", throwable1);
                 return;
             }
             if (muted) {
-                actor.sendMessage(Msg.whoops("%s is already muted!", target));
+                actor.whoops("%s is already muted!", target);
                 return;
             }
             db.getPlayerRank(uuid).whenComplete((playerRank, throwable2) -> {
                 if (throwable2 != null) {
-                    actor.sendMessage(Msg.error("An error occurred whilst finding %s's rank!", target));
+                    actor.error("An error occurred whilst finding %s's rank!", target);
                     Logger.error("error", throwable2);
                     return;
                 }
                 if (playerRank.isStaff()) {
-                    actor.sendMessage(Msg.whoops("%s cannot be muted!", target));
+                    actor.whoops("%s cannot be muted!", target);
                     return;
                 }
                 Component snoop = actor.formattedName().append(Msg.grey(" muted "))
@@ -95,7 +95,7 @@ public class MuteCommand extends CytosisCommand {
                     .sendSnoop(Snoops.PLAYER_MUTE, Msg.snoop(snoop));
                 db.mutePlayer(uuid, duration).whenComplete((ignored, throwable3) -> {
                     if (throwable3 != null) {
-                        actor.sendMessage(Msg.error("An error occurred whilst muting %s!", target));
+                        actor.error("An error occurred whilst muting %s!", target);
                         return;
                     }
                     actor.sendMessage(Msg.greenSplash("MUTED!", "%s was successfully muted for %s.", target,

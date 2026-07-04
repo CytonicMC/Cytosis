@@ -102,8 +102,7 @@ public class ChatManager implements Bootstrappable {
         }
 
         if (!player.canSendToChannel(channel)) {
-            player.sendMessage(Msg.whoops("You cannot currently send messages on the <gold>%s</gold> channel.",
-                channel.name()));
+            player.whoops("You cannot currently send messages on the <gold>%s</gold> channel.", channel.name());
             return;
         }
         String color = player.getTrueRank().getChatColor();

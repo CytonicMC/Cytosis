@@ -23,8 +23,7 @@ class DemoteCommand extends CytosisCommand {
             if (!(s instanceof CytosisPlayer player)) return;
             final UUID playerID = PlayerUtils.resolveUuid(context.get(PartyCommand.PARTY_PLAYER));
             if (playerID == null) {
-                s.sendMessage(
-                    Msg.whoops("Could not find the player '%s'", context.get(PartyCommand.PARTY_PLAYER)));
+                player.whoops("Could not find the player '%s'", context.get(PartyCommand.PARTY_PLAYER));
                 return;
             }
 
@@ -35,20 +34,15 @@ class DemoteCommand extends CytosisCommand {
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {
-                        case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.error("An error occurred whilst processing your request."));
-                        case "NOT_IN_PARTY", "ERR_INVALID_PARTY" -> s.sendMessage(Msg.whoops("You are not in a party!"));
-                        case "ERR_TARGET_NOT_IN_PARTY" -> s.sendMessage(
-                            Msg.whoops("%s<gray> is not in the party.",
-                                Players.miniName(playerID)));
-                        case "ERR_NOT_LEADER" ->
-                            s.sendMessage(Msg.whoops("You must be the party leader to demote someone."));
-                        case "ERR_NOT_MODERTOR" -> s.sendMessage(
-                            Msg.whoops("%s<gray> is not a moderator of the party.",
-                                Players.miniName(playerID)));
-                        default -> s.sendMessage(
-                            Msg.error("An unknown error occurred while processing your request <red>(%s)",
-                                p.message()));
+                        case "INTERNAL_ERROR" -> player.error("An error occurred whilst processing your request.");
+                        case "NOT_IN_PARTY", "ERR_INVALID_PARTY" -> player.whoops("You are not in a party!");
+                        case "ERR_TARGET_NOT_IN_PARTY" -> player.whoops("%s<gray> is not in the party.",
+                            Players.miniName(playerID));
+                        case "ERR_NOT_LEADER" -> player.whoops("You must be the party leader to demote someone.");
+                        case "ERR_NOT_MODERTOR" -> player.whoops("%s<gray> is not a moderator of the party.",
+                            Players.miniName(playerID));
+                        default -> player.error("An unknown error occurred while processing your request <red>(%s)",
+                            p.message());
                     }
                 });
 

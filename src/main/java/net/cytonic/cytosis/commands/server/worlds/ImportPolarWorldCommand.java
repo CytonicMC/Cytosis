@@ -34,11 +34,11 @@ public class ImportPolarWorldCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             Path readPath = Path.of(context.get(path));
             if (!(Files.exists(readPath) && Files.isReadable(readPath))) {
-                sender.sendMessage(Msg.whoops("The path you specified does not exist!"));
+                player.whoops("The path you specified does not exist!");
                 return;
             }
             if (readPath.toFile().isDirectory()) {
-                sender.sendMessage(Msg.whoops("The path you specified is a directory!"));
+                player.whoops("The path you specified is a directory!");
                 return;
             }
             PolarLoader loader;
@@ -46,7 +46,7 @@ public class ImportPolarWorldCommand extends CytosisCommand {
                 loader = new PolarLoader(readPath);
             } catch (IOException e) {
                 Logger.error("Failed to load world!", e);
-                player.sendMessage(Msg.error("Failed to load world! (%s)", e.getMessage()));
+                player.error("Failed to load world! (%s)", e.getMessage());
                 return;
             }
 
@@ -56,13 +56,12 @@ public class ImportPolarWorldCommand extends CytosisCommand {
             Cytosis.get(WorldManager.class).saveWorld(key, world)
                 .whenComplete((_, throwable) -> {
                     if (throwable != null) {
-                        sender.sendMessage(Msg.whoops("An error occurred! " + throwable.getMessage()));
+                        player.whoops("An error occurred! " + throwable.getMessage());
                         Logger.error("An error occurred!", throwable);
                         return;
                     }
-                    sender.sendMessage(
-                        Msg.success("Successfully imported world '%s' into %s Garage!",
-                            context.get(keyArgument).asString(), Cytosis.get(Environment.class)));
+                    player.success("Successfully imported world '%s' into %s Garage!",
+                        context.get(keyArgument).asString(), Cytosis.get(Environment.class));
                 });
         }, path, keyArgument);
     }

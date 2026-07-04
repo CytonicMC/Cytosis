@@ -55,14 +55,13 @@ public class ChatChannelCommand extends CytosisCommand {
                 return;
             }
 
-            player.sendMessage(Msg.whoops("You are already in the <gold>%s<gold> channel!", channel.name()));
+            player.whoops("You are already in the <gold>%s<gold> channel!", channel.name());
         }, arg);
     }
 
     private void message(CytosisPlayer player, ChatChannel channel) {
         if (!player.canSendToChannel(channel)) {
-            player.sendMessage(
-                Msg.whoops("You do not have access to the <gold>%s</gold> channel right now.", channel.name()));
+            player.whoops("You do not have access to the <gold>%s</gold> channel right now.", channel.name());
             return;
         }
         Cytosis.get(ChatManager.class).setChannel(player.getUuid(), channel);

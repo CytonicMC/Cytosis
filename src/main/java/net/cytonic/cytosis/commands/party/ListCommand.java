@@ -20,7 +20,7 @@ class ListCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             Party p = Cytosis.get(PartyManager.class).getPlayerParty(player.getUuid());
             if (p == null) {
-                player.sendMessage(Msg.whoops("You are not in a party!"));
+                player.whoops("You are not in a party!");
                 return;
             }
             CytonicNetwork cn = Cytosis.get(CytonicNetwork.class);
