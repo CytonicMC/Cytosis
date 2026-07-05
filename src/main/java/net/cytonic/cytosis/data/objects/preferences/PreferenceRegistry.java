@@ -12,8 +12,6 @@ import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.logging.Logger;
-
 /**
  * A class that acts a registry holding the registered preferences
  */
@@ -104,9 +102,6 @@ public class PreferenceRegistry {
      */
     @Nullable
     public Preference<?> get(Key namespace) {
-        if (!contains(namespace)) {
-            Logger.warn("There is no preference registered under the namespace " + namespace);
-        }
         return preferences.get(namespace);
     }
 
@@ -122,9 +117,6 @@ public class PreferenceRegistry {
     @SuppressWarnings("unchecked")
     @Nullable
     public <T> Preference<T> get(Key key, Class<T> type) {
-        if (!contains(key)) {
-            Logger.warn("There is no preference registered under the key " + key);
-        }
         Preference<T> val = (Preference<T>) preferences.get(key);
         if (val == null) return null;
         if (!val.getType().isAssignableFrom(type)) {
