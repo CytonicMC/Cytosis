@@ -47,7 +47,7 @@ public interface Msg {
     }
 
     static Component error(String str, Object... args) {
-        return mm(PROVIDER.get().serverError() + "<gray> " + str, args);
+        return mm(PROVIDER.get().error() + "<gray> " + str, args);
     }
 
     static Component success(String str, Object... args) {
