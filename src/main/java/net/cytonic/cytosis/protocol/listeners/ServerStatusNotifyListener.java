@@ -39,7 +39,7 @@ public class ServerStatusNotifyListener {
                 return;
             }
             if (player.getPreference(Preferences.SERVER_ALERTS)) {
-                player.sendMessage(Msg.network("Server %s of type %s has been shut down!", packet.id(), server.type()));
+                player.network("Server %s of type %s has been shut down!", packet.id(), server.type());
             }
         });
     }

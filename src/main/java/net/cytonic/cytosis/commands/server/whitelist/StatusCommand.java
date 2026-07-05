@@ -37,7 +37,7 @@ public class StatusCommand extends CytosisCommand {
             String rawPlayer = context.get(playerArg);
             Environment environment = context.get(environmentArg);
             if (environment == Environment.PRODUCTION) {
-                player.sendMessage(Msg.whoops("There is no applicable whitelist for the Production Network!"));
+                player.whoops("There is no applicable whitelist for the Production Network!");
                 return;
             }
             try {
@@ -62,7 +62,7 @@ public class StatusCommand extends CytosisCommand {
     private void hasWhiteList(UUID uuid, String msg, CytosisPlayer player, Environment environment) {
         PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
         if (rank != null && rank.isStaff()) {
-            player.sendMessage(Msg.whoops("'%s' bypasses the whitelist!", msg));
+            player.whoops("'%s' bypasses the whitelist!", msg);
             return;
         }
         RedisDatabase redis = Cytosis.get(RedisDatabase.class);

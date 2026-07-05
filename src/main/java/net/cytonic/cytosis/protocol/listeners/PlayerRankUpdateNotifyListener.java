@@ -25,9 +25,7 @@ public class PlayerRankUpdateNotifyListener implements NotifyListener<Packet> {
             rankManager.changeRank(player, rank);
             Component badge = rank.getPrefix()
                 .append(Component.text(Utils.captializeFirstLetters(rank.name().toLowerCase()), rank.getTeamColor()));
-
-            player.sendMessage(Msg.network("Your rank has been updated to ").append(badge).append(Msg.grey(".")));
-
+            player.network("Your rank has been updated to %s.", Msg.toMini(badge));
         }, () -> {
             rankManager.changeRankSilently(message.player(), rank);
             Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(message.player(), rank);

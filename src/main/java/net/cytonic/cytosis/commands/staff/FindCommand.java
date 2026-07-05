@@ -33,17 +33,17 @@ public class FindCommand extends CytosisCommand {
                 CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
                 UUID uuid = network.getLifetimeFlattened().getByValue(playerName.toLowerCase());
                 if (uuid == null) {
-                    player.sendMessage(Msg.whoops("The player " + playerName + " doesn't exist!"));
+                    player.whoops("The player %s doesn't exist!", playerName);
                     return;
                 }
 
                 if (!network.getOnlinePlayers().containsKey(uuid)) {
-                    player.sendMessage(Msg.whoops("The player " + playerName + " is not online!"));
+                    player.whoops("The player %s is not online!", playerName);
                     return;
                 }
 
                 if (Cytosis.getPlayer(uuid).isPresent()) {
-                    player.sendMessage(Msg.success("The player " + playerName + " is on your server!"));
+                    player.success("The player %s is on your server!", playerName);
                     return;
                 }
 

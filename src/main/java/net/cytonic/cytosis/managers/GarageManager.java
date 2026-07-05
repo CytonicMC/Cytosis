@@ -19,8 +19,8 @@ import net.cytonic.cytosis.logging.Logger;
 @CytosisComponent
 public class GarageManager implements Bootstrappable {
 
-    private MinioClient client;
     private final ExecutorService worker;
+    private MinioClient client;
 
     public GarageManager() {
         this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisGarageWorker")

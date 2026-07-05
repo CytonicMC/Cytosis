@@ -3,17 +3,15 @@ package net.cytonic.cytosis.protocol.publishers;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.Subjects;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.notify.FriendNotifyPacket;
 import net.cytonic.protocol.impl.objects.FriendApiIdProtocolObject;
 import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
@@ -33,29 +31,23 @@ public class FriendPacketsPublisher {
             CytosisPlayer player = playerOptional.get();
 
             if (throwable != null) {
-                player.sendMessage(Msg.serverError("An error occurred whilst sending your friend request!"));
+                player.error("An error occurred whilst sending your friend request!");
             }
             if (response.success()) {
                 return;
             }
 
-            String recipientName = network.getLifetimePlayers().getByKey(packet.recipient());
-            PlayerRank recipientRank = network.getCachedPlayerRanks().get(packet.recipient());
-            Component recipient = recipientRank.getPrefix().append(Component.text(recipientName));
+            String recipient = Players.trueMiniName(packet.recipient());
 
             if (response.code().equals("ALREADY_SENT")) {
-                player.sendMessage(Msg.whoops("You have already sent a friend request to ").append(recipient)
-                    .append(Msg.mm("<gray>!")));
+                player.whoops("You have already sent a friend request to %s!", recipient);
                 return;
             }
 
-            player.sendMessage(Msg.serverError("Failed to send your friend request to ").append(recipient)
-                .append(Msg.mm("<gray>! Error: " + response.message())));
+            player.error("Failed to send your friend request to %s! Error: %s", recipient, response.message());
 
-            Logger.error(
-                "Failed to send " + packet.sender() + "'s friend request to " + packet.recipient() + "!. Error: "
-                    + response.message() + " | Code: " + response.code());
-
+            Logger.error("Failed to send %s's friend request to %s!. Error: %s | Code: %s",
+                packet.sender(), packet.recipient(), response.message(), response.code());
         });
     }
 
@@ -74,7 +66,7 @@ public class FriendPacketsPublisher {
         if (throwable != null) {
             if (recipient != null) {
                 Cytosis.getPlayer(recipient)
-                    .ifPresent(player -> player.sendMessage(Msg.serverError("Failed to process your friend request!")));
+                    .ifPresent(p -> p.error("Failed to process your friend request!"));
             }
             Logger.error("Internal error upon processing a friend acceptance.", throwable);
         }
@@ -82,21 +74,17 @@ public class FriendPacketsPublisher {
             return;
         }
 
-        String senderName = network.getLifetimePlayers().getByKey(sender);
-        PlayerRank recipientRank = network.getCachedPlayerRanks().get(sender);
-        Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
-
         if (response.message().equalsIgnoreCase("NOT_FOUND")) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                Msg.whoops("You don't have an active friend request from ").append(senderComp)
-                    .append(Msg.mm("<gray>!"))));
+            Cytosis.getPlayer(recipient).ifPresent(
+                player -> player.whoops("You don't have an active friend request from %s!",
+                    Players.trueMiniName(sender)));
         }
 
         if (recipient != null) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                Msg.serverError("Failed to process accepting your friend request: " + response.message())));
+            Cytosis.getPlayer(recipient)
+                .ifPresent(p -> p.error("Failed to process accepting your friend request: %s", response.message()));
         }
-        Logger.info("Failed to accept friend request: " + response.code());
+        Logger.info("Failed to accept friend request: %s", response.code());
     }
 
     public void sendDeclineFriendRequest(UUID requestId) {
@@ -114,19 +102,16 @@ public class FriendPacketsPublisher {
         if (throwable != null) {
             if (recipient != null) {
                 Cytosis.getPlayer(recipient).ifPresent(
-                    player -> player.sendMessage(Msg.serverError("Failed to process declining your friend request!")));
+                    player -> player.error("Failed to process declining your friend request!"));
             }
             Logger.error("Internal error upon processing a friend decline.", throwable);
+            return;
         }
 
-        String senderName = network.getLifetimePlayers().getByKey(sender);
-        PlayerRank recipientRank = network.getCachedPlayerRanks().get(sender);
-        Component senderComp = recipientRank.getPrefix().append(Component.text(senderName));
-
         if (response.message().equalsIgnoreCase("NOT_FOUND")) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                Msg.whoops("You don't have an active friend request from ").append(senderComp)
-                    .append(Msg.mm("<gray>!"))));
+            Cytosis.getPlayer(recipient).ifPresent(
+                player -> player.whoops("You don't have an active friend request from %s!",
+                    Players.trueMiniName(sender)));
         }
 
         if (response.success()) {
@@ -134,8 +119,8 @@ public class FriendPacketsPublisher {
         }
 
         if (recipient != null) {
-            Cytosis.getPlayer(recipient).ifPresent(player -> player.sendMessage(
-                Msg.serverError("Failed to process declining your friend request: " + response.message())));
+            Cytosis.getPlayer(recipient).ifPresent(
+                player -> player.error("Failed to process declining your friend request: %s", response.message()));
         }
         Logger.info("Failed to accept friend request: " + response.code());
     }

@@ -2,7 +2,6 @@ package net.cytonic.cytosis.utils;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
@@ -43,11 +42,16 @@ public class Preferences {
     public static final ToggleablePreference VANISHED = makeToggleable("vanished", false);
     public static final JsonPreference<NicknameData> NICKNAME_DATA = makeJson("nickname_data", NicknameData.class,
         NicknameData.CODEC);
-    public static final Preference<UUID> NICKED_UUID = make("nicked_uuid", UUID.class);
     public static final ToggleablePreference CHAT_MESSAGE_PING = makeToggleable("chat_message_ping", false);
+    /**
+     * Used to show the bossbar with server tps and memory usage
+     */
     public static final ToggleablePreference TPS_DEBUG = makeToggleable("tps_debug", false);
     public static final ToggleablePreference FLY = makeToggleable("fly", false);
     public static final Preference<Float> FLY_SPEED = make("fly_speed", 1F);
+    /**
+     * Used to prevent players from submitting reports
+     */
     public static final ToggleablePreference REPORT_BANNED = makeToggleable("report_banned", false);
 
     private static <T> Preference<T> make(String key, T def) {

@@ -38,7 +38,7 @@ public class ServerCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (!player.isStaff()) return;
             if (context.get(serverArgument).equalsIgnoreCase(Cytosis.CONTEXT.SERVER_ID)) {
-                player.sendMessage(Msg.whoops("You are already connected to %s!", Cytosis.CONTEXT.SERVER_ID));
+                player.whoops("You are already connected to %s!", Cytosis.CONTEXT.SERVER_ID);
                 return;
             }
             player.sendToServer(context.get(serverArgument));

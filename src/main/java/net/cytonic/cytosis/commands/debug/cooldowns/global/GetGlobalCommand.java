@@ -44,8 +44,7 @@ public class GetGlobalCommand extends CytosisCommand {
                     DurationParser.unparseFull(expires)));
                 return;
             }
-            player.sendMessage(
-                Msg.whoops("The global cooldown <yellow>'%s'/yellow> isn't active!", node.asString()));
+            player.whoops("The global cooldown <yellow>'%s'/yellow> isn't active!", node.asString());
         }, nodeArg);
     }
 }

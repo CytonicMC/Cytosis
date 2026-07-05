@@ -33,6 +33,11 @@ public class EbeanManager implements Bootstrappable {
         Cytosis.CONTEXT.setSendErrorsThroughSnooper(true);
     }
 
+    @Override
+    public void shutdown() {
+        databases.forEach(Database::shutdown);
+    }
+
     private void registerDatabase(String databaseName, HikariDataSource dataSource) {
         Properties props = new Properties();
         props.setProperty("ebean.migration.migrationPath", "dbmigration/cytosis/" + databaseName);
@@ -55,10 +60,5 @@ public class EbeanManager implements Bootstrappable {
         classes.addAll(JandexUtils.getAnnotatedClassesClass(Entity.class));
         classes.addAll(JandexUtils.getAnnotatedClassesClass(Embeddable.class));
         return classes;
-    }
-
-    @Override
-    public void shutdown() {
-        databases.forEach(Database::shutdown);
     }
 }

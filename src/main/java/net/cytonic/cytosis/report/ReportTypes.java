@@ -67,7 +67,7 @@ interface ReportTypes {
                                 return null;
                             }
                             Logger.error("An error occurred whilst reporting a public chat message: ", t.getCause());
-                            p.sendMessage(Msg.whoops("An unknown error occurred whilst reporting " + user + "."));
+                            p.whoops("An unknown error occurred whilst reporting " + user + ".");
                             return null;
                         }).thenAccept(book -> {
                             if (book != null) p.openBook(book);
@@ -78,13 +78,12 @@ interface ReportTypes {
                         .exceptionally(t -> {
                             p.closeBook();
                             if (t.getCause() instanceof NoContextException) {
-                                p.sendMessage(
-                                    Msg.whoops(user + " has not sent any messages in the Party channel recently."));
+                                p.whoops(user + " has not sent any messages in the Party channel recently.");
                                 return null;
                             }
 
                             Logger.error("An error occurred whilst reporting a party chat message: ", t.getCause());
-                            p.sendMessage(Msg.whoops("An unknown error occurred whilst reporting " + user + "."));
+                            p.whoops("An unknown error occurred whilst reporting %s.", user);
                             return null;
                         }).thenAccept(book -> {
                             if (book != null) p.openBook(book);
@@ -95,13 +94,12 @@ interface ReportTypes {
                         .exceptionally(t -> {
                             p.closeBook();
                             if (t.getCause() instanceof NoContextException) {
-                                p.sendMessage(
-                                    Msg.whoops(user + " has not sent you any messages in a Private channel recently."));
+                                p.whoops("%s has not sent you any messages in a Private channel recently.", user);
                                 return null;
                             }
 
                             Logger.error("An error occurred whilst reporting a private message: ", t.getCause());
-                            p.sendMessage(Msg.whoops("An unknown error occurred whilst reporting " + user + "."));
+                            p.whoops("An unknown error occurred whilst reporting %s.", user);
                             return null;
                         }).thenAccept(book -> {
                             if (book != null) p.openBook(book);

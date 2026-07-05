@@ -1,13 +1,14 @@
 package net.cytonic.cytosis.commands.staff;
 
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.builder.arguments.Argument;
 import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.arguments.number.ArgumentInteger;
 import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 
 /**
  * A command that loops other commands
@@ -20,18 +21,18 @@ public class LoopCommand extends CytosisCommand {
     public LoopCommand() {
         super("loop");
 
-        var iterationsArg = ArgumentType.Integer("iterations");
-        var periodArg = ArgumentType.Integer("period");
-        var commandArg = ArgumentType.StringArray("command").setDefaultValue(new String[0]);
+        ArgumentInteger iterationsArg = ArgumentType.Integer("iterations");
+        ArgumentInteger periodArg = ArgumentType.Integer("period");
+        Argument<String[]> commandArg = ArgumentType.StringArray("command").setDefaultValue(new String[0]);
 
         setCondition(CommandUtils.IS_STAFF);
 
-        setDefaultExecutor((commandSender, cmdc) -> {
+        setDefaultExecutor((commandSender, _) -> {
             if (!(commandSender instanceof CytosisPlayer player)) {
                 commandSender.sendMessage("Only players can use this command.");
                 return;
             }
-            player.sendMessage(Msg.whoops("Invalid syntax! Usage: /loop <iterations> <period> [command....]"));
+            player.whoops("Invalid syntax! Usage: /loop <iterations> <period> [command....]");
         });
 
         addSyntax((commandSender, context) -> {
@@ -45,7 +46,7 @@ public class LoopCommand extends CytosisCommand {
             String[] command = context.get(commandArg);
 
             if (command.length == 0) {
-                player.sendMessage(Msg.whoops("You need to specify a command to loop!"));
+                player.whoops("You need to specify a command to loop!");
             }
 
             String commandStr = String.join(" ", command);

@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import net.cytonic.cytosis.logging.Logger;
 
 public class EntityAnvilLoader extends AnvilLoader {
+
     Path entitiesPath;
 
     public EntityAnvilLoader(@NotNull Path path) {
@@ -64,14 +65,13 @@ public class EntityAnvilLoader extends AnvilLoader {
                     EntityType entityType = EntityType.fromKey(id);
                     if (entityType == null) throw new RuntimeException("Unknown entity type from id " + id);
 
-
                     Entity entity = new Entity(entityType);
 
                     if (entityType == EntityType.PAINTING) {
                         pos = parseBlockPos(binaryTag.getIntArray("block_pos"), binaryTag.getList("Rotation"));
                         StringBinaryTag variantTag = (StringBinaryTag) binaryTag.get("variant");
                         RegistryKey<PaintingVariant> ref = MinecraftServer.getPaintingVariantRegistry()
-                                .getKey(Key.key(variantTag.value()));
+                            .getKey(Key.key(variantTag.value()));
                         if (ref == null) {
                             Logger.error("Unknown painting variant: " + variantTag.value() + " - skipping entity");
                             return;
@@ -179,11 +179,11 @@ public class EntityAnvilLoader extends AnvilLoader {
 
         // convert the pos and rotation arrays into a Pos
         return new Pos(
-                posList[0],
-                posList[1],
-                posList[2],
-                rotationList[0],
-                rotationList[1]
+            posList[0],
+            posList[1],
+            posList[2],
+            rotationList[0],
+            rotationList[1]
         );
     }
 
@@ -201,11 +201,11 @@ public class EntityAnvilLoader extends AnvilLoader {
 
         // convert the pos and rotation arrays into a Pos
         return new Pos(
-                posTag[0],
-                posTag[1],
-                posTag[2],
-                rotationList[0],
-                rotationList[1]
+            posTag[0],
+            posTag[1],
+            posTag[2],
+            rotationList[0],
+            rotationList[1]
         );
     }
 }

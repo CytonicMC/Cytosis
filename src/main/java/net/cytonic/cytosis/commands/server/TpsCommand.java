@@ -8,7 +8,6 @@ import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 
 public class TpsCommand extends CytosisCommand {
@@ -21,10 +20,10 @@ public class TpsCommand extends CytosisCommand {
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             player.togglePreference(Preferences.TPS_DEBUG, () -> {
-                player.sendMessage(Msg.success("Showing server performance metrics!"));
+                player.enabledPlural("server performance metrics");
                 player.showBossBar(BAR);
             }, () -> {
-                player.sendMessage(Msg.success("Hiding server performance metrics!"));
+                player.disbledPlural("server performance metrics");
                 player.scheduleNextTick(_ -> player.hideBossBar(BAR));
             });
         });

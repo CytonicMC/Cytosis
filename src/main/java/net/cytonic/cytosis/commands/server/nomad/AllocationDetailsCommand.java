@@ -25,14 +25,14 @@ public class AllocationDetailsCommand extends CytosisCommand {
             }
 
             if (sender instanceof CytosisPlayer player) {
-                player.sendMessage(Msg.network("""
+                player.network("""
                         Nomad Allocation Details:
                         ID         : %s
                         Job        : %s
                         Task Group : %s
                         Node       : %s
                         """, System.getenv("NOMAD_ALLOC_ID"), System.getenv("NOMAD_JOB_NAME"),
-                    System.getenv("NOMAD_TASK_GROUP_NAME"), System.getenv("NOMAD_NODE_NAME")));
+                    System.getenv("NOMAD_TASK_GROUP_NAME"), System.getenv("NOMAD_NODE_NAME"));
             }
         }));
     }

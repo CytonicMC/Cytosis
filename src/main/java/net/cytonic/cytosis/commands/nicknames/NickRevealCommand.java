@@ -5,16 +5,16 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public class NickRevealCommand extends CytosisCommand {
+class NickRevealCommand extends CytosisCommand {
 
-    public NickRevealCommand() {
+    NickRevealCommand() {
         super("reveal");
         setCondition(CommandUtils.IS_STAFF);
 
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (!player.isNicked()) {
-                player.sendMessage(Msg.whoops("You are not currently nicked!"));
+                player.whoops("You are not currently nicked!");
                 return;
             }
             sender.sendMessage(Msg.goldSplash("REVEALED!", "Your nickname is currently ")

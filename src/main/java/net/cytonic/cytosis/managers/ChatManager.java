@@ -21,6 +21,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.impl.notify.ChatMessageNotifyPacket;
 
@@ -101,8 +102,7 @@ public class ChatManager implements Bootstrappable {
         }
 
         if (!player.canSendToChannel(channel)) {
-            player.sendMessage(Msg.whoops("You cannot currently send messages on the <gold>%s</gold> channel.",
-                channel.name()));
+            player.whoops("You cannot currently send messages on the <gold>%s</gold> channel.", channel.name());
             return;
         }
         String color = player.getTrueRank().getChatColor();
@@ -144,8 +144,8 @@ public class ChatManager implements Bootstrappable {
 
         logMessage(recipientId, player.getUuid(), message, ChatChannel.PRIVATE_MESSAGE);
 
-        String recipient = cn.getMiniName(recipientId);
-        String sender = cn.getTrueMiniName(player.getUuid());
+        String recipient = Players.trueMiniName(recipientId);
+        String sender = Players.trueMiniName(player.getUuid());
 
         Component component = Msg.darkAqua("From %s » </dark_aqua>%s", sender, message);
         new ChatMessageNotifyPacket.Packet(Set.of(recipientId), ChatChannel.PRIVATE_MESSAGE, component,

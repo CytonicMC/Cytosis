@@ -2,6 +2,7 @@ package net.cytonic.cytosis.nicknames;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import net.minestom.server.entity.PlayerSkin;
 
@@ -60,7 +61,7 @@ public class NicknameGenerator {
     private static final Random RANDOM = new Random();
 
     public static NicknameManager.NicknameData generateNicknameData() {
-        return new NicknameManager.NicknameData(generateUsername(), generateRank(), generateSkin());
+        return new NicknameManager.NicknameData(UUID.randomUUID(), generateUsername(), generateRank(), generateSkin());
     }
 
     public static String generateUsername() {

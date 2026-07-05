@@ -23,15 +23,15 @@ public class BannerHandler implements BlockHandler {
     }
 
     @Override
-    public @NotNull Key getKey() {
-        return key;
-    }
-
-    @Override
     public @NotNull Collection<Tag<?>> getBlockEntityTags() {
         return List.of(
             Tag.String("CustomName"),
             Tag.NBT("patterns").list()
         );
+    }
+
+    @Override
+    public @NotNull Key getKey() {
+        return key;
     }
 }

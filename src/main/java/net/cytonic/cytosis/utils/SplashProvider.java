@@ -5,8 +5,8 @@ public interface SplashProvider {
     SplashProvider DEFAULT = new SplashProvider() {
 
         @Override
-        public String serverError() {
-            return "<b><red>SERVER ERROR!</red></b>";
+        public String error() {
+            return "<b><red>ERROR!</red></b>";
         }
 
         @Override
@@ -45,7 +45,7 @@ public interface SplashProvider {
         }
     };
 
-    String serverError();
+    String error();
 
     String success();
 

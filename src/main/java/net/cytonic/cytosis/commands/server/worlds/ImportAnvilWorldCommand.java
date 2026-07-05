@@ -30,14 +30,14 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
         ArgumentWord path = new ArgumentWord("path");
         ArgumentResourceLocation keyArgument = new ArgumentResourceLocation("key");
         addSyntax((sender, context) -> {
-            if (!(sender instanceof CytosisPlayer)) return;
+            if (!(sender instanceof CytosisPlayer player)) return;
             Path readPath = Path.of(context.get(path));
             if (!(Files.exists(readPath) && Files.isReadable(readPath))) {
-                sender.sendMessage(Msg.whoops("The path you specified does not exist!"));
+                player.whoops("The path you specified does not exist!");
                 return;
             }
             if (!readPath.toFile().isDirectory()) {
-                sender.sendMessage(Msg.whoops("The path you specified is not a directory!"));
+                player.whoops("The path you specified is not a directory!");
                 return;
             }
 
@@ -45,7 +45,7 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             try {
                 world = AnvilPolar.anvilToPolar(readPath);
             } catch (IOException e) {
-                sender.sendMessage(Msg.serverError("Failed to convert world! (%s)", e.getMessage()));
+                player.error("Failed to convert world! (%s)", e.getMessage());
                 Logger.error("Failed to convert world!", e);
                 return;
             }
@@ -53,13 +53,12 @@ public class ImportAnvilWorldCommand extends CytosisCommand {
             Key key = context.get(keyArgument);
             Cytosis.get(WorldManager.class).saveWorld(key, world).whenComplete((_, throwable) -> {
                 if (throwable != null) {
-                    sender.sendMessage(Msg.whoops("An error occurred! " + throwable.getMessage()));
+                    player.whoops("An error occurred! " + throwable.getMessage());
                     Logger.error("An error occurred!", throwable);
                     return;
                 }
-                sender.sendMessage(
-                    Msg.success("Successfully imported world '%s' into %s Garage!",
-                        context.get(keyArgument).asString(), Cytosis.get(Environment.class)));
+                player.success("Successfully imported world '%s' into %s Garage!",
+                    context.get(keyArgument).asString(), Cytosis.get(Environment.class));
             });
         }, path, keyArgument);
     }

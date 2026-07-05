@@ -21,8 +21,6 @@ import net.cytonic.cytosis.utils.Msg;
 
 public class NickSetupCommand extends CytosisCommand {
 
-    public static final ConcurrentHashMap<UUID, NicknameManager.NicknameData> NICKNAME_DATA = new ConcurrentHashMap<>();
-
     private static final Book WARNING_BOOK = Book.builder()
         .author(Msg.aqua("CytonicMC Team"))
         .title(Msg.gold("Acknowledgements!"))
@@ -35,7 +33,6 @@ public class NickSetupCommand extends CytosisCommand {
             <click:run_command:'/nick setup agree'><underlined>» I understand. Set up my nickname.</underlined></click>
             """))
         .build();
-
     private static final Book RANK_BOOK = Book.builder()
         .author(Msg.aqua("CytonicMC Team"))
         .title(Msg.gold("Nickname Rank"))
@@ -50,7 +47,6 @@ public class NickSetupCommand extends CytosisCommand {
             <click:run_command:'/nick setup rank NEXUS'>» <gold>[NEXUS]</click>
             """))
         .build();
-
     private static final Book SKIN_BOOK = Book.builder()
         .author(Msg.aqua("CytonicMC Team"))
         .title(Msg.gold("Nickname Skin"))
@@ -64,7 +60,6 @@ public class NickSetupCommand extends CytosisCommand {
             <click:run_command:'/nick setup skin RANDOM'>» Random Skin</click>
             """))
         .build();
-
     private static final Book NAME_BOOK = Book.builder()
         .author(Msg.aqua("CytonicMC Team"))
         .title(Msg.gold("Nickname Skin"))
@@ -79,6 +74,7 @@ public class NickSetupCommand extends CytosisCommand {
         .build();
     private static final Set<String> SKIN_OPTIONS = Set.of("DEFAULT", "REAL", "RANDOM");
     private static final Set<String> NAME_OPTIONS = Set.of("RANDOM", "SET", "SKIP");
+    public static final ConcurrentHashMap<UUID, NicknameManager.NicknameData> NICKNAME_DATA = new ConcurrentHashMap<>();
 
     public NickSetupCommand() {
         super("setup");
@@ -86,8 +82,7 @@ public class NickSetupCommand extends CytosisCommand {
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             if (player.isNicked()) {
-                player.sendMessage(Msg.whoops(
-                    "You are already nicked! Use /nick reset to go back to your normal self and try again."));
+                player.whoops("You are already nicked! Use /nick reset to go back to your normal self and try again.");
                 return;
             }
             player.openBook(WARNING_BOOK);

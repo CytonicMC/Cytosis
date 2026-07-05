@@ -39,7 +39,7 @@ public class RevokeCommand extends CytosisCommand {
             String rawPlayer = context.get(playerArg);
             Environment environment = context.get(environmentArg);
             if (environment == Environment.PRODUCTION) {
-                player.sendMessage(Msg.whoops("There is no applicable whitelist for the Production Network!"));
+                player.whoops("There is no applicable whitelist for the Production Network!");
                 return;
             }
             try {
@@ -64,13 +64,13 @@ public class RevokeCommand extends CytosisCommand {
     private void removeWhiteList(UUID uuid, String msg, CytosisPlayer player, Environment environment) {
         PlayerRank rank = Cytosis.get(CytonicNetwork.class).getCachedPlayerRanks().get(uuid);
         if (rank != null && rank.isStaff()) {
-            player.sendMessage(Msg.whoops("'%s' bypasses the whitelist!", msg));
+            player.whoops("'%s' bypasses the whitelist!", msg);
             return;
         }
         RedisDatabase redis = Cytosis.get(RedisDatabase.class);
         if (!redis.getSet("player_whitelist", environment).contains(uuid.toString())) {
-            player.sendMessage(Msg.whoops("'%s' is not whitelisted on the %s Network!", msg,
-                Utils.captializeFirstLetters(environment.name().toLowerCase())));
+            player.whoops("'%s' is not whitelisted on the %s Network!", msg,
+                Utils.captializeFirstLetters(environment.name().toLowerCase()));
             return;
         }
         redis.removeFromSet("player_whitelist", uuid.toString(), environment);
@@ -78,6 +78,6 @@ public class RevokeCommand extends CytosisCommand {
             Msg.snoop(player.trueFormattedName().append(Msg.grey(
                 " Removed %s from the whitelist! <yellow><b><click:copy_to_clipboard:%s>[UUID]", msg,
                 uuid.toString()))));
-        player.sendMessage(Msg.success("Successfully revoked '%s's whitelist!", msg));
+        player.success("Successfully revoked '%s's whitelist!", msg);
     }
 }

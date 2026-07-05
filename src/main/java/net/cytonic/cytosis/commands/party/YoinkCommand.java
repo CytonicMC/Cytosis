@@ -6,7 +6,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
-import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class YoinkCommand extends CytosisCommand {
@@ -23,14 +22,12 @@ class YoinkCommand extends CytosisCommand {
                 }).thenAccept(p -> {
                     if (p.success()) return;
                     switch (p.message()) {
-                        case "INTERNAL_ERROR" ->
-                            s.sendMessage(Msg.serverError("An error occurred whilst processing your request."));
+                        case "INTERNAL_ERROR" -> player.error("An error occurred whilst processing your request.");
                         case "ERR_NOT_IN_PARTY", "NOT_IN_PARTY", "INVALID_PARTY" ->
-                            s.sendMessage(Msg.whoops("You are not in a party."));
-                        case "ERR_ALREADY_LEADER" -> s.sendMessage(Msg.whoops("You are already the leader of this party!"));
-                        default ->
-                            s.sendMessage(Msg.whoops("An unknown error occurred while processing your request <red>(%s)",
-                                p.message()));
+                            player.whoops("You are not in a party.");
+                        case "ERR_ALREADY_LEADER" -> player.whoops("You are already the leader of this party!");
+                        default -> player.whoops("An unknown error occurred while processing your request <red>(%s)",
+                            p.message());
                     }
                 });
         });

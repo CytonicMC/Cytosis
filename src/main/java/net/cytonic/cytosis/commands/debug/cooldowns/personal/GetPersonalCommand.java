@@ -22,7 +22,7 @@ public class GetPersonalCommand extends CytosisCommand {
         setDefaultExecutor(CooldownCommand.HELP_EXECUTOR);
         NetworkCooldownManager ncm = Cytosis.get(NetworkCooldownManager.class);
         ArgumentWord nodeArg = ArgumentType.Word("node");
-        nodeArg.setSuggestionCallback((sender, ctx, suggestion) -> {
+        nodeArg.setSuggestionCallback((_, _, suggestion) -> {
             for (Key preference : ncm.getAllKeys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
             }
@@ -43,8 +43,7 @@ public class GetPersonalCommand extends CytosisCommand {
                     DurationParser.unparseFull(expires)));
                 return;
             }
-            player.sendMessage(
-                Msg.whoops("Your personal cooldown <yellow>'%s'/yellow> isn't active!", node.asString()));
+            player.whoops("Your personal cooldown <yellow>'%s'/yellow> isn't active!", node.asString());
         }, nodeArg);
     }
 }

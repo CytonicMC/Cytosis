@@ -14,6 +14,12 @@ import net.cytonic.protocol.utils.NatsAPI;
 @CytosisComponent(dependsOn = NatsManager.class)
 public class NatsAPIImpl implements NatsAPI {
 
+    private static void log(String message, Object... args) {
+        if (Boolean.getBoolean("nats_debug")) {
+            Logger.debug(message, args);
+        }
+    }
+
     @Override
     public void subscribe(String channel, Consumer<Message> consumer) {
         log("Subscribing to channel %s", channel);
@@ -36,11 +42,5 @@ public class NatsAPIImpl implements NatsAPI {
             log("Received Nats request from request %s %s", channel, new String(message.getData()));
             consumer.accept(message.getData(), throwable);
         }));
-    }
-
-    private static void log(String message, Object... args) {
-        if (Boolean.getBoolean("nats_debug")) {
-            Logger.debug(message, args);
-        }
     }
 }

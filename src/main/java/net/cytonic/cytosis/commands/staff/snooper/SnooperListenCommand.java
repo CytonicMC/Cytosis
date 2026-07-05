@@ -19,8 +19,7 @@ public class SnooperListenCommand extends CytosisCommand {
             String rawChannel = context.get(SnooperCommand.CHANNELS);
             SnooperManager snooperManager = Cytosis.get(SnooperManager.class);
             if (!snooperManager.getAllChannels(player).contains(rawChannel)) {
-                player.sendMessage(Msg.whoops(
-                    "The channel '" + rawChannel + "' either doesn't exist, or you don't have access to it."));
+                player.whoops("The channel '%s' either doesn't exist, or you don't have access to it.", rawChannel);
                 return;
             }
             snooperManager.snoop(player, rawChannel);

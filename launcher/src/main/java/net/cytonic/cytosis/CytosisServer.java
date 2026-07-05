@@ -32,7 +32,7 @@ public class CytosisServer extends AbstractCytosisServer<CytosisPlayer> {
 
     @Override
     public Key serverType() {
-        return Key.key("cytosis", "launcher");
+        return Key.key("lobby", "lobby");
     }
 
     @Override

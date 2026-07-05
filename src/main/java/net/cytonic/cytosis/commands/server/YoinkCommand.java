@@ -40,22 +40,22 @@ public class YoinkCommand extends CytosisCommand {
             CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
             UUID uuid = network.getLifetimeFlattened().getByValue(playerName.toLowerCase());
             if (uuid == null) {
-                sender.sendMessage(Msg.whoops("The player " + playerName + " doesn't exist!"));
+                player.whoops("The player %s doesn't exist!", playerName);
                 return;
             }
 
             if (uuid.equals(player.getUuid())) {
-                player.sendMessage(Msg.whoops("You cannot do this to yourself!"));
+                player.whoops("You cannot do this to yourself!");
                 return;
             }
 
             if (!network.getOnlinePlayers().containsKey(uuid)) {
-                player.sendMessage(Component.text("The player " + playerName + " is not online!", NamedTextColor.RED));
+                player.sendMessage(Msg.red("The player %s is not online!", playerName));
                 return;
             }
 
             if (Cytosis.getPlayer(uuid).isPresent()) {
-                player.sendMessage(Msg.whoops("The player " + playerName + " is already on your server!"));
+                player.whoops("The player %s is already on your server!", playerName);
                 return;
             }
 
@@ -63,7 +63,7 @@ public class YoinkCommand extends CytosisCommand {
                 .sendPlayerToServer(uuid, Cytosis.CONTEXT.currentServer());
             player.sendMessage(Msg.goldSplash("YOINK!", "Successfully warped to your server!"));
             Component component = Msg.splash("YOINKED!", "be9e25", "").append(player.formattedName())
-                .append(Msg.mm("<gray> pulled you to their server!"));
+                .append(Msg.grey(" pulled you to their server!"));
             new ChatMessageNotifyPacket.Packet(Set.of(uuid), ChatChannel.INTERNAL_MESSAGE, component, null).publish();
         }), playerArgument);
     }

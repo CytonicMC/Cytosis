@@ -22,7 +22,7 @@ import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
@@ -57,7 +57,7 @@ public class BanCommand extends CytosisCommand {
                 final String rawDur = context.get(durationArg);
                 final Instant dur = DurationParser.parseInstant(rawDur);
 
-                UUID uuid = PlayerUtils.resolveUuid(player);
+                UUID uuid = Players.resolveUuid(player);
                 if (uuid == null) {
                     sender.sendMessage(Msg.red("The player %s doesn't exist!", player));
                     return;
