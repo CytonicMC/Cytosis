@@ -43,17 +43,17 @@ jobs:
     needs: [ publish ]
     runs-on: ubuntu-latest
     steps:
-      - name: Build bedwars
-        uses: peter-evans/repository-dispatch@v4.0.1
-        with:
-          token: '${{ secrets.ACTIONS_TOKEN }}'
-          repository: 'CytonicMC/CytonicBedwars'
-          event-type: 'trigger-workflow'
       - name: Build Lobby
         uses: peter-evans/repository-dispatch@v4.0.1
         with:
           token: '${{ secrets.ACTIONS_TOKEN }}'
           repository: 'CytonicMC/CytonicLobby'
+          event-type: 'trigger-workflow'
+      - name: Build bedwars
+        uses: peter-evans/repository-dispatch@v4.0.1
+        with:
+          token: '${{ secrets.ACTIONS_TOKEN }}'
+          repository: 'CytonicMC/CytonicBedwars'
           event-type: 'trigger-workflow'
       - name: Build GG
         uses: peter-evans/repository-dispatch@v4.0.1
