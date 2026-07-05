@@ -17,7 +17,7 @@ import net.cytonic.cytosis.player.OfflinePlayer;
 public class Players {
 
     /**
-     * Gets a readonly object representing this player. This is safe to call if the player even if offline or online.
+     * Gets a readonly object representing this player. This is safe to call if the player is offline or online.
      *
      * @param target the UUID of the target player
      * @return the readonly player object with accessors for preferences and cooldowns
@@ -29,6 +29,18 @@ public class Players {
             network().getLifetimePlayers().getByKey(target),
             network().getCachedPlayerRanks().get(target)
         );
+    }
+
+    /**
+     * Gets a readonly object representing this player. This is safe to call if the player is offline or online.
+     *
+     * @param target the NAME of the target player
+     * @return the readonly player object with accessors for preferences and cooldowns
+     * @throws NullPointerException if {@code target} is null, or points to a player who has never logged in.
+     */
+    @NotNull
+    public static OfflinePlayer offline(String target) {
+        return offline(resolveUuid(target));
     }
 
     /**
@@ -58,7 +70,7 @@ public class Players {
     }
 
     /**
-     * Just like {@link #getMiniName(UUID)}, but it always returns the player's real identity.
+     * Just like {@link #miniName(UUID)}, but it always returns the player's real identity.
      */
     public static String trueMiniName(UUID player) {
         PlayerRank rank = network().getCachedPlayerRanks().get(player);
@@ -73,7 +85,7 @@ public class Players {
      * status. If a nicked player's true username is entered, it returns the player's true rank. If the player's nicked
      * username is entered, then it returns the player's nicked rank.
      *
-     * @param input The player's USERNAME to format. Unlike {@link #getMiniName(UUID)}, this method only works with
+     * @param input The player's USERNAME to format. Unlike {@link #miniName(UUID)}, this method only works with
      *              Username, as the UUID doesn't provide the context if the requesting player sees the real identity or
      *              not.
      * @return The formatted name, not revealing
@@ -83,7 +95,7 @@ public class Players {
         PlayerRank rank;
         String name;
 
-        UUID uuid = PlayerUtils.resolveNickedUuid(input);
+        UUID uuid = resolveNickedUuid(input);
         if (uuid != null) {
             NicknameData data = Cytosis.get(NicknameManager.class).getData(uuid);
             if (data != null) {
@@ -93,7 +105,7 @@ public class Players {
                 return null;
             }
         } else {
-            uuid = PlayerUtils.resolveUnickedUuid(input);
+            uuid = resolveUnickedUuid(input);
             if (uuid == null) return null;
             rank = network().getCachedPlayerRanks().get(uuid);
             name = network().getLifetimePlayers().getByKey(uuid);
@@ -103,7 +115,77 @@ public class Players {
         return Msg.toMini(rank.getPrefix()) + String.format("<%s>%s</%s>", color, name, color);
     }
 
+    /**
+     * Attempts to resolve a player's UUID from a string. The string can be the player's nickname, username, or UUID. It
+     * is case-insensitive.
+     *
+     * @param input the player's nickname, username, or UUID.
+     * @return the player's UUID, or null if the player could not be resolved.
+     */
+    public static @Nullable UUID resolveUuid(String input) {
+        if (input == null) {
+            return null;
+        }
+        try {
+            return UUID.fromString(input);
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        UUID local = network().getLifetimeFlattened()
+            .getByValue(input.toLowerCase());
+        if (local != null) return local;
+        return nickname().deanonymizePlayer(input);
+    }
+
+    /**
+     * Resolves the nicked player from the given input.
+     *
+     * @param playerName The input to try to parse
+     * @return The resolved UUID, if and only if the player is nicknamed, potentially null.
+     */
+    public static @Nullable UUID resolveNickedUuid(String playerName) {
+        return nickname().deanonymizePlayer(playerName);
+    }
+
+    /**
+     * Resolves the unnicked player from the given input.
+     *
+     * @param playerName The input to try to parse
+     * @return The resolved UUID, if and only if the player is NOT nicknamed, potentially null.
+     */
+    public static @Nullable UUID resolveUnickedUuid(String playerName) {
+        return network().getLifetimeFlattened().getByValue(playerName.toLowerCase());
+    }
+
+    /**
+     * Attempts to resolve a player's name from their UUID. This will return their nickname if they are nicked.
+     *
+     * @param uuid the player's UUID.
+     * @return the player's name, or null if the player could not be resolved.
+     */
+    public static @Nullable String resolveName(UUID uuid) {
+        NicknameData d = nickname().getData(uuid);
+        if (d != null) {
+            return d.nickname();
+        }
+        return resolveTrueName(uuid);
+    }
+
+    /**
+     * Attempts to resolve a player's name from their UUID.
+     *
+     * @param uuid the player's UUID.
+     * @return the player's name, or null if the player could not be resolved.
+     */
+    public static @Nullable String resolveTrueName(UUID uuid) {
+        return network().getLifetimePlayers().getByKey(uuid);
+    }
+
     private static CytonicNetwork network() {
         return Cytosis.get(CytonicNetwork.class);
+    }
+
+    private static NicknameManager nickname() {
+        return Cytosis.get(NicknameManager.class);
     }
 }
