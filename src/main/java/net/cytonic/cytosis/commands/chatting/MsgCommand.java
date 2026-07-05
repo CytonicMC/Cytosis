@@ -11,7 +11,9 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 
 public class MsgCommand extends CytosisCommand {
@@ -32,8 +34,22 @@ public class MsgCommand extends CytosisCommand {
 
             final String player = context.get(playerArg);
             final String msg = String.join(" ", context.get(msgArgument));
-            if (!network.getOnlineFlattened().containsValue(player.toLowerCase())) {
-                actor.whoops("The player %s doesn't exist or is not online!", context.get(playerArg));
+            UUID uuid = PlayerUtils.resolveNickedUuid(player);
+            if (uuid != null) { // this player is nicked and doesn't accept message requests
+                actor.whoops("%s doesn't accept private messages.", Players.miniNameFragile(player));
+                return;
+            }
+            uuid = PlayerUtils.resolveUuid(player);
+            OfflinePlayer p;
+            try {
+                p = Players.offline(uuid);
+            } catch (NullPointerException e) {
+                actor.whoops("The player %s doesn't exist!", context.get(playerArg));
+                return;
+            }
+
+            if (!network.isOnline(p.uuid())) {
+                actor.whoops("%s is not online!", Players.trueMiniName(p.uuid()));
                 return;
             }
 
@@ -41,14 +57,13 @@ public class MsgCommand extends CytosisCommand {
                 actor.whoops("You cannot message yourself!");
                 return;
             }
-            UUID recipient = network.getOnlineFlattened().getByValue(player.toLowerCase());
 
-            sendMessage(actor, recipient, msg, network);
+            sendMessage(actor, p.uuid(), msg);
 
         }, playerArg, msgArgument);
     }
 
-    private void sendMessage(CytosisPlayer actor, UUID recipient, String message, CytonicNetwork network) {
+    private void sendMessage(CytosisPlayer actor, UUID recipient, String message) {
         if (message.isEmpty()) {
             actor.sendMessage(Msg.darkAquaSplash("CHAT CHANNEL!",
                 "You opened a direct message to %s! <dark_gray><i>Whenever you type in chat your messages get sent to them!",

@@ -144,8 +144,7 @@ public class ChatManager implements Bootstrappable {
 
         logMessage(recipientId, player.getUuid(), message, ChatChannel.PRIVATE_MESSAGE);
 
-        //todo: (Foxikle) Investigate possible deanonymization with /msg
-        String recipient = Players.miniName(recipientId);
+        String recipient = Players.trueMiniName(recipientId);
         String sender = Players.trueMiniName(player.getUuid());
 
         Component component = Msg.darkAqua("From %s » </dark_aqua>%s", sender, message);

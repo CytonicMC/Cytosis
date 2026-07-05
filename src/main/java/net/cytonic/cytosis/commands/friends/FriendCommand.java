@@ -12,6 +12,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
 /**
@@ -34,6 +35,10 @@ public class FriendCommand extends CytosisCommand {
                         continue;
                     }
                     suggestion.addEntry(new SuggestionEntry(networkPlayer));
+                }
+
+                for (String networkNickname : Cytosis.get(NicknameManager.class).getNetworkNicknames()) {
+                    suggestion.addEntry(new SuggestionEntry(networkNickname));
                 }
             }
         });

@@ -16,6 +16,12 @@ public class FriendAcceptCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             String raw = context.get(FriendCommand.NON_FRIEND_ARG);
+            UUID uuid = PlayerUtils.resolveNickedUuid(raw);
+            if (uuid != null) { // this player is nicked
+                player.whoops("You don't have an active friend request from %s!", Players.miniNameFragile(raw));
+                return;
+            }
+
             UUID target = PlayerUtils.resolveUuid(raw);
             OfflinePlayer targetObj;
             try {

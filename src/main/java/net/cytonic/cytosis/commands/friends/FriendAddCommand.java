@@ -5,7 +5,6 @@ import java.util.UUID;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
-import net.cytonic.cytosis.nicknames.NicknameManager.NicknameData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.PlayerUtils;
@@ -19,10 +18,17 @@ public class FriendAddCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            UUID target = PlayerUtils.resolveUuid(context.get(FriendCommand.NON_FRIEND_ARG));
+            String raw = context.get(FriendCommand.NON_FRIEND_ARG);
+            UUID uuid = PlayerUtils.resolveNickedUuid(raw);
+            if (uuid != null) { // this player is nicked
+                player.whoops("%s does not accept friend requests!", Players.miniNameFragile(raw));
+                return;
+            }
+
+            uuid = PlayerUtils.resolveUuid(context.get(FriendCommand.NON_FRIEND_ARG));
             OfflinePlayer targetObj;
             try {
-                targetObj = Players.offline(target);
+                targetObj = Players.offline(uuid);
             } catch (NullPointerException e) {
                 player.whoops("The player '%s' doesn't exist!", context.get(FriendCommand.NON_FRIEND_ARG));
                 return;
@@ -34,16 +40,16 @@ public class FriendAddCommand extends CytosisCommand {
             }
 
             CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
-            NicknameData nickData = targetObj.getPreference(Preferences.NICKNAME_DATA);
 
-            if (nickData != null) {
-                player.whoops("%s is not accepting friend requests!", Players.miniName(targetObj.uuid()));
-                return;
-            }
 
             String name = Players.trueMiniName(targetObj.uuid());
 
-            if (!network.getOnlinePlayers().containsKey(target)) {
+            if (player.getFriends().contains(uuid)) {
+                player.whoops("You are already friends with %s!", name);
+                return;
+            }
+
+            if (!network.getOnlinePlayers().containsKey(uuid)) {
                 player.whoops("%s is not online!", name);
                 return;
             }
@@ -53,12 +59,7 @@ public class FriendAddCommand extends CytosisCommand {
                 return;
             }
 
-            if (player.getFriends().contains(target)) {
-                player.whoops("You are already friends with %s!", name);
-                return;
-            }
-
-            player.sendFriendRequest(target);
+            player.sendFriendRequest(uuid);
         }, FriendCommand.NON_FRIEND_ARG);
     }
 

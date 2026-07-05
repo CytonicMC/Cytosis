@@ -31,6 +31,12 @@ public class FriendRemoveCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
+            UUID uuid = PlayerUtils.resolveNickedUuid(context.get(playerArg));
+            if (uuid != null) { // this player is nicked
+                player.whoops("%s is not on your friends list!", Players.miniNameFragile(context.get(playerArg)));
+                return;
+            }
+
             UUID target = PlayerUtils.resolveUuid(context.get(playerArg));
             OfflinePlayer targetObj;
             try {
@@ -49,7 +55,7 @@ public class FriendRemoveCommand extends CytosisCommand {
 
             if (!player.getFriends().contains(target)) {
                 player.sendMessage(
-                    Msg.whoops("The player %s is not on your friends list!", name));
+                    Msg.whoops("%s is not on your friends list!", name));
                 return;
             }
 
