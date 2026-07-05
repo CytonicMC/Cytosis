@@ -7,7 +7,6 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
-import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 
@@ -19,13 +18,13 @@ public class FriendAddCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             String raw = context.get(FriendCommand.NON_FRIEND_ARG);
-            UUID uuid = PlayerUtils.resolveNickedUuid(raw);
+            UUID uuid = Players.resolveNickedUuid(raw);
             if (uuid != null) { // this player is nicked
                 player.whoops("%s does not accept friend requests!", Players.miniNameFragile(raw));
                 return;
             }
 
-            uuid = PlayerUtils.resolveUuid(context.get(FriendCommand.NON_FRIEND_ARG));
+            uuid = Players.resolveUuid(context.get(FriendCommand.NON_FRIEND_ARG));
             OfflinePlayer targetObj;
             try {
                 targetObj = Players.offline(uuid);
@@ -40,7 +39,6 @@ public class FriendAddCommand extends CytosisCommand {
             }
 
             CytonicNetwork network = Cytosis.get(CytonicNetwork.class);
-
 
             String name = Players.trueMiniName(targetObj.uuid());
 

@@ -23,16 +23,16 @@ public class HeadHandler implements BlockHandler {
     }
 
     @Override
-    public @NotNull Key getKey() {
-        return key;
-    }
-
-    @Override
     public @NotNull Collection<Tag<?>> getBlockEntityTags() {
         return List.of(
             Tag.String("custom_name"),
             Tag.String("note_block_sound"),
             Tag.NBT("profile")
         );
+    }
+
+    @Override
+    public @NotNull Key getKey() {
+        return key;
     }
 }

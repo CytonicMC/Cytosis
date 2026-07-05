@@ -17,6 +17,13 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Blocking
     @Override
+    public @Nullable PlayerData loadPlayerData(UUID playerId) {
+        return playerDataMap.computeIfAbsent(playerId, k ->
+            DB.find(PlayerDataEntity.class, k));
+    }
+
+    @Blocking
+    @Override
     public void updatePlayerData(PlayerData playerData) {
         PlayerDataEntity playerDataEntity = new PlayerDataEntity();
         playerDataEntity.uuid(playerData.uuid());
@@ -39,12 +46,5 @@ public class PlayerServiceImpl implements PlayerService {
             updatePlayerData(data);
         }
         playerDataMap.remove(playerId);
-    }
-
-    @Blocking
-    @Override
-    public @Nullable PlayerData loadPlayerData(UUID playerId) {
-        return playerDataMap.computeIfAbsent(playerId, k ->
-            DB.find(PlayerDataEntity.class, k));
     }
 }

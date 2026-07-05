@@ -8,7 +8,6 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
@@ -21,7 +20,7 @@ class DemoteCommand extends CytosisCommand {
 
         addSyntax((s, context) -> {
             if (!(s instanceof CytosisPlayer player)) return;
-            final UUID playerID = PlayerUtils.resolveUuid(context.get(PartyCommand.PARTY_PLAYER));
+            final UUID playerID = Players.resolveUuid(context.get(PartyCommand.PARTY_PLAYER));
             if (playerID == null) {
                 player.whoops("Could not find the player '%s'", context.get(PartyCommand.PARTY_PLAYER));
                 return;

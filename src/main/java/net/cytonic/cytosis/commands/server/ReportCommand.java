@@ -11,7 +11,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.report.ReportManager;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 
@@ -36,7 +35,7 @@ public class ReportCommand extends CytosisCommand {
                 return;
             }
 
-            UUID target = PlayerUtils.resolveUuid(raw);
+            UUID target = Players.resolveUuid(raw);
             if (target == null) {
                 player.whoops("Could not find a player with the name '%s'.", raw);
                 return;

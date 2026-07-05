@@ -13,7 +13,6 @@ import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 
 public class MsgCommand extends CytosisCommand {
@@ -34,12 +33,12 @@ public class MsgCommand extends CytosisCommand {
 
             final String player = context.get(playerArg);
             final String msg = String.join(" ", context.get(msgArgument));
-            UUID uuid = PlayerUtils.resolveNickedUuid(player);
+            UUID uuid = Players.resolveNickedUuid(player);
             if (uuid != null) { // this player is nicked and doesn't accept message requests
                 actor.whoops("%s doesn't accept private messages.", Players.miniNameFragile(player));
                 return;
             }
-            uuid = PlayerUtils.resolveUuid(player);
+            uuid = Players.resolveUuid(player);
             OfflinePlayer p;
             try {
                 p = Players.offline(uuid);

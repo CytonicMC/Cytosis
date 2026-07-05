@@ -12,7 +12,6 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 
 public class FriendRemoveCommand extends CytosisCommand {
@@ -31,13 +30,13 @@ public class FriendRemoveCommand extends CytosisCommand {
 
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
-            UUID uuid = PlayerUtils.resolveNickedUuid(context.get(playerArg));
+            UUID uuid = Players.resolveNickedUuid(context.get(playerArg));
             if (uuid != null) { // this player is nicked
                 player.whoops("%s is not on your friends list!", Players.miniNameFragile(context.get(playerArg)));
                 return;
             }
 
-            UUID target = PlayerUtils.resolveUuid(context.get(playerArg));
+            UUID target = Players.resolveUuid(context.get(playerArg));
             OfflinePlayer targetObj;
             try {
                 targetObj = Players.offline(target);

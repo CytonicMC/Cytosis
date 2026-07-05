@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" monitorInterval="30" shutdownHook="disable">
-  <Properties>
-    <Property name="LOG_PATTERN">%highlight{[%d{HH:mm:ss}] [%p] [%c{1}] -> %m%n%throwable}{FATAL=red bold,
-      ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue}
-    </Property>
-  </Properties>
-
+<Configuration monitorInterval="30" shutdownHook="disable" status="WARN">
   <Appenders>
-    <Console name="console" target="SYSTEM_OUT" follow="true">
+    <Console follow="true" name="console" target="SYSTEM_OUT">
       <PatternLayout pattern="${LOG_PATTERN}"/>
     </Console>
   </Appenders>
@@ -17,4 +11,10 @@
       <AppenderRef ref="console"/>
     </Root>
   </Loggers>
+
+  <Properties>
+    <Property name="LOG_PATTERN">%highlight{[%d{HH:mm:ss}] [%p] [%c{1}] -> %m%n%throwable}{FATAL=red bold,
+      ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue}
+    </Property>
+  </Properties>
 </Configuration>

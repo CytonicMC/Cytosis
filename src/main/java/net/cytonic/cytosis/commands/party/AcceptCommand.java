@@ -9,7 +9,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
 class AcceptCommand extends CytosisCommand {
@@ -22,7 +22,7 @@ class AcceptCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
 
             //todo: do something about deanonymizing players
-            final UUID playerID = PlayerUtils.resolveUuid(context.get(CommandUtils.NETWORK_PLAYERS));
+            final UUID playerID = Players.resolveUuid(context.get(CommandUtils.NETWORK_PLAYERS));
             if (playerID == null) {
                 sender.sendMessage(
                     Msg.whoops("Could not find the player '%s'", context.get(CommandUtils.NETWORK_PLAYERS)));

@@ -58,12 +58,6 @@ public class NicknameManager implements Bootstrappable {
         });
     }
 
-    @Override
-    public void init() {
-        this.rankManager = Cytosis.get(RankManager.class);
-        this.redis = Cytosis.get(RedisDatabase.class);
-    }
-
     public static String translateSkin(CytosisPlayer player, String skin) {
         if (skin == null) {
             return "<#BE9025>Steve/Alex skin</#BE9025>";
@@ -72,6 +66,12 @@ public class NicknameManager implements Bootstrappable {
             return "<#BE9025>My normal skin</#BE9025>";
         }
         return "<#BE9025>Random Skin</#BE9025>";
+    }
+
+    @Override
+    public void init() {
+        this.rankManager = Cytosis.get(RankManager.class);
+        this.redis = Cytosis.get(RedisDatabase.class);
     }
 
     public boolean isNicked(UUID player) {

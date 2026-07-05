@@ -20,23 +20,16 @@ public class NicknameEntryMenu extends View {
     private final AnvilInput anvilInput = AnvilInput.createAnvilInput();
     private final MutableState<Boolean> intentionallyClosed = mutableState(false);
 
+    private static boolean checkValid(String input) {
+        return input.trim().matches("^[a-zA-Z0-9_]{3,16}$");
+    }
+
     @Override
     public void onInit(@NotNull ViewConfigBuilder config) {
         config.title(Msg.black("Enter a nickname"));
         config.type(ViewType.ANVIL);
         config.cancelInteractions();
         config.use(anvilInput);
-    }
-
-    private static boolean checkValid(String input) {
-        return input.trim().matches("^[a-zA-Z0-9_]{3,16}$");
-    }
-
-    @Override
-    public void onClose(@NotNull CloseContext context) {
-        if (intentionallyClosed.get(context)) return;
-        context.getPlayer().sendMessage(Msg.whoops("You closed the menu!"));
-        context.setCancelled(true);
     }
 
     @Override
@@ -58,5 +51,12 @@ public class NicknameEntryMenu extends View {
             Cytosis.get(CommandManager.class).execute(player, "nick setup name SKIP");
             player.closeInventory();
         });
+    }
+
+    @Override
+    public void onClose(@NotNull CloseContext context) {
+        if (intentionallyClosed.get(context)) return;
+        context.getPlayer().sendMessage(Msg.whoops("You closed the menu!"));
+        context.setCancelled(true);
     }
 }

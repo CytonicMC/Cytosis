@@ -18,8 +18,14 @@ import net.cytonic.cytosis.utils.Utils;
  */
 public class TeleportCommand extends CytosisCommand {
 
+    private static final CommandExecutor PLAYER_EXECUTOR = (sender, context) -> {
+        if (sender instanceof CytosisPlayer player) {
+            CytosisPlayer target = context.get(CommandUtils.ONLINE_PLAYERS);
+            player.teleport(target.getPosition());
+            player.sendMessage(Msg.green("Teleported!"));
+        }
+    };
     public static final ArgumentRelativeBlockPosition POS_ARG = ArgumentType.RelativeBlockPosition("position");
-
     private static final CommandExecutor RELATIVE_EXECUTOR = (sender, context) -> {
         if (sender instanceof CytosisPlayer player) {
             Pos p = context.get(POS_ARG).from(player).asPos();
@@ -28,14 +34,6 @@ public class TeleportCommand extends CytosisCommand {
                 "<dark_gray>-»<dark_gray> <gray>(" + Utils.TWO_PLACES.format(p.x()) + ", "
                     + Utils.TWO_PLACES.format(p.y()) + ", " + Utils.TWO_PLACES.format(p.z())));
 
-        }
-    };
-
-    private static final CommandExecutor PLAYER_EXECUTOR = (sender, context) -> {
-        if (sender instanceof CytosisPlayer player) {
-            CytosisPlayer target = context.get(CommandUtils.ONLINE_PLAYERS);
-            player.teleport(target.getPosition());
-            player.sendMessage(Msg.green("Teleported!"));
         }
     };
 

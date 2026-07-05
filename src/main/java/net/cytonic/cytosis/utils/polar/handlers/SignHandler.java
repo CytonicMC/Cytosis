@@ -24,16 +24,16 @@ public class SignHandler implements BlockHandler {
     }
 
     @Override
-    public @NotNull Key getKey() {
-        return key;
-    }
-
-    @Override
     public @NotNull Collection<Tag<?>> getBlockEntityTags() {
         return List.of(
             Tag.Boolean("is_waxed"),
             Tag.NBT("front_text"),
             Tag.NBT("back_text")
         );
+    }
+
+    @Override
+    public @NotNull Key getKey() {
+        return key;
     }
 }

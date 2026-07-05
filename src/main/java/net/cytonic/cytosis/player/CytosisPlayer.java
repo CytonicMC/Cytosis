@@ -189,52 +189,6 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
         this.sendActionBar(message.asComponent());
     }
 
-    @Override
-    public void sendActionBar(@NotNull Component message) {
-        Cytosis.get(ActionBarManager.class).addToQueue(getUuid(), message);
-    }
-
-    /**
-     * Gets the player skin.
-     *
-     * @return the player skin object, null means that the player has his {@link #getUuid()} default skin
-     */
-    @Override
-    public @Nullable PlayerSkin getSkin() {
-        if (isNicked()) {
-            NicknameManager.NicknameData data = Cytosis.get(NicknameManager.class).getData(getUuid());
-            if (data == null) {
-                return null;
-            }
-            return data.skin();
-        }
-        return super.getSkin();
-    }
-
-    /**
-     * Gets the player's name as a component. This will either return the display name (if set) or a component holding
-     * the username.
-     *
-     * @return the name
-     */
-    @Override
-    public @NotNull Component getName() {
-        return Component.text(getUsername());
-    }
-
-    @Override
-    public @NotNull String getUsername() {
-        if (isNicked()) {
-            return Objects.requireNonNull(Cytosis.get(NicknameManager.class).getData(getUuid())).nickname();
-        }
-        return getTrueUsername();
-    }
-
-    @Override
-    public void kick(@NotNull Component message) {
-        kick(KickReason.UNKNOWN, message);
-    }
-
     /**
      * Returns if this player has helper (or higher) permissions
      *
@@ -457,6 +411,52 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
         }
 
         super.sendPacketToViewersAndSelf(getMetadataPacket());
+    }
+
+    @Override
+    public void sendActionBar(@NotNull Component message) {
+        Cytosis.get(ActionBarManager.class).addToQueue(getUuid(), message);
+    }
+
+    /**
+     * Gets the player skin.
+     *
+     * @return the player skin object, null means that the player has his {@link #getUuid()} default skin
+     */
+    @Override
+    public @Nullable PlayerSkin getSkin() {
+        if (isNicked()) {
+            NicknameManager.NicknameData data = Cytosis.get(NicknameManager.class).getData(getUuid());
+            if (data == null) {
+                return null;
+            }
+            return data.skin();
+        }
+        return super.getSkin();
+    }
+
+    /**
+     * Gets the player's name as a component. This will either return the display name (if set) or a component holding
+     * the username.
+     *
+     * @return the name
+     */
+    @Override
+    public @NotNull Component getName() {
+        return Component.text(getUsername());
+    }
+
+    @Override
+    public @NotNull String getUsername() {
+        if (isNicked()) {
+            return Objects.requireNonNull(Cytosis.get(NicknameManager.class).getData(getUuid())).nickname();
+        }
+        return getTrueUsername();
+    }
+
+    @Override
+    public void kick(@NotNull Component message) {
+        kick(KickReason.UNKNOWN, message);
     }
 
     public void sendToGenericServer(Key key, @Nullable String name) {

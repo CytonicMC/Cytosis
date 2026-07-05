@@ -26,19 +26,12 @@ import net.cytonic.protocol.impl.notify.CooldownUpdateNotifyPacket.Type;
 @CytosisComponent(dependsOn = {RedisDatabase.class, NatsManager.class, LocalCooldownManager.class})
 public class NetworkCooldownManager implements Bootstrappable {
 
-    private RedisDatabase redis;
-    private NatsManager nats;
     private final Map<Key, Instant> global = new ConcurrentHashMap<>();
     private final Map<UUID, Map<Key, Instant>> personal = new ConcurrentHashMap<>();
+    private RedisDatabase redis;
+    private NatsManager nats;
 
     public NetworkCooldownManager() {
-    }
-
-    @Override
-    public void init() {
-        this.redis = Cytosis.get(RedisDatabase.class);
-        this.nats = Cytosis.get(NatsManager.class);
-        importFromRedis();
     }
 
     /**
@@ -49,6 +42,13 @@ public class NetworkCooldownManager implements Bootstrappable {
      */
     public static String toPersonalKey(UUID uuid) {
         return "COOLDOWN_PERSONAL_KEY:" + uuid;
+    }
+
+    @Override
+    public void init() {
+        this.redis = Cytosis.get(RedisDatabase.class);
+        this.nats = Cytosis.get(NatsManager.class);
+        importFromRedis();
     }
 
     /**

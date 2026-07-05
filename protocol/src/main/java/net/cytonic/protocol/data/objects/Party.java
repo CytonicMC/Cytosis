@@ -19,7 +19,7 @@ public class Party {
         "current_leader", Codec.UUID_STRING, Party::getLeader,
         "muted", Codec.BOOLEAN, Party::isMuted,
         "open", Codec.BOOLEAN, Party::isOpen,
-        "open_invited", Codec.BOOLEAN, Party::isOpenInvites,
+        "open_invites", Codec.BOOLEAN, Party::isOpenInvites,
         "moderators", Codec.UUID_STRING.set(), Party::getModerators,
         "members", Codec.UUID_STRING.set(), Party::getMembers,
         "active_invites", Codec.UUID_STRING.mapValue(PartyInvite.CODEC), Party::getActiveInvites,

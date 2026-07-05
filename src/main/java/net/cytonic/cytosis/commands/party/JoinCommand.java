@@ -9,7 +9,6 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
@@ -23,7 +22,7 @@ class JoinCommand extends CytosisCommand {
         addSyntax((s, context) -> {
             if (!(s instanceof CytosisPlayer player)) return;
             //todo: do something about deanonymizing players
-            final UUID playerID = PlayerUtils.resolveUuid(context.get(CommandUtils.NETWORK_PLAYERS));
+            final UUID playerID = Players.resolveUuid(context.get(CommandUtils.NETWORK_PLAYERS));
             if (playerID == null) {
                 player.whoops("Could not find the player '%s'", context.get(CommandUtils.NETWORK_PLAYERS));
                 return;

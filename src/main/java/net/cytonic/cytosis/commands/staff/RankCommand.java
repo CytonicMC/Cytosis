@@ -20,7 +20,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.notify.PlayerRankUpdateNotifyPacket;
 
 /**
@@ -48,7 +48,7 @@ public class RankCommand extends CytosisCommand {
             if (!(sender instanceof CytosisPlayer player)) return;
             String name = context.get(CommandUtils.LIFETIME_PLAYERS).toLowerCase(Locale.ROOT);
             PlayerRank newRank = context.get(rankArg);
-            UUID target = PlayerUtils.resolveUuid(name);
+            UUID target = Players.resolveUuid(name);
             if (target == null) {
                 sender.sendMessage(
                     Msg.red("The player " + context.get(CommandUtils.LIFETIME_PLAYERS) + " doesn't exist!"));

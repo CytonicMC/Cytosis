@@ -41,6 +41,7 @@ public class SnooperMenu extends View {
                     .getComponent(SnooperManager.class)
                     .getChannel(Key.key(idState.get(context))))
             .recipients());
+    private final MutableState<DateRange> dateState = initialState("date");
     private final State<Pagination> paginationState = buildLazyPaginationState(this::fetchData)
         .layoutTarget('1')
         .itemFactory((builder, snoop) -> {
@@ -61,7 +62,6 @@ public class SnooperMenu extends View {
                 .build();
             builder.withItem(item);
         }).build();
-    private final MutableState<DateRange> dateState = initialState("date");
 
     @Override
     public void onInit(@NotNull ViewConfigBuilder config) {
@@ -76,6 +76,14 @@ public class SnooperMenu extends View {
             "#1111111#",
             "<#o#X#D#>"
         );
+    }
+
+    @Override
+    public void onOpen(@NotNull OpenContext context) {
+        context.getPlayer().sendMessage(
+            Msg.darkGreySplash(
+                "LOADING!",
+                "We're crunching the data for you, just a moment!"));
     }
 
     @Override
@@ -192,13 +200,5 @@ public class SnooperMenu extends View {
                 ascendingState.get(context),
                 searchState.get(context))
             .join();
-    }
-
-    @Override
-    public void onOpen(@NotNull OpenContext context) {
-        context.getPlayer().sendMessage(
-            Msg.darkGreySplash(
-                "LOADING!",
-                "We're crunching the data for you, just a moment!"));
     }
 }

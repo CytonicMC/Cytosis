@@ -15,7 +15,7 @@ import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
-import net.cytonic.cytosis.utils.PlayerUtils;
+import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.SnoopUtils;
 import net.cytonic.protocol.data.enums.KickReason;
 import net.cytonic.protocol.impl.notify.PlayerKickNotifyPacket;
@@ -39,7 +39,7 @@ public class KickCommand extends CytosisCommand {
             final String player = context.get(CommandUtils.NETWORK_PLAYERS);
             final String reason = String.join(" ", context.get(reasonArg));
 
-            UUID uuid = PlayerUtils.resolveUuid(player);
+            UUID uuid = Players.resolveUuid(player);
             if (uuid == null) {
                 actor.whoops("The player '%s' either doesn't exist or is not online!", player);
                 return;
@@ -63,7 +63,7 @@ public class KickCommand extends CytosisCommand {
                 .sendSnoop(Snoops.PLAYER_KICK, Msg.snoop(snoop));
             new PlayerKickNotifyPacket.Packet(uuid, KickReason.COMMAND,
                 Msg.red("\nYou have been kicked. \n<aqua>Reason: " + reason)).publish();
-            
+
         }, CommandUtils.NETWORK_PLAYERS, reasonArg);
     }
 }

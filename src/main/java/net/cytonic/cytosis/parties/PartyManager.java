@@ -51,7 +51,7 @@ public class PartyManager implements Bootstrappable {
         for (UUID member : party.getAllPlayers()) {
             Cytosis.getPlayer(member).ifPresent(
                 p -> p.sendMessage(
-                    Msg.mm("%s\n%s <white>joined the party!\n%s", LINE, Players.miniName(player), LINE)));
+                    Msg.mm("%s\n%s <white>joined the party!\n%s", LINE, Players.trueMiniName(player), LINE)));
         }
         party.getMembers().add(player);
         Cytosis.getPlayer(player)
@@ -68,7 +68,8 @@ public class PartyManager implements Bootstrappable {
         party.getMembers().remove(player);
         for (UUID member : party.getAllPlayers()) {
             Cytosis.getPlayer(member).ifPresent(
-                p -> p.sendMessage(Msg.mm("%s\n%s <white>left the party.\n%s", LINE, Players.miniName(player), LINE)));
+                p -> p.sendMessage(
+                    Msg.mm("%s\n%s <white>left the party.\n%s", LINE, Players.trueMiniName(player), LINE)));
         }
         Cytosis.getPlayer(player)
             .ifPresent(p -> p.sendMessage(Msg.mm("%s\nYou left the party.\n%s", LINE, LINE)));
@@ -87,7 +88,7 @@ public class PartyManager implements Bootstrappable {
             Cytosis.getPlayer(member).ifPresent(
                 p -> p.sendMessage(
                     Msg.mm("%s\n%s <white>was removed from the party because they disconnected.\n%s", LINE,
-                        Players.miniName(player),
+                        Players.trueMiniName(player),
                         LINE)));
         }
         Cytosis.getPlayer(player)
@@ -107,7 +108,7 @@ public class PartyManager implements Bootstrappable {
             Cytosis.getPlayer(member).ifPresent(p -> p.sendMessage(
                 Msg.mm(
                     "%s\n%s <white>disconnected. They have 5 minutes to reconnect before they are removed from the party.\n%s",
-                    LINE, Players.miniName(player), LINE)));
+                    LINE, Players.trueMiniName(player), LINE)));
         }
         Cytosis.getPlayer(player)
             .ifPresent(
@@ -125,7 +126,7 @@ public class PartyManager implements Bootstrappable {
         for (UUID member : party.getAllPlayers()) {
             if (member.equals(player)) continue;
             Cytosis.getPlayer(member).ifPresent(p -> p.sendMessage(
-                Msg.mm("%s\n%s <white>reconnected. \n%s", LINE, Players.miniName(player), LINE)));
+                Msg.mm("%s\n%s <white>reconnected. \n%s", LINE, Players.trueMiniName(player), LINE)));
         }
     }
 
@@ -142,18 +143,18 @@ public class PartyManager implements Bootstrappable {
             if (p.equals(sender)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm("%s\n<white>You demoted %s<white> to party member!\n%s", LINE,
-                        Players.miniName(recipient), LINE)));
+                        Players.trueMiniName(recipient), LINE)));
                 continue;
             }
             if (p.equals(recipient)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm("%s\n%s <white>demoted you to party member.\n%s", LINE,
-                        Players.miniName(sender), LINE)));
+                        Players.trueMiniName(sender), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp ->
                 cp.sendMessage(Msg.mm("%s\n%s <white>demoted %s<white> to party member.\n%s", LINE,
-                    Players.miniName(sender), Players.miniName(recipient), LINE)));
+                    Players.trueMiniName(sender), Players.trueMiniName(recipient), LINE)));
         }
     }
 
@@ -170,18 +171,18 @@ public class PartyManager implements Bootstrappable {
             if (p.equals(sender)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm("%s\n<white>You promoted %s<white> to party moderator!\n%s", LINE,
-                        Players.miniName(recipient), LINE)));
+                        Players.trueMiniName(recipient), LINE)));
                 continue;
             }
             if (p.equals(recipient)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm("%s\n%s <white>promoted you to party moderator!\n%s", LINE,
-                        Players.miniName(sender), LINE)));
+                        Players.trueMiniName(sender), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp ->
                 cp.sendMessage(Msg.mm("%s\n%s <white>promoted %s<white> to party moderator!\n%s", LINE,
-                    Players.miniName(sender), Players.miniName(recipient), LINE)));
+                    Players.trueMiniName(sender), Players.trueMiniName(recipient), LINE)));
         }
     }
 
@@ -200,20 +201,20 @@ public class PartyManager implements Bootstrappable {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(
                         Msg.mm("%s\n<white>You promoted %s <white>to party leader! You are now a party moderator.\n%s",
-                            LINE, Players.miniName(recipient), LINE)));
+                            LINE, Players.trueMiniName(recipient), LINE)));
                 continue;
             }
             if (p.equals(recipient)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm(
                         "%s\n%s <white>promoted you to party leader! They are now a party moderator.\n%s", LINE,
-                        Players.miniName(sender), LINE)));
+                        Players.trueMiniName(sender), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp ->
                 cp.sendMessage(
                     Msg.mm("%s\n%s <white>promoted %s <white>to party leader and is now a party moderator.\n%s", LINE,
-                        Players.miniName(sender), Players.miniName(recipient), LINE)));
+                        Players.trueMiniName(sender), Players.trueMiniName(recipient), LINE)));
         }
     }
 
@@ -228,19 +229,19 @@ public class PartyManager implements Bootstrappable {
         party.getMembers().remove(recipient);
 
         Cytosis.getPlayer(recipient).ifPresent(cp -> cp.sendMessage(Msg.mm(
-            "%s\n%s <white>kicked you from the party.\n%s", LINE, Players.miniName(sender), LINE)));
+            "%s\n%s <white>kicked you from the party.\n%s", LINE, Players.trueMiniName(sender), LINE)));
 
         for (UUID p : party.getAllPlayers()) {
             if (p.equals(sender)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(
                         Msg.mm("%s\n<white>You kicked %s <white>from the party.\n%s",
-                            LINE, Players.miniName(recipient), LINE)));
+                            LINE, Players.trueMiniName(recipient), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp ->
                 cp.sendMessage(Msg.mm("%s\n%s <white>kicked %s <white>from the party.\n%s", LINE,
-                    Players.miniName(sender), Players.miniName(recipient), LINE)));
+                    Players.trueMiniName(sender), Players.trueMiniName(recipient), LINE)));
         }
     }
 
@@ -262,19 +263,19 @@ public class PartyManager implements Bootstrappable {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(
                         Msg.mm("%s\n<white>You transferred the party to %s<white>.\n%s",
-                            LINE, Players.miniName(recipient), LINE)));
+                            LINE, Players.trueMiniName(recipient), LINE)));
                 continue;
             }
             if (p.equals(recipient)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm(
                         "%s\n%s <white>transferred the party to you.\n%s", LINE,
-                        Players.miniName(sender), LINE)));
+                        Players.trueMiniName(sender), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp ->
                 cp.sendMessage(Msg.mm("%s\n%s <white>transferred the party to %s<white>.\n%s", LINE,
-                    Players.miniName(sender), Players.miniName(recipient), LINE)));
+                    Players.trueMiniName(sender), Players.trueMiniName(recipient), LINE)));
         }
     }
 
@@ -292,18 +293,18 @@ public class PartyManager implements Bootstrappable {
 
         Cytosis.getPlayer(sender).ifPresent(cp -> cp.sendMessage(
             Msg.mm("%s\n<white>The party was transferred to %s <white>because you left.\n%s",
-                LINE, Players.miniName(recipient), LINE)));
+                LINE, Players.trueMiniName(recipient), LINE)));
 
         for (UUID p : party.getAllPlayers()) {
             if (p.equals(recipient)) {
                 Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(
                     Msg.mm("%s\n<white>The party was transferred to you because %s<white> left.\n%s",
-                        LINE, Players.miniName(sender), LINE)));
+                        LINE, Players.trueMiniName(sender), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(Msg.mm(
                 "%s\n<white>The party was transferred to %s<white> because the previous leader, %s<white>, left.\n%s",
-                LINE, Players.miniName(recipient), Players.miniName(sender), LINE)));
+                LINE, Players.trueMiniName(recipient), Players.trueMiniName(sender), LINE)));
         }
     }
 
@@ -325,19 +326,19 @@ public class PartyManager implements Bootstrappable {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(
                         Msg.mm("%s\n<white>The party was transferred to %s <white>because you disconnected.\n%s",
-                            LINE, Players.miniName(recipient), LINE)));
+                            LINE, Players.trueMiniName(recipient), LINE)));
                 continue;
             }
             if (p.equals(recipient)) {
                 Cytosis.getPlayer(p).ifPresent(cp ->
                     cp.sendMessage(Msg.mm(
                         "%s\n%s <white>The party was transferred to you because %s<white> disconnected.\n%s", LINE,
-                        Players.miniName(sender), LINE)));
+                        Players.trueMiniName(sender), LINE)));
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(Msg.mm(
                 "%s\n<white>The party was transferred to %s<white> because the previous leader, %s<white>, disconnected.\n%s",
-                LINE, Players.miniName(recipient), Players.miniName(sender), LINE)));
+                LINE, Players.trueMiniName(recipient), Players.trueMiniName(sender), LINE)));
         }
     }
 
@@ -361,7 +362,7 @@ public class PartyManager implements Bootstrappable {
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(Msg.mm(
-                "%s\n%s <white>%s the party. \n%s", LINE, Players.miniName(sender), verb, LINE)));
+                "%s\n%s <white>%s the party. \n%s", LINE, Players.trueMiniName(sender), verb, LINE)));
         }
     }
 
@@ -383,7 +384,7 @@ public class PartyManager implements Bootstrappable {
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(Msg.mm("%s\n%s <white>%s \n%s",
-                LINE, Players.miniName(sender), verb, LINE)));
+                LINE, Players.trueMiniName(sender), verb, LINE)));
         }
     }
 
@@ -406,7 +407,7 @@ public class PartyManager implements Bootstrappable {
                 continue;
             }
             Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(Msg.mm(
-                "%s\n%s <white>%s\n%s", LINE, Players.miniName(sender), verb, LINE)));
+                "%s\n%s <white>%s\n%s", LINE, Players.trueMiniName(sender), verb, LINE)));
         }
     }
 
@@ -437,7 +438,7 @@ public class PartyManager implements Bootstrappable {
             }
             Cytosis.getPlayer(p).ifPresent(cp -> cp.sendMessage(Msg.mm(
                 "%s\n<#65c6ea><b>Yoinked!</b> %s <white>assumed leadership of the party.\n%s",
-                LINE, Players.miniName(sender), LINE)));
+                LINE, Players.trueMiniName(sender), LINE)));
         }
 
     }
@@ -475,7 +476,7 @@ public class PartyManager implements Bootstrappable {
                 continue;
             }
             Cytosis.getPlayer(player).ifPresent(p -> p.sendMessage(
-                Msg.mm("%s\n%s <white>disbanded the party.\n%s", LINE, Players.miniName(playerId), LINE)));
+                Msg.mm("%s\n%s <white>disbanded the party.\n%s", LINE, Players.trueMiniName(playerId), LINE)));
         }
     }
 
@@ -495,7 +496,7 @@ public class PartyManager implements Bootstrappable {
                 %s
                 %s<white> invited you to join their party. You have 60 seconds to accept.\
                  <green><b><click:run_command:/party accept %s>[ACCEPT]</b>\s
-                %s""", LINE, Players.miniName(invite.sender()), invite.sender().toString(), LINE)
+                %s""", LINE, Players.trueMiniName(invite.sender()), invite.sender().toString(), LINE)
             )
         );
 
@@ -503,14 +504,14 @@ public class PartyManager implements Bootstrappable {
             if (uuid.equals(invite.sender())) {
                 Cytosis.getPlayer(uuid).ifPresent(p -> p.sendMessage(
                     Msg.mm("%s\n<white>You invited %s <white>to %s<white> party. They have 60 seconds to accept.\n%s",
-                        LINE, Players.miniName(invite.recipient()), skipTrack ? "a" : "the", LINE)));
+                        LINE, Players.trueMiniName(invite.recipient()), skipTrack ? "a" : "the", LINE)));
                 continue;
             }
 
             Cytosis.getPlayer(uuid).ifPresent(p -> p.sendMessage(Msg.mm("""
                     %s
                     %s<white> invited %s<white> to the party. They have 60 seconds to accept.
-                    %s""", LINE, Players.miniName(invite.sender()), Players.miniName(invite.recipient()), LINE)
+                    %s""", LINE, Players.trueMiniName(invite.sender()), Players.trueMiniName(invite.recipient()), LINE)
                 )
             );
         }
@@ -529,7 +530,7 @@ public class PartyManager implements Bootstrappable {
         Cytosis.getPlayer(recipient).ifPresent(p -> p.sendMessage(Msg.mm("""
                 %s
                 %s<white>'s invitation to join their party has expired.
-                %s""", LINE, Players.miniName(sender), LINE)
+                %s""", LINE, Players.trueMiniName(sender), LINE)
             )
         );
 
@@ -537,14 +538,14 @@ public class PartyManager implements Bootstrappable {
             if (uuid.equals(sender)) {
                 Cytosis.getPlayer(uuid).ifPresent(p -> p.sendMessage(
                     Msg.mm("%s\n<white>Your party invitation to %s<white> has expired.\n%s",
-                        LINE, Players.miniName(recipient), LINE)));
+                        LINE, Players.trueMiniName(recipient), LINE)));
                 continue;
             }
 
             Cytosis.getPlayer(uuid).ifPresent(p -> p.sendMessage(Msg.mm("""
                     %s
                     %s<white>'s invitation for %s<white> to join the party has expired.
-                    %s""", LINE, Players.miniName(sender), Players.miniName(recipient), LINE)
+                    %s""", LINE, Players.trueMiniName(sender), Players.trueMiniName(recipient), LINE)
                 )
             );
         }
