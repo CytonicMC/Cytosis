@@ -13,8 +13,8 @@ plugins {
     id("com.gradleup.shadow") version "9.4.3"
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.5.0"
-    id("net.kyori.blossom") version "2.2.0"
-    id("net.kyori.indra.git") version "4.0.0"
+    alias(libs.plugins.blossom)
+    alias(libs.plugins.indragit)
     id("checkstyle")
     id("io.ebean") version "19.2.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
@@ -35,12 +35,12 @@ repositories {
     }
 }
 
-val alwaysShadow: Configuration by configurations.creating {
+val alwaysShadow: Configuration = configurations.create("alwaysShadow") {
     isCanBeResolved = true
     isCanBeConsumed = false
 }
 
-val downloadOrShadow: Configuration by configurations.creating {
+val downloadOrShadow: Configuration = configurations.create("downloadOrShadow") {
     isCanBeResolved = true
     isCanBeConsumed = false
 }

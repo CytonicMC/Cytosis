@@ -29,6 +29,8 @@ codecutils = "0.0.2"
 mongo = "5.8.0"
 minestomevents = "0.0.2"
 codec = "0.0.2"
+blossom = "2.2.0"
+indragit = "4.0.0"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -69,3 +71,7 @@ codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]
 otel = ["opentelemetry-api", "opentelemetry-sdk", "opentelemetry-exporter-otlp"]
+
+[plugins]
+blossom = { id = "net.kyori.blossom", version.ref = "blossom" }
+indragit = { id = "net.kyori.indra.git", version.ref = "indragit" }

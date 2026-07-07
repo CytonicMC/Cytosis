@@ -4,6 +4,8 @@ plugins {
     id("com.gradleup.shadow") version "9.4.3"
     id("io.freefair.lombok") version "9.5.0"
     id("dev.minestom-united.minestom-events") version "0.0.2"
+    alias(libs.plugins.blossom)
+    alias(libs.plugins.indragit)
 }
 
 group = "net.cytonic"
@@ -19,7 +21,7 @@ dependencies {
 }
 
 minestomEvents {
-    outputPackage = "net.cytonic.cytosis.utils"
+    outputPackage = "net.cytonic.cytosis.launcher.utils"
 }
 
 java {
@@ -30,9 +32,21 @@ tasks.named<JavaExec>("run") {
     workingDir = file("run")
 }
 
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("buildVersion", project.version.toString())
+                property("gitCommit", indraGit.commit().get().name())
+                properties.put("builtAt", System.currentTimeMillis())
+            }
+        }
+    }
+}
+
 tasks {
     application {
-        mainClass.set("net.cytonic.cytosis.CytosisMain")
+        mainClass.set("net.cytonic.cytosis.launcher.CytosisMain")
     }
     shadowJar {
         archiveFileName.set("cytosis.jar")
