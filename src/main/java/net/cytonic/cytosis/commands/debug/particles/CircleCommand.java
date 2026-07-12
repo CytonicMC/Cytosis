@@ -2,7 +2,6 @@ package net.cytonic.cytosis.commands.debug.particles;
 
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.timer.TaskSchedule;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.particles.ParticleEngine;
@@ -20,21 +19,21 @@ public class CircleCommand extends CytosisCommand {
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer p)) return;
             CircularLoopingEffect c1 = new CircularLoopingEffect(p::getPosition, 16, Phase.TWO,
-                angle -> new Vec(0, 2.5, 0), rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
+                _ -> new Vec(0, 2.5, 0), _ -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
                 BridgingStrategy.midpoint(), 0);
             CircularLoopingEffect c2 = new CircularLoopingEffect(p::getPosition, 16, Phase.FOUR,
-                angle -> new Vec(0, 2.5, 0), rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
+                _ -> new Vec(0, 2.5, 0), _ -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
                 BridgingStrategy.midpoint(), Angles.NINETY);
             CircularLoopingEffect c3 = new CircularLoopingEffect(p::getPosition, 16, Phase.TWO,
-                angle -> new Vec(0, 2.5, 0), rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
+                _ -> new Vec(0, 2.5, 0), _ -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
                 BridgingStrategy.midpoint(), Angles.NINETY);
             CircularLoopingEffect c4 = new CircularLoopingEffect(p::getPosition, 16, Phase.FOUR,
-                angle -> new Vec(0, 2.5, 0), rot -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
+                _ -> new Vec(0, 2.5, 0), _ -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
                 BridgingStrategy.midpoint(), 0);
-            ParticleEngine.playLooping(c1, TaskSchedule.tick(3));
-            ParticleEngine.playLooping(c2, TaskSchedule.tick(3));
-            ParticleEngine.playLooping(c3, TaskSchedule.tick(3));
-            ParticleEngine.playLooping(c4, TaskSchedule.tick(3));
+            ParticleEngine.playLooping(c1, 100);
+            ParticleEngine.playLooping(c2, 100);
+            ParticleEngine.playLooping(c3, 100);
+            ParticleEngine.playLooping(c4, 100);
         });
     }
 }
