@@ -18,6 +18,11 @@ public class CircleCommand extends CytosisCommand {
         super("circle");
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer p)) return;
+            ParticleEngine engine = p.getInstance().getTag(ParticleEngine.TAG);
+            if (engine == null) {
+                p.whoops("Your instance does not have a particle engine!");
+                return;
+            }
             CircularLoopingEffect c1 = new CircularLoopingEffect(p::getPosition, 16, Phase.TWO,
                 _ -> new Vec(0, 2.5, 0), _ -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
                 BridgingStrategy.midpoint(), 0);
@@ -30,10 +35,10 @@ public class CircleCommand extends CytosisCommand {
             CircularLoopingEffect c4 = new CircularLoopingEffect(p::getPosition, 16, Phase.FOUR,
                 _ -> new Vec(0, 2.5, 0), _ -> .7, () -> ParticleData.simple(Particle.TOTEM_OF_UNDYING),
                 BridgingStrategy.midpoint(), 0);
-            ParticleEngine.playLooping(c1, 100);
-            ParticleEngine.playLooping(c2, 100);
-            ParticleEngine.playLooping(c3, 100);
-            ParticleEngine.playLooping(c4, 100);
+            engine.playLooping(c1, 100);
+            engine.playLooping(c2, 100);
+            engine.playLooping(c3, 100);
+            engine.playLooping(c4, 100);
         });
     }
 }
