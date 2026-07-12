@@ -58,7 +58,7 @@ public class ParticleAudience implements PacketGroupingAudience {
     public void sendGroupedPacket(@NonNull ServerPacket packet) {
         if (!(packet instanceof ParticlePacket p))
             throw new IllegalArgumentException("Particle audiences should only be used for Particle Packets.");
-        ParticleSendEvent e = new ParticleSendEvent(p, players);
+        ParticleSendEvent e = new ParticleSendEvent(p, instance, players);
         EventDispatcher.callCancellable(e, () -> PacketGroupingAudience.super.sendGroupedPacket(packet));
     }
 }
