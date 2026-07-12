@@ -1,12 +1,13 @@
 package net.cytonic.cytosis.particles;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
-import net.minestom.server.timer.SchedulerManager;
-import net.minestom.server.timer.Task;
-import net.minestom.server.timer.TaskSchedule;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
@@ -18,7 +19,8 @@ import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
  */
 public class ParticleEngine {
 
-    private static final SchedulerManager SCHEDULER = MinecraftServer.getSchedulerManager();
+    public static final int THREAD_POOL_SIZE = 1;
+    private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
     /**
      * Plays this keyframed effect for every Cytosis player. For more fined grained control over who the effect is
@@ -46,42 +48,38 @@ public class ParticleEngine {
      * {@link #playKeyframed(KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
-     * @param delay  the delay in ticks before the effect starts playing
+     * @param delay  the delay in milliseconds before the effect starts playing
      */
     public static void playKeyframed(PacketGroupingAudience audience, KeyframedEffect effect, int delay) {
         if (delay == 0) {
-            playKeyFramedInteral(audience, effect);
+            playKeyFramedInternal(audience, effect);
             return;
         }
-        SCHEDULER.buildTask(() -> playKeyFramedInteral(audience, effect)).delay(TaskSchedule.tick(delay)).schedule();
+        SCHEDULER.schedule(() -> playKeyFramedInternal(audience, effect), delay, TimeUnit.MILLISECONDS);
     }
 
-    private static void playKeyFramedInteral(PacketGroupingAudience audience, KeyframedEffect effect) {
+    @Internal
+    private static void playKeyFramedInternal(PacketGroupingAudience audience, KeyframedEffect effect) {
         effect.getKeyframeEffects().forEach((time, effectsToPlay) -> {
             if (time <= 0) {
                 effectsToPlay.forEach(eff -> eff.play(audience));
                 return;
             }
-            SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience)))
-                .delay(TaskSchedule.tick(time)).schedule();
+            SCHEDULER.schedule(() -> effectsToPlay.forEach(eff -> eff.play(audience)), time, TimeUnit.MILLISECONDS);
         });
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period) {
+    public static ScheduledFuture<?> playLooping(LoopingEffect effect, int period) {
         return playLooping(effect, period, PacketGroupingAudience.of(new ArrayList<>(Cytosis.getOnlinePlayers())));
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience) {
+    public static ScheduledFuture<?> playLooping(LoopingEffect effect, int period, PacketGroupingAudience audience) {
         return playLooping(effect, period, audience, 0);
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience,
+    public static ScheduledFuture<?> playLooping(LoopingEffect effect, int period, PacketGroupingAudience audience,
         int delay) {
-        if (delay == 0) {
-            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).schedule();
-        }
-        return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay))
-            .schedule();
+        return SCHEDULER.scheduleAtFixedRate(() -> effect.playNextTick(audience), delay, period, TimeUnit.MILLISECONDS);
     }
 
     public static void playStatic(StaticEffect effect) {
@@ -97,6 +95,6 @@ public class ParticleEngine {
             effect.play(audience);
             return;
         }
-        SCHEDULER.buildTask(() -> effect.play(audience)).delay(TaskSchedule.tick(delay)).schedule();
+        SCHEDULER.schedule(() -> effect.play(audience), delay, TimeUnit.MILLISECONDS);
     }
 }
