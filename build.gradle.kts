@@ -10,7 +10,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.gradleup.shadow") version "9.4.3"
+    id("com.gradleup.shadow") version "9.5.1"
     id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.5.0"
     alias(libs.plugins.blossom)
@@ -426,7 +426,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "13.7.0"
+    toolVersion = "13.8.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
