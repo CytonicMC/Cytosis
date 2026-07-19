@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 
+import net.cytonic.cytosis.particles.ParticleAudience;
 import net.cytonic.cytosis.particles.util.ParticleSupplier;
 
 @AllArgsConstructor
@@ -21,7 +21,7 @@ public class PatternedEffect extends StaticEffect {
     private Pos pos;
 
     @Override
-    public void play(PacketGroupingAudience audience) {
+    public void play(ParticleAudience audience) {
         if (pattern.length == 0 || pattern[0].length == 0) {
             throw new IllegalArgumentException("Pattern must be at least 1x1");
         }

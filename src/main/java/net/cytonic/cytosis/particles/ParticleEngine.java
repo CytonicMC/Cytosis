@@ -1,14 +1,15 @@
 package net.cytonic.cytosis.particles;
 
-import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
-import net.minestom.server.timer.SchedulerManager;
-import net.minestom.server.timer.Task;
-import net.minestom.server.timer.TaskSchedule;
+import lombok.AllArgsConstructor;
+import net.minestom.server.instance.Instance;
+import net.minestom.server.tag.Tag;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
 import net.cytonic.cytosis.particles.effects.keyframed.KeyframedEffect;
 import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
@@ -16,87 +17,91 @@ import net.cytonic.cytosis.particles.effects.looping.LoopingEffect;
 /**
  * The class that handles all the interactions with the particle api. It's the primary entrypoint.
  */
+@AllArgsConstructor
 public class ParticleEngine {
 
-    private static final SchedulerManager SCHEDULER = MinecraftServer.getSchedulerManager();
+    public static final Tag<ParticleEngine> TAG = Tag.Transient("cytosis:particle-engine");
+    public static final int THREAD_POOL_SIZE = 1;
+    private final Instance instance;
+    private final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
-    /**
-     * Plays this keyframed effect for every Cytosis player. For more fined grained control over who the effect is
-     * played for, use {@link #playKeyframed(PacketGroupingAudience, KeyframedEffect)}
-     *
-     * @param effect the keyframed effect to play
-     */
-    public static void playKeyframed(KeyframedEffect effect) {
-        PacketGroupingAudience audience = PacketGroupingAudience.of(new ArrayList<>(Cytosis.getOnlinePlayers()));
-        playKeyframed(audience, effect);
+    private ParticleAudience getAudience() {
+        return ParticleAudience.of(instance);
     }
 
     /**
-     * Plays this keyframed effect for every player in the audience. To play this for everyone, use
+     * Plays this keyframed effect for every Cytosis player on this instance. For more fined grained control over whom
+     * the effect is played for, use {@link #playKeyframed(ParticleAudience, KeyframedEffect)}
+     *
+     * @param effect the keyframed effect to play
+     */
+    public void playKeyframed(KeyframedEffect effect) {
+        playKeyframed(getAudience(), effect);
+    }
+
+    /**
+     * Plays this keyframed effect for every player in the instance. To play this for everyone, use
      * {@link #playKeyframed(KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
      */
-    public static void playKeyframed(PacketGroupingAudience audience, KeyframedEffect effect) {
+    public void playKeyframed(ParticleAudience audience, KeyframedEffect effect) {
         playKeyframed(audience, effect, 0);
     }
 
     /**
-     * Plays this keyframed effect for every player in the audience. To play this for everyone, use
+     * Plays this keyframed effect for every player in the instance. To play this for everyone, use
      * {@link #playKeyframed(KeyframedEffect)}
      *
      * @param effect the keyframed effect to play
-     * @param delay  the delay in ticks before the effect starts playing
+     * @param delay  the delay in milliseconds before the effect starts playing
      */
-    public static void playKeyframed(PacketGroupingAudience audience, KeyframedEffect effect, int delay) {
+    public void playKeyframed(ParticleAudience audience, KeyframedEffect effect, int delay) {
         if (delay == 0) {
-            playKeyFramedInteral(audience, effect);
+            playKeyFramedInternal(audience, effect);
             return;
         }
-        SCHEDULER.buildTask(() -> playKeyFramedInteral(audience, effect)).delay(TaskSchedule.tick(delay)).schedule();
+        SCHEDULER.schedule(() -> playKeyFramedInternal(audience, effect), delay, TimeUnit.MILLISECONDS);
     }
 
-    private static void playKeyFramedInteral(PacketGroupingAudience audience, KeyframedEffect effect) {
+    @Internal
+    private void playKeyFramedInternal(ParticleAudience audience, KeyframedEffect effect) {
         effect.getKeyframeEffects().forEach((time, effectsToPlay) -> {
             if (time <= 0) {
                 effectsToPlay.forEach(eff -> eff.play(audience));
                 return;
             }
-            SCHEDULER.buildTask(() -> effectsToPlay.forEach(eff -> eff.play(audience)))
-                .delay(TaskSchedule.tick(time)).schedule();
+            SCHEDULER.schedule(() -> effectsToPlay.forEach(eff -> eff.play(audience)), time, TimeUnit.MILLISECONDS);
         });
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period) {
-        return playLooping(effect, period, PacketGroupingAudience.of(new ArrayList<>(Cytosis.getOnlinePlayers())));
+    public ScheduledFuture<?> playLooping(LoopingEffect effect, int period) {
+        return playLooping(effect, period, getAudience());
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience) {
+    public ScheduledFuture<?> playLooping(LoopingEffect effect, int period, ParticleAudience audience) {
         return playLooping(effect, period, audience, 0);
     }
 
-    public static Task playLooping(LoopingEffect effect, TaskSchedule period, PacketGroupingAudience audience,
+    public ScheduledFuture<?> playLooping(LoopingEffect effect, int period, ParticleAudience audience,
         int delay) {
-        if (delay == 0) {
-            return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).schedule();
-        }
-        return SCHEDULER.buildTask(() -> effect.playNextTick(audience)).repeat(period).delay(TaskSchedule.tick(delay))
-            .schedule();
+        return SCHEDULER.scheduleAtFixedRate(() -> effect.playNextTick(audience, this), delay, period,
+            TimeUnit.MILLISECONDS);
     }
 
-    public static void playStatic(StaticEffect effect) {
-        playStatic(effect, PacketGroupingAudience.of(new ArrayList<>(Cytosis.getOnlinePlayers())));
+    public void playStatic(StaticEffect effect) {
+        playStatic(effect, getAudience());
     }
 
-    public static void playStatic(StaticEffect effect, PacketGroupingAudience audience) {
+    public void playStatic(StaticEffect effect, ParticleAudience audience) {
         playStatic(effect, audience, 0);
     }
 
-    public static void playStatic(StaticEffect effect, PacketGroupingAudience audience, int delay) {
+    public void playStatic(StaticEffect effect, ParticleAudience audience, int delay) {
         if (delay == 0) {
             effect.play(audience);
             return;
         }
-        SCHEDULER.buildTask(() -> effect.play(audience)).delay(TaskSchedule.tick(delay)).schedule();
+        SCHEDULER.schedule(() -> effect.play(audience), delay, TimeUnit.MILLISECONDS);
     }
 }

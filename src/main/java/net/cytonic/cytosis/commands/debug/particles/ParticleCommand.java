@@ -13,5 +13,6 @@ public class ParticleCommand extends CytosisCommand {
         addSubcommand(new BezierCommand());
         addSubcommand(new PatternedCommand());
         addSubcommand(new CircleCommand());
+        addSubcommand(new CreateEngineCommand());
     }
 }
