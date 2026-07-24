@@ -93,6 +93,21 @@ public interface Logger {
         }
     }
 
+    static void warn(String message, Throwable ex) {
+        LOGGER.warn(message, ex);
+        if (Cytosis.CONTEXT.isMetricsEnabled()) {
+            Span span = Span.current();
+            OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.WARN).setBody(message)
+                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
+                .setAttribute(AttributeKey.stringKey("throwable_message"), ex.getMessage())
+                .setAttribute(AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName())
+                .setAttribute(AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))
+                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
+                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
+                .emit();
+        }
+    }
+
     /**
      * Logs an error message in the ERROR level
      *
