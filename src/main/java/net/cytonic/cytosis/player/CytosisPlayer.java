@@ -72,17 +72,16 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
-        rank = Cytosis.get(RankManager.class).getPlayerRank(uuid).orElseGet(() -> {
-            Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
-            return PlayerRank.DEFAULT;
-        });
     }
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
-        rank = Cytosis.get(RankManager.class).getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
-            Logger.warn(
-                "The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
+        RankManager rm = Cytosis.get(RankManager.class);
+        UUID uuid = gameProfile.uuid();
+        rm.loadPlayerNow(uuid);
+
+        rank = rm.getPlayerRank(uuid).orElseGet(() -> {
+            Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
     }
