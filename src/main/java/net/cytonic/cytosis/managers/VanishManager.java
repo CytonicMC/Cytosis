@@ -6,10 +6,14 @@ import java.util.UUID;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.Component;
+import net.minestom.server.color.TeamColor;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
+import net.minestom.server.network.packet.server.play.TeamsPacket.CollisionRule;
+import net.minestom.server.network.packet.server.play.TeamsPacket.NameTagVisibility;
+import net.minestom.server.network.packet.server.play.TeamsPacket.Settings;
 import net.minestom.server.utils.PacketSendingUtils;
 
 import net.cytonic.cytosis.Cytosis;
@@ -40,17 +44,33 @@ public class VanishManager {
         vanished.put(player.getUuid(), player.getEntityId());
         EntityMetaDataPacket metaPacket = MetadataPacketBuilder.builder(player.getMetadataPacket()).setGlowing(true)
             .setInvisible(true).build();
-        TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(Msg.mm(""), (byte) 0x02,
-            TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER, NamedTextColor.GRAY,
-            Msg.coloredBadge("VANISHED! ", "gray"), Msg.mm(""), List.of(player.getUsername())));
+        TeamsPacket selfTeam = new TeamsPacket("vanished", new TeamsPacket.CreateTeamAction(
+            new Settings(
+                Component.empty(),
+                Msg.coloredBadge("VANISHED! ", "gray"),
+                Component.empty(),
+                NameTagVisibility.HIDE_FOR_OTHER_TEAMS,
+                CollisionRule.NEVER,
+                TeamColor.GRAY,
+                (byte) 2
+            ),
+            List.of(player.getUsername())
+        ));
         player.sendPackets(metaPacket, selfTeam);
         player.updateViewableRule(p -> {
             CytosisPlayer cp = (CytosisPlayer) p;
             if (cp.isStaff()) {
                 TeamsPacket packet = new TeamsPacket("vanished",
-                    new TeamsPacket.CreateTeamAction(Msg.mm(""), (byte) 0x02,
-                        TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS, TeamsPacket.CollisionRule.NEVER,
-                        NamedTextColor.GRAY, Msg.coloredBadge("VANISHED! ", "gray"), Msg.mm(""),
+                    new TeamsPacket.CreateTeamAction(
+                        new Settings(
+                            Component.empty(),
+                            Msg.coloredBadge("VANISHED! ", "gray"),
+                            Component.empty(),
+                            NameTagVisibility.HIDE_FOR_OTHER_TEAMS,
+                            CollisionRule.NEVER,
+                            TeamColor.GRAY,
+                            (byte) 2
+                        ),
                         List.of(p.getUsername(), player.getUsername())));
                 p.sendPackets(packet, metaPacket);
                 return true;

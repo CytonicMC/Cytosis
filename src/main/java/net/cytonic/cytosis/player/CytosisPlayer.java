@@ -209,7 +209,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      * @return The formatted name, including their rank prefix
      */
     public Component formattedName() {
-        return getRank().getPrefix().append(Component.text(getUsername(), getRank().getTeamColor()));
+        return getRank().getPrefix().append(Component.text(getUsername(), getRank().getTeamColor().textColor()));
     }
 
     /**
@@ -220,7 +220,8 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      * @return The formatted name, including their rank prefix
      */
     public Component trueFormattedName() {
-        return getTrueRank().getPrefix().append(Component.text(getTrueUsername(), getTrueRank().getTeamColor()));
+        return getTrueRank().getPrefix()
+            .append(Component.text(getTrueUsername(), getTrueRank().getTeamColor().textColor()));
     }
 
     public boolean canSendToChannel(ChatChannel channel) {

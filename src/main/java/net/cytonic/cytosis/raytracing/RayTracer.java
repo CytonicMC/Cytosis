@@ -138,7 +138,7 @@ public class RayTracer {
 
     // Helper methods
     private static boolean shouldCheckBlock(Block block, boolean ignoreFluids) {
-        return !block.isAir() && (!ignoreFluids || !isFluid(block));
+        return !block.air() && (!ignoreFluids || !isFluid(block));
     }
 
     /**
@@ -146,7 +146,7 @@ public class RayTracer {
      */
     private static RayTraceResult checkBlockCollision(Point origin, Vec direction, DdaRayTracer.VoxelPosition voxel,
         Block block, double maxRange) {
-        Shape collisionShape = block.registry().collisionShape();
+        Shape collisionShape = block.collisionShape();
 
         BoundingBox rayBox = new BoundingBox(RAY_BOX_SIZE, RAY_BOX_SIZE, RAY_BOX_SIZE);
         Point blockWorldPos = new Pos(voxel.x, voxel.y, voxel.z);
