@@ -25,7 +25,7 @@ ebean-migrations = "14.3.0"
 jandex = "3.6.0"
 minio = "9.0.3"
 entrypoint = "0.0.3"
-codecutils = "0.0.3"
+codecutils = "0.0.4"
 mongo = "5.9.0"
 minestomevents = "0.0.2"
 codec = "0.0.3"
@@ -62,7 +62,7 @@ ebean-query = { module = "io.ebean:querybean-generator", version.ref = "ebean" }
 ebean-migrations = { module = "io.ebean:ebean-migration", version.ref = "ebean-migrations" }
 jandex = { module = "io.smallrye:jandex", version.ref = "jandex" }
 minio = { module = "io.minio:minio", version.ref = "minio" }
-entrypoint = { module = "dev.minestom-united:entrypoint", version.ref = "entrypoint" }
+entrypoint = { module = "dev.minestom-united.entrypoint:entrypoint", version.ref = "entrypoint" }
 codecutils = { module = "dev.minestom-united.common:codec-utils", version.ref = "codecutils" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }

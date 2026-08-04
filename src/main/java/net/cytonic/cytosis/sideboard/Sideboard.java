@@ -35,13 +35,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.minestom.server.color.TeamColor;
 import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.ServerPacket;
 import net.minestom.server.network.packet.server.play.DisplayScoreboardPacket;
 import net.minestom.server.network.packet.server.play.ResetScorePacket;
 import net.minestom.server.network.packet.server.play.ScoreboardObjectivePacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
+import net.minestom.server.network.packet.server.play.TeamsPacket.CollisionRule;
+import net.minestom.server.network.packet.server.play.TeamsPacket.NameTagVisibility;
+import net.minestom.server.network.packet.server.play.TeamsPacket.Settings;
 import net.minestom.server.network.packet.server.play.UpdateScorePacket;
 import net.minestom.server.scoreboard.Sidebar;
 import org.jetbrains.annotations.NotNull;
@@ -464,13 +467,16 @@ public class Sideboard {
         }
         TeamsPacket.Action action;
 
+        Settings settings = new Settings(
+            Component.empty(), prefix, suffix,
+            NameTagVisibility.ALWAYS,
+            CollisionRule.ALWAYS,
+            TeamColor.WHITE,
+            (byte) 2
+        );
         switch (mode) {
-            case CREATE -> action = new TeamsPacket.CreateTeamAction(Component.empty(), (byte) 2,
-                TeamsPacket.NameTagVisibility.ALWAYS, TeamsPacket.CollisionRule.ALWAYS, NamedTextColor.WHITE, prefix,
-                suffix, List.of(objective[score]));
-            case UPDATE -> action = new TeamsPacket.UpdateTeamAction(Component.empty(), (byte) 2,
-                TeamsPacket.NameTagVisibility.ALWAYS, TeamsPacket.CollisionRule.ALWAYS, NamedTextColor.WHITE, prefix,
-                suffix);
+            case CREATE -> action = new TeamsPacket.CreateTeamAction(settings, List.of(objective[score]));
+            case UPDATE -> action = new TeamsPacket.UpdateTeamAction(settings);
             case REMOVE -> action = new TeamsPacket.RemoveTeamAction();
             case null, default -> throw new UnsupportedOperationException();
         }

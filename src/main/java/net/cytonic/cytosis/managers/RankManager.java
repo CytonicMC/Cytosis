@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.color.TeamColor;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
@@ -46,7 +47,7 @@ public class RankManager implements Bootstrappable {
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager()).collisionRule(
                     TeamsPacket.CollisionRule.NEVER)
-                .teamColor(value.getTeamColor())
+                .teamColor(TeamColor.valueOf(value.getTeamColor().name()))
                 .prefix(value.getPrefix())
                 .build();
             teamMap.put(value, team);
