@@ -6,8 +6,7 @@ import java.util.Properties;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.ebean.Database;
-import io.ebean.DatabaseFactory;
-import io.ebean.config.DatabaseConfig;
+import io.ebean.DatabaseBuilder;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 
@@ -42,17 +41,16 @@ public class EbeanManager implements Bootstrappable {
         Properties props = new Properties();
         props.setProperty("ebean.migration.migrationPath", "dbmigration/cytosis/" + databaseName);
         props.setProperty("ebean.migration.run", "true");
-        DatabaseConfig databaseConfig = new DatabaseConfig();
-        databaseConfig.setDataSource(dataSource);
-        scanForEbeanClasses().forEach(databaseConfig::addClass);
-        databaseConfig.loadFromProperties(props);
-        databaseConfig.shutdownHook(false);
-        databaseConfig.runMigration(true);
-        databaseConfig.defaultDatabase("environment".equals(databaseName));
-        databaseConfig.name(databaseName);
-        databases.add(DatabaseFactory.create(databaseConfig));
-        Logger.info("Successfully connected to the Ebean " + databaseName
-            + " Database!");
+        DatabaseBuilder builder = Database.builder()
+            .dataSource(dataSource)
+            .loadFromProperties(props)
+            .shutdownHook(false)
+            .runMigration(true)
+            .defaultDatabase("environment".equals(databaseName))
+            .name(databaseName);
+        scanForEbeanClasses().forEach(builder::addClass);
+        databases.add(builder.build());
+        Logger.info("Successfully connected to the Ebean %s Database!", databaseName);
     }
 
     private List<Class<?>> scanForEbeanClasses() {
