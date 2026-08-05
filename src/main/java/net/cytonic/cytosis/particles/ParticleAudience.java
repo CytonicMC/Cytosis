@@ -1,8 +1,11 @@
 package net.cytonic.cytosis.particles;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import lombok.AllArgsConstructor;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.entity.Player;
@@ -31,12 +34,40 @@ public class ParticleAudience implements PacketGroupingAudience {
     }
 
     /**
+     * A single player audience
+     */
+    public static ParticleAudience singleton(Player player) {
+        return new ParticleAudience(Set.of((CytosisPlayer) player), player.getInstance());
+    }
+
+    /**
      * A static particle audience of the given players
      */
     public static ParticleAudience of(CytosisPlayer... players) {
         if (players.length < 1)
             throw new IllegalArgumentException("There must be at least one player in a ParticleAudience");
         return new ParticleAudience(Set.of(players), players[0].getInstance());
+    }
+
+    /**
+     * A static particle audience of the given players
+     */
+    public static ParticleAudience of(Player... players) {
+        Set<CytosisPlayer> playerSet = new HashSet<>();
+        for (Player player : players) {
+            playerSet.add((CytosisPlayer) player);
+        }
+        return of(playerSet);
+    }
+
+    public static ParticleAudience of(Collection<? extends Player> collection) {
+        Set<CytosisPlayer> players = new HashSet<>();
+        collection.forEach(player -> players.add((CytosisPlayer) player));
+        if (players.isEmpty()) {
+            throw new IllegalArgumentException("There must be at least one player in a ParticleAudience");
+        }
+        Player player = Iterables.getFirst(players, null);
+        return new ParticleAudience(players, Objects.requireNonNull(player).getInstance());
     }
 
     /**
