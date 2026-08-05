@@ -6,7 +6,6 @@ package net.cytonic.cytosis.logging;
     ** THIS FILE MAY HAVE BEEN EDITED BY THE CYTONIC DEVELOPMENT TEAM **
  */
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.logs.Severity;
 import io.opentelemetry.api.trace.Span;
@@ -17,6 +16,7 @@ import org.apache.logging.log4j.spi.ExtendedLogger;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.metrics.CytosisOpenTelemetry;
 import net.cytonic.cytosis.utils.Msg;
 
 /**
@@ -29,9 +29,6 @@ public interface Logger {
      */
     ExtendedLogger LOGGER = LogManager.getContext(false).getLogger("Cytosis");
 
-    // OpenTelemetry Logger
-    io.opentelemetry.api.logs.Logger OTEL_LOGGER = GlobalOpenTelemetry.get().getLogsBridge().get("Cytosis");
-
     /**
      * Logs a debug message
      *
@@ -43,12 +40,12 @@ public interface Logger {
         LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log("\u001B[0;95m" + message.formatted(args));
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
-            OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.DEBUG).setBody(message)
+            Cytosis.get(CytosisOpenTelemetry.class)
+                .getLogger().get("DefaultLogger").logRecordBuilder()
+                .setSeverity(Severity.DEBUG).setBody(message.formatted(args))
                 .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext()
-                    .getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext()
-                    .getSpanId())   // Add span ID
+                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
+                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
                 .emit();
         }
     }
@@ -63,9 +60,10 @@ public interface Logger {
         LOGGER.info(message.formatted(args));
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
-            OTEL_LOGGER.logRecordBuilder()
+            Cytosis.get(CytosisOpenTelemetry.class)
+                .getLogger().get("DefaultLogger").logRecordBuilder()
                 .setSeverity(Severity.INFO)
-                .setBody(message)
+                .setBody(message.formatted(args))
                 .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
                 .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
@@ -83,9 +81,10 @@ public interface Logger {
         LOGGER.warn(message.formatted(args));
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
-            OTEL_LOGGER.logRecordBuilder()
+            Cytosis.get(CytosisOpenTelemetry.class)
+                .getLogger().get("DefaultLogger").logRecordBuilder()
                 .setSeverity(Severity.WARN)
-                .setBody(message)
+                .setBody(message.formatted(args))
                 .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
                 .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
@@ -104,7 +103,7 @@ public interface Logger {
         LOGGER.error(message.formatted(args));
         Component component = Msg.red("""
                 <b>Error Logged on server '" + Cytosis.CONTEXT.SERVER_ID + "'</b></red><newline><gray> Message: %s""",
-            message);
+            message.formatted(args));
         if (Cytosis.CONTEXT.isSendErrorsThroughSnooper()) {
             try {
                 Cytosis.get(SnooperManager.class).sendSnoop(Snoops.SERVER_ERROR, Msg.snoop(component));
@@ -114,7 +113,9 @@ public interface Logger {
         }
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
-            OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.ERROR).setBody(message)
+            Cytosis.get(CytosisOpenTelemetry.class)
+                .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(Severity.ERROR)
+                .setBody(message.formatted(args))
                 .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext()
                     .getTraceId()) // Add trace ID
@@ -144,7 +145,9 @@ public interface Logger {
         LOGGER.error(message, ex);
         if (Cytosis.CONTEXT.isMetricsEnabled()) {
             Span span = Span.current();
-            OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.ERROR).setBody(message)
+            Cytosis.get(CytosisOpenTelemetry.class)
+                .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(Severity.ERROR)
+                .setBody(message)
                 .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
                 .setAttribute(AttributeKey.stringKey("throwable_message"), ex.getMessage())
                 .setAttribute(AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName())
