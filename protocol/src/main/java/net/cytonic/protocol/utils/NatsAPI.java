@@ -1,5 +1,6 @@
 package net.cytonic.protocol.utils;
 
+import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -8,7 +9,10 @@ import net.kyori.adventure.util.Services;
 
 public interface NatsAPI {
 
-    NatsAPI INSTANCE = Services.service(NatsAPI.class).orElseThrow();
+    NatsAPI INSTANCE = Services.service(
+        ServiceLoader.load(NatsAPI.class, NatsAPI.class.getClassLoader()),
+        NatsAPI.class
+    ).orElseThrow();
 
     void subscribe(String channel, Consumer<Message> consumer);
 

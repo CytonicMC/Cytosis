@@ -2,14 +2,29 @@ package net.cytonic.cytosis.particles.util;
 
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.network.NetworkBuffer;
+import net.minestom.server.network.NetworkBufferTemplate;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import org.jetbrains.annotations.NotNull;
 
+@Getter(AccessLevel.PRIVATE)
 public class ParticleData {
+
+    public static final NetworkBuffer.Type<ParticleData> NETWORK_TYPE = NetworkBufferTemplate.template(
+        Particle.NETWORK_TYPE, ParticleData::getParticle,
+        NetworkBuffer.BOOLEAN, ParticleData::isOverrideLimiter,
+        NetworkBuffer.BOOLEAN, ParticleData::isLongDistance,
+        NetworkBuffer.POS.transform(pos -> pos, Point::asPos), ParticleData::getOffset,
+        NetworkBuffer.FLOAT, ParticleData::getMaxSpeed,
+        NetworkBuffer.VAR_INT, ParticleData::getParticleCount,
+        ParticleData::new
+    );
 
     Particle particle;
     boolean overrideLimiter;
@@ -26,6 +41,11 @@ public class ParticleData {
         this.offset = offset;
         this.maxSpeed = maxSpeed;
         this.particleCount = particleCount;
+    }
+
+    public static ParticleData fromPacket(ParticlePacket p) {
+        return new ParticleData(p.particle(), p.overrideLimiter(), p.longDistance(),
+            new Pos(p.offsetX(), p.offsetY(), p.offsetZ()), p.maxSpeed(), p.particleCount());
     }
 
     public static ParticleData simple(Particle p) {

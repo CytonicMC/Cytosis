@@ -5,13 +5,13 @@ adventure = "5.2.0"
 dependencydownload = "2.0.0"
 gson = "2.14.0"
 guava = "33.6.0-jre"
-jedis = "7.5.2"
-jnats = "2.25.3"
-log4j = "2.26.0"
+jedis = "7.5.3"
+jnats = "2.26.0"
+log4j = "2.26.1"
 minestompvp = "2026.05.30-26.1.1"
-postgresql = "42.7.12"
+postgresql = "42.7.13"
 okhttp = "5.4.0"
-opentelemetry = "1.63.0"
+opentelemetry = "1.64.0"
 polar = "1.16.0"
 invui = "0.1.0-SNAPSHOT"
 anvilInput = "0.1.0-SNAPSHOT"
@@ -20,15 +20,17 @@ lombokwarningfix = "4.0.5"
 fastutil = "8.5.18"
 hikaricp = "7.1.0"
 joml = "1.10.9"
-ebean = "19.2.0"
+ebean = "19.3.0"
 ebean-migrations = "14.3.0"
 jandex = "3.6.0"
 minio = "9.0.3"
 entrypoint = "0.0.3"
-codecutils = "0.0.2"
-mongo = "5.8.0"
+codecutils = "0.0.4"
+mongo = "5.9.0"
 minestomevents = "0.0.2"
-codec = "0.0.2"
+codec = "0.0.3"
+blossom = "2.2.0"
+indragit = "4.0.0"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -60,7 +62,7 @@ ebean-query = { module = "io.ebean:querybean-generator", version.ref = "ebean" }
 ebean-migrations = { module = "io.ebean:ebean-migration", version.ref = "ebean-migrations" }
 jandex = { module = "io.smallrye:jandex", version.ref = "jandex" }
 minio = { module = "io.minio:minio", version.ref = "minio" }
-entrypoint = { module = "dev.minestom-united:entrypoint", version.ref = "entrypoint" }
+entrypoint = { module = "dev.minestom-united.entrypoint:entrypoint", version.ref = "entrypoint" }
 codecutils = { module = "dev.minestom-united.common:codec-utils", version.ref = "codecutils" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }
@@ -69,3 +71,7 @@ codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
 [bundles]
 log4j = ["log4j-core", "log4j-slf4j2-impl"]
 otel = ["opentelemetry-api", "opentelemetry-sdk", "opentelemetry-exporter-otlp"]
+
+[plugins]
+blossom = { id = "net.kyori.blossom", version.ref = "blossom" }
+indragit = { id = "net.kyori.indra.git", version.ref = "indragit" }

@@ -63,6 +63,8 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
 
     public abstract Key serverType();
 
+    public abstract String version();
+
     public abstract void onShutdown();
 
     @OverrideOnly

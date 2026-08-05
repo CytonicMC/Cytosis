@@ -24,7 +24,8 @@ public class PlayerRankUpdateNotifyListener implements NotifyListener<Packet> {
             // they are on this server, so we need to update their cosmetics
             rankManager.changeRank(player, rank);
             Component badge = rank.getPrefix()
-                .append(Component.text(Utils.captializeFirstLetters(rank.name().toLowerCase()), rank.getTeamColor()));
+                .append(Component.text(Utils.captializeFirstLetters(rank.name().toLowerCase()),
+                    rank.getTeamColor().textColor()));
             player.network("Your rank has been updated to %s.", Msg.toMini(badge));
         }, () -> {
             rankManager.changeRankSilently(message.player(), rank);
