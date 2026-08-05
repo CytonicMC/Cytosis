@@ -71,8 +71,12 @@ public class MetricsManager implements Bootstrappable {
 
     @Override
     public void init() {
-        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) {
+            Logger.warn("Skipping metrics initialization!");
+            return;
+        }
         this.cytosisContext = Cytosis.CONTEXT;
+        this.meter = Cytosis.get(CytosisOpenTelemetry.class).getMeter("cytosis");
     }
 
     /**

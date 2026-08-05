@@ -2,6 +2,8 @@ package net.cytonic.cytosis.metrics;
 
 import java.time.Duration;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.logs.LoggerProvider;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.trace.Tracer;
@@ -13,6 +15,7 @@ import io.opentelemetry.sdk.logs.SdkLoggerProvider;
 import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 
@@ -22,8 +25,9 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.config.CytosisConfig.MetricsConfig;
 import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.utils.BuildInfo;
 
-@CytosisComponent
+@CytosisComponent(priority = 100)
 public class CytosisOpenTelemetry implements Bootstrappable {
 
     private OpenTelemetrySdk sdk;
@@ -35,6 +39,12 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
         String url = "http://" + config.host() + ":" + config.port();
 
+        Resource resource = Resource.getDefault().merge(
+            Resource.create(Attributes.of(
+                AttributeKey.stringKey("service.name"), "cytosis$" + BuildInfo.BUILD_VERSION
+            ))
+        );
+
         // Configure Span Exporter (for traces)
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder().setEndpoint(url)  // OTLP endpoint
             .build();
@@ -42,10 +52,13 @@ public class CytosisOpenTelemetry implements Bootstrappable {
         // Configure Tracer Provider (for traces)
         SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
             .addSpanProcessor(BatchSpanProcessor.builder(spanExporter)
-                .build()).build();
+                .build())
+            .addResource(resource)
+            .build();
 
         // Configure Metric Exporter (for metrics)
-        OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder().setEndpoint(url)  // OTLP endpoint
+        OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder()
+            .setEndpoint(url)  // OTLP endpoint
             .build();
 
         // Configure Meter Provider (for metrics)
@@ -53,15 +66,19 @@ public class CytosisOpenTelemetry implements Bootstrappable {
             .builder(metricExporter)
             .setInterval(Duration.ofSeconds(5))
             .build()
-        ).build();
+        ).addResource(resource).build();
 
         // Configure Log Exporter (for logs)
-        OtlpGrpcLogRecordExporter logExporter = OtlpGrpcLogRecordExporter.builder().setEndpoint(url)  // OTLP endpoint
+        OtlpGrpcLogRecordExporter logExporter = OtlpGrpcLogRecordExporter.builder()
+            .setEndpoint(url)  // OTLP endpoint
             .build();
 
         // Configure Logger Provider (for logs)
+
         SdkLoggerProvider loggerProvider = SdkLoggerProvider.builder()
-            .addLogRecordProcessor(BatchLogRecordProcessor.builder(logExporter).build()).build();
+            .addResource(resource)
+            .addLogRecordProcessor(BatchLogRecordProcessor.builder(logExporter).build())
+            .build();
 
         // Build and register the OpenTelemetry SDK
         sdk = OpenTelemetrySdk.builder()
@@ -84,7 +101,7 @@ public class CytosisOpenTelemetry implements Bootstrappable {
         return sdk.getMeter(name);
     }
 
-    public LoggerProvider getLogger(String name) {
+    public LoggerProvider getLogger() {
         if (sdk == null) throw new IllegalStateException("OTel is not yet set up!");
         return sdk.getLogsBridge();
     }
