@@ -41,7 +41,8 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
         Resource resource = Resource.getDefault().merge(
             Resource.create(Attributes.of(
-                AttributeKey.stringKey("service.name"), "cytosis$" + BuildInfo.BUILD_VERSION
+                AttributeKey.stringKey("service.name"), "cytosis",
+                AttributeKey.stringKey("service.version"), BuildInfo.BUILD_VERSION
             ))
         );
 
