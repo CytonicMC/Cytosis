@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import lombok.AllArgsConstructor;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.entity.Player;
@@ -64,7 +65,12 @@ public class ParticleAudience implements PacketGroupingAudience {
         if (players.isEmpty()) {
             throw new IllegalArgumentException("There must be at least one player in a ParticleAudience");
         }
-        return new ParticleAudience(players, players.stream().findFirst().orElseThrow().getInstance());
+        Instance instance = null;
+        Player player = Iterables.getFirst(players, null);
+        if (player != null) {
+            instance = player.getInstance();
+        }
+        return new ParticleAudience(players, instance);
     }
 
     /**
