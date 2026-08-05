@@ -35,6 +35,8 @@ public class MetricsManager implements Bootstrappable {
     private Meter meter;
     private CytosisContext cytosisContext;
 
+    private Attributes baseAttribs;
+
     /*
      * Here are the types of things for future reference:
      * Counter: A monotonically increasing value (Can only increase). # of unique players, logins today, etc.
@@ -77,6 +79,12 @@ public class MetricsManager implements Bootstrappable {
         }
         this.cytosisContext = Cytosis.CONTEXT;
         this.meter = Cytosis.get(CytosisOpenTelemetry.class).getMeter("cytosis");
+
+        baseAttribs = Attributes.of(
+            AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID,
+            AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString(),
+            AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase()
+        );
     }
 
     /**
@@ -137,12 +145,7 @@ public class MetricsManager implements Bootstrappable {
             Logger.warn("Attempted to add a value to an unknown counter: " + counterName);
             return;
         }
-        longsCounters.get(counterName).add(value,
-            Attributes.builder().putAll(extraAttributes)
-                .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
-                .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
-                .build());
+        longsCounters.get(counterName).add(value, baseAttribs.toBuilder().putAll(extraAttributes).build());
     }
 
     /**
@@ -160,12 +163,7 @@ public class MetricsManager implements Bootstrappable {
             return; // no negative values
         }
         if (!doublesCounters.containsKey(counterName)) return;
-        doublesCounters.get(counterName).add(value,
-            Attributes.builder().putAll(extraAttributes)
-                .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
-                .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
-                .build());
+        doublesCounters.get(counterName).add(value, baseAttribs.toBuilder().putAll(extraAttributes).build());
     }
 
     // guages
@@ -187,11 +185,7 @@ public class MetricsManager implements Bootstrappable {
         validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit).buildWithCallback(
             observableDoubleMeasurement -> observableDoubleMeasurement.record(function.apply(null),
-                Attributes.builder().putAll(extraAttributes)
-                    .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                    .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
-                    .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
-                    .build()));
+                baseAttribs.toBuilder().putAll(extraAttributes).build()));
     }
 
     /**
@@ -210,12 +204,7 @@ public class MetricsManager implements Bootstrappable {
         Attributes extraAttributes) {
         validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit).ofLongs().buildWithCallback(
-            call -> call.record(function.apply(null),
-                Attributes.builder().putAll(extraAttributes)
-                    .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                    .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
-                    .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
-                    .build()));
+            call -> call.record(function.apply(null), baseAttribs.toBuilder().putAll(extraAttributes).build()));
     }
 
     // histograms
@@ -260,12 +249,7 @@ public class MetricsManager implements Bootstrappable {
         validateState(histogram);
         if (value < 0) return;
         if (!doubleHistograms.containsKey(histogram)) return;
-        doubleHistograms.get(histogram).record(value,
-            Attributes.builder().putAll(extraAttributes)
-                .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
-                .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
-                .build());
+        doubleHistograms.get(histogram).record(value, baseAttribs.toBuilder().putAll(extraAttributes).build());
     }
 
     /**
@@ -282,11 +266,6 @@ public class MetricsManager implements Bootstrappable {
         validateState(histogram);
         if (value < 0) return;
         if (!longHistograms.containsKey(histogram)) return;
-        longHistograms.get(histogram).record(value,
-            Attributes.builder().putAll(extraAttributes)
-                .put(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .put(AttributeKey.stringKey("server_type"), Cytosis.getServer().serverType().asString())
-                .put(AttributeKey.stringKey("environment"), Cytosis.get(Environment.class).name().toLowerCase())
-                .build());
+        longHistograms.get(histogram).record(value, baseAttribs.toBuilder().putAll(extraAttributes).build());
     }
 }
