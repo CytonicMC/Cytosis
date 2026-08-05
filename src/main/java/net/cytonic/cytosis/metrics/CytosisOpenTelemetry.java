@@ -92,6 +92,11 @@ public class CytosisOpenTelemetry implements Bootstrappable {
         Logger.info("Metrics collection has been enabled!");
     }
 
+    @Override
+    public void shutdown() {
+        sdk.shutdown();
+    }
+
     public Tracer getTracer(String name) {
         if (sdk == null) throw new IllegalStateException("OTel is not yet set up!");
         return sdk.getTracer(name);
