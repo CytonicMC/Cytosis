@@ -2,6 +2,7 @@ package net.cytonic.cytosis.particles;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
@@ -65,12 +66,8 @@ public class ParticleAudience implements PacketGroupingAudience {
         if (players.isEmpty()) {
             throw new IllegalArgumentException("There must be at least one player in a ParticleAudience");
         }
-        Instance instance = null;
         Player player = Iterables.getFirst(players, null);
-        if (player != null) {
-            instance = player.getInstance();
-        }
-        return new ParticleAudience(players, instance);
+        return new ParticleAudience(players, Objects.requireNonNull(player).getInstance());
     }
 
     /**
