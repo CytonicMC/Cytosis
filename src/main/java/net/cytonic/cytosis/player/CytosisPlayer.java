@@ -11,6 +11,8 @@ import java.util.UUID;
 
 import dev.minestomunited.entrypoint.minestom.player.NetworkPlayer;
 import io.github.togar2.pvp.player.CombatPlayerImpl;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -40,6 +42,8 @@ import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.trait.Cooldownable;
@@ -373,6 +377,10 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
             reason = KickReason.UNKNOWN;
         }
         new PlayerKickNotifyPacket.Packet(getUuid(), reason, message).publish();
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.PLAYER_KICKS, 1, Attributes.of(
+            AttributeKey.stringKey("reason"), reason.name().toLowerCase(),
+            AttributeKey.stringKey("uuid"), getUuid().toString()
+        ));
     }
 
     public void kickInternal(Component msg) {

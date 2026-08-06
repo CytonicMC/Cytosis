@@ -136,6 +136,7 @@ public class MetricsManager implements Bootstrappable {
      *                    id, as it is already included by default.
      */
     public void addToLongCounter(String counterName, long value, Attributes extraAttributes) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
         validateState(counterName);
         if (value <= 0) {
             Logger.warn("A negative value cannot be added to a counter. Skipping.");
@@ -148,6 +149,10 @@ public class MetricsManager implements Bootstrappable {
         longsCounters.get(counterName).add(value, baseAttribs.toBuilder().putAll(extraAttributes).build());
     }
 
+    public void addToLongCounter(String counterName, long value) {
+        addToLongCounter(counterName, value, Attributes.empty());
+    }
+
     /**
      * Add some value to a double/floating point number counter
      *
@@ -158,6 +163,7 @@ public class MetricsManager implements Bootstrappable {
      *                        by default.
      */
     public void addToDoubleCounter(String counterName, double value, Attributes extraAttributes) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
         validateState(counterName);
         if (value <= 0) {
             return; // no negative values
@@ -182,6 +188,7 @@ public class MetricsManager implements Bootstrappable {
      */
     public void createDoubleGauge(String gaugeName, String description, String unit, Function<Void, Double> function,
         Attributes extraAttributes) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
         validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit).buildWithCallback(
             observableDoubleMeasurement -> observableDoubleMeasurement.record(function.apply(null),
@@ -202,6 +209,7 @@ public class MetricsManager implements Bootstrappable {
      */
     public void createLongGauge(String gaugeName, String description, String unit, Function<Void, Long> function,
         Attributes extraAttributes) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
         validateState(gaugeName);
         meter.gaugeBuilder(gaugeName).setDescription(description).setUnit(unit).ofLongs().buildWithCallback(
             call -> call.record(function.apply(null), baseAttribs.toBuilder().putAll(extraAttributes).build()));
@@ -217,6 +225,8 @@ public class MetricsManager implements Bootstrappable {
      * @param unit          the unit this histogram collects
      */
     public void createDoubleHistogram(String histogramName, String description, String unit) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
+
         validateState(histogramName);
         doubleHistograms.put(histogramName,
             meter.histogramBuilder(histogramName).setDescription(description).setUnit(unit).build());
@@ -230,12 +240,14 @@ public class MetricsManager implements Bootstrappable {
      * @param unit          the unit this histogram collects
      */
     public void createLongHistogram(String histogramName, String description, String unit) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
+
         validateState(histogramName);
         longHistograms.put(histogramName,
             meter.histogramBuilder(histogramName).setDescription(description).setUnit(unit).ofLongs().build());
     }
 
-    /**
+    /**t
      * Records a double value in the specified histogram. This method has no effect if the histogram doesn't exist or
      * the value is negative.
      *
@@ -246,6 +258,8 @@ public class MetricsManager implements Bootstrappable {
      *                        by default.
      */
     public void recordDouble(String histogram, double value, Attributes extraAttributes) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
+
         validateState(histogram);
         if (value < 0) return;
         if (!doubleHistograms.containsKey(histogram)) return;
@@ -263,6 +277,8 @@ public class MetricsManager implements Bootstrappable {
      *                        by default.
      */
     public void recordLong(String histogram, long value, Attributes extraAttributes) {
+        if (!Cytosis.CONTEXT.isMetricsEnabled()) return;
+
         validateState(histogram);
         if (value < 0) return;
         if (!longHistograms.containsKey(histogram)) return;

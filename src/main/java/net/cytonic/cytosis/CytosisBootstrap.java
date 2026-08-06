@@ -101,7 +101,8 @@ public class CytosisBootstrap {
 
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
-        Logger.info("Server id = " + Cytosis.CONTEXT.SERVER_ID);
+        Logger.info("Server id: %s", Cytosis.CONTEXT.SERVER_ID);
+        Logger.info("Server port: %d", Cytosis.get(CytosisConfig.class).port());
     }
 
     private void initViewFrame() {

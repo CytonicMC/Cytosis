@@ -42,6 +42,11 @@ public class CytosisServer extends AbstractCytosisServer<CytosisPlayer> {
     }
 
     @Override
+    public boolean shouldKickWithoutPolicyAgreement() {
+        return false;
+    }
+
+    @Override
     public void onShutdown() {
     }
 }

@@ -5,7 +5,7 @@ import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.arguments.ArgumentWord;
+import net.minestom.server.command.builder.arguments.minecraft.ArgumentResourceLocation;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.Cytosis;
@@ -20,7 +20,7 @@ public class SetPreferenceCommand extends CytosisCommand {
     public SetPreferenceCommand() {
         super("set");
         PreferenceManager pm = Cytosis.get(PreferenceManager.class);
-        ArgumentWord nodeArg = ArgumentType.Word("node");
+        ArgumentResourceLocation nodeArg = ArgumentType.ResourceLocation("node");
         nodeArg.setSuggestionCallback((_, _, suggestion) -> {
             for (Key preference : pm.getPreferenceRegistry().keys()) {
                 suggestion.addEntry(new SuggestionEntry(preference.asString()));
@@ -36,7 +36,7 @@ public class SetPreferenceCommand extends CytosisCommand {
                 return;
             }
 
-            Key node = Key.key(context.get(nodeArg));
+            Key node = context.get(nodeArg);
             Preference<?> preference = pm.getPlayerPreferenceRaw(player.getUuid(), node);
             if (preference == null) {
                 sender.sendMessage(Msg.red("Preference node <yellow>%s</yellow> does not exist!", node.asString()));

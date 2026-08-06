@@ -79,4 +79,7 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     public abstract SideboardService<P> sideboardService();
 
     public abstract ActionBarService<P> actionBarService();
+
+    // should the server kick the player if they have not agreed to the policies?
+    public abstract boolean shouldKickWithoutPolicyAgreement();
 }
