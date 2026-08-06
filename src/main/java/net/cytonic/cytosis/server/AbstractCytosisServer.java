@@ -80,6 +80,11 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
 
     public abstract ActionBarService<P> actionBarService();
 
-    // should the server kick the player if they have not agreed to the policies?
-    public abstract boolean shouldKickWithoutPolicyAgreement();
+    /**
+     * Determines if the server should the server kick the player if they have not agreed to the policies. Defaults to
+     * {@code true}, as it should be the normal behavior.
+     */
+    public boolean shouldKickWithoutPolicyAgreement() {
+        return true;
+    }
 }
