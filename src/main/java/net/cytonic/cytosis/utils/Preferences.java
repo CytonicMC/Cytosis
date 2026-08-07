@@ -54,6 +54,8 @@ public class Preferences {
      */
     public static final ToggleablePreference REPORT_BANNED = makeToggleable("report_banned", false);
 
+    public static final Preference<Boolean> AGREED_TO_PRIVACY = make("agreed_to_privacy_policy", false);
+
     private static <T> Preference<T> make(String key, T def) {
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) def.getClass();

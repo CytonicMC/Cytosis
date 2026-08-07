@@ -7,11 +7,12 @@ package net.cytonic.cytosis.logging;
  */
 
 import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.logs.Severity;
-import io.opentelemetry.api.trace.Span;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.Snoops;
@@ -38,16 +39,7 @@ public interface Logger {
     static void debug(String message, Object... args) {
         // shut, that causes it to call a differnt method
         LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log("\u001B[0;95m" + message.formatted(args));
-        if (Cytosis.CONTEXT.isMetricsEnabled()) {
-            Span span = Span.current();
-            Cytosis.get(CytosisOpenTelemetry.class)
-                .getLogger().get("DefaultLogger").logRecordBuilder()
-                .setSeverity(Severity.DEBUG).setBody(message.formatted(args))
-                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
-                .emit();
-        }
+        emit(Severity.DEBUG, message.formatted(args), null);
     }
 
     /**
@@ -58,17 +50,7 @@ public interface Logger {
      */
     static void info(String message, Object... args) {
         LOGGER.info(message.formatted(args));
-        if (Cytosis.CONTEXT.isMetricsEnabled()) {
-            Span span = Span.current();
-            Cytosis.get(CytosisOpenTelemetry.class)
-                .getLogger().get("DefaultLogger").logRecordBuilder()
-                .setSeverity(Severity.INFO)
-                .setBody(message.formatted(args))
-                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
-                .emit();
-        }
+        emit(Severity.INFO, message.formatted(args), null);
     }
 
     /**
@@ -79,17 +61,7 @@ public interface Logger {
      */
     static void warn(String message, Object... args) {
         LOGGER.warn(message.formatted(args));
-        if (Cytosis.CONTEXT.isMetricsEnabled()) {
-            Span span = Span.current();
-            Cytosis.get(CytosisOpenTelemetry.class)
-                .getLogger().get("DefaultLogger").logRecordBuilder()
-                .setSeverity(Severity.WARN)
-                .setBody(message.formatted(args))
-                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
-                .emit();
-        }
+        emit(Severity.WARN, message.formatted(args), null);
     }
 
     /**
@@ -99,30 +71,9 @@ public interface Logger {
      * @param args    the arguments used to format the message
      */
     static void error(String message, Object... args) {
-
         LOGGER.error(message.formatted(args));
-        Component component = Msg.red("""
-                <b>Error Logged on server '" + Cytosis.CONTEXT.SERVER_ID + "'</b></red><newline><gray> Message: %s""",
-            message.formatted(args));
-        if (Cytosis.CONTEXT.isSendErrorsThroughSnooper()) {
-            try {
-                Cytosis.get(SnooperManager.class).sendSnoop(Snoops.SERVER_ERROR, Msg.snoop(component));
-            } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
-                Logger.warn("Failed to log error via snooper!");
-            }
-        }
-        if (Cytosis.CONTEXT.isMetricsEnabled()) {
-            Span span = Span.current();
-            Cytosis.get(CytosisOpenTelemetry.class)
-                .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(Severity.ERROR)
-                .setBody(message.formatted(args))
-                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext()
-                    .getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext()
-                    .getSpanId())   // Add span ID
-                .emit();
-        }
+        emitSnoop(message.formatted(args));
+        emit(Severity.ERROR, message.formatted(args), null);
     }
 
     /**
@@ -132,32 +83,33 @@ public interface Logger {
      * @param ex      the throwable to log
      */
     static void error(String message, Throwable ex) {
-        Component component = Msg.mm(
-            "<red><b>Error Logged on server '" + Cytosis.CONTEXT.SERVER_ID + "'</b></red><newline><gray> Message: "
-                + message
-                + "</gray><newline><red><b>Throwable:<b></red><gray> " + ex.getMessage());
+        LOGGER.error(message, ex);
+        emitSnoop(message + " (" + ex.getMessage() + ")");
+        emit(Severity.ERROR, message, Attributes.of(
+            AttributeKey.stringKey("throwable_message"), ex.getMessage(),
+            AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName(),
+            AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))
+        );
+    }
+
+    private static void emitSnoop(String msg) {
+        if (!Cytosis.CONTEXT.isSendErrorsThroughSnooper()) return;
+        Component component = Msg.redSplash("Error on server " + Cytosis.CONTEXT.SERVER_ID, "<newline> %s", msg);
         try {
-            Cytosis.get(SnooperManager.class)
-                .sendSnoop(Snoops.SERVER_ERROR, Msg.snoop(component));
+            Cytosis.get(SnooperManager.class).sendSnoop(Snoops.SERVER_ERROR, Msg.snoop(component));
         } catch (NullPointerException ignored) { // Snooper isn't initialized Yet
             Logger.warn("Failed to log error via snooper!");
         }
-        LOGGER.error(message, ex);
-        if (Cytosis.CONTEXT.isMetricsEnabled()) {
-            Span span = Span.current();
-            Cytosis.get(CytosisOpenTelemetry.class)
-                .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(Severity.ERROR)
-                .setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("throwable_message"), ex.getMessage())
-                .setAttribute(AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName())
-                .setAttribute(AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext()
-                    .getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext()
-                    .getSpanId())   // Add span ID
-                .emit();
-        }
+    }
+
+    private static void emit(Severity severity, String msg, @Nullable Attributes attribs) {
+        if (!(Cytosis.CONTEXT.isMetricsEnabled())) return;
+        Cytosis.get(CytosisOpenTelemetry.class)
+            .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(severity)
+            .setBody(msg)
+            .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
+            .setAllAttributes(attribs)
+            .emit();
     }
 
     private static String getStackTrace(Throwable t) {

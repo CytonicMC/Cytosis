@@ -4,7 +4,7 @@ import java.util.Set;
 
 import net.kyori.adventure.key.Key;
 import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.command.builder.arguments.ArgumentWord;
+import net.minestom.server.command.builder.arguments.minecraft.ArgumentResourceLocation;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.Cytosis;
@@ -18,7 +18,7 @@ public class GetPreferenceCommand extends CytosisCommand {
     public GetPreferenceCommand() {
         super("get");
 
-        ArgumentWord nodeArg = ArgumentType.Word("node");
+        ArgumentResourceLocation nodeArg = ArgumentType.ResourceLocation("node");
         nodeArg.setSuggestionCallback((cmds, cmdc, suggestion) -> {
             if (!(cmds instanceof CytosisPlayer player)) return;
             Set<Key> options = Cytosis.get(PreferenceManager.class).getPreferenceRegistry().keys();
@@ -31,7 +31,7 @@ public class GetPreferenceCommand extends CytosisCommand {
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
 
-            Key node = Key.key(context.get(nodeArg));
+            Key node = context.get(nodeArg);
             PreferenceManager manager = Cytosis.get(PreferenceManager.class);
             Object preference = manager.getPlayerPreference_UNSAFE(player.getUuid(), node);
             if (preference == null) {

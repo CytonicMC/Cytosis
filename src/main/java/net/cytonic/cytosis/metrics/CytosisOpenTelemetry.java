@@ -41,7 +41,8 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
         Resource resource = Resource.getDefault().merge(
             Resource.create(Attributes.of(
-                AttributeKey.stringKey("service.name"), "cytosis$" + BuildInfo.BUILD_VERSION
+                AttributeKey.stringKey("service.name"), "cytosis",
+                AttributeKey.stringKey("service.version"), BuildInfo.BUILD_VERSION
             ))
         );
 
@@ -89,6 +90,11 @@ public class CytosisOpenTelemetry implements Bootstrappable {
 
         Cytosis.CONTEXT.setMetricsEnabled(true);
         Logger.info("Metrics collection has been enabled!");
+    }
+
+    @Override
+    public void shutdown() {
+        sdk.shutdown();
     }
 
     public Tracer getTracer(String name) {

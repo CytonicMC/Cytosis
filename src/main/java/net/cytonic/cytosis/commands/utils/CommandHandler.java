@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.commands.utils;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
@@ -58,6 +60,8 @@ import net.cytonic.cytosis.commands.staff.OpMeCommand;
 import net.cytonic.cytosis.commands.staff.RankCommand;
 import net.cytonic.cytosis.commands.staff.ServerAlertsCommand;
 import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
@@ -82,6 +86,11 @@ public class CommandHandler implements Bootstrappable {
         commandManager.setUnknownCommandCallback((commandSender, s) -> {
             if (!(commandSender instanceof CytosisPlayer player)) return;
             player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.UNKNOWN_COMMANDS, 1, Attributes.of(
+                //todo: (Foxikle) This seems like it might be an invasion of privacy, and should be disclosed, or possibly even disabled.
+                AttributeKey.stringKey("uuid"), player.getUuid().toString(),
+                AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase()
+            ));
         });
 
         commandManager.register(new GamemodeCommand(), new RankCommand(), new BanCommand(), new ChatChannelCommand(),

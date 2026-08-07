@@ -3,6 +3,8 @@ package net.cytonic.cytosis.commands.moderation;
 import java.time.Instant;
 import java.util.UUID;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
@@ -19,6 +21,8 @@ import net.cytonic.cytosis.data.enums.BanReason;
 import net.cytonic.cytosis.data.objects.BanData;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
@@ -109,6 +113,11 @@ public class BanCommand extends CytosisCommand {
                 handleBanExecutionError(actor, player, throwable);
                 return;
             }
+
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.PLAYER_BANS, 1, Attributes.of(
+                AttributeKey.stringKey("uuid"), uuid.toString(),
+                AttributeKey.stringKey("actor"), actor.getUuid().toString()
+            ));
 
             handleSuccessfulBan(actor, uuid, player, reason, dur);
         });

@@ -1,19 +1,32 @@
 package net.cytonic.cytosis.events;
 
+import java.util.List;
+
 import com.google.errorprone.annotations.Keep;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.bossbar.BossBar.Color;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.minestom.server.dialog.Dialog;
+import net.minestom.server.dialog.DialogAction;
+import net.minestom.server.dialog.DialogActionButton;
+import net.minestom.server.dialog.DialogAfterAction;
+import net.minestom.server.dialog.DialogBody;
+import net.minestom.server.dialog.DialogMetadata;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
+import net.minestom.server.event.player.PlayerCommandEvent;
+import net.minestom.server.event.player.PlayerCustomClickEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
+import net.minestom.server.event.player.PlayerPacketOutEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.network.packet.client.play.ClientAttackPacket;
@@ -41,12 +54,14 @@ import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.SideboardManager;
+import net.cytonic.cytosis.metrics.Metrics;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.cytosis.utils.Utils;
+import net.cytonic.protocol.data.enums.KickReason;
 
 /**
  * A class that registers Cytosis required server events
@@ -62,6 +77,8 @@ public final class ServerEventListeners {
     @Listener
     @Priority(1)
     private void onPacketIn(PlayerPacketEvent event) {
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.NETWORK_PACKETS_IN, 1,
+            Attributes.of(AttributeKey.stringKey("packet_type"), event.getPacket().getClass().getSimpleName()));
         if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
         if (event.getPacket() instanceof ClientInteractEntityPacket p) {
             if (p.hand() == PlayerHand.OFF) return;
@@ -77,6 +94,12 @@ public final class ServerEventListeners {
             NPCInteractEvent clickEvent = new NPCInteractEvent(player, NpcInteractType.ATTACK, npc);
             EventDispatcher.callCancellable(clickEvent, () -> npc.onClick(clickEvent));
         }
+    }
+
+    @Listener
+    private void onPacketOut(PlayerPacketOutEvent event) {
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.NETWORK_PACKETS_OUT, 1,
+            Attributes.of(AttributeKey.stringKey("packet_type"), event.getPacket().getClass().getSimpleName()));
     }
 
     @Listener
@@ -108,6 +131,23 @@ public final class ServerEventListeners {
                 NamedTextColor.GOLD));
     }
 
+    @Listener
+    private void onDialogButton(PlayerCustomClickEvent e) {
+        if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
+        if (e.getKey().equals(Key.key("cytosis:decline_terms"))) {
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.POLICIES_DECLINED, 1);
+            player.kick(KickReason.COMMAND,
+                Msg.red("You declined to agree to the CytonicMC Terms. You can join again and agree at any time."));
+            return;
+        }
+        if (e.getKey().equals(Key.key("cytosis:accept_terms"))) {
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.POLICIES_ACCEPTED, 1);
+            player.updatePreference(Preferences.AGREED_TO_PRIVACY, true);
+            player.closeDialog();
+            player.success("You agreed to the terms of service and privacy policy!");
+        }
+    }
+
     @Priority(1)
     @Listener
     private void onConfig(AsyncPlayerConfigurationEvent event) {
@@ -120,6 +160,22 @@ public final class ServerEventListeners {
         // load things as easily as possible
         Cytosis.get(FriendManager.class).loadFriends(player.getUuid());
         Cytosis.get(PreferenceManager.class).loadPlayerPreferences(player.getUuid());
+
+        if (Cytosis.getServer().shouldKickWithoutPolicyAgreement()) {
+            if (!player.getPreference(Preferences.AGREED_TO_PRIVACY)) {
+                player.kickInternal(Msg.grey("You must agree to the privacy policy to access this server!"));
+            }
+        }
+    }
+
+    @Listener
+    private void onCommand(PlayerCommandEvent event) {
+        if (!(event.getPlayer() instanceof CytosisPlayer player)) return;
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.COMMANDS_EXECUTED, 1, Attributes.of(
+            AttributeKey.stringKey("uuid"), player.getUuid().toString(),
+            AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase(),
+            AttributeKey.stringKey("command"), event.getCommand().getClass().getSimpleName()
+        ));
     }
 
     @Listener
@@ -127,6 +183,50 @@ public final class ServerEventListeners {
     private void onSpawn(PlayerSpawnEvent event) {
         if (!event.isFirstSpawn()) return;
         final CytosisPlayer player = (CytosisPlayer) event.getPlayer();
+
+        if (!player.getPreference(Preferences.AGREED_TO_PRIVACY)) {
+            DialogActionButton leave = new DialogActionButton(Msg.redSplash("Decline", ""),
+                Msg.mm("<#FF7F50>Selecting this option will disconnect you from the server."), 100,
+                new DialogAction.Custom(
+                    Key.key("cytosis:decline_terms"), null));
+
+            DialogActionButton agree = new DialogActionButton(Msg.greenSplash("Agree", ""),
+                Msg.mm(
+                    "<#73BF69>Selecting this option will grant you access to the server. By selecting this you agree to the Privacy Policy and Terms of Service."),
+                100, new DialogAction.Custom(
+                Key.key("cytosis:accept_terms"), null));
+
+            Dialog dialog = new Dialog.MultiAction(
+                new DialogMetadata(Msg.aqua("<b>Review CytonicMC Terms"), null, false, false, DialogAfterAction.NONE,
+                    List.of(
+                        new DialogBody.PlainMessage(Msg.mm("""
+                            Hey there! Welcome to CytonicMC!
+                            
+                            Before you can explore the server, you have to agree to our <dark_aqua>\
+                            <click:open_url:https://cytonic.net/legal/terms>Terms of Service</click></dark_aqua> and \
+                            <dark_aqua><click:open_url:https://cytonic.net/legal/privacy>Privacy policy</click></dark_aqua>\
+                            . We encourage you to read them in their entirety.
+                            
+                            Of particular note is our collection of metrics. We collect metrics to improve our server\
+                             in the following ways:
+                            - Identifying exploits
+                            - Identifying performance issues
+                            - Providing key insights into player bevahior
+                            - Providing insights into game health
+                            
+                            Some metrics are aggregated or anonymized, while others are associated with your account or \
+                            connection as described in our Privacy Policy. If you are not comfortable with this, you \
+                            may opt to decline this policy and disconnect from the network.
+                            """), 600)
+                    ), List.of()),
+                List.of(agree, leave),
+                leave,
+                2
+            );
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.POLICIES_SHOWN, 1);
+            player.showDialog(dialog);
+        }
+
         Logger.info(
             player.getUsername() + " (" + player.getUuid() + ") joined with the ip: " + player.getPlayerConnection()
                 .getRemoteAddress());
@@ -162,11 +262,18 @@ public final class ServerEventListeners {
                 p.setVanished(true);
             }
         }
-        if (!player.hasPlayedBefore() && Cytosis.CONTEXT.isMetricsEnabled()) {
+        if (!player.hasPlayedBefore()) {
             // add a new player who hasn't played before
-            Cytosis.get(MetricsManager.class)
-                .addToLongCounter("players.unique", 1, Attributes.empty());
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.UNIQUE_PLAYERS, 1);
         }
+
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.PLAYER_JOINS, 1, Attributes.of(
+            AttributeKey.stringKey("uuid"), player.getUuid().toString(),
+            AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase(),
+            AttributeKey.stringKey("client_ip"), player.getPlayerConnection().getRemoteAddress().toString(),
+            AttributeKey.stringKey("server_ip"), player.getPlayerConnection().getServerAddress()
+        ));
+
         if (player.getPreference(Preferences.TPS_DEBUG)) {
             player.showBossBar(TpsCommand.BAR);
         }
