@@ -43,7 +43,7 @@ public class MetricsHooks {
         mm.createLongCounter(PLAYER_JOINS, "The number of times players have joined the network", "");
         mm.createLongCounter(PLAYER_KICKS, "The number of players kicked", "players");
         mm.createLongCounter(PLAYER_BANS, "The number of bans issued", "bans");
-        mm.createLongCounter(PLAYER_MUTES, "The number of mutes issued", "bans");
+        mm.createLongCounter(PLAYER_MUTES, "The number of mutes issued", "mutes");
 
         mm.createDoubleGauge(SERVER_MSPT, "The last tick time", "ms", _ -> ServerEventListeners.RAW_MSPT,
             Attributes.empty());
