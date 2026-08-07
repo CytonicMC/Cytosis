@@ -87,4 +87,18 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     public boolean shouldKickWithoutPolicyAgreement() {
         return true;
     }
+
+    @Override
+    public <C extends Config> Optional<C> getConfig(Class<C> clazz) {
+        Logger.warn(
+            "Using AbstractCytosisServer#getConfig does not include environment overrides! Use Cytosis.get(Class<C>) instead!");
+        return super.getConfig(clazz);
+    }
+
+    @Override
+    public <C extends Config> C getConfigOrThrow(Class<C> clazz) {
+        Logger.warn(
+            "Using AbstractCytosisServer#getConfigOrThrow does not include environment overrides! Use Cytosis.get(Class<C>) instead!");
+        return super.getConfigOrThrow(clazz);
+    }
 }
