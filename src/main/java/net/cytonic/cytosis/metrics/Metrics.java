@@ -8,6 +8,7 @@ public class Metrics {
     public static final String PLAYER_JOINS = "players.joins";
     public static final String PLAYER_KICKS = "players.kicks";
     public static final String PLAYER_BANS = "player.bans";
+    public static final String PLAYER_MUTES = "player.mutes";
 
     // server
     public static final String SERVER_MSPT = "server.mspt";
