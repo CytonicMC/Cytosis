@@ -27,14 +27,14 @@ import net.cytonic.cytosis.config.CytosisConfig.MetricsConfig;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.BuildInfo;
 
-@CytosisComponent(priority = 100)
+@CytosisComponent(priority = 1)
 public class CytosisOpenTelemetry implements Bootstrappable {
 
     private OpenTelemetrySdk sdk;
 
     @Override
     public void init() {
-        MetricsConfig config = Cytosis.getServer().getConfigOrThrow(CytosisConfig.class).metrics();
+        MetricsConfig config = Cytosis.get(CytosisConfig.class).metrics();
         if (!config.enabled()) return;
 
         String url = "http://" + config.host() + ":" + config.port();

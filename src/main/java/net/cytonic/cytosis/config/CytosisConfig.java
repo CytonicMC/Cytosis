@@ -10,16 +10,16 @@ import net.cytonic.cytosis.environments.Environment;
 
 @ConfigFile("config")
 public record CytosisConfig(
-    DatabaseConfig database,
-    RedisConfig redis,
-    MongoConfig mongo,
-    NatsConfig nats,
-    GarageConfig garage,
-    MetricsConfig metrics,
-    Environment environment,
-    String secret,
-    int port,
-    boolean standalone
+    @Env DatabaseConfig database,
+    @Env RedisConfig redis,
+    @Env MongoConfig mongo,
+    @Env NatsConfig nats,
+    @Env GarageConfig garage,
+    @Env MetricsConfig metrics,
+    @Env Environment environment,
+    @Env String secret,
+    @Env int port,
+    @Env boolean standalone
 ) implements Config {
 
     public static final Codec<CytosisConfig> CODEC = StructCodec.struct(
@@ -37,12 +37,12 @@ public record CytosisConfig(
     );
 
     public record DatabaseConfig(
-        String username,
-        String password,
-        String host,
-        int port,
-        String database,
-        String globalDatabase
+        @Env String username,
+        @Env String password,
+        @Env String host,
+        @Env int port,
+        @Env String database,
+        @Env String globalDatabase
     ) {
 
         public static final Codec<DatabaseConfig> CODEC = StructCodec.struct(
@@ -57,9 +57,9 @@ public record CytosisConfig(
     }
 
     public record RedisConfig(
-        String host,
-        int port,
-        String password
+        @Env String host,
+        @Env int port,
+        @Env String password
     ) {
 
         public static final Codec<RedisConfig> CODEC = StructCodec.struct(
@@ -71,11 +71,11 @@ public record CytosisConfig(
     }
 
     public record MongoConfig(
-        String user,
-        String password,
-        String host,
-        int port,
-        String database) {
+        @Env String user,
+        @Env String password,
+        @Env String host,
+        @Env int port,
+        @Env String database) {
 
         public static final Codec<MongoConfig> CODEC = StructCodec.struct(
             "user", Codec.STRING, MongoConfig::user,
@@ -96,10 +96,10 @@ public record CytosisConfig(
     }
 
     public record NatsConfig(
-        String host,
-        int port,
-        String username,
-        String password
+        @Env String host,
+        @Env int port,
+        @Env String username,
+        @Env String password
     ) {
 
         public static final Codec<NatsConfig> CODEC = StructCodec.struct(
@@ -112,10 +112,10 @@ public record CytosisConfig(
     }
 
     public record GarageConfig(
-        String host,
-        int port,
-        String username,
-        String password
+        @Env String host,
+        @Env int port,
+        @Env String username,
+        @Env String password
     ) {
 
         public static final Codec<GarageConfig> CODEC = StructCodec.struct(
@@ -128,9 +128,9 @@ public record CytosisConfig(
     }
 
     public record MetricsConfig(
-        boolean enabled,
-        @Nullable String host,
-        int port
+        @Env boolean enabled,
+        @Env @Nullable String host,
+        @Env int port
     ) {
 
         public static final Codec<MetricsConfig> CODEC = StructCodec.struct(

@@ -8,6 +8,8 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 
 import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.config.EnvOverride;
 import net.cytonic.cytosis.utils.Events;
 
 public class CytosisMain {
@@ -17,6 +19,7 @@ public class CytosisMain {
             .server(CytosisServer::new)
             .registerConfig(ServerConfig.class, new ServerConfig("0.0.0.0", 25576))
             .afterSetup(server -> {
+
                 Cytosis.init(server);
 
                 InstanceContainer instance = MinecraftServer.getInstanceManager().createInstanceContainer();
@@ -24,7 +27,12 @@ public class CytosisMain {
                 instance.setChunkSupplier(LightingChunk::new);
 
                 Events.onAsyncPlayerConfiguration(event -> event.setSpawningInstance(instance));
-            });
+            }).onConfigLoaded(
+                r -> {
+                    // Override the already-registered config
+                    Cytosis.CONTEXT.registerComponent(
+                        EnvOverride.apply("CYTOSIS", CytosisConfig.class, r.get(CytosisConfig.class).orElse(null)));
+                });
 
         Cytosis.applyToBuilder(builder).run(args);
     }

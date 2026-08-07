@@ -2,7 +2,9 @@ package net.cytonic.cytosis.server;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
+import dev.minestomunited.common.config.Config;
 import dev.minestomunited.common.config.ConfigRegistry;
 import dev.minestomunited.entrypoint.minestom.BasicMinestomService;
 import dev.minestomunited.entrypoint.minestom.MinestomService;
@@ -18,6 +20,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.actionBar.ActionBarService;
 import net.cytonic.cytosis.server.chat.ChatService;
@@ -40,7 +43,6 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         sessionService = new SessionServiceImpl();
         playerService = new PlayerServiceImpl();
         minestomService = new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
-        Cytosis.CONTEXT.registerComponent(getConfigOrThrow(CytosisConfig.class).environment());
     }
 
     @Override
@@ -49,7 +51,7 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
             return new Auth.Online();
         }
 
-        String secret = getConfigOrThrow(CytosisConfig.class).secret();
+        String secret = Cytosis.get(CytosisConfig.class).secret();
         if (secret == null || secret.isEmpty()) {
             throw new IllegalStateException("Velocity secret is null or empty!");
         }
@@ -58,7 +60,7 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
 
     @Override
     public boolean isStandalone() {
-        return getConfigOrThrow(CytosisConfig.class).standalone();
+        return Cytosis.get(CytosisConfig.class).standalone();
     }
 
     public abstract Key serverType();
