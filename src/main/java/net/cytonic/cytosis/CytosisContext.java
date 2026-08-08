@@ -37,7 +37,7 @@ public class CytosisContext {
     private boolean stopping = false;
     @Nullable
     private Instant shutdownAt = null;
-    private boolean sendErrorsThroughSnooper = false;
+    private boolean sendErrorsThroughSnooper = true;
     private int shutdownDuration = 60;
 
     /**
