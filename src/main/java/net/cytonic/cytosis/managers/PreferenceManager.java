@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.SneakyThrows;
 import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
@@ -56,27 +57,33 @@ public class PreferenceManager implements Bootstrappable {
      *
      * @param uuid the player
      */
-    public void loadPlayerPreferences(UUID uuid) {
-        db.loadPlayerPreferences(uuid).thenAccept(data -> {
-            if (data == null) {
-                data = new PreferenceData(new ArrayList<>());
-                db.addNewPlayerPreferences(uuid, data);
+    @Blocking
+    public void loadPlayerPreferencesNow(UUID uuid, boolean ignoreCache) {
+        if (!ignoreCache && preferenceData.containsKey(uuid)) return;
+        PreferenceData data = db.loadPlayerPreferences(uuid);
+        if (data == null) {
+            data = new PreferenceData(new ArrayList<>());
+            db.addNewPlayerPreferences(uuid, data);
+        }
+        preferenceData.put(uuid, data);
+        data.get(Preferences.LISTENING_SNOOPS).snoops().forEach(s -> {
+            if (Cytosis.get(SnooperManager.class).getChannel(Key.key(s)) == null) {
+                // big problem if null
+                Logger.warn(
+                    "Player " + uuid + " is listening to the channel '" + s + "', but it isn't registered!");
+                Cytosis.getPlayer(uuid).ifPresent(
+                    player -> player.sendMessage(Msg.error("Failed to start listening on snooper channel '%s'", s)));
             }
-            preferenceData.put(uuid, data);
-            data.get(Preferences.LISTENING_SNOOPS).snoops().forEach(s -> {
-                if (Cytosis.get(SnooperManager.class).getChannel(Key.key(s)) == null) {
-                    // big problem if null
-                    Logger.warn(
-                        "Player " + uuid + " is listening to the channel '" + s + "', but it isn't registered!");
-                    Cytosis.getPlayer(uuid).ifPresent(player -> player.sendMessage(Msg.mm(
-                        "<red><b>ERROR!</b></red><gray> Failed to start listening on snooper channel '" + s
-                            + "'")));
-                }
-            });
-        }).exceptionally(throwable -> {
-            Logger.error("Failed to load player preferences", throwable);
-            return null;
         });
+    }
+
+    /**
+     * Loads the player's preferences into memory from the database
+     *
+     * @param uuid the player
+     */
+    public void loadPlayerPreferences(UUID uuid) {
+        Thread.ofVirtual().start(() -> loadPlayerPreferencesNow(uuid, true));
     }
 
     /**
