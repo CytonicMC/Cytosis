@@ -23,7 +23,7 @@ public class ShutdownHandler {
     public static void init() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                ShutdownHandler.shutdown().get();
+                ShutdownHandler.shutdown().join();
             } catch (Throwable e) {
                 System.err.println("An error occurred while shutting down");
                 throw new RuntimeException(e);
@@ -79,7 +79,7 @@ public class ShutdownHandler {
             }
         });
 
-        CompletableFuture.runAsync(() -> {
+        Thread.ofVirtual().start(() -> {
             try {
                 Thread.sleep(seconds * 1000L);
             } catch (InterruptedException e) {

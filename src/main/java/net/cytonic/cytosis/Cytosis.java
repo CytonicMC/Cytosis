@@ -41,7 +41,6 @@ public final class Cytosis {
             CytosisConfig.class, CytosisConfig.CODEC
         )));
 
-        System.setProperty("minestom.shutdown-on-signal", "false");
         return builder;
     }
 
