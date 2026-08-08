@@ -40,6 +40,7 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionBarManager;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
 import net.cytonic.cytosis.metrics.Metrics;
@@ -83,6 +84,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
         RankManager rm = Cytosis.get(RankManager.class);
         UUID uuid = gameProfile.uuid();
         rm.loadPlayerNow(uuid);
+        Cytosis.get(PreferenceManager.class).loadPlayerPreferencesNow(uuid, false);
 
         rank = rm.getPlayerRank(uuid).orElseGet(() -> {
             Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
