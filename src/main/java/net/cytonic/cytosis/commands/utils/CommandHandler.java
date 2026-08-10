@@ -27,24 +27,7 @@ import net.cytonic.protocol.utils.JandexUtils;
 @CytosisComponent(priority = 2, dependsOn = {CommandManager.class})
 public class CommandHandler implements Bootstrappable {
 
-    //todo: I (Foxikle) think we could use jandex for this?
     private final List<CytosisCommand> COMMANDS = JandexUtils.getExtendedClasses(CytosisCommand.class);
-//    Utils.list(
-//        new GamemodeCommand(), new RankCommand(), new BanCommand(), new ChatChannelCommand(),
-//        new StopCommand(), new ServerCommand(), new CreateInstanceCommand(), new ShutdownInstancesCommand(),
-//        new AllocationDetailsCommand(), new TeleportCommand(), new FindCommand(), new PreferenceCommand(),
-//        new ServerAlertsCommand(), new FlyCommand(), new BroadcastCommand(), new HelpCommand(),
-//        new AllChatCommand(), new TimeCommand(), new PingCommand(), new FriendCommand(), new ClearchatCommand(),
-//        new VanishCommand(), new IgnoreChatChannelCommand(), new UnbanCommand(), new MuteCommand(),
-//        new UnmuteCommand(), new KickCommand(), new MsgCommand(), new CooldownCommand(),
-//        new LoopCommand(), new RecalculatePermissionsCommand(), new YoinkCommand(), new ReplyCommand(),
-//        new SnooperCommand(), new PlayCommand(), new LobbyCommand(), new WhereAmiCommand(), new DisableCommand(),
-//        new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(),
-//        new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand(),
-//        new WhitelistCommand(), new PartyCommand(), new PartyChatCommand(), new TpsCommand(), new ReportCommand(),
-//        new DummyCommand(), new LinkCommand(), new MiniMessageCommand()
-//    );
-
     private final Map<Class<? extends CytosisCommand>, CytosisCommand> commandMap = new HashMap<>();
 
     private CommandManager commandManager;
