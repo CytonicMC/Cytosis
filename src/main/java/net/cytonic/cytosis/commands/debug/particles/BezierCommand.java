@@ -4,6 +4,7 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.particle.Particle;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.particles.effects.keyframed.BezierCurveEffect;
 import net.cytonic.cytosis.particles.effects.keyframed.BridgingStrategy;
@@ -11,9 +12,10 @@ import net.cytonic.cytosis.particles.effects.keyframed.EasingFunction;
 import net.cytonic.cytosis.particles.util.ParticleData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-public class BezierCommand extends CytosisCommand {
+@SubCommand
+class BezierCommand extends CytosisCommand {
 
-    public BezierCommand() {
+    BezierCommand() {
         super("bezier");
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;

@@ -3,15 +3,17 @@ package net.cytonic.cytosis.commands.nicknames;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.nicknames.NicknameGenerator;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-class NickRandomCommand extends CytosisCommand {
+@SubCommand
+class RandomCommand extends CytosisCommand {
 
-    NickRandomCommand() {
+    RandomCommand() {
         super("random");
         setCondition(CommandUtils.withRankOrStaff(PlayerRank.NEXUS));
         setDefaultExecutor((sender, ignored) -> {

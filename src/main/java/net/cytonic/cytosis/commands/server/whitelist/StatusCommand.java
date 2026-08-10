@@ -13,6 +13,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.environments.Environment;
@@ -20,9 +21,10 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
-public class StatusCommand extends CytosisCommand {
+@SubCommand
+class StatusCommand extends CytosisCommand {
 
-    public StatusCommand() {
+    StatusCommand() {
         super("status");
         Environment env = Cytosis.get(Environment.class);
         setCondition(CommandUtils.IS_STAFF);

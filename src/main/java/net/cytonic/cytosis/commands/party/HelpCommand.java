@@ -3,9 +3,11 @@ package net.cytonic.cytosis.commands.party;
 import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.utils.Msg;
 
+@SubCommand
 class HelpCommand extends CytosisCommand {
 
     private static final Component MSG = Msg.mm("""

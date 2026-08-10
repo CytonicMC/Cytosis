@@ -13,15 +13,17 @@ import net.minestom.server.command.builder.arguments.minecraft.ArgumentResourceL
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.WorldManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public class ImportPolarWorldCommand extends CytosisCommand {
+@SubCommand
+class PolarCommand extends CytosisCommand {
 
-    public ImportPolarWorldCommand() {
+    PolarCommand() {
         super("polar");
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(

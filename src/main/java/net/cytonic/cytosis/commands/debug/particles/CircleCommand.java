@@ -4,6 +4,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.particle.Particle;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.particles.effects.keyframed.BridgingStrategy;
 import net.cytonic.cytosis.particles.effects.looping.Angles;
@@ -12,9 +13,10 @@ import net.cytonic.cytosis.particles.effects.looping.Phase;
 import net.cytonic.cytosis.particles.util.ParticleData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-public class CircleCommand extends CytosisCommand {
+@SubCommand
+class CircleCommand extends CytosisCommand {
 
-    public CircleCommand() {
+    CircleCommand() {
         super("circle");
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer p)) return;

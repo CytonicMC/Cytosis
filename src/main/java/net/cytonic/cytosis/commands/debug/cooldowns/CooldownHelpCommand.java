@@ -3,9 +3,11 @@ package net.cytonic.cytosis.commands.debug.cooldowns;
 import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-public class CooldownHelpCommand extends CytosisCommand {
+@SubCommand
+class CooldownHelpCommand extends CytosisCommand {
 
     private static final Component HELP = Msg.greenSplash("Cooldown Help", "").appendNewline()
         .append(Msg.grey("<i>A debug command for testing the Cytosis cooldown api.")).appendNewline()

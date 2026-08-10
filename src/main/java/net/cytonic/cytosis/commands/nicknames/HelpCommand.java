@@ -3,10 +3,12 @@ package net.cytonic.cytosis.commands.nicknames;
 import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-class NickHelpCommand extends CytosisCommand {
+@SubCommand
+class HelpCommand extends CytosisCommand {
 
     private static final Component STAFF_HELP = Msg.mm("""
         <#be9025>NICKNAME HELP!</#be9025> <gray>Available nickname-related commands:</gray>
@@ -24,7 +26,7 @@ class NickHelpCommand extends CytosisCommand {
           <#f5c526>/NICK RESET</#f5c526> <gray>Resets your nickname, if you have one. It reverts your apparent rank, skin, and name to their original values.</gray>
         """);
 
-    NickHelpCommand() {
+    HelpCommand() {
         super("help");
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;

@@ -10,11 +10,13 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.debug.cooldowns.CooldownCommand;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.managers.NetworkCooldownManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 
+@SubCommand
 public class GetGlobalCommand extends CytosisCommand {
 
     public GetGlobalCommand() {

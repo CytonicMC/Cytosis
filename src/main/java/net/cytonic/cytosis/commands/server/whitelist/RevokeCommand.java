@@ -13,6 +13,7 @@ import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.enums.PlayerRank;
@@ -22,9 +23,10 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
-public class RevokeCommand extends CytosisCommand {
+@SubCommand
+class RevokeCommand extends CytosisCommand {
 
-    public RevokeCommand() {
+    RevokeCommand() {
         super("revoke");
         Environment env = Cytosis.get(Environment.class);
         setCondition(CommandUtils.IS_STAFF);

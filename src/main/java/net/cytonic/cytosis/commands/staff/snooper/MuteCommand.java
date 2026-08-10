@@ -2,13 +2,15 @@ package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 
-public class SnooperMuteCommand extends CytosisCommand {
+@SubCommand
+class MuteCommand extends CytosisCommand {
 
-    public SnooperMuteCommand() {
+    MuteCommand() {
         super("mute");
         setCondition(CommandUtils.IS_STAFF);
 

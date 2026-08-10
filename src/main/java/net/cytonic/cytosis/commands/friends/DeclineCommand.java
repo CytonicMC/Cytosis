@@ -3,15 +3,16 @@ package net.cytonic.cytosis.commands.friends;
 import java.util.UUID;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Players;
 
-public class FriendAcceptCommand extends CytosisCommand {
+@SubCommand
+class DeclineCommand extends CytosisCommand {
 
-    public FriendAcceptCommand() {
-        super("accept");
-
+    DeclineCommand() {
+        super("decline");
         addSyntax((sender, context) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
             String raw = context.get(FriendCommand.NON_FRIEND_ARG);
@@ -21,12 +22,12 @@ public class FriendAcceptCommand extends CytosisCommand {
                 return;
             }
 
-            UUID target = Players.resolveUuid(raw);
+            UUID target = Players.resolveUuid(context.get(FriendCommand.NON_FRIEND_ARG));
             OfflinePlayer targetObj;
             try {
                 targetObj = Players.offline(target);
             } catch (NullPointerException e) {
-                player.whoops("The player '%s' doesn't exist!", raw);
+                player.whoops("The player '%s' doesn't exist!", context.get(FriendCommand.NON_FRIEND_ARG));
                 return;
             }
 
@@ -35,15 +36,14 @@ public class FriendAcceptCommand extends CytosisCommand {
                 return;
             }
 
-            String targetName = Players.miniNameFragile(raw);
+            String targetName = Players.miniNameFragile(context.get(FriendCommand.NON_FRIEND_ARG));
 
             if (player.getFriends().contains(target)) {
-                player.whoops("You are already friends with %s", targetName);
+                player.whoops("You are already friends with %s!", targetName);
                 return;
             }
 
-            player.acceptFriendRequest(target);
+            player.declineFriendRequest(target);
         }, FriendCommand.NON_FRIEND_ARG);
     }
-
 }

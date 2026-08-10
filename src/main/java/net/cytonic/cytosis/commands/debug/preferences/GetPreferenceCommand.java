@@ -9,13 +9,15 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public class GetPreferenceCommand extends CytosisCommand {
+@SubCommand
+class GetPreferenceCommand extends CytosisCommand {
 
-    public GetPreferenceCommand() {
+    GetPreferenceCommand() {
         super("get");
 
         ArgumentResourceLocation nodeArg = ArgumentType.ResourceLocation("node");

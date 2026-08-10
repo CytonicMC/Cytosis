@@ -7,13 +7,15 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 
-public class SnooperListCommand extends CytosisCommand {
+@SubCommand
+class ListCommand extends CytosisCommand {
 
-    public SnooperListCommand() {
+    ListCommand() {
         super("list");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((s, _) -> {
