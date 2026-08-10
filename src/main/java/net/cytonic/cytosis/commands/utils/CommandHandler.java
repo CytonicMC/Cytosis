@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.metrics.Metrics;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -54,7 +53,6 @@ public class CommandHandler implements Bootstrappable {
         for (CytosisCommand command : COMMANDS) {
             commandMap.put(command.getClass(), command);
             if (command.getClass().isAnnotationPresent(SubCommand.class)) continue;
-            Logger.debug("Registering command: %s", command.getName());
             commandManager.register(command);
         }
     }
