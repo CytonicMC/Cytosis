@@ -246,6 +246,20 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
         };
     }
 
+    /**
+     * Used by the {@link net.cytonic.cytosis.replay.ReplayEvent.ChatMessage} replay event to see if a user should be
+     * able to read a channel. Private messages are never true.
+     */
+    public boolean canAuditChannel(ChatChannel channel) {
+        return switch (channel) {
+            case PRIVATE_MESSAGE -> false;
+            case STAFF -> isStaff();
+            case MOD -> isModerator();
+            case ADMIN -> isAdmin();
+            default -> true;
+        };
+    }
+
     public boolean isStaff() {
         return EnumSet.of(PlayerRank.OWNER, PlayerRank.ADMIN, PlayerRank.MODERATOR, PlayerRank.HELPER)
             .contains(getTrueRank());

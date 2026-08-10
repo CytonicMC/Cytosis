@@ -10,6 +10,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.event.EventDispatcher;
 import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
@@ -19,6 +20,7 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
+import net.cytonic.cytosis.events.network.PlayerSendMessageEvent;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
@@ -110,22 +112,28 @@ public class ChatManager implements Bootstrappable {
 
         logMessage(null, player.getUuid(), msg, channel);
 
-        Component message = Component.text("");
+        // anonymous object for compiler trickery
+        var ref = new Object() {
+            Component message = Component.text("");
+            Set<UUID> recipients = null;
+        };
 
         Component chan = channel.getPrefix();
         if (channel.isShouldDeanonymize()) {
-            message = message.append(chan).append(player.trueFormattedName()).append(Msg.mm(msg));
+            ref.message = ref.message.append(chan).append(player.trueFormattedName()).append(Msg.mm(msg));
         } else {
-            message = message.append(chan).append(player.formattedName()).append(Msg.mm(msg));
+            ref.message = ref.message.append(chan).append(player.formattedName()).append(Msg.mm(msg));
         }
 
-        Set<UUID> recipients = null;
         if (channel.isSupportsSelectiveRecipients()) {
             assert channel.getRecipientFunction() != null;
-            recipients = channel.getRecipientFunction().apply(player);
+            ref.recipients = channel.getRecipientFunction().apply(player);
         }
 
-        new ChatMessageNotifyPacket.Packet(recipients, channel, message, player.getUuid()).publish();
+        PlayerSendMessageEvent event = new PlayerSendMessageEvent(player.getInstance(), player, ref.message, channel);
+        EventDispatcher.callCancellable(event, () -> new ChatMessageNotifyPacket.Packet(ref.recipients, channel,
+            ref.message, player.getUuid()).publish());
+
     }
 
     public void handlePrivateMessage(String message, CytosisPlayer player, @Nullable UUID recipientId) {
@@ -148,9 +156,16 @@ public class ChatManager implements Bootstrappable {
         String sender = Players.trueMiniName(player.getUuid());
 
         Component component = Msg.darkAqua("From %s » </dark_aqua>%s", sender, message);
-        new ChatMessageNotifyPacket.Packet(Set.of(recipientId), ChatChannel.PRIVATE_MESSAGE, component,
-            player.getUuid()).publish();
-        player.sendMessage(Msg.darkAqua("To %s » </dark_aqua>%s", recipient, message));
+
+        PlayerSendMessageEvent event = new PlayerSendMessageEvent(player.getInstance(), player,
+            Component.text(message), ChatChannel.PRIVATE_MESSAGE);
+
+        @Nullable final UUID finalRecipientId = recipientId;
+        EventDispatcher.callCancellable(event, () -> {
+            new ChatMessageNotifyPacket.Packet(Set.of(finalRecipientId), ChatChannel.PRIVATE_MESSAGE, component,
+                player.getUuid()).publish();
+            player.sendMessage(Msg.darkAqua("To %s » </dark_aqua>%s", recipient, message));
+        });
     }
 
     public void openPrivateMessage(CytosisPlayer player, UUID uuid) {

@@ -19,6 +19,7 @@ public class CytosisMain {
                 InstanceContainer instance = MinecraftServer.getInstanceManager().createInstanceContainer();
                 instance.setGenerator(unit -> unit.modifier().fillHeight(-1, 0, Block.WHITE_STAINED_GLASS));
                 instance.setChunkSupplier(LightingChunk::new);
+                Cytosis.CONTEXT.registerComponent(instance);
 
                 Events.onAsyncPlayerConfiguration(event -> event.setSpawningInstance(instance));
             });

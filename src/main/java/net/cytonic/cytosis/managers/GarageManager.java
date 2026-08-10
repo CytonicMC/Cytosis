@@ -23,7 +23,7 @@ public class GarageManager implements Bootstrappable {
     private MinioClient client;
 
     public GarageManager() {
-        this.worker = Executors.newSingleThreadExecutor(Thread.ofVirtual().name("CytosisGarageWorker")
+        this.worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisGarageWorker")
             .uncaughtExceptionHandler(
                 (t, e) -> Logger.error("An uncaught exception occurred on the garage worker thread: " + t.getName(),
                     e)).factory());
@@ -63,6 +63,7 @@ public class GarageManager implements Bootstrappable {
             try {
                 future.complete(client.getObject(request).readAllBytes());
             } catch (Exception e) {
+                future.completeExceptionally(e);
                 Logger.error("An error occurred while trying to download object from bucket: " + bucket, e);
             }
         });

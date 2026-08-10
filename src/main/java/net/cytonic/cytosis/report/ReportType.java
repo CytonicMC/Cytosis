@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.report;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.kyori.adventure.inventory.Book;
@@ -14,6 +15,12 @@ import org.jetbrains.annotations.NotNull;
  * @param <T> The type of the implementation
  */
 public interface ReportType<T extends ReportType<T>> extends ReportTypes {
+
+    static ReportType<?> getByKey(Key key) {
+        Optional<ReportType<?>> op = ReportTypes.builtIn().stream()
+            .filter(reportType -> reportType.getKey().equals(key)).findFirst();
+        return op.orElse(null);
+    }
 
     /**
      * The static identity of this report type.
