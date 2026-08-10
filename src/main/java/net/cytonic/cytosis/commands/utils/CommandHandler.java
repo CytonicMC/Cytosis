@@ -9,6 +9,7 @@ import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
@@ -68,6 +69,12 @@ public class CommandHandler implements Bootstrappable {
         if (!commandMap.containsKey(parent)) return false;
         commandMap.get(parent).addSubcommands(subs);
         return true;
+    }
+
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public <T extends CytosisCommand> T getCommand(Class<T> clazz) {
+        return (T) commandMap.getOrDefault(clazz, null);
     }
 
     /**
