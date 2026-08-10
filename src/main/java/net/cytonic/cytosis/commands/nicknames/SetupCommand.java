@@ -12,6 +12,7 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.nicknames.NicknameEntryMenu;
 import net.cytonic.cytosis.nicknames.NicknameGenerator;
@@ -19,7 +20,8 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public class NickSetupCommand extends CytosisCommand {
+@SubCommand
+public class SetupCommand extends CytosisCommand {
 
     private static final Book WARNING_BOOK = Book.builder()
         .author(Msg.aqua("CytonicMC Team"))
@@ -76,7 +78,7 @@ public class NickSetupCommand extends CytosisCommand {
     private static final Set<String> NAME_OPTIONS = Set.of("RANDOM", "SET", "SKIP");
     public static final ConcurrentHashMap<UUID, NicknameManager.NicknameData> NICKNAME_DATA = new ConcurrentHashMap<>();
 
-    public NickSetupCommand() {
+    public SetupCommand() {
         super("setup");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> {

@@ -7,14 +7,16 @@ import net.minestom.server.command.builder.arguments.ArgumentStringArray;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.snooper.SnooperChannel;
 import net.cytonic.cytosis.utils.Msg;
 
-public class SnooperTestCommand extends CytosisCommand {
+@SubCommand
+class TestCommand extends CytosisCommand {
 
-    public SnooperTestCommand() {
+    TestCommand() {
         super("test");
         setCondition(CommandUtils.IS_ADMIN);
 

@@ -5,14 +5,16 @@ import java.util.Map;
 import net.minestom.server.particle.Particle;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.particles.effects.fixed.PatternedEffect;
 import net.cytonic.cytosis.particles.util.ParticleData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-public class PatternedCommand extends CytosisCommand {
+@SubCommand
+class PatternedCommand extends CytosisCommand {
 
-    public PatternedCommand() {
+    PatternedCommand() {
         super("patterned");
         setDefaultExecutor((sender, ignored) -> {
             if (!(sender instanceof CytosisPlayer player)) return;

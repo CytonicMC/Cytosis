@@ -9,14 +9,16 @@ import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.cytonic.cytosis.CytonicNetwork;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
 
-public class FriendRemoveCommand extends CytosisCommand {
+@SubCommand
+class RemoveCommand extends CytosisCommand {
 
-    public FriendRemoveCommand() {
+    RemoveCommand() {
         super("remove");
         ArgumentWord playerArg = ArgumentType.Word("player");
         playerArg.setSuggestionCallback((sender, _, suggestion) -> {

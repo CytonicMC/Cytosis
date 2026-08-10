@@ -1,9 +1,11 @@
 package net.cytonic.cytosis.commands.debug.particles;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
+@SubCommand
 class CreateEngineCommand extends CytosisCommand {
 
     CreateEngineCommand() {

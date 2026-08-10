@@ -3,10 +3,12 @@ package net.cytonic.cytosis.commands.debug.cooldowns;
 import net.cytonic.cytosis.commands.debug.cooldowns.global.SetGlobalCommand;
 import net.cytonic.cytosis.commands.debug.cooldowns.personal.SetPersonalCommand;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 
-public class SetCooldownCommand extends CytosisCommand {
+@SubCommand
+class SetCooldownCommand extends CytosisCommand {
 
-    public SetCooldownCommand() {
+    SetCooldownCommand() {
         super("set");
         setDefaultExecutor(CooldownCommand.HELP_EXECUTOR);
         addSubcommand(new SetGlobalCommand());

@@ -43,17 +43,14 @@ public class FriendCommand extends CytosisCommand {
             }
         });
 
-    /**
-     * Creates the command
-     */
     public FriendCommand() {
         super("friend", "f");
         setCondition(Conditions::playerOnly);
 
-        addSubcommand(new FriendAddCommand());
-        addSubcommand(new FriendRemoveCommand());
-        addSubcommand(new FriendAcceptCommand());
-        addSubcommand(new FriendDeclineCommand());
-        addSubcommand(new FriendListCommand());
+        addSubcommand(new AddCommand());
+        addSubcommand(new RemoveCommand());
+        addSubcommand(new AcceptCommand());
+        addSubcommand(new DeclineCommand());
+        addSubcommand(new ListCommand());
     }
 }

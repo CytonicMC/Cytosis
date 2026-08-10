@@ -1,12 +1,14 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-public class SnooperAboutCommand extends CytosisCommand {
+@SubCommand
+class AboutCommand extends CytosisCommand {
 
-    public SnooperAboutCommand() {
+    AboutCommand() {
         super("about");
         setDefaultExecutor((sender, ctx) -> {
             if (!(sender instanceof CytosisPlayer player)) return;

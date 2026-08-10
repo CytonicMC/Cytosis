@@ -1,16 +1,18 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
-import net.cytonic.cytosis.commands.staff.snooper.help.SnooperHelpAbout;
-import net.cytonic.cytosis.commands.staff.snooper.help.SnooperHelpAudit;
-import net.cytonic.cytosis.commands.staff.snooper.help.SnooperHelpBlind;
-import net.cytonic.cytosis.commands.staff.snooper.help.SnooperHelpListen;
-import net.cytonic.cytosis.commands.staff.snooper.help.SnooperHelpMute;
+import net.cytonic.cytosis.commands.staff.snooper.help.HelpAbout;
+import net.cytonic.cytosis.commands.staff.snooper.help.HelpAudit;
+import net.cytonic.cytosis.commands.staff.snooper.help.HelpBlind;
+import net.cytonic.cytosis.commands.staff.snooper.help.HelpListen;
+import net.cytonic.cytosis.commands.staff.snooper.help.HelpMute;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-public class SnooperHelpCommand extends CytosisCommand {
+@SubCommand
+class HelpCommand extends CytosisCommand {
 
-    public SnooperHelpCommand() {
+    HelpCommand() {
         super("help");
 
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(
@@ -27,10 +29,10 @@ public class SnooperHelpCommand extends CytosisCommand {
                     /snooper <#ee61c0>blind</#ee61c0> <channel>: Stops snooping on a specific channel.
                     """))));
 
-        addSubcommand(new SnooperHelpAbout());
-        addSubcommand(new SnooperHelpAudit());
-        addSubcommand(new SnooperHelpBlind());
-        addSubcommand(new SnooperHelpListen());
-        addSubcommand(new SnooperHelpMute());
+        addSubcommand(new HelpAbout());
+        addSubcommand(new HelpAudit());
+        addSubcommand(new HelpBlind());
+        addSubcommand(new HelpListen());
+        addSubcommand(new HelpMute());
     }
 }

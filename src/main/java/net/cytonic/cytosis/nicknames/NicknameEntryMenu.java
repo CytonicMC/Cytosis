@@ -11,7 +11,7 @@ import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import net.cytonic.cytosis.Cytosis;
-import net.cytonic.cytosis.commands.nicknames.NickSetupCommand;
+import net.cytonic.cytosis.commands.nicknames.SetupCommand;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.minestomInventoryFramework.context.CloseContext;
 
@@ -46,7 +46,7 @@ public class NicknameEntryMenu extends View {
             }
             intentionallyClosed.set(true, slotClickContext);
             Player player = slotClickContext.getPlayer();
-            NickSetupCommand.NICKNAME_DATA.computeIfPresent(player.getUuid(), (uuid, data) -> data.withNickname(input));
+            SetupCommand.NICKNAME_DATA.computeIfPresent(player.getUuid(), (uuid, data) -> data.withNickname(input));
             player.sendMessage(Msg.goldSplash("UPDATED!", "Updated your nickname to: <gold>%s<gray>!", input));
             Cytosis.get(CommandManager.class).execute(player, "nick setup name SKIP");
             player.closeInventory();

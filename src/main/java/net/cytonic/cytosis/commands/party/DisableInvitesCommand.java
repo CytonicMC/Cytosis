@@ -1,9 +1,11 @@
 package net.cytonic.cytosis.commands.party;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Preferences;
 
+@SubCommand
 class DisableInvitesCommand extends CytosisCommand {
 
     DisableInvitesCommand() {

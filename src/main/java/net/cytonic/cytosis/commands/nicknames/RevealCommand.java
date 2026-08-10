@@ -2,12 +2,14 @@ package net.cytonic.cytosis.commands.nicknames;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-class NickRevealCommand extends CytosisCommand {
+@SubCommand
+class RevealCommand extends CytosisCommand {
 
-    NickRevealCommand() {
+    RevealCommand() {
         super("reveal");
         setCondition(CommandUtils.IS_STAFF);
 

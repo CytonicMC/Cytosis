@@ -3,9 +3,11 @@ package net.cytonic.cytosis.commands.staff.snooper.help;
 import net.kyori.adventure.text.Component;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-public class SnooperHelpListen extends CytosisCommand {
+@SubCommand
+public class HelpListen extends CytosisCommand {
 
     private static final Component MESSAGE =
         Msg.splash("SNOOPER HELP!", "e829aa", "» /snooper <#ee61c0>listen</#ee61c0> <channel>")
@@ -18,7 +20,7 @@ public class SnooperHelpListen extends CytosisCommand {
                 use "/snooper blind <channel>", this will stop sending you notifications. \
                 """));
 
-    public SnooperHelpListen() {
+    public HelpListen() {
         super("listen");
         setDefaultExecutor((sender, _) -> sender.sendMessage(MESSAGE));
     }

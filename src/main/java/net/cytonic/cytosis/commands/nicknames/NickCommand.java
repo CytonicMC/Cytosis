@@ -11,11 +11,11 @@ public class NickCommand extends CytosisCommand {
         super("nick", "nickname");
         setCondition(CommandUtils.withRankOrStaff(PlayerRank.NEXUS));
 
-        addSubcommand(new NickRevealCommand());
-        addSubcommand(new NickRandomCommand());
-        addSubcommand(new NickResetCommand());
-        addSubcommand(new NickHelpCommand());
-        addSubcommand(new NickSetupCommand());
+        addSubcommand(new RevealCommand());
+        addSubcommand(new RandomCommand());
+        addSubcommand(new ResetCommand());
+        addSubcommand(new HelpCommand());
+        addSubcommand(new SetupCommand());
 
         setDefaultExecutor((sender, _) -> {
             if (!(sender instanceof CytosisPlayer player)) return;
