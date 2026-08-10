@@ -79,7 +79,7 @@ public class CytosisBootstrap {
         }
 
         // register commands after every component is registered to avoid missing dependencies
-        cytosisContext.getComponent(CommandHandler.class).registerCytosisCommands();
+        cytosisContext.getComponent(CommandHandler.class).registerCommands();
         //This has to load after command registration
         cytosisContext.getComponent(CommandDisablingManager.class).loadRemotes();
 
