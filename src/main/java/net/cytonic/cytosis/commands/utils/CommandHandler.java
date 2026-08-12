@@ -55,6 +55,8 @@ public class CommandHandler implements Bootstrappable {
             if (command.getClass().isAnnotationPresent(SubCommand.class)) continue;
             commandManager.register(command);
         }
+        // special case
+        commandManager.register(DummyCommand.INSTANCE);
     }
 
     /**
@@ -65,10 +67,9 @@ public class CommandHandler implements Bootstrappable {
      */
     public boolean attachSubCommands(Class<? extends CytosisCommand> parent, CytosisCommand... subs) {
         if (!commandMap.containsKey(parent)) return false;
-        CytosisCommand command = commandMap.get(parent);
-        commandManager.unregister(command);
-        command.addSubcommands(subs);
-        commandManager.register(command);
+        commandMap.get(parent).addSubcommands(subs);
+        commandManager.unregister(DummyCommand.INSTANCE);
+        commandManager.register(DummyCommand.INSTANCE);
         return true;
     }
 
