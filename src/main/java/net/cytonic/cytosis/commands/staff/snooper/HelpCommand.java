@@ -1,16 +1,11 @@
 package net.cytonic.cytosis.commands.staff.snooper;
 
-import net.cytonic.cytosis.commands.staff.snooper.help.HelpAbout;
-import net.cytonic.cytosis.commands.staff.snooper.help.HelpAudit;
-import net.cytonic.cytosis.commands.staff.snooper.help.HelpBlind;
-import net.cytonic.cytosis.commands.staff.snooper.help.HelpListen;
-import net.cytonic.cytosis.commands.staff.snooper.help.HelpMute;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
-class HelpCommand extends CytosisCommand {
+@SubCommand(SnooperCommand.class)
+public class HelpCommand extends CytosisCommand {
 
     HelpCommand() {
         super("help");
@@ -28,11 +23,5 @@ class HelpCommand extends CytosisCommand {
                     view all previously sent snoops on a given channel.
                     /snooper <#ee61c0>blind</#ee61c0> <channel>: Stops snooping on a specific channel.
                     """))));
-
-        addSubcommand(new HelpAbout());
-        addSubcommand(new HelpAudit());
-        addSubcommand(new HelpBlind());
-        addSubcommand(new HelpListen());
-        addSubcommand(new HelpMute());
     }
 }

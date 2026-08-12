@@ -5,7 +5,7 @@ import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-@SubCommand
+@SubCommand(ParticleCommand.class)
 class CreateEngineCommand extends CytosisCommand {
 
     CreateEngineCommand() {

@@ -8,7 +8,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.protocol.publishers.PartyPacketsPublisher;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
-@SubCommand
+@SubCommand(PartyCommand.class)
 class LeaveCommand extends CytosisCommand {
 
     LeaveCommand() {

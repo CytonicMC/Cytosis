@@ -12,7 +12,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.protocol.data.objects.Party;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
-@SubCommand
+@SubCommand(PartyCommand.class)
 class OpenInvitesCommand extends CytosisCommand {
 
     OpenInvitesCommand() {

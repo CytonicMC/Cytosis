@@ -6,7 +6,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(CooldownCommand.class)
 class CooldownHelpCommand extends CytosisCommand {
 
     private static final Component HELP = Msg.greenSplash("Cooldown Help", "").appendNewline()

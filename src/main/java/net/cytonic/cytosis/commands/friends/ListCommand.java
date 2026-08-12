@@ -6,7 +6,7 @@ import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.managers.FriendManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-@SubCommand
+@SubCommand(FriendCommand.class)
 class ListCommand extends CytosisCommand {
 
     ListCommand() {

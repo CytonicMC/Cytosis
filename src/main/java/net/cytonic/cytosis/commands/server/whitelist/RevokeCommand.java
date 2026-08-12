@@ -23,7 +23,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Utils;
 
-@SubCommand
+@SubCommand(WhitelistCommand.class)
 class RevokeCommand extends CytosisCommand {
 
     RevokeCommand() {

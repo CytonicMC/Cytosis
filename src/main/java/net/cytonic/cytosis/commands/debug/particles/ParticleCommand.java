@@ -10,9 +10,5 @@ public class ParticleCommand extends CytosisCommand {
         super("particle");
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor((sender, ignored) -> sender.sendMessage(Msg.whoops("You have to specify a sub command!")));
-        addSubcommand(new BezierCommand());
-        addSubcommand(new PatternedCommand());
-        addSubcommand(new CircleCommand());
-        addSubcommand(new CreateEngineCommand());
     }
 }

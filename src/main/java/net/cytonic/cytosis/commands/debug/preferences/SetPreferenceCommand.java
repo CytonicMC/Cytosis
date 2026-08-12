@@ -16,7 +16,7 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(PreferenceCommand.class)
 class SetPreferenceCommand extends CytosisCommand {
 
     SetPreferenceCommand() {

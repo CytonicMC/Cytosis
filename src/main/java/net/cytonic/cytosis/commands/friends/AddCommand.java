@@ -11,7 +11,7 @@ import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 
-@SubCommand
+@SubCommand(FriendCommand.class)
 class AddCommand extends CytosisCommand {
 
     AddCommand() {

@@ -12,7 +12,9 @@ import net.minestom.server.command.builder.CommandSyntax;
 import net.minestom.server.command.builder.arguments.Argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Msg;
 
 @Getter
@@ -29,55 +31,6 @@ public class CytosisCommand extends Command {
 
     public CytosisCommand(String command, String... aliases) {
         super(command, aliases);
-    }
-
-    @Override
-    public @NotNull Collection<CommandSyntax> addSyntax(@NotNull CommandExecutor executor,
-        @NotNull Argument<?>... args) {
-        return super.addSyntax((s, c) -> {
-            if (unavailable) {
-                s.sendMessage(unavailableMessage);
-                return;
-            }
-            if (checkDisabled(s)) {
-                s.sendMessage(disabledMessage);
-                return;
-            }
-            executor.apply(s, c);
-        }, args);
-    }
-
-    @Override
-    public @NotNull Collection<CommandSyntax> addSyntax(@NotNull CommandExecutor executor, @NotNull String format) {
-        return super.addSyntax((s, c) -> {
-            if (unavailable) {
-                s.sendMessage(unavailableMessage);
-                return;
-            }
-            if (checkDisabled(s)) {
-                s.sendMessage(disabledMessage);
-                return;
-            }
-            executor.apply(s, c);
-        }, format);
-    }
-
-    @Override
-    public void setDefaultExecutor(@Nullable CommandExecutor executor) {
-        super.setDefaultExecutor((s, c) -> {
-            if (unavailable) {
-                s.sendMessage(unavailableMessage);
-                return;
-            }
-            if (checkDisabled(s)) {
-                s.sendMessage(disabledMessage);
-                return;
-            }
-
-            if (executor != null) {
-                executor.apply(s, c);
-            }
-        });
     }
 
     private boolean checkDisabled(CommandSender sender) {
@@ -147,4 +100,66 @@ public class CytosisCommand extends Command {
         unavailable = true;
     }
 
+    @Override
+    @Deprecated(forRemoval = true)
+    public void addSubcommand(@NonNull Command cmd) {
+        Logger.warn("""
+            Subcommands should not be directly added to Cytosis commands.
+            Use the @SubCommand annotation instead. (Command: %s, Sub Command: %s)
+            """, getClass().getSimpleName(), cmd.getClass().getSimpleName());
+        super.addSubcommand(cmd);
+    }
+
+    @Override
+    public @NotNull Collection<CommandSyntax> addSyntax(@NotNull CommandExecutor executor,
+        @NotNull Argument<?>... args) {
+        return super.addSyntax((s, c) -> {
+            if (unavailable) {
+                s.sendMessage(unavailableMessage);
+                return;
+            }
+            if (checkDisabled(s)) {
+                s.sendMessage(disabledMessage);
+                return;
+            }
+            executor.apply(s, c);
+        }, args);
+    }
+
+    @Override
+    public @NotNull Collection<CommandSyntax> addSyntax(@NotNull CommandExecutor executor, @NotNull String format) {
+        return super.addSyntax((s, c) -> {
+            if (unavailable) {
+                s.sendMessage(unavailableMessage);
+                return;
+            }
+            if (checkDisabled(s)) {
+                s.sendMessage(disabledMessage);
+                return;
+            }
+            executor.apply(s, c);
+        }, format);
+    }
+
+    @Override
+    public void setDefaultExecutor(@Nullable CommandExecutor executor) {
+        super.setDefaultExecutor((s, c) -> {
+            if (unavailable) {
+                s.sendMessage(unavailableMessage);
+                return;
+            }
+            if (checkDisabled(s)) {
+                s.sendMessage(disabledMessage);
+                return;
+            }
+
+            if (executor != null) {
+                executor.apply(s, c);
+            }
+        });
+    }
+
+    void addSubCommandInternal(CytosisCommand cmd) {
+        super.addSubcommand(cmd);
+    }
 }

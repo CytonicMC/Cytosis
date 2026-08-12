@@ -2,11 +2,12 @@ package net.cytonic.cytosis.commands.staff.snooper.help;
 
 import net.kyori.adventure.text.Component;
 
+import net.cytonic.cytosis.commands.staff.snooper.HelpCommand;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(HelpCommand.class)
 public class HelpAbout extends CytosisCommand {
 
     private static final Component MESSAGE =
@@ -16,6 +17,6 @@ public class HelpAbout extends CytosisCommand {
 
     public HelpAbout() {
         super("about");
-        setDefaultExecutor((sender, context) -> sender.sendMessage(MESSAGE));
+        setDefaultExecutor((sender, _) -> sender.sendMessage(MESSAGE));
     }
 }

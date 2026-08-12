@@ -9,7 +9,7 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(NickCommand.class)
 class ResetCommand extends CytosisCommand {
 
     ResetCommand() {

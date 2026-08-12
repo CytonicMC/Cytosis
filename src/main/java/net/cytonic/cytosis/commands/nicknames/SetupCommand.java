@@ -20,7 +20,7 @@ import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(NickCommand.class)
 public class SetupCommand extends CytosisCommand {
 
     private static final Book WARNING_BOOK = Book.builder()

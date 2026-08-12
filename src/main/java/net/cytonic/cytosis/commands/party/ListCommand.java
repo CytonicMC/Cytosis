@@ -12,7 +12,7 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.data.objects.Party;
 
-@SubCommand
+@SubCommand(PartyCommand.class)
 class ListCommand extends CytosisCommand {
 
     ListCommand() {

@@ -20,7 +20,7 @@ import net.cytonic.cytosis.managers.WorldManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(ImportWorld.class)
 class PolarCommand extends CytosisCommand {
 
     PolarCommand() {
