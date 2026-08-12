@@ -12,7 +12,7 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
-@SubCommand
+@SubCommand(PartyCommand.class)
 class PromoteCommand extends CytosisCommand {
 
     PromoteCommand() {

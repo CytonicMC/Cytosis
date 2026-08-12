@@ -12,7 +12,7 @@ import net.cytonic.cytosis.particles.effects.keyframed.EasingFunction;
 import net.cytonic.cytosis.particles.util.ParticleData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-@SubCommand
+@SubCommand(ParticleCommand.class)
 class BezierCommand extends CytosisCommand {
 
     BezierCommand() {

@@ -8,7 +8,7 @@ import net.cytonic.cytosis.managers.SnooperManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(SnooperCommand.class)
 class BlindCommand extends CytosisCommand {
 
     BlindCommand() {

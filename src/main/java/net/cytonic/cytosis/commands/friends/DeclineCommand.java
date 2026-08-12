@@ -8,7 +8,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Players;
 
-@SubCommand
+@SubCommand(FriendCommand.class)
 class DeclineCommand extends CytosisCommand {
 
     DeclineCommand() {

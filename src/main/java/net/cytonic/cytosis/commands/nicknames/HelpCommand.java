@@ -7,7 +7,7 @@ import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(NickCommand.class)
 class HelpCommand extends CytosisCommand {
 
     private static final Component STAFF_HELP = Msg.mm("""

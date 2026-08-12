@@ -13,7 +13,7 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
-@SubCommand
+@SubCommand(PartyCommand.class)
 class AcceptCommand extends CytosisCommand {
 
     AcceptCommand() {

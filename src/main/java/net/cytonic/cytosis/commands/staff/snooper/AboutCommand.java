@@ -5,7 +5,7 @@ import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(SnooperCommand.class)
 class AboutCommand extends CytosisCommand {
 
     AboutCommand() {

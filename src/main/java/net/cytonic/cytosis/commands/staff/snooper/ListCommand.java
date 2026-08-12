@@ -12,7 +12,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Preferences;
 
-@SubCommand
+@SubCommand(SnooperCommand.class)
 class ListCommand extends CytosisCommand {
 
     ListCommand() {

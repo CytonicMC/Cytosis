@@ -13,7 +13,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.snooper.SnooperChannel;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(SnooperCommand.class)
 class TestCommand extends CytosisCommand {
 
     TestCommand() {

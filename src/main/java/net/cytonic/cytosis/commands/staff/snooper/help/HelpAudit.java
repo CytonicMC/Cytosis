@@ -2,11 +2,12 @@ package net.cytonic.cytosis.commands.staff.snooper.help;
 
 import net.kyori.adventure.text.Component;
 
+import net.cytonic.cytosis.commands.staff.snooper.HelpCommand;
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(HelpCommand.class)
 public class HelpAudit extends CytosisCommand {
 
     private static final Component MESSAGE = Msg.splash("SNOOPER HELP!", "e829aa",

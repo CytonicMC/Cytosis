@@ -15,7 +15,7 @@ import net.cytonic.cytosis.player.OfflinePlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
 
-@SubCommand
+@SubCommand(FriendCommand.class)
 class RemoveCommand extends CytosisCommand {
 
     RemoveCommand() {

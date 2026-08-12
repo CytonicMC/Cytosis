@@ -14,10 +14,10 @@ import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
-class GetPreferenceCommand extends CytosisCommand {
+@SubCommand(PreferenceCommand.class)
+class GetCommand extends CytosisCommand {
 
-    GetPreferenceCommand() {
+    GetCommand() {
         super("get");
 
         ArgumentResourceLocation nodeArg = ArgumentType.ResourceLocation("node");

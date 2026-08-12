@@ -15,7 +15,7 @@ import net.cytonic.cytosis.snooper.DateRange;
 import net.cytonic.cytosis.snooper.SnooperMenu;
 import net.cytonic.cytosis.utils.Msg;
 
-@SubCommand
+@SubCommand(SnooperCommand.class)
 class AuditCommand extends CytosisCommand {
 
     AuditCommand() {

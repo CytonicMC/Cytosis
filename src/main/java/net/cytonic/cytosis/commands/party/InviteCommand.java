@@ -15,7 +15,7 @@ import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.utils.Preferences;
 import net.cytonic.protocol.impl.responses.GenericResponse;
 
-@SubCommand
+@SubCommand(PartyCommand.class)
 class InviteCommand extends CytosisCommand {
 
     InviteCommand() {

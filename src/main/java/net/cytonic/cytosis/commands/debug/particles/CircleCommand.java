@@ -13,7 +13,7 @@ import net.cytonic.cytosis.particles.effects.looping.Phase;
 import net.cytonic.cytosis.particles.util.ParticleData;
 import net.cytonic.cytosis.player.CytosisPlayer;
 
-@SubCommand
+@SubCommand(ParticleCommand.class)
 class CircleCommand extends CytosisCommand {
 
     CircleCommand() {
