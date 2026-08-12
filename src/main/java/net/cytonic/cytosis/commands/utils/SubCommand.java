@@ -9,4 +9,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface SubCommand {
 
+    /**
+     * The parent command of this subcommand.
+     *
+     * @return the class to register this command to
+     */
+    Class<? extends CytosisCommand> value();
 }

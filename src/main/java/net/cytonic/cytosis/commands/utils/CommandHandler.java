@@ -1,5 +1,7 @@
 package net.cytonic.cytosis.commands.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.metrics.Metrics;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
@@ -41,6 +44,8 @@ public class CommandHandler implements Bootstrappable {
      * Registers the default Cytosis commands
      */
     public void registerCommands() {
+        Map<Class<? extends CytosisCommand>, List<CytosisCommand>> depends = new HashMap<>();
+
         commandManager.setUnknownCommandCallback((commandSender, s) -> {
             if (!(commandSender instanceof CytosisPlayer player)) return;
             player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
@@ -52,9 +57,37 @@ public class CommandHandler implements Bootstrappable {
         });
         for (CytosisCommand command : COMMANDS) {
             commandMap.put(command.getClass(), command);
-            if (command.getClass().isAnnotationPresent(SubCommand.class)) continue;
+            if (command.getClass().isAnnotationPresent(SubCommand.class)) {
+                SubCommand annotation = command.getClass().getAnnotation(SubCommand.class);
+                if (commandMap.containsKey(annotation.value())) {
+                    // already registered parent, add sub command!
+                    commandMap.get(annotation.value()).addSubcommand(command);
+                } else {
+                    depends.computeIfAbsent(annotation.value(), _ -> new ArrayList<>()).add(command);
+                }
+
+                if (depends.containsKey(command.getClass())) {
+                    for (CytosisCommand dependent : depends.get(command.getClass())) {
+                        command.addSubcommand(dependent);
+                    }
+                }
+                continue;
+            }
             commandManager.register(command);
         }
+
+        if (!depends.isEmpty()) {
+            depends.forEach((parent, children) -> {
+                if (commandMap.containsKey(parent)) {
+                    children.forEach(child -> commandMap.get(parent).addSubcommand(child));
+                    return;
+                }
+
+                Logger.warn("Missing parent command `%s` for subcommand(s) %s", parent.getName(),
+                    Arrays.toString(children.toArray()));
+            });
+        }
+
         // special case
         commandManager.register(DummyCommand.INSTANCE);
     }
@@ -66,9 +99,12 @@ public class CommandHandler implements Bootstrappable {
      * @return if the sub commands were successfully registered to the parent
      */
     public boolean attachSubCommands(Class<? extends CytosisCommand> parent, CytosisCommand... subs) {
-        if (!commandMap.containsKey(parent)) return false;
-        commandMap.get(parent).addSubcommands(subs);
+        if (!commandMap.containsKey(parent)) {
+            Logger.debug("Attempting to register sub command to an unregistered parent: %s", parent.getSimpleName());
+            return false;
+        }
         commandManager.unregister(DummyCommand.INSTANCE);
+        commandMap.get(parent).addSubcommands(subs);
         commandManager.register(DummyCommand.INSTANCE);
         return true;
     }
