@@ -68,7 +68,7 @@ public class CommandHandler implements Bootstrappable {
                 }
 
                 if (depends.containsKey(command.getClass())) {
-                    for (CytosisCommand dependent : depends.get(command.getClass())) {
+                    for (CytosisCommand dependent : depends.remove(command.getClass())) {
                         command.addSubCommandInternal(dependent);
                     }
                 }
