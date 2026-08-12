@@ -61,14 +61,14 @@ public class CommandHandler implements Bootstrappable {
                 SubCommand annotation = command.getClass().getAnnotation(SubCommand.class);
                 if (commandMap.containsKey(annotation.value())) {
                     // already registered parent, add sub command!
-                    commandMap.get(annotation.value()).addSubcommand(command);
+                    commandMap.get(annotation.value()).addSubCommandInternal(command);
                 } else {
                     depends.computeIfAbsent(annotation.value(), _ -> new ArrayList<>()).add(command);
                 }
 
                 if (depends.containsKey(command.getClass())) {
                     for (CytosisCommand dependent : depends.get(command.getClass())) {
-                        command.addSubcommand(dependent);
+                        command.addSubCommandInternal(dependent);
                     }
                 }
                 continue;
@@ -79,7 +79,7 @@ public class CommandHandler implements Bootstrappable {
         if (!depends.isEmpty()) {
             depends.forEach((parent, children) -> {
                 if (commandMap.containsKey(parent)) {
-                    children.forEach(child -> commandMap.get(parent).addSubcommand(child));
+                    children.forEach(child -> commandMap.get(parent).addSubCommandInternal(child));
                     return;
                 }
 
