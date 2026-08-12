@@ -38,6 +38,16 @@ public class CommandHandler implements Bootstrappable {
     @Override
     public void init() {
         this.commandManager = Cytosis.get(CommandManager.class);
+        commandManager.setUnknownCommandCallback((commandSender, s) -> {
+            if (!(commandSender instanceof CytosisPlayer player)) return;
+            player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.UNKNOWN_COMMANDS, 1, Attributes.of(
+                //todo: (Foxikle) This seems like it might be an invasion of privacy, and should be disclosed, or possibly even disabled.
+                AttributeKey.stringKey("uuid"), player.getUuid().toString(),
+                AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase(),
+                AttributeKey.stringKey("usage"), s
+            ));
+        });
     }
 
     /**
@@ -46,15 +56,6 @@ public class CommandHandler implements Bootstrappable {
     public void registerCommands() {
         Map<Class<? extends CytosisCommand>, List<CytosisCommand>> depends = new HashMap<>();
 
-        commandManager.setUnknownCommandCallback((commandSender, s) -> {
-            if (!(commandSender instanceof CytosisPlayer player)) return;
-            player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
-            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.UNKNOWN_COMMANDS, 1, Attributes.of(
-                //todo: (Foxikle) This seems like it might be an invasion of privacy, and should be disclosed, or possibly even disabled.
-                AttributeKey.stringKey("uuid"), player.getUuid().toString(),
-                AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase()
-            ));
-        });
         for (CytosisCommand command : COMMANDS) {
             commandMap.put(command.getClass(), command);
             if (command.getClass().isAnnotationPresent(SubCommand.class)) {
