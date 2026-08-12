@@ -65,7 +65,10 @@ public class CommandHandler implements Bootstrappable {
      */
     public boolean attachSubCommands(Class<? extends CytosisCommand> parent, CytosisCommand... subs) {
         if (!commandMap.containsKey(parent)) return false;
-        commandMap.get(parent).addSubcommands(subs);
+        CytosisCommand command = commandMap.get(parent);
+        commandManager.unregister(command);
+        command.addSubcommands(subs);
+        commandManager.register(command);
         return true;
     }
 

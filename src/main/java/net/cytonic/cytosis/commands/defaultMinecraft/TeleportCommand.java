@@ -21,8 +21,12 @@ public class TeleportCommand extends CytosisCommand {
     private static final CommandExecutor PLAYER_EXECUTOR = (sender, context) -> {
         if (sender instanceof CytosisPlayer player) {
             CytosisPlayer target = context.get(CommandUtils.ONLINE_PLAYERS);
-            player.teleport(target.getPosition());
             player.sendMessage(Msg.green("Teleported!"));
+            if (player.getInstance() != target.getInstance()) {
+                player.setInstance(target.getInstance(), target.getPosition());
+                return;
+            }
+            player.teleport(target.getPosition());
         }
     };
     public static final ArgumentRelativeBlockPosition POS_ARG = ArgumentType.RelativeBlockPosition("position");
