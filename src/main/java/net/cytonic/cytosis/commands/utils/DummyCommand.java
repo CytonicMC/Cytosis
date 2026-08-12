@@ -7,7 +7,5 @@ public class DummyCommand extends CytosisCommand {
 
     public DummyCommand() {
         super("dummy");
-        setDefaultExecutor((_, _) -> {
-        });
     }
 }
