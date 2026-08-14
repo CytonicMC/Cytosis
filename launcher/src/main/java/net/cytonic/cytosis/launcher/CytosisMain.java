@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.launcher;
 
 import dev.minestomunited.entrypoint.EntryPoint;
-import dev.minestomunited.entrypoint.config.ServerConfig;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
@@ -17,7 +16,6 @@ public class CytosisMain {
     static void main(String[] args) {
         EntryPoint.Builder<CytosisServer> builder = EntryPoint.<CytosisServer>builder()
             .server(CytosisServer::new)
-            .registerConfig(ServerConfig.class, new ServerConfig("0.0.0.0", 25576))
             .afterSetup(server -> {
 
                 Cytosis.init(server);
