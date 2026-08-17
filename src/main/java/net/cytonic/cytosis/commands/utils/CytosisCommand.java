@@ -101,6 +101,7 @@ public class CytosisCommand extends Command {
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public void addSubcommand(@NonNull Command cmd) {
         Logger.warn("""
             Subcommands should not be directly added to Cytosis commands.
