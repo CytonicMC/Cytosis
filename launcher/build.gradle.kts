@@ -1,7 +1,7 @@
 plugins {
     id("java")
     application
-    id("com.gradleup.shadow") version "9.6.0"
+    id("com.gradleup.shadow") version "9.6.1"
     id("io.freefair.lombok") version "9.5.0"
     id("dev.minestom-united.minestom-events") version "0.0.2"
     alias(libs.plugins.blossom)
