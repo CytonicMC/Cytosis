@@ -19,7 +19,7 @@ plugins {
     id("io.ebean") version "19.3.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.2"
-    id("com.github.vlsi.jandex") version "3.0.2"
+    id("com.github.vlsi.jandex") version "4.0.0"
 }
 
 group = "net.cytonic"
@@ -426,7 +426,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "13.8.0"
+    toolVersion = "14.0.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
