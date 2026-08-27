@@ -44,6 +44,13 @@ public class ReportEntity extends Model {
     @DbDefault("false")
     private boolean resolved = false;
 
+    @DbDefault("false")
+    private boolean notified = false;
+
     @DbJsonB
     private String context;
+
+    @DbJsonB
+    @Column(name = "resolution_context")
+    private String resolutionContext;
 }

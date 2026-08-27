@@ -101,6 +101,7 @@ public class ChatManager implements Bootstrappable {
         originalMessage = Msg.stripTags(originalMessage);
         if (channel == ChatChannel.ALL) {
             Cytosis.getServer().chatService().handleAllChat(player, originalMessage);
+            logMessage(null, player.getUuid(), originalMessage, ChatChannel.ALL);
             return;
         }
 
