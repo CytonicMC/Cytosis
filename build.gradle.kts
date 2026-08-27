@@ -20,6 +20,7 @@ plugins {
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.2"
     id("com.github.vlsi.jandex") version "3.0.2"
+    id("org.graalvm.buildtools.native") version "1.1.9"
 }
 
 group = "net.cytonic"
@@ -67,7 +68,7 @@ dependencies {
     downloadOrShade(libs.fastutil)
     downloadOrShade(libs.hikaricp)
     downloadOrShade(libs.reflections)
-    downloadOrShade(libs.bundles.log4j)
+    downloadOrShade(libs.logback)
     downloadOrShade(libs.bundles.otel)
     downloadOrShade(libs.postgresql)
     downloadOrShade(libs.joml)

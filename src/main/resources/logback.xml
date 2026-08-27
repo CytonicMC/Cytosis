@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+    <encoder>
+      <pattern>
+        %highlight([%d{HH:mm:ss}] %-5level &gt; %msg%n){ERROR=RED,WARN=YELLOW,INFO=GREEN,DEBUG=MAGENTA,TRACE=BLUE}
+      </pattern>
+    </encoder>
+  </appender>
+
+  <logger level="DEBUG" name="Cytosis"/>
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>

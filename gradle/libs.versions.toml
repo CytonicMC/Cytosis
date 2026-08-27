@@ -7,7 +7,7 @@ gson = "2.14.0"
 guava = "33.6.0-jre"
 jedis = "7.5.3"
 jnats = "2.26.0"
-log4j = "2.26.1"
+logback = "1.6.3"
 minestompvp = "2026.05.30-26.1.1"
 postgresql = "42.7.13"
 okhttp = "5.4.0"
@@ -45,8 +45,7 @@ minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "
 adventure-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
-log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
-log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 jnats = { module = "io.nats:jnats", version.ref = "jnats" }
 lombokwarningfix = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "lombokwarningfix" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
@@ -69,7 +68,6 @@ minestomevents = { module = "dev.minestom-united:minestom-events-core", version.
 codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
 
 [bundles]
-log4j = ["log4j-core", "log4j-slf4j2-impl"]
 otel = ["opentelemetry-api", "opentelemetry-sdk", "opentelemetry-exporter-otlp"]
 
 [plugins]
