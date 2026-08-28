@@ -3,6 +3,7 @@ package net.cytonic.nativeimage;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.PackageInfo;
 import io.github.classgraph.ScanResult;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeClassInitialization;
@@ -36,13 +37,13 @@ public class NativeImageFeature implements Feature {
             processScan(scanResult.getSubclasses("me.devnatan.inventoryframework.View"), access);
             processScan(scanResult.getClassesImplementing("net.minestom.server.event.Event"), access);
             processScan(scanResult.getClassesImplementing("net.cytonic.protocol.notify.NotifyListener"), access);
+            processScan(scanResult.getClassesImplementing("net.cytonic.protocol.Endpoint"), access);
             processScan(scanResult.getClassesWithMethodAnnotation("net.cytonic.protocol.utils.NotifyHandler"), access);
             processScan(scanResult.getClassesWithMethodAnnotation("net.cytonic.cytosis.events.api.Listener"), access);
             processScan(scanResult.getClassesWithAnnotation("jakarta.persistence.Embeddable"), access);
             processScan(scanResult.getClassesWithAnnotation("jakarta.persistence.Entity"), access);
             processScan(scanResult.getSubclasses("net.cytonic.protocol.ProtocolObject"), access);
             processScan(scanResult.getSubclasses("net.cytonic.cytosis.commands.utils.CytosisCommand"), access);
-            processScan(scanResult.getSubclasses("net.cytonic.protocol.Endpoint"), access);
             processScan(scanResult.getSubclasses("net.cytonic.cytosis.entity.npc.NPC"), access);
             processScan(
                 scanResult.getClassesWithAnnotation("net.cytonic.cytosis.bootstrap.annotations.CytosisComponent"),
@@ -59,7 +60,7 @@ public class NativeImageFeature implements Feature {
                 "com.google.gson", "io.nats.client")
             .scan()) {
 
-            for (var packageInfo : scanResult.getPackageInfo()) {
+            for (PackageInfo packageInfo : scanResult.getPackageInfo()) {
 //                if ("net.minestom.server.network".equals(packageInfo.getName()))
 //                    continue;
                 if ("net.minestom.server.utils".equals(packageInfo.getName()))
@@ -100,7 +101,7 @@ public class NativeImageFeature implements Feature {
     private void processRecordClass(BeforeAnalysisAccess access, ClassInfo info) {
         if (info.getName().endsWith("Event")) return;
         var recordClass = access.findClassByName(info.getName());
-
+        if (recordClass == null) return;
         RuntimeReflection.register(recordClass);
         for (var ctor : recordClass.getDeclaredConstructors())
             RuntimeReflection.register(ctor);
