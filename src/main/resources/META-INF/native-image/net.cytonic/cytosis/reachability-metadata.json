@@ -383,10 +383,10 @@
       "glob": "ch/qos/logback/core/logback-core-version.properties"
     },
     {
-      "glob": "logback-test.xml"
+      "glob": "logback.xml"
     },
     {
-      "glob": "logback.xml"
+      "glob": "redis/clients/jedis/pom.properties"
     },
     {
       "glob": "net/minestom/data/attribute.json"

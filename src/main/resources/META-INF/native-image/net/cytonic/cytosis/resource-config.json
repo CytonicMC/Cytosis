@@ -1,9 +1,0 @@
-{
-  "resources": {
-    "includes": [
-      {
-        "pattern": "META-INF/maven/redis.clients/jedis/pom.properties"
-      }
-    ]
-  }
-}
