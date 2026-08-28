@@ -23,7 +23,7 @@ public class StaticInitializers {
 
 
         // preinitialize the minecraft server :)
-        SERVER = MinecraftServer.init(new Auth.Velocity("TESTSECRET"));
+        SERVER = MinecraftServer.init(new Auth.Velocity("6YHBaxYVAWVC"));
 
         // forces initialization order
         var ignoredTheClasses = List.of(AnvilLoader.class, DynamicChunk.class, CytosisPlayer.class,

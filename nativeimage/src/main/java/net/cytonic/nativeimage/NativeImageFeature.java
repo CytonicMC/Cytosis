@@ -61,8 +61,6 @@ public class NativeImageFeature implements Feature {
             .scan()) {
 
             for (PackageInfo packageInfo : scanResult.getPackageInfo()) {
-//                if ("net.minestom.server.network".equals(packageInfo.getName()))
-//                    continue;
                 if ("net.minestom.server.utils".equals(packageInfo.getName()))
                     continue;
                 if ("net.minestom.server.network.packet".equals(packageInfo.getName()))
