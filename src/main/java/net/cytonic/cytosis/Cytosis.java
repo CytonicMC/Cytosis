@@ -15,6 +15,7 @@ import lombok.Getter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 
+import net.cytonic.cytosis.bootstrap.CytosisBootstrap;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.environments.Environment;
 import net.cytonic.cytosis.player.CytosisPlayer;

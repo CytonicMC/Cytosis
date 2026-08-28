@@ -2,7 +2,8 @@ metadata.format.version = "1.1"
 
 [versions]
 adventure = "5.2.0"
-dependencydownload = "2.0.0"
+classgraph = "4.8.179"
+graalvm = "25.0.0"
 gson = "2.14.0"
 guava = "33.6.0-jre"
 jedis = "7.5.3"
@@ -19,7 +20,8 @@ reflections = "0.10.2"
 lombokwarningfix = "4.0.5"
 fastutil = "8.5.18"
 hikaricp = "7.1.0"
-joml = "1.10.9"
+joml = "1.10.8"
+bouncycastle = "1.85.2"
 ebean = "19.3.0"
 ebean-migrations = "14.3.0"
 jandex = "3.6.0"
@@ -51,10 +53,10 @@ lombokwarningfix = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.r
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
-dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 joml = { module = "org.joml:joml", version.ref = "joml" }
+bouncycastle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 ebean = { module = "io.ebean:ebean-postgres", version.ref = "ebean" }
 ebean-ddl = { module = "io.ebean:ebean-ddl-generator", version.ref = "ebean" }
 ebean-query = { module = "io.ebean:querybean-generator", version.ref = "ebean" }
@@ -66,6 +68,10 @@ codecutils = { module = "dev.minestom-united.common:codec-utils", version.ref = 
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }
 codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
+
+# Native image stuff
+nativeimage = { group = "org.graalvm.sdk", name = "nativeimage", version.ref = "graalvm" }
+classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
 
 [bundles]
 otel = ["opentelemetry-api", "opentelemetry-sdk", "opentelemetry-exporter-otlp"]

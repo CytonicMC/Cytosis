@@ -1,0 +1,614 @@
+{
+  "reflection": [
+    {
+      "type": "ch.qos.logback.classic.encoder.PatternLayoutEncoder",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "ch.qos.logback.classic.spi.LogbackServiceProvider"
+    },
+    {
+      "type": "ch.qos.logback.classic.util.DefaultJoranConfigurator",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "ch.qos.logback.core.ConsoleAppender",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "ch.qos.logback.core.OutputStreamAppender",
+      "methods": [
+        {
+          "name": "setEncoder",
+          "parameterTypes": [
+            "ch.qos.logback.core.encoder.Encoder"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ch.qos.logback.core.encoder.Encoder"
+    },
+    {
+      "type": "ch.qos.logback.core.encoder.LayoutWrappingEncoder",
+      "methods": [
+        {
+          "name": "setParent",
+          "parameterTypes": [
+            "ch.qos.logback.core.spi.ContextAware"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ch.qos.logback.core.pattern.PatternLayoutEncoderBase",
+      "methods": [
+        {
+          "name": "setPattern",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ch.qos.logback.core.spi.ContextAware"
+    },
+    {
+      "type": "com.google.gson.internal.bind.JavaTimeTypeAdapters",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Boolean",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getBoolean",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.sql.Date"
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig",
+      "methods": [
+        {
+          "name": "database",
+          "parameterTypes": []
+        },
+        {
+          "name": "environment",
+          "parameterTypes": []
+        },
+        {
+          "name": "garage",
+          "parameterTypes": []
+        },
+        {
+          "name": "metrics",
+          "parameterTypes": []
+        },
+        {
+          "name": "mongo",
+          "parameterTypes": []
+        },
+        {
+          "name": "nats",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        },
+        {
+          "name": "redis",
+          "parameterTypes": []
+        },
+        {
+          "name": "secret",
+          "parameterTypes": []
+        },
+        {
+          "name": "standalone",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig$DatabaseConfig",
+      "methods": [
+        {
+          "name": "database",
+          "parameterTypes": []
+        },
+        {
+          "name": "globalDatabase",
+          "parameterTypes": []
+        },
+        {
+          "name": "host",
+          "parameterTypes": []
+        },
+        {
+          "name": "password",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        },
+        {
+          "name": "username",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig$GarageConfig",
+      "methods": [
+        {
+          "name": "host",
+          "parameterTypes": []
+        },
+        {
+          "name": "password",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        },
+        {
+          "name": "username",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig$MetricsConfig",
+      "methods": [
+        {
+          "name": "enabled",
+          "parameterTypes": []
+        },
+        {
+          "name": "host",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig$MongoConfig",
+      "methods": [
+        {
+          "name": "database",
+          "parameterTypes": []
+        },
+        {
+          "name": "host",
+          "parameterTypes": []
+        },
+        {
+          "name": "password",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        },
+        {
+          "name": "user",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig$NatsConfig",
+      "methods": [
+        {
+          "name": "host",
+          "parameterTypes": []
+        },
+        {
+          "name": "password",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        },
+        {
+          "name": "username",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.cytonic.cytosis.config.CytosisConfig$RedisConfig",
+      "methods": [
+        {
+          "name": "host",
+          "parameterTypes": []
+        },
+        {
+          "name": "password",
+          "parameterTypes": []
+        },
+        {
+          "name": "port",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.minestom.server.adventure.provider.MinestomAnsiComponentSerializerProvider"
+    },
+    {
+      "type": "net.minestom.server.adventure.provider.MinestomComponentLoggerProvider"
+    },
+    {
+      "type": "net.minestom.server.network.packet.server.CachedPacket",
+      "fields": [
+        {
+          "name": "packet"
+        }
+      ]
+    },
+    {
+      "type": "org.jboss.jandex.AnnotationInstance[]"
+    },
+    {
+      "type": "org.jboss.jandex.ClassInfo[]"
+    },
+    {
+      "type": "org.jctools.queues.atomic.BaseMpscLinkedAtomicArrayQueueColdProducerFields"
+    },
+    {
+      "type": "org.jctools.queues.atomic.BaseMpscLinkedAtomicArrayQueueConsumerFields"
+    },
+    {
+      "type": "org.jctools.queues.atomic.BaseMpscLinkedAtomicArrayQueueProducerFields"
+    },
+    {
+      "type": "org.jctools.queues.atomic.MpmcAtomicArrayQueueConsumerIndexField"
+    },
+    {
+      "type": "org.jctools.queues.atomic.MpmcAtomicArrayQueueProducerIndexField"
+    },
+    {
+      "type": "sun.security.provider.NativePRNG",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.security.SecureRandomParameters"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.SHA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData"
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData_en"
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData_en_US"
+    }
+  ],
+  "resources": [
+    {
+      "glob": "META-INF/cytosis-jandex.idx"
+    },
+    {
+      "glob": "META-INF/jandex.idx"
+    },
+    {
+      "glob": "META-INF/minestom-jandex.idx"
+    },
+    {
+      "glob": "META-INF/protocol-jandex.idx"
+    },
+    {
+      "glob": "META-INF/services/ch.qos.logback.classic.spi.Configurator"
+    },
+    {
+      "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
+    },
+    {
+      "glob": "META-INF/services/javax.xml.parsers.SAXParserFactory"
+    },
+    {
+      "glob": "META-INF/services/net.kyori.adventure.internal.properties.AdventureProperties$DefaultOverrideProvider"
+    },
+    {
+      "glob": "META-INF/services/net.kyori.adventure.text.logger.slf4j.ComponentLoggerProvider"
+    },
+    {
+      "glob": "META-INF/services/net.kyori.adventure.text.serializer.ansi.ANSIComponentSerializer$Provider"
+    },
+    {
+      "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
+    },
+    {
+      "glob": "ch/qos/logback/classic/logback-classic-version.properties"
+    },
+    {
+      "glob": "ch/qos/logback/core/logback-core-version.properties"
+    },
+    {
+      "glob": "logback-test.xml"
+    },
+    {
+      "glob": "logback.xml"
+    },
+    {
+      "glob": "net/minestom/data/attribute.json"
+    },
+    {
+      "glob": "net/minestom/data/banner_pattern.json"
+    },
+    {
+      "glob": "net/minestom/data/block.json"
+    },
+    {
+      "glob": "net/minestom/data/block_entity_type.json"
+    },
+    {
+      "glob": "net/minestom/data/block_sound_type.json"
+    },
+    {
+      "glob": "net/minestom/data/cat_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/cat_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/chat_type.json"
+    },
+    {
+      "glob": "net/minestom/data/chicken_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/chicken_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/cow_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/cow_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/damage_type.json"
+    },
+    {
+      "glob": "net/minestom/data/dialog.json"
+    },
+    {
+      "glob": "net/minestom/data/dimension_type.json"
+    },
+    {
+      "glob": "net/minestom/data/enchantment.json"
+    },
+    {
+      "glob": "net/minestom/data/entity_type.json"
+    },
+    {
+      "glob": "net/minestom/data/frog_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/game_rule.json"
+    },
+    {
+      "glob": "net/minestom/data/instrument.json"
+    },
+    {
+      "glob": "net/minestom/data/item.json"
+    },
+    {
+      "glob": "net/minestom/data/jukebox_song.json"
+    },
+    {
+      "glob": "net/minestom/data/mob_effect.json"
+    },
+    {
+      "glob": "net/minestom/data/painting_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/particle_type.json"
+    },
+    {
+      "glob": "net/minestom/data/pig_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/pig_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/sound_event.json"
+    },
+    {
+      "glob": "net/minestom/data/sulfur_cube_archetype.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/attribute.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/banner_pattern.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/block.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/block_entity_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/block_sound_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/cat_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/cat_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/chat_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/chicken_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/chicken_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/cow_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/cow_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/damage_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/dialog.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/dimension_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/enchantment.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/entity_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/frog_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/game_rule.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/instrument.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/item.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/jukebox_song.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/mob_effect.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/painting_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/particle_type.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/pig_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/pig_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/sound_event.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/sulfur_cube_archetype.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/timeline.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/trim_material.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/trim_pattern.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/wolf_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/wolf_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/world_clock.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/worldgen/biome.json"
+    },
+    {
+      "glob": "net/minestom/data/tags/zombie_nautilus_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/timeline.json"
+    },
+    {
+      "glob": "net/minestom/data/trim_material.json"
+    },
+    {
+      "glob": "net/minestom/data/trim_pattern.json"
+    },
+    {
+      "glob": "net/minestom/data/wolf_sound_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/wolf_variant.json"
+    },
+    {
+      "glob": "net/minestom/data/world_clock.json"
+    },
+    {
+      "glob": "net/minestom/data/worldgen/biome.json"
+    },
+    {
+      "glob": "net/minestom/data/zombie_nautilus_variant.json"
+    }
+  ]
+}

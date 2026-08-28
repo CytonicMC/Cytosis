@@ -1,4 +1,4 @@
-package net.cytonic.cytosis;
+package net.cytonic.cytosis.bootstrap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 
 import net.minestom.server.event.Event;
 
+import net.cytonic.cytosis.CytosisContext;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.events.EventHandler;
 import net.cytonic.cytosis.events.EventListener;

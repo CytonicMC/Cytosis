@@ -1,7 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.vlsi.jandex.JandexTask
 import io.ebean.annotation.Platform.POSTGRES
-import org.gradle.kotlin.dsl.accessors.runtime.addDependencyTo
 import org.jboss.jandex.IndexWriter
 import org.jboss.jandex.Indexer
 import java.util.jar.JarFile
@@ -10,8 +8,6 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("com.gradleup.shadow") version "9.6.0"
-    id("dev.vankka.dependencydownload.plugin") version "2.0.0"
     id("io.freefair.lombok") version "9.5.0"
     alias(libs.plugins.blossom)
     alias(libs.plugins.indragit)
@@ -36,49 +32,42 @@ repositories {
     }
 }
 
-val alwaysShadow: Configuration = configurations.create("alwaysShadow") {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-}
-
-val downloadOrShadow: Configuration = configurations.create("downloadOrShadow") {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-}
-
 dependencies {
-    // Always shadowed (in both thin and fat jars) - the essentials
-    alwaysShade(libs.dependencydownload)
-    alwaysShade(project(":protocol"))
-    downloadOrShade(libs.entrypoint)
-    downloadOrShade(libs.codecutils)
+    api(project(":protocol"))
+    implementation(project(":nativeimage"))
+    api(libs.entrypoint)
+    api(libs.codecutils)
 
-    // Downloaded at runtime for thinJar, shadowed in fatJar
-    downloadOrShade(libs.jnats)
-    downloadOrShade(libs.okhttp)
-    downloadOrShade(libs.polar)
-    downloadOrShade(libs.jedis)
-    downloadOrShade(libs.mongo)
-    downloadOrShade(libs.guava)
-    downloadOrShade(libs.minestompvp) {
+    api(libs.jnats) {
+        exclude(group = "org.bouncycastle", module = "bcprov-lts8on")
+    }
+    api(libs.okhttp)
+    api(libs.polar)
+    api(libs.jedis)
+    api(libs.mongo)
+    api(libs.guava)
+    api(libs.minestompvp) {
         exclude(group = "net.minestom", module = "minestom")
     }
-    downloadOrShade(libs.invui)
-    downloadOrShade(libs.anvilInput)
-    downloadOrShade(libs.fastutil)
-    downloadOrShade(libs.hikaricp)
-    downloadOrShade(libs.reflections)
-    downloadOrShade(libs.logback)
-    downloadOrShade(libs.bundles.otel)
-    downloadOrShade(libs.postgresql)
-    downloadOrShade(libs.joml)
-    downloadOrShade(libs.ebean)
-    downloadOrShade(libs.ebean.ddl)
-    downloadOrShade(libs.ebean.migrations)
-    downloadOrShade(libs.jandex)
-    downloadOrShade(libs.minio)
-    downloadOrShade(libs.minimessage)
-    downloadOrShade(libs.minestomevents)
+    api(libs.invui)
+    api(libs.anvilInput)
+    api(libs.fastutil)
+    api(libs.hikaricp)
+    api(libs.reflections)
+    api(libs.logback)
+    api(libs.bundles.otel)
+    api(libs.postgresql)
+    api(libs.joml)
+    api(libs.ebean)
+    api(libs.ebean.ddl)
+    api(libs.ebean.migrations)
+    api(libs.jandex)
+    api(libs.minio) {
+        exclude(group = "org.bouncycastle", module = "bcprov-lts8on")
+    }
+    implementation(libs.bouncycastle)
+    api(libs.minimessage)
+    api(libs.minestomevents)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)
@@ -91,70 +80,6 @@ buildscript {
     }
 }
 
-// alwaysShade: Always shadowed in both thin and fat jars
-fun DependencyHandler.alwaysShade(dependencyNotation: Any) {
-    val resolved = when (dependencyNotation) {
-        is Provider<*> -> dependencyNotation.get()
-        else -> dependencyNotation
-    }
-
-    if (resolved is Iterable<*>) {
-        resolved.forEach { dep ->
-            add("api", dep!!)
-            add("alwaysShadow", dep)
-        }
-    } else {
-        add("api", resolved)
-        add("alwaysShadow", resolved)
-    }
-}
-
-fun DependencyHandler.alwaysShade(
-    dependencyNotation: Any,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-) {
-    val resolved = when (dependencyNotation) {
-        is Provider<*> -> dependencyNotation.get()
-        else -> dependencyNotation
-    }
-
-    addDependencyTo(this, "api", resolved, dependencyConfiguration)
-    addDependencyTo(this, "alwaysShadow", resolved, dependencyConfiguration)
-}
-
-fun DependencyHandler.downloadOrShade(dependencyNotation: Any) {
-    val resolved = when (dependencyNotation) {
-        is Provider<*> -> dependencyNotation.get()
-        else -> dependencyNotation
-    }
-
-    if (resolved is Iterable<*>) {
-        resolved.forEach { dep ->
-            add("api", dep!!)
-            add("runtimeDownloadOnly", dep)
-            add("downloadOrShadow", dep)
-        }
-    } else {
-        add("api", resolved)
-        add("runtimeDownloadOnly", resolved)
-        add("downloadOrShadow", resolved)
-    }
-}
-
-fun DependencyHandler.downloadOrShade(
-    dependencyNotation: Any,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-) {
-    val resolved = when (dependencyNotation) {
-        is Provider<*> -> dependencyNotation.get()
-        else -> dependencyNotation
-    }
-
-    addDependencyTo(this, "api", resolved, dependencyConfiguration)
-    addDependencyTo(this, "runtimeDownloadOnly", resolved, dependencyConfiguration)
-    addDependencyTo(this, "downloadOrShadow", resolved, dependencyConfiguration)
-}
-
 migration {
     id = "cytosis"
     platform = POSTGRES
@@ -162,7 +87,6 @@ migration {
 }
 
 minestomEvents {
-    compileOnly = true
     outputPackage = "net.cytonic.cytosis.utils"
 }
 
@@ -171,7 +95,6 @@ val buildIndex = tasks.register("indexMinestomEvents") {
     description = "Indexes net.minestom.server.event from the Minestom dependency jar."
 
     // Depend on configuration resolution so the jar is present
-    dependsOn(configurations["downloadOrShadow"])
     dependsOn("ebeanEnhance")
 
     val outputFile = layout.buildDirectory.file("resources/main/META-INF/minestom-jandex.idx")
@@ -180,7 +103,7 @@ val buildIndex = tasks.register("indexMinestomEvents") {
     doLast {
         val indexer = Indexer()
 
-        val minestomJar = configurations["downloadOrShadow"]
+        val minestomJar = configurations["runtimeClasspath"]
             .resolvedConfiguration
             .resolvedArtifacts
             .first { it.name == "minestom" }
@@ -206,8 +129,6 @@ val buildIndex = tasks.register("indexMinestomEvents") {
 
 tasks.withType<Javadoc> {
     dependsOn(buildIndex)
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
 
     val javadocOptions = options as CoreJavadocOptions
     javadocOptions.addStringOption("source", "25")
@@ -226,124 +147,12 @@ sourceSets {
     }
 }
 
-gradle.taskGraph.whenReady {
-    val bundled = hasTask(":fatShadow") || hasTask(":fatJar")
-    sourceSets.main.get().blossom.javaSources {
-        properties.put("dependenciesBundled", bundled)
+tasks {
+    jar {
+        dependsOn("indexMinestomEvents")
     }
 }
 
-tasks.register("fatJar") {
-    group = "Accessory Build"
-    description = "Builds Cytosis ready to ship with all dependencies included in the final jar."
-    dependsOn(":protocol:assemble")
-    dependsOn(fatShadow)
-    finalizedBy("copyFatToPrimary", "copyFatToSecondary", "copyFatToLibs")
-}
-
-tasks.register("thinJar") {
-    group = "Accessory Build"
-    description = "Builds Cytosis with only essential dependencies. Downloads the rest at runtime."
-    dependsOn(":protocol:assemble")
-    dependsOn(thinShadow)
-    finalizedBy("copyThinToPrimary", "copyThinToSecondary", "copyThinToLibs")
-}
-
-val thinShadow = tasks.register<ShadowJar>("thinShadow") {
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-    dependsOn(buildIndex)
-
-    exclude("META-INF/*.SF")
-    exclude("META-INF/*.DSA")
-    exclude("META-INF/*.RSA")
-
-    mergeServiceFiles()
-
-    archiveClassifier.set("")
-    destinationDirectory.set(layout.buildDirectory.dir("temp"))
-    from(sourceSets.main.get().output)
-
-    configurations = listOf(alwaysShadow)
-
-    archiveBaseName.set(project.name)
-}
-
-tasks.jar {
-    enabled = false
-}
-
-artifacts {
-    archives(thinShadow)
-}
-
-configurations {
-    apiElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(thinShadow)
-    }
-    runtimeElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(thinShadow)
-    }
-}
-
-val fatShadow = tasks.register<ShadowJar>("fatShadow") {
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
-    dependsOn(buildIndex)
-
-    mergeServiceFiles()
-
-    archiveClassifier.set("all")
-    destinationDirectory.set(layout.buildDirectory.dir("temp"))
-
-    exclude("META-INF/*.SF")
-    exclude("META-INF/*.DSA")
-    exclude("META-INF/*.RSA")
-
-    from(sourceSets.main.get().output)
-
-    configurations = listOf(
-        alwaysShadow,
-        downloadOrShadow
-    )
-}
-
-fun registerServerCopy(taskName: String, sourceTask: TaskProvider<ShadowJar>, propertyName: String) {
-    tasks.register<Copy>(taskName) {
-        dependsOn(sourceTask)
-
-        val destProp = providers.gradleProperty(propertyName)
-        onlyIf { destProp.isPresent }
-
-        from(sourceTask.get().archiveFile)
-        if (destProp.isPresent) {
-            into(destProp)
-        }
-        rename { "cytosis.jar" }
-    }
-}
-
-registerServerCopy("copyFatToPrimary", fatShadow, "server_dir")
-registerServerCopy("copyFatToSecondary", fatShadow, "server_dir2")
-
-registerServerCopy("copyThinToPrimary", thinShadow, "server_dir")
-registerServerCopy("copyThinToSecondary", thinShadow, "server_dir2")
-
-tasks.register<Copy>("copyFatToLibs") {
-    dependsOn(fatShadow)
-    from(fatShadow.get().archiveFile)
-    into(layout.buildDirectory.dir("libs"))
-    rename { "cytosis.jar" }
-}
-
-tasks.register<Copy>("copyThinToLibs") {
-    dependsOn(thinShadow)
-    from(thinShadow.get().archiveFile)
-    into(layout.buildDirectory.dir("libs"))
-    rename { "cytosis.jar" }
-}
 
 jandex {
     toolVersion = "3.6.0"
@@ -351,18 +160,6 @@ jandex {
 
 tasks.named<JandexTask>("jandexMain") {
     indexFile = file("build/jandex/jandexMain/cytosis-jandex.idx")
-}
-
-tasks.shadowJar {
-    enabled = false
-}
-
-tasks.publish {
-    dependsOn(fatShadow)
-}
-
-tasks.withType<GenerateModuleMetadata> {
-    dependsOn(fatShadow)
 }
 
 publishing {
@@ -399,30 +196,19 @@ publishing {
             artifactId = project.name
             version = project.version.toString()
             from(components["java"])
-
-            artifact(fatShadow) {
-                classifier = "all"
-            }
         }
     }
-}
-
-tasks.withType<Zip> {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.withType<ShadowJar> {
-    // prevents issues with security exceptions
-    exclude("META-INF/**/*.SF")
-    exclude("META-INF/**/*.DSA")
-    exclude("META-INF/**/*.RSA")
 }
 
 java {
     withSourcesJar()
     withJavadocJar()
 
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.matching("GraalVM")
+        nativeImageCapable = true
+    }
 }
 
 // Checkstyle configuration
@@ -458,8 +244,6 @@ afterEvaluate {
 // Configure checkstyle tasks
 tasks.named<Checkstyle>("checkstyleMain") {
     dependsOn("processJandexIndex")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -467,8 +251,6 @@ tasks.named<Checkstyle>("checkstyleMain") {
 }
 
 tasks.named<Checkstyle>("checkstyleTest") {
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -478,6 +260,4 @@ tasks.named<Checkstyle>("checkstyleTest") {
 // Make check task depend on checkstyle
 tasks.named("check") {
     dependsOn("checkstyleMain", "checkstyleTest")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownloadOnly")
-    dependsOn("generateRuntimeDownloadResourceForRuntimeDownload")
 }

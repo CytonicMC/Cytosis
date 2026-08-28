@@ -26,7 +26,11 @@ minestomEvents {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.matching("GraalVM")
+        nativeImageCapable = true
+    }
 }
 
 tasks.named<JavaExec>("run") {
@@ -54,7 +58,35 @@ tasks {
         archiveClassifier.set("")
         mergeServiceFiles()
     }
-    jar {
-        enabled = false
+}
+
+// stolen from HC
+graalvmNative {
+    binaries {
+        named("main") {
+            buildArgs(
+                listOf(
+                    "--enable-native-access=ALL-UNNAMED", "--enable-monitoring=jfr",
+                    "--features=net.cytonic.nativeimage.NativeImageFeature",
+//                    "--gc=G1",
+
+//                    "--future-defaults=all",
+                    "-H:+UseCompressedReferences", "-R:MaxHeapSize=200m",
+                    "--static-nolibc", "--no-fallback",
+                    "--emit build-report",
+
+                    // TODO: https enabled because we fetch skins from the session service. Should proxy (with cache)
+                    //  this on the servers, or just store skins ourselves on player data
+                    "--enable-url-protocols=http,https",
+
+                    "--initialize-at-build-time=net.cytonic.cytosis.StaticInitializers",
+
+                    "--report-unsupported-elements-at-runtime",
+                    "--initialize-at-build-time=it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap",
+                    $$"--initialize-at-build-time=it.unimi.dsi.fastutil.ints.Int2ObjectMaps$EmptyMap",
+                    "--initialize-at-build-time=ch.qos.logback.classic.spi.LogbackServiceProvider",
+                )
+            )
+        }
     }
 }
