@@ -14,7 +14,7 @@ plugins {
     id("checkstyle")
     id("io.ebean") version "19.3.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
-    id("dev.minestom-united.minestom-events") version "0.0.2"
+    id("dev.minestom-united.minestom-events") version "0.0.3"
     id("com.github.vlsi.jandex") version "3.0.2"
     id("org.graalvm.buildtools.native") version "1.1.9"
 }
