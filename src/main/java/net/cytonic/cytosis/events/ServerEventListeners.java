@@ -174,7 +174,7 @@ public final class ServerEventListeners {
         Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.COMMANDS_EXECUTED, 1, Attributes.of(
             AttributeKey.stringKey("uuid"), player.getUuid().toString(),
             AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase(),
-            AttributeKey.stringKey("command"), event.getCommand().getClass().getSimpleName()
+            AttributeKey.stringKey("command"), event.getCommand()
         ));
     }
 
