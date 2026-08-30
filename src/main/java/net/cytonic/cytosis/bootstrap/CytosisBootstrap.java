@@ -1,4 +1,4 @@
-package net.cytonic.cytosis;
+package net.cytonic.cytosis.bootstrap;
 
 import java.io.IOException;
 
@@ -11,6 +11,9 @@ import net.minestom.server.command.CommandManager;
 import net.minestom.server.network.packet.client.play.ClientCommandChatPacket;
 import net.minestom.server.network.packet.client.play.ClientSignedCommandChatPacket;
 
+import net.cytonic.cytosis.Cytosis;
+import net.cytonic.cytosis.CytosisContext;
+import net.cytonic.cytosis.ShutdownHandler;
 import net.cytonic.cytosis.commands.utils.CommandHandler;
 import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.environments.Environment;

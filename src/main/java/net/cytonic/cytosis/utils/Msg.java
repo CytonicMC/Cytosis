@@ -66,6 +66,10 @@ public interface Msg {
         return mm(PROVIDER.get().snoop()).append(Msg.mm("<!i><!b>").append(component));
     }
 
+    static Component snoop(String msg, Object... args) {
+        return snoop(mm(msg, args));
+    }
+
     static Component enabledPlural(String str, Object... args) {
         return mm(PROVIDER.get().enabled() + " <gray>" + str + " are now <green>enabled</green>!", args);
     }

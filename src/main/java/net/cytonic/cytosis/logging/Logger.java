@@ -10,9 +10,9 @@ import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.logs.Severity;
 import net.kyori.adventure.text.Component;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.Snoops;
@@ -28,7 +28,7 @@ public interface Logger {
     /**
      * The logger instance
      */
-    ExtendedLogger LOGGER = LogManager.getContext(false).getLogger("Cytosis");
+    org.slf4j.Logger LOGGER = LoggerFactory.getLogger("Cytosis");
 
     /**
      * Logs a debug message
@@ -38,7 +38,7 @@ public interface Logger {
      */
     static void debug(String message, Object... args) {
         // shut, that causes it to call a differnt method
-        LOGGER.atLevel(LogLevel.CYTOSIS_DEBUG).log("\u001B[0;95m" + message.formatted(args));
+        LOGGER.atLevel(Level.DEBUG).log("\u001B[0;95m" + message.formatted(args));
         emit(Severity.DEBUG, message.formatted(args), null);
     }
 

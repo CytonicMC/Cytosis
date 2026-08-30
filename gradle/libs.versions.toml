@@ -2,35 +2,37 @@ metadata.format.version = "1.1"
 
 [versions]
 adventure = "5.2.0"
-dependencydownload = "2.0.0"
+classgraph = "4.8.194"
+graalvm = "25.3.4.1"
 gson = "2.14.0"
-guava = "33.6.0-jre"
+guava = "33.7.1-jre"
 jedis = "7.5.3"
-jnats = "2.26.0"
-log4j = "2.26.1"
+jnats = "2.26.2"
+logback = "1.6.3"
 minestompvp = "2026.05.30-26.1.1"
 postgresql = "42.7.13"
-okhttp = "5.4.0"
-opentelemetry = "1.64.0"
+okhttp = "5.5.0"
+opentelemetry = "1.65.0"
 polar = "1.16.0"
 invui = "0.1.0-SNAPSHOT"
 anvilInput = "0.1.0-SNAPSHOT"
 reflections = "0.10.2"
 lombokwarningfix = "4.0.5"
-fastutil = "8.5.18"
+fastutil = "8.5.19"
 hikaricp = "7.1.0"
-joml = "1.10.9"
-ebean = "19.3.0"
-ebean-migrations = "14.3.0"
+joml = "1.10.8"
+bouncycastle = "1.85.2"
+ebean = "19.5.0"
+ebean-migrations = "14.4.0"
 jandex = "3.6.0"
 minio = "9.0.3"
 entrypoint = "0.0.3"
 codecutils = "0.0.4"
-mongo = "5.9.0"
-minestomevents = "0.0.2"
+mongo = "5.11.0"
+minestomevents = "0.0.3"
 codec = "0.0.3"
 blossom = "2.2.0"
-indragit = "4.0.0"
+indragit = "4.1.0"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -45,17 +47,16 @@ minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "
 adventure-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
-log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
-log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 jnats = { module = "io.nats:jnats", version.ref = "jnats" }
 lombokwarningfix = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "lombokwarningfix" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
-dependencydownload = { module = "dev.vankka:dependencydownload-runtime", version.ref = "dependencydownload" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 joml = { module = "org.joml:joml", version.ref = "joml" }
+bouncycastle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 ebean = { module = "io.ebean:ebean-postgres", version.ref = "ebean" }
 ebean-ddl = { module = "io.ebean:ebean-ddl-generator", version.ref = "ebean" }
 ebean-query = { module = "io.ebean:querybean-generator", version.ref = "ebean" }
@@ -68,8 +69,11 @@ mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }
 codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
 
+# Native image stuff
+nativeimage = { group = "org.graalvm.sdk", name = "nativeimage", version.ref = "graalvm" }
+classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
+
 [bundles]
-log4j = ["log4j-core", "log4j-slf4j2-impl"]
 otel = ["opentelemetry-api", "opentelemetry-sdk", "opentelemetry-exporter-otlp"]
 
 [plugins]
