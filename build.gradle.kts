@@ -12,11 +12,11 @@ plugins {
     alias(libs.plugins.blossom)
     alias(libs.plugins.indragit)
     id("checkstyle")
-    id("io.ebean") version "19.3.0"
+    id("io.ebean") version "19.4.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.3"
     id("com.github.vlsi.jandex") version "3.0.2"
-    id("org.graalvm.buildtools.native") version "1.1.9"
+    id("org.graalvm.buildtools.native") version "1.1.11"
 }
 
 group = "net.cytonic"
@@ -213,7 +213,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "13.8.0"
+    toolVersion = "13.11.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
