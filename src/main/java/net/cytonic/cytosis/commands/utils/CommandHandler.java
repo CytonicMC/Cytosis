@@ -27,7 +27,7 @@ import net.cytonic.protocol.utils.JandexUtils;
  * A class that handles the commands, their execution, and allegedly a console.
  */
 @NoArgsConstructor
-@CytosisComponent(priority = 2, dependsOn = {CommandManager.class})
+@CytosisComponent(priority = 100, dependsOn = {CommandManager.class})
 public class CommandHandler implements Bootstrappable {
 
     private final List<CytosisCommand> COMMANDS = JandexUtils.getExtendedClasses(CytosisCommand.class);

@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.Auth;
+import org.graalvm.nativeimage.ImageInfo;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
 import net.cytonic.cytosis.Cytosis;
@@ -42,7 +43,13 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         super(registry);
         sessionService = new SessionServiceImpl();
         playerService = new PlayerServiceImpl();
-        minestomService = new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
+        // true if we're running as a native-image executable (build-time OR runtime)
+        boolean nativeCompatible = ImageInfo.inImageCode();
+        Logger.debug("Running in Native Image: " + nativeCompatible);
+        minestomService = nativeCompatible
+            ? new NativeMinestomService<>(this, registry, sessionService, playerService, playerProvider)
+            : new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
+
     }
 
     @Override

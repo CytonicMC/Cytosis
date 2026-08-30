@@ -57,8 +57,8 @@ public class ReportManager {
             entity.setId(report.uuid());
             entity.setReporter(report.reporter());
             entity.setPlayer(report.player());
-            entity.setContext(Utils.toJson(report.context(),
-                (Codec<ReportContext<T>>) report.type().getContextCodec()));
+            entity.setContext(
+                Utils.toJson(report.context(), (Codec<ReportContext<T>>) report.type().getContextCodec()));
             entity.setType(report.type().getKey().asString());
             entity.setResolved(report.resolved());
             entity.save();
@@ -66,7 +66,7 @@ public class ReportManager {
             Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.REPORTS_SUBMITTED, 1);
 
             Cytosis.get(SnooperManager.class)
-                .sendSnoop(Snoops.REPORT_SUBMITTED, Msg.mm("%s submitted report %s against %s for %s.",
+                .sendSnoop(Snoops.REPORT_SUBMITTED, Msg.snoop("%s submitted report %s against %s for %s.",
                     Players.trueMiniName(report.reporter()), report.uuid(),
                     Players.trueMiniName(report.player()),
                     Msg.toMini(report.type().getDisplayName())));
