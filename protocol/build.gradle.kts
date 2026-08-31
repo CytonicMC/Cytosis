@@ -6,7 +6,7 @@ plugins {
     `java-library`
     java
     id("com.github.vlsi.jandex") version "3.0.2"
-    id("org.graalvm.buildtools.native") version "1.1.9"
+    id("org.graalvm.buildtools.native") version "1.1.11"
 }
 
 group = "net.cytonic"

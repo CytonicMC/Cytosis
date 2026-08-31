@@ -1,7 +1,6 @@
 package net.cytonic.cytosis.launcher;
 
 import dev.minestomunited.entrypoint.EntryPoint;
-import dev.minestomunited.entrypoint.config.ServerConfig;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
