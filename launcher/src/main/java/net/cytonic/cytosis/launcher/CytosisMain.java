@@ -16,6 +16,7 @@ public class CytosisMain {
     static void main(String[] args) {
         EntryPoint.Builder<CytosisServer> builder = EntryPoint.<CytosisServer>builder()
             .server(CytosisServer::new)
+            .registerConfig(ServerConfig.class, new ServerConfig("0.0.0.0", 25566))
             .afterSetup(server -> {
 
                 Cytosis.init(server);

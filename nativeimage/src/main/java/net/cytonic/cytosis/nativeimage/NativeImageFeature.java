@@ -1,4 +1,4 @@
-package net.cytonic.nativeimage;
+package net.cytonic.cytosis.nativeimage;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
