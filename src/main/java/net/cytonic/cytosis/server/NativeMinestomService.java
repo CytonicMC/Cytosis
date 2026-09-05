@@ -68,7 +68,7 @@ public class NativeMinestomService<P extends Player & NetworkPlayer> implements 
 
     @Override
     public void run() {
-        if (server == null) {
+        if (server == null || minestomPlayerService == null) {
             throw new IllegalStateException("server not setup, did you forget to call setup()?");
         }
         ServerConfig serverConfig = registry.get(ServerConfig.class)

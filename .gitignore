@@ -46,4 +46,5 @@ bin/
 # runtime dependencies
 /cache/
 config.json
+server.json
 run/
