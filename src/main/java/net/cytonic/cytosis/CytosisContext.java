@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import dev.minestomunited.entrypoint.config.ServerConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
@@ -179,7 +179,7 @@ public class CytosisContext {
         return new CytonicServer(
             Utils.getServerIP(),
             SERVER_ID,
-            getComponent(CytosisConfig.class).port(),
+            getComponent(ServerConfig.class).port(),
             Cytosis.getServer().serverType()
         );
     }

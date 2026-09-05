@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import dev.minestomunited.common.config.Config;
 import dev.minestomunited.common.config.ConfigRegistry;
-import dev.minestomunited.entrypoint.config.ServerConfig;
 import dev.minestomunited.entrypoint.minestom.BasicMinestomService;
 import dev.minestomunited.entrypoint.minestom.MinestomService;
 import dev.minestomunited.entrypoint.minestom.player.MinestomPlayerService;
@@ -42,17 +41,6 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     protected AbstractCytosisServer(ConfigRegistry registry,
         MinestomPlayerService.MinestomPlayerProvider<P> playerProvider) {
         super(registry);
-
-        int cytosisPort = registry.get(CytosisConfig.class).get().port();
-        int serverPort = registry.get(ServerConfig.class).get().port();
-        boolean bypassPortCheck = System.getenv("CYTOSIS_DISABLE_PORT_CHECK") != null;
-
-        if(cytosisPort != serverPort && !bypassPortCheck) {
-            Logger.error("Cytosis's server port (" + cytosisPort + ") does not match ServerConfig's port (" + serverPort + "). This can lead to some network issues!");
-            Logger.error("If you wish to bypass this check for some reason, set the CYTOSIS_DISABLE_PORT_CHECK environment variable to something");
-            throw new IllegalStateException("The port defined in the Cytosis configuration is not the same as the one in ServerConfig!");
-        }
-
         sessionService = new SessionServiceImpl();
         playerService = new PlayerServiceImpl();
         // true if we're running as a native-image executable (build-time OR runtime)
