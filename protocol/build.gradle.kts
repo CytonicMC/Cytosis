@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
     `java-library`
     java
-    id("com.github.vlsi.jandex") version "3.0.2"
+    id("com.github.vlsi.jandex") version "4.0.0"
     id("org.graalvm.buildtools.native") version "1.1.11"
 }
 
