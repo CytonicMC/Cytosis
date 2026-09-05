@@ -11,9 +11,7 @@ import dev.minestomunited.common.config.format.JsonCodecConfigFormat;
 import dev.minestomunited.common.config.source.EnvironmentVariableConfigSource;
 import dev.minestomunited.common.config.source.JsonFileConfigSource;
 import dev.minestomunited.entrypoint.EntryPoint;
-import dev.minestomunited.entrypoint.config.ServerConfig;
 import lombok.Getter;
-import net.cytonic.cytosis.config.ServerConfigCodec;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 
@@ -41,8 +39,7 @@ public final class Cytosis {
         builder.addConfigSource(new JsonFileConfigSource(Path.of("")));
         builder.addConfigSource(new EnvironmentVariableConfigSource());
         builder.addConfigFormat(new JsonCodecConfigFormat(Map.of(
-            CytosisConfig.class, CytosisConfig.CODEC,
-            ServerConfig.class, ServerConfigCodec.CODEC
+            CytosisConfig.class, CytosisConfig.CODEC
         )));
 
         return builder;
