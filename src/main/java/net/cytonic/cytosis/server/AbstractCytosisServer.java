@@ -45,11 +45,11 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
 
         int cytosisPort = registry.get(CytosisConfig.class).get().port();
         int serverPort = registry.get(ServerConfig.class).get().port();
-        boolean bypassPortCheck = System.getenv("CYTONIC_DISABLE_PORT_CHECK") != null;
+        boolean bypassPortCheck = System.getenv("CYTOSIS_DISABLE_PORT_CHECK") != null;
 
         if(cytosisPort != serverPort && !bypassPortCheck) {
             Logger.error("Cytosis's server port (" + cytosisPort + ") does not match ServerConfig's port (" + serverPort + "). This can lead to some network issues!");
-            Logger.error("If you wish to bypass this check for some reason, set the CYTONIC_DISABLE_PORT_CHECK environment variable to something");
+            Logger.error("If you wish to bypass this check for some reason, set the CYTOSIS_DISABLE_PORT_CHECK environment variable to something");
             throw new IllegalStateException("The port defined in the Cytosis configuration is not the same as the one in ServerConfig!");
         }
 
