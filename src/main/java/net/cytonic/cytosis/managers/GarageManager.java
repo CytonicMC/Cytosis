@@ -1,12 +1,11 @@
 package net.cytonic.cytosis.managers;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.minio.GetObjectArgs;
-import io.minio.GetObjectResponse;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 
@@ -49,6 +48,19 @@ public class GarageManager implements Bootstrappable {
     }
 
     public CompletableFuture<byte[]> downloadObject(String bucket, String object) {
+        return downloadObjectAsStream(bucket, object).thenApplyAsync(rs -> {
+            try {
+                return rs.readAllBytes();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /**
+     * Returns a completable future of an input stream. The stream must be closed to free up resources after reading.
+     */
+    public CompletableFuture<InputStream> downloadObjectAsStream(String bucket, String object) {
         return CompletableFuture.supplyAsync(() -> {
             GetObjectArgs request = GetObjectArgs
                     .builder()
@@ -56,27 +68,60 @@ public class GarageManager implements Bootstrappable {
                     .object(object)
                     .build();
 
-            try (GetObjectResponse rs = client.getObject(request)) {
-                return rs.readAllBytes();
-            } catch (MinioException | IOException ex) {
+            try {
+                return client.getObject(request);
+            } catch (MinioException ex) {
                 throw new RuntimeException(ex);
             }
         });
     }
 
     public CompletableFuture<Void> uploadObject(String bucket, String object, byte[] data) {
-        return CompletableFuture.supplyAsync(() -> {
+        return uploadObject(
+                bucket,
+                object,
+                new ByteArrayInputStream(data),
+                data.length
+        );
+    }
+
+    /**
+     * Uploads an object from a stream.
+     *
+     * @param bucket     bucket name without the environment prefix
+     * @param object     object key
+     * @param data       input stream containing the object data
+     * @param objectSize object size in bytes, or -1 if unknown
+     */
+    public CompletableFuture<Void> uploadObject(
+            String bucket,
+            String object,
+            InputStream data,
+            long objectSize
+    ) {
+        return CompletableFuture.runAsync(() -> {
+            String prefixedBucket = Cytosis.get(Environment.class)
+                    .getPrefix()
+                    .replace('_', '-') + bucket;
+
             PutObjectArgs request = PutObjectArgs
                     .builder()
-                    .bucket(Cytosis.get(Environment.class).getPrefix().replace('_', '-') + bucket)
+                    .bucket(prefixedBucket)
                     .object(object)
-                    .data(data, data.length)
+                    .stream(
+                            data,
+                            objectSize,
+                            10 * 1024 * 1024L // 10 MiB multipart part size
+                    )
                     .build();
-            try {
+
+            try (InputStream input = data) {
                 client.putObject(request);
-                return null;
-            } catch (MinioException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to upload object '" + object + "' to bucket '" + prefixedBucket + "'",
+                        e
+                );
             }
         });
     }
