@@ -36,6 +36,7 @@ public final class Cytosis {
     public static <T extends AbstractCytosisServer<? extends CytosisPlayer>> EntryPoint.Builder<T> applyToBuilder(
         EntryPoint.Builder<T> builder) {
         builder.registerConfig(CytosisConfig.class);
+        builder.addDefaultFormats();
         builder.addConfigSource(new JsonFileConfigSource(Path.of("")));
         builder.addConfigSource(new EnvironmentVariableConfigSource());
         builder.addConfigFormat(new JsonCodecConfigFormat(Map.of(
