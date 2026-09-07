@@ -17,6 +17,7 @@ public class SidebarController<P extends CytosisPlayer> {
 
     public static final String SIDEBAR_ID = "cytosis__sidebar";
     public static final String SIDEBAR_ABSOLUTE_ID_PREFIX = "L_";
+    public static final int SIDEBAR_LINE_SIZE = 15;
 
     private final P player;
     private final HashMap<Integer, Integer> absoluteIDCache;
@@ -103,6 +104,18 @@ public class SidebarController<P extends CytosisPlayer> {
         this.absoluteIDCache.remove(absoluteID);
 
         this.player.sendPacket(packet);
+    }
+
+    public int getAmountOfTakenLines() {
+        return this.absoluteIDCache.size();
+    }
+
+    public int getAmountOfFreeLines() {
+        if(this.getAmountOfTakenLines() >= 15) {
+            return 0;
+        }
+
+        return SIDEBAR_LINE_SIZE - this.getAmountOfTakenLines();
     }
 
 

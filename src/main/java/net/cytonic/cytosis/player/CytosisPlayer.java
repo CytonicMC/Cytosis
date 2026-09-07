@@ -2,17 +2,16 @@ package net.cytonic.cytosis.player;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import dev.minestomunited.entrypoint.minestom.player.NetworkPlayer;
 import io.github.togar2.pvp.player.CombatPlayerImpl;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import net.cytonic.cytosis.sidebar.Sidebar;
+import net.cytonic.cytosis.sidebar.SidebarComponent;
+import net.cytonic.cytosis.sidebar.SidebarViewer;
+import net.cytonic.cytosis.sidebar.packet.SidebarController;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -64,9 +63,14 @@ import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
  * managers themselves.
  */
 @SuppressWarnings("unused")
-public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable {
+public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable, SidebarViewer<CytosisPlayer> {
 
     private PlayerRank rank;
+
+    private SidebarController<CytosisPlayer> sidebarController;
+
+    private @Nullable Sidebar<CytosisPlayer> currentSidebar;
+    private HashSet<SidebarComponent<CytosisPlayer>> visibleSidebarComponents;
 
     /**
      * Creates a new instance of a player
@@ -77,6 +81,10 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
+
+        this.sidebarController = new SidebarController<>(this);
+        this.currentSidebar = null;
+        this.visibleSidebarComponents = new HashSet<>();
     }
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
@@ -480,5 +488,87 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
     public void closeBook() {
         sendPacket(new OpenWindowPacket(100, 0, Component.empty()));
         sendPacket(new CloseWindowPacket(100));
+    }
+
+    @Override
+    public boolean isViewingComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+        return this.visibleSidebarComponents.contains(component);
+    }
+
+    @Override
+    public boolean canPhysicallyViewComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+        return this.sidebarController.getAmountOfFreeLines() >= component.getComponentLength(); // TODO: check if this is enough
+    }
+
+    @Override
+    public boolean displayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+        if(this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component) || !component.canDisplay(this)) {
+            return false;
+        }
+
+        // TODO:
+        return true;
+    }
+
+    @Override
+    public boolean forceDisplayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+       if(!this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component)) {
+           return false;
+       }
+
+       // TODO:
+        return true;
+    }
+
+    @Override
+    public boolean hideComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+        if(!this.isViewingComponent(component)) {
+            return false;
+        }
+
+        // TODO:
+        return true;
+    }
+
+    @Override
+    public void updateComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+        if(!this.isViewingComponent(component)) {
+            return;
+        }
+
+        // TODO:
+    }
+
+    @Override
+    public @Nullable Sidebar<CytosisPlayer> getCurrentSidebar() {
+        return this.currentSidebar;
+    }
+
+    @Override
+    public void setCurrentSidebar(@Nullable Sidebar<CytosisPlayer> sidebar) {
+        // Remove past sidebar
+
+        if(this.currentSidebar != null) {
+            // Delete old component & scoreboard tracking
+            this.visibleSidebarComponents.clear();
+            this.currentSidebar.removeViewer(this);
+
+            // Delete packet sidebar
+            this.sidebarController.deleteSidebar();
+        }
+
+        // Add new sidebar
+
+        this.currentSidebar = sidebar;
+
+        if(this.currentSidebar != null) {
+            // Create new packet sidebar
+            this.sidebarController.createSidebar(this.currentSidebar.getTitle(this));
+
+            // Append new sidebar components to the sidebar
+            for(SidebarComponent<CytosisPlayer> component : this.currentSidebar.getComponents()) {
+                this.displayComponent(component);
+            }
+        }
     }
 }
