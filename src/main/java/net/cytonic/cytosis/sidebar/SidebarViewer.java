@@ -18,9 +18,9 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
     void isViewingComponent(@NotNull SidebarComponent<V> component);
 
     /**
-     * Display the component to the viewer if the viewer can view it at given offset.
+     * Display the component to the viewer if the viewer can view it.
      * This generally cannot fail due to the check to make sure that the viewer is supposed to be able to view it.
-     * However, if you wish to display this component anyway, use {@link #forceDisplayComponent(SidebarComponent, int)}.
+     * However, if you wish to display this component anyway, use {@link #forceDisplayComponent(SidebarComponent)}.
      * <p>
      * If the component is already being displayed, the function will fail and return false.
      * <p>
@@ -30,14 +30,13 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>This function may move other lines if needed using a `set_score` packet.</p>
      *
      * @param component The component to display.
-     * @param offset The line offset where to display the component. -1 is at the end of the scoreboard (the top) and 0 at the start (the bottom).
      * @return the fail state of the display. If the component couldn't be displayed, return false, otherwise true.
      */
-    boolean displayComponent(@NotNull SidebarComponent<V> component, int offset);
+    boolean displayComponent(@NotNull SidebarComponent<V> component);
 
     /**
-     * The "unsafe" variant of {@link #displayComponent(SidebarComponent, int)}.
-     * Displays the component to viewer regardless of whether the viewer can view it or not at the given offset.
+     * The "unsafe" variant of {@link #displayComponent(SidebarComponent)}.
+     * Displays the component to viewer regardless of whether the viewer can view it or not.
      * <p>
      * If the component is already being displayed, the function will fail and return false.
      * <p>
@@ -47,10 +46,9 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>This function may move other lines if needed using a `set_score` packet.</p>
      *
      * @param component The component to display.
-     * @param offset The line offset where to display the component. -1 is at the end of the scoreboard (the top) and 0 at the start (the bottom).
      * @return the fail state of the display. If the component couldn't be displayed, return false, otherwise true.
      */
-    boolean forceDisplayComponent(@NotNull SidebarComponent<V> component, int offset);
+    boolean forceDisplayComponent(@NotNull SidebarComponent<V> component);
 
     /**
      * Hides the given component to the viewer.
