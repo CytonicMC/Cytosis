@@ -18,6 +18,14 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
     boolean isViewingComponent(@NotNull SidebarComponent<V> component);
 
     /**
+     * Checks if the user has enough space to view the component.
+     * Please note that this is checked on both
+     * {@link #displayComponent(SidebarComponent)} and {@link #forceDisplayComponent(SidebarComponent)}.
+     * @param component The given component.
+     */
+    boolean canPhysicallyViewComponent(@NotNull SidebarComponent<V> component);
+
+    /**
      * Display the component to the viewer if the viewer can view it.
      * This generally cannot fail due to the check to make sure that the viewer is supposed to be able to view it.
      * However, if you wish to display this component anyway, use {@link #forceDisplayComponent(SidebarComponent)}.
