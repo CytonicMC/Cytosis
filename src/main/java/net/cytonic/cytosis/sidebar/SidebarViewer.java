@@ -15,7 +15,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * This doesn't check if the viewer <b>can</b> view the component, just if the viewer is currently viewing it.
      * @param component The component.
      */
-    void isViewingComponent(@NotNull SidebarComponent<V> component);
+    boolean isViewingComponent(@NotNull SidebarComponent<V> component);
 
     /**
      * Display the component to the viewer if the viewer can view it.
@@ -26,7 +26,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>
      * <h1>Update warnings</h1>
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
-     * <p>Adding at the end of the scoreboard is usually the fastest scenario since no lines need to be moved.</p>
+     * <p>Adding at the start of the scoreboard is usually the fastest scenario since no lines need to be moved.</p>
      * <p>This function may move other lines if needed using a `set_score` packet.</p>
      *
      * @param component The component to display.
@@ -76,6 +76,18 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      */
     void updateComponent(@NotNull SidebarComponent<V> component);
 
+    /**
+     * Get the current sidebar the viewer is viewing.
+     * @return The current sidebar or null if there's none.
+     */
     @Nullable Sidebar<V> getCurrentSidebar();
+
+    /**
+     * Removes the current sidebar (if there's one) and displays the given sidebar.
+     * If sidebar is null, then don't display anything.
+     * <p></p>
+     * @param sidebar The sidebar to display.
+     */
+    void setCurrentSidebar(@Nullable Sidebar<V> sidebar);
 
 }

@@ -1,5 +1,6 @@
 package net.cytonic.cytosis.sidebar;
 
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -26,7 +27,8 @@ public abstract class Sidebar<V extends SidebarViewer<V>> {
      */
     public static final int SIDEBAR_POS_END = -1;
 
-    private HashSet<V> viewers;
+    @Getter
+    private final HashSet<V> viewers;
 
     public Sidebar() {
         this.viewers = new HashSet<>();
@@ -39,9 +41,39 @@ public abstract class Sidebar<V extends SidebarViewer<V>> {
     public abstract @NotNull Component getTitle(@NotNull V viewer);
 
     /**
-     * Get the components of the sidebar.
+     * Get the components of the sidebar from bottom to top.
      */
     public abstract @NotNull Collection<SidebarComponent<V>> getComponents();
+
+    /**
+     * Add a viewer to the sidebar. Doesn't really do anything.
+     * @param viewer The viewer.
+     */
+    public void addViewer(V viewer) {
+        this.viewers.add(viewer);
+    }
+
+    /**
+     * Removes a viewer from the sidebar. Doesn't really do anything.
+     * @param viewer The viewer.
+     */
+    public void removeViewer(V viewer) {
+        this.viewers.remove(viewer);
+    }
+
+    public int getOffsetForComponent(SidebarComponent<V> component, V viewer) {
+        int offset = 0;
+
+        for(SidebarComponent<V> c : this.getComponents()) {
+            if(c == component) return offset;
+
+            if(viewer.isViewingComponent(c)) {
+                offset += c.getComponentLength();
+            }
+        }
+
+        return offset;
+    }
 
     /**
      * Utility class to build a {@link Sidebar}.
