@@ -51,9 +51,11 @@ public class SidebarController<P extends CytosisPlayer> {
         this.player.sendPacket(packet);
     }
 
-    public void moveComponent(int startAbsoluteID, int componentLength, int scoreStart) {
+    public void moveComponent(int startAbsoluteID, int componentLength, int moveByScore) {
+        int startScore = this.absoluteIDCache.get(startAbsoluteID);
+
         for(int i = 0; i < componentLength; ++i) {
-            this.moveLine(startAbsoluteID + i, scoreStart + i);
+            this.moveLine(startAbsoluteID + i, startScore + moveByScore + i);
         }
     }
 
