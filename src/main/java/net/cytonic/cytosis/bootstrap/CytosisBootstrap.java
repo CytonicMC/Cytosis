@@ -55,6 +55,7 @@ public class CytosisBootstrap {
         cytosisContext.registerComponent(AbstractCytosisServer.class, server);
         cytosisContext.registerComponent(server);
         cytosisContext.registerComponent(environment);
+        cytosisContext.registerComponent(server.getConfigOrThrow(ServerConfig.class));
 
         EventsNode.init(server.minestomService().eventNode());
 
