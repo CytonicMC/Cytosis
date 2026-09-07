@@ -22,9 +22,12 @@ public class SidebarController<P extends CytosisPlayer> {
     private final P player;
     private final HashMap<Integer, Integer> absoluteIDCache;
 
+    private final byte[] claimCache;
+
     public SidebarController(P player) {
         this.player = player;
         this.absoluteIDCache = new HashMap<>();
+        this.claimCache = new byte[3];
     }
 
     public void createSidebar(Component text) {
@@ -43,6 +46,10 @@ public class SidebarController<P extends CytosisPlayer> {
         this.player.sendPacket(packet);
 
         this.absoluteIDCache.clear();
+
+        for(int i = 0; i < 3; ++i) {
+            this.claimCache[i] = 0;
+        }
     }
 
     public void renameSidebar(Component text) {
@@ -79,6 +86,7 @@ public class SidebarController<P extends CytosisPlayer> {
         UpdateScorePacket packet = new UpdateScorePacket(SIDEBAR_ABSOLUTE_ID_PREFIX + absoluteID, SIDEBAR_ID, score,
             text, null);
 
+        this.markClaimed(score);
         this.absoluteIDCache.put(absoluteID, score);
 
         this.player.sendPacket(packet);
@@ -95,6 +103,9 @@ public class SidebarController<P extends CytosisPlayer> {
         UpdateScorePacket packet = new UpdateScorePacket(SIDEBAR_ABSOLUTE_ID_PREFIX + absoluteID, SIDEBAR_ID, toScore,
             null, null);
 
+        this.markUnclaimed(this.absoluteIDCache.get(absoluteID));
+        this.markClaimed(toScore);
+
         this.absoluteIDCache.put(absoluteID, toScore);
 
         this.player.sendPacket(packet);
@@ -103,6 +114,7 @@ public class SidebarController<P extends CytosisPlayer> {
     public void removeLine(int absoluteID) {
         ResetScorePacket packet = new ResetScorePacket(SIDEBAR_ABSOLUTE_ID_PREFIX + absoluteID, SIDEBAR_ID);
 
+        this.markUnclaimed(this.absoluteIDCache.get(absoluteID));
         this.absoluteIDCache.remove(absoluteID);
 
         this.player.sendPacket(packet);
@@ -118,6 +130,28 @@ public class SidebarController<P extends CytosisPlayer> {
         }
 
         return SIDEBAR_LINE_SIZE - this.getAmountOfTakenLines();
+    }
+
+    private void markClaimed(int line) {
+        this.claimCache[line / 8] |= (byte) (1 << line % 8);
+    }
+
+    private void markUnclaimed(int line) {
+        this.claimCache[line / 8] &= (byte) (1 << line % 8);
+    }
+
+    private boolean isLineClaimed(int line) {
+        return (this.claimCache[line / 8] & (1 << line % 8)) == 0;
+    }
+
+    public boolean hasEnoughSpace(int lineStart, int space) {
+        for(int i = lineStart; i < lineStart + space; ++i) {
+            if(i >= SIDEBAR_LINE_SIZE) return false;
+
+            if(isLineClaimed(i)) return false;
+        }
+
+        return true;
     }
 
 
