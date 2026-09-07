@@ -7,8 +7,11 @@ import net.minestom.server.network.packet.server.play.ResetScorePacket;
 import net.minestom.server.network.packet.server.play.ScoreboardObjectivePacket;
 import net.minestom.server.network.packet.server.play.UpdateScorePacket;
 import net.minestom.server.scoreboard.Sidebar;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class SidebarController<P extends CytosisPlayer> {
 
@@ -45,6 +48,28 @@ public class SidebarController<P extends CytosisPlayer> {
         ScoreboardObjectivePacket packet = new ScoreboardObjectivePacket(SIDEBAR_ID, (byte) 2, text, null, null);
 
         this.player.sendPacket(packet);
+    }
+
+    public void moveComponent(int startAbsoluteID, int componentLength, int scoreStart) {
+        for(int i = 0; i < componentLength; ++i) {
+            this.moveLine(startAbsoluteID + i, scoreStart + i);
+        }
+    }
+
+    public void removeComponent(int startAbsoluteID, int componentLength) {
+        for(int i = 0; i < componentLength; ++i) {
+            this.removeLine(startAbsoluteID + i);
+        }
+    }
+
+    public void addComponent(int startAbsoluteID, int scoreStart, @NotNull Collection<Component> component) {
+       int i = 0;
+
+       for(Component line : component) {
+           this.addLine(startAbsoluteID + i, scoreStart + i, line);
+
+           ++i;
+       }
     }
 
     public void addLine(int absoluteID, int score, Component text) {
