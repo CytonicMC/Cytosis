@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.sidebar;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a viewer of a sidebar.
@@ -76,5 +77,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * @param component The component to update.
      */
     void updateComponent(@NotNull SidebarComponent<V> component);
+
+    @Nullable Sidebar<V> getCurrentSidebar();
 
 }
