@@ -60,10 +60,21 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
      * <p>This function usually is pretty fast as it only requires resetting scores rather than moving them.</p>
      *
-     *
      * @param component The component to hide.
      * @return the fail state of the hide. If the component couldn't be hidden, return false, otherwise true.
      */
     boolean hideComponent(@NotNull SidebarComponent<V> component);
+
+    /**
+     * Updates the component to the viewer if they are viewing the component.
+     * <p>
+     * If the viewer isn't viewing the component, the function will fail and return false.
+     * <p>
+     * <h1>Update warnings</h1>
+     * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
+     *
+     * @param component The component to update.
+     */
+    void updateComponent(@NotNull SidebarComponent<V> component);
 
 }
