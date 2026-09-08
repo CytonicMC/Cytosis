@@ -75,6 +75,16 @@ public abstract class Sidebar<V extends SidebarViewer<V>> {
         return offset;
     }
 
+    public int getTotalAbsoluteID() {
+        int offset = 0;
+
+        for(SidebarComponent<V> c : this.getComponents()) {
+            offset += c.getComponentLength();
+        }
+
+        return offset;
+    }
+
     /**
      * Utility class to build a {@link Sidebar}.
      * @param <V> the type of viewer.

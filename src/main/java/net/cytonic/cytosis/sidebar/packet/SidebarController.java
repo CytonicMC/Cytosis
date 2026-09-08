@@ -81,6 +81,28 @@ public class SidebarController<P extends CytosisPlayer> {
        }
     }
 
+    public void displaceAllBelow(int startAbsoluteID, int byOffset) {
+        for(int absoluteID = startAbsoluteID; absoluteID < this.player.getCurrentSidebar().getTotalAbsoluteID(); ++absoluteID) {
+            if(!this.absoluteIDCache.containsKey(absoluteID)) continue;
+
+            int currentLine = this.absoluteIDCache.get(absoluteID);
+
+            this.moveLine(absoluteID, currentLine + byOffset);
+        }
+    }
+
+    public int getPreviousAbsoluteID(int absoluteID) {
+        for(int i = absoluteID; i >= 0; --i) {
+            if(this.absoluteIDCache.containsKey(i)) return i;
+        }
+
+        return 0;
+    }
+
+    public int getPreviousAbsoluteIDOffset(int absoluteID) {
+        return this.absoluteIDCache.getOrDefault(this.getPreviousAbsoluteID(absoluteID), 0);
+    }
+
     public void addLine(int absoluteID, int score, Component text) {
         UpdateScorePacket packet = new UpdateScorePacket(SIDEBAR_ABSOLUTE_ID_PREFIX + absoluteID, SIDEBAR_ID, score,
             text, null);
