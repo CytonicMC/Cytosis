@@ -13,7 +13,7 @@ services:
       - default
 
   garage:
-    image: dxflrs/garage:v2.3.0
+    image: dxflrs/garage:v2.4.0
     container_name: cytonic-garage
     command: [ "/garage", "server", "--single-node", "--default-bucket" ]
     environment:
