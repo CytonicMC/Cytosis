@@ -82,6 +82,9 @@ public class SidebarController<P extends CytosisPlayer> {
     }
 
     public void displaceAllBelow(int startAbsoluteID, int byOffset) {
+        // If the offset is outside / the last line, there's nothing to move
+        if(this.getPreviousAbsoluteIDOffset(startAbsoluteID) >= this.getFurthestLine()) return;
+
         for(int absoluteID = startAbsoluteID; absoluteID < this.player.getCurrentSidebar().getTotalAbsoluteID(); ++absoluteID) {
             if(!this.absoluteIDCache.containsKey(absoluteID)) continue;
 
