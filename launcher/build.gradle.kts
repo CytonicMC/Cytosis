@@ -4,7 +4,7 @@ plugins {
     id("com.gradleup.shadow") version "9.6.1"
     id("io.freefair.lombok") version "9.5.0"
     id("dev.minestom-united.minestom-events") version "0.0.3"
-    id("org.graalvm.buildtools.native") version "1.1.11"
+    id("org.graalvm.buildtools.native") version "1.1.12"
     alias(libs.plugins.blossom)
     alias(libs.plugins.indragit)
 }
