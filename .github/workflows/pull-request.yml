@@ -23,7 +23,6 @@ jobs:
         with:
           name: checkstyle-results
           path: build/reports/checkstyle/
-          retention-days: 5
 
   build:
     runs-on: ubuntu-latest
