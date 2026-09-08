@@ -18,7 +18,6 @@ public record CytosisConfig(
     @Env MetricsConfig metrics,
     @Env Environment environment,
     @Env String secret,
-    @Env int port,
     @Env boolean standalone
 ) implements Config {
 
@@ -31,7 +30,6 @@ public record CytosisConfig(
         "metrics", MetricsConfig.CODEC.optional(new MetricsConfig(false, null, -1)), CytosisConfig::metrics,
         "environment", Environment.CODEC, CytosisConfig::environment,
         "secret", Codec.STRING.optional(), CytosisConfig::secret,
-        "port", Codec.INT, CytosisConfig::port,
         "standalone", Codec.BOOLEAN.optional(false), CytosisConfig::standalone,
         CytosisConfig::new
     );

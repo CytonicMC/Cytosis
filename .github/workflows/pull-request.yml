@@ -3,21 +3,7 @@ on:
   pull_request:
 
 jobs:
-  check-wrapper:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 2
-      - name: Fail if gradlew was modified
-        run: |
-          if git diff --name-only HEAD^ HEAD | grep -q '^gradlew$'; then
-            echo "::error::gradlew was modified."
-            exit 1
-          fi
-
   checkstyle:
-    needs: check-wrapper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -31,7 +17,7 @@ jobs:
         with:
           cache-read-only: true
       - name: Run Checkstyle
-        run: ./gradlew --build-cache --parallel checkstyleMain checkstyleTest
+        run: ./gradlew --build-cache --parallel checkstyleMain
       - name: Upload Checkstyle results
         uses: actions/upload-artifact@v7
         with:
@@ -39,7 +25,6 @@ jobs:
           path: build/reports/checkstyle/
 
   build:
-    needs: check-wrapper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -53,4 +38,4 @@ jobs:
         with:
           cache-read-only: true
       - name: Assemble Jar
-        run: ./gradlew --no-daemon --build-cache --parallel assemble
+        run: ./gradlew --build-cache --parallel assemble

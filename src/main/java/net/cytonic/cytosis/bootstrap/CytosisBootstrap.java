@@ -2,6 +2,7 @@ package net.cytonic.cytosis.bootstrap;
 
 import java.io.IOException;
 
+import dev.minestomunited.entrypoint.config.ServerConfig;
 import dev.minestomunited.minestomevents.EventsNode;
 import me.devnatan.AnvilInputFeature;
 import me.devnatan.inventoryframework.View;
@@ -54,6 +55,7 @@ public class CytosisBootstrap {
         cytosisContext.registerComponent(AbstractCytosisServer.class, server);
         cytosisContext.registerComponent(server);
         cytosisContext.registerComponent(environment);
+        cytosisContext.registerComponent(server.getConfigOrThrow(ServerConfig.class));
 
         EventsNode.init(server.minestomService().eventNode());
 
@@ -105,7 +107,7 @@ public class CytosisBootstrap {
         long end = System.currentTimeMillis();
         Logger.info("Server started in " + (end - startTime) + "ms!");
         Logger.info("Server id: %s", Cytosis.CONTEXT.SERVER_ID);
-        Logger.info("Server port: %d", Cytosis.get(CytosisConfig.class).port());
+        Logger.info("Server port: %d", Cytosis.get(ServerConfig.class).port());
     }
 
     private void initViewFrame() {

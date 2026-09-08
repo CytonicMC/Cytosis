@@ -1,0 +1,88 @@
+services:
+  # After starting the compose, you will need to create the "cytonic-global" and "cytonic_(the environment you are running)" database in postgres
+  postgres:
+    image: postgres:latest
+    container_name: cytonic-postgres
+    environment:
+      POSTGRES_PASSWORD: cytonic
+    ports:
+      - "5432:5432"
+    volumes:
+      - cytonic-postgres_data:/var/lib/postgresql
+    networks:
+      - default
+
+  garage:
+    image: dxflrs/garage:v2.4.0
+    container_name: cytonic-garage
+    command: [ "/garage", "server", "--single-node", "--default-bucket" ]
+    environment:
+      # Generate with `openssl rand -hex 32` and put in garage.toml as well
+      GARAGE_DEFAULT_ACCESS_KEY: "CHANGE_ME"
+      GARAGE_DEFAULT_SECRET_KEY: "CHANGE_ME"
+      GARAGE_DEFAULT_BUCKET: "mybucket"
+    ports:
+      - "3900:3900"   # S3 API
+      - "3903:3903"   # Admin API
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+      - cytonic-garage_meta:/var/lib/garage/meta
+      - cytonic-garage_data:/var/lib/garage/data
+    networks:
+      - default
+
+  redis:
+    image: redis:latest
+    container_name: cytonic-redis
+    command: [ "redis-server", "--requirepass", "cytonic" ]
+    ports:
+      - "6379:6379"
+    volumes:
+      - cytonic-redis_data:/data
+    networks:
+      - default
+
+  mongodb:
+    image: mongo:latest
+    container_name: cytonic-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - cytonic-mongodb_data:/data/db
+    networks:
+      - default
+
+  nats:
+    image: nats:latest
+    container_name: cytonic-nats
+    ports:
+      - "4222:4222"
+    volumes:
+      - cytonic-nats_data:/data
+    networks:
+      - default
+
+  cydian:
+    image: ghcr.io/cytonicmc/cydian
+    container_name: cytonic-cydian
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: blank
+      NATS_HOSTNAME: nats
+      NATS_PORT: 4222
+      NATS_USERNAME: blank
+      NATS_PASSWORD: blank
+      # DEVELOPMENT, ALPHA, or PRODUCTION
+      CYTONIC_ENVIRONMENT: DEVELOPMENT
+    networks:
+      - default
+
+volumes:
+  cytonic-postgres_data:
+  cytonic-redis_data:
+  cytonic-mongodb_data:
+  cytonic-nats_data:
+  cytonic-garage_meta:
+  cytonic-garage_data:
+
