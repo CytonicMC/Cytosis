@@ -502,41 +502,75 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
 
     @Override
     public boolean displayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if(this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component) || !component.canDisplay(this)) {
+        if (!component.canDisplay(this)) {
             return false;
         }
 
-        // TODO:
-        return true;
+        return this.forceDisplayComponent(component);
     }
 
     @Override
     public boolean forceDisplayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-       if(!this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component)) {
-           return false;
-       }
+        if (!this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component)) {
+            return false;
+        }
 
-       // TODO:
+        int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
+        int endAbsoluteID = startAbsoluteID + component.getComponentLength();
+
+        // First, we displace everything below to make space
+        this.sidebarController.displaceAllBelow(startAbsoluteID, component.getComponentLength());
+
+        int componentStartScore = this.sidebarController.getPreviousAbsoluteIDOffset(startAbsoluteID) + 1;
+
+        // Then, we can add the component
+        this.sidebarController.addComponent(startAbsoluteID, componentStartScore, component.getContents(this));
+
+        // Then finally update the viewed component list
+        this.visibleSidebarComponents.add(component);
+
         return true;
     }
 
     @Override
     public boolean hideComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if(!this.isViewingComponent(component)) {
+        if (!this.isViewingComponent(component)) {
             return false;
         }
 
-        // TODO:
+        int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
+        int endAbsoluteID = startAbsoluteID + component.getComponentLength();
+
+        // First, we remove the component
+        this.sidebarController.removeComponent(startAbsoluteID, component.getComponentLength());
+
+        // Then, we move the below lines for them to be of a continuous score
+        this.sidebarController.displaceAllBelow(startAbsoluteID, -component.getComponentLength());
+
+        // Then finally update the viewed component list
+        this.visibleSidebarComponents.remove(component);
+
         return true;
     }
 
     @Override
     public void updateComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if(!this.isViewingComponent(component)) {
+        if (!this.isViewingComponent(component)) {
             return;
         }
 
-        // TODO:
+        int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
+        int endAbsoluteID = startAbsoluteID + component.getComponentLength();
+
+        Collection<Component> componentContents = component.getContents(this);
+
+        int i = 0;
+        for(Component c : componentContents) {
+            this.sidebarController.changeLineText(startAbsoluteID + i, c);
+
+            ++i;
+        }
+
     }
 
     @Override
@@ -548,7 +582,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
     public void setCurrentSidebar(@Nullable Sidebar<CytosisPlayer> sidebar) {
         // Remove past sidebar
 
-        if(this.currentSidebar != null) {
+        if (this.currentSidebar != null) {
             // Delete old component & scoreboard tracking
             this.visibleSidebarComponents.clear();
             this.currentSidebar.removeViewer(this);
@@ -561,12 +595,12 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
 
         this.currentSidebar = sidebar;
 
-        if(this.currentSidebar != null) {
+        if (this.currentSidebar != null) {
             // Create new packet sidebar
             this.sidebarController.createSidebar(this.currentSidebar.getTitle(this));
 
             // Append new sidebar components to the sidebar
-            for(SidebarComponent<CytosisPlayer> component : this.currentSidebar.getComponents()) {
+            for (SidebarComponent<CytosisPlayer> component : this.currentSidebar.getComponents()) {
                 this.displayComponent(component);
             }
         }
