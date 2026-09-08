@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class SidebarController<P extends CytosisPlayer> {
 
@@ -132,6 +131,16 @@ public class SidebarController<P extends CytosisPlayer> {
         return SIDEBAR_LINE_SIZE - this.getAmountOfTakenLines();
     }
 
+    public int getFurthestLine() {
+        for(int i = 0; i < SIDEBAR_LINE_SIZE; ++i) {
+            if(!this.isLineClaimed(i)) {
+                return i;
+            }
+        }
+
+        return SIDEBAR_LINE_SIZE;
+    }
+
     private void markClaimed(int line) {
         this.claimCache[line / 8] |= (byte) (1 << line % 8);
     }
@@ -142,16 +151,6 @@ public class SidebarController<P extends CytosisPlayer> {
 
     private boolean isLineClaimed(int line) {
         return (this.claimCache[line / 8] & (1 << line % 8)) == 0;
-    }
-
-    public boolean hasEnoughSpace(int lineStart, int space) {
-        for(int i = lineStart; i < lineStart + space; ++i) {
-            if(i >= SIDEBAR_LINE_SIZE) return false;
-
-            if(isLineClaimed(i)) return false;
-        }
-
-        return true;
     }
 
 

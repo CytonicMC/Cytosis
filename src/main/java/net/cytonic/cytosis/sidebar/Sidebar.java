@@ -61,7 +61,7 @@ public abstract class Sidebar<V extends SidebarViewer<V>> {
         this.viewers.remove(viewer);
     }
 
-    public int getOffsetForComponent(SidebarComponent<V> component, V viewer) {
+    public int getStartAbsoluteIDComponent(SidebarComponent<V> component, V viewer) {
         int offset = 0;
 
         for(SidebarComponent<V> c : this.getComponents()) {
