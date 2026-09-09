@@ -9,7 +9,7 @@
       "matchManagers": ["gradle"],
       "matchPackageNames": ["org.joml:joml"],
       "enabled": false
-    }
+    },
     {
       "description": "Group all updates into one PR",
       "matchPackageNames": ["*"],
