@@ -49,7 +49,7 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         minestomService = nativeCompatible
             ? new NativeMinestomService<>(this, registry, sessionService, playerService, playerProvider)
             : new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
-
+        Cytosis.CONTEXT.registerComponent(super.getConfigOrThrow(CytosisConfig.class));
     }
 
     @Override
