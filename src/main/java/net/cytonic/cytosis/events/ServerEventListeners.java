@@ -53,7 +53,6 @@ import net.cytonic.cytosis.managers.NpcManager;
 import net.cytonic.cytosis.managers.PlayerListManager;
 import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
-import net.cytonic.cytosis.managers.SideboardManager;
 import net.cytonic.cytosis.metrics.Metrics;
 import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
@@ -236,8 +235,6 @@ public final class ServerEventListeners {
         db.logPlayerJoin(player.getUuid(), player.getPlayerConnection().getRemoteAddress());
         player.setGameMode(GameMode.ADVENTURE);
         gdb.addPlayer(player);
-        SideboardManager<CytosisPlayer> sideboardManager = Cytosis.getGeneric(SideboardManager.class);
-        sideboardManager.addPlayer(player);
         PlayerListManager<CytosisPlayer> playerListManager = Cytosis.getGeneric(PlayerListManager.class);
         playerListManager.setupPlayer(player);
         Cytosis.get(RankManager.class).addPlayer(player);
