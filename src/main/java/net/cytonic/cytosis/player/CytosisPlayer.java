@@ -81,10 +81,6 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
-
-        this.sidebarController = new SidebarController<>(this);
-        this.currentSidebar = null;
-        this.visibleSidebarComponents = new HashSet<>();
     }
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
@@ -93,6 +89,10 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
         UUID uuid = gameProfile.uuid();
         rm.loadPlayerNow(uuid);
         Cytosis.get(PreferenceManager.class).loadPlayerPreferencesNow(uuid, false);
+
+        this.sidebarController = new SidebarController<>(this);
+        this.currentSidebar = null;
+        this.visibleSidebarComponents = new HashSet<>();
 
         rank = rm.getPlayerRank(uuid).orElseGet(() -> {
             Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
@@ -511,9 +511,11 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
 
     @Override
     public boolean forceDisplayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if (!this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component)) {
+        if (this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component)) {
             return false;
         }
+
+        assert this.currentSidebar != null;
 
         int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
         int endAbsoluteID = startAbsoluteID + component.getComponentLength();
@@ -538,6 +540,8 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
             return false;
         }
 
+        assert this.currentSidebar != null;
+
         int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
         int endAbsoluteID = startAbsoluteID + component.getComponentLength();
 
@@ -559,10 +563,13 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
             return;
         }
 
+        assert this.currentSidebar != null;
+
         int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
         int endAbsoluteID = startAbsoluteID + component.getComponentLength();
 
         Collection<Component> componentContents = component.getContents(this);
+        assert componentContents != null; // Is true because we assume the player can view the component.
 
         int i = 0;
         for(Component c : componentContents) {

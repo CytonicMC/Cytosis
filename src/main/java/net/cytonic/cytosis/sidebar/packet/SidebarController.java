@@ -85,6 +85,8 @@ public class SidebarController<P extends CytosisPlayer> {
         // If the offset is outside / the last line, there's nothing to move
         if(this.getPreviousAbsoluteIDOffset(startAbsoluteID) >= this.getFurthestLine()) return;
 
+        assert this.player.getCurrentSidebar() != null;
+
         for(int absoluteID = startAbsoluteID; absoluteID < this.player.getCurrentSidebar().getTotalAbsoluteID(); ++absoluteID) {
             if(!this.absoluteIDCache.containsKey(absoluteID)) continue;
 
@@ -175,8 +177,7 @@ public class SidebarController<P extends CytosisPlayer> {
     }
 
     private boolean isLineClaimed(int line) {
-        return (this.claimCache[line / 8] & (1 << line % 8)) == 0;
+        return (this.claimCache[line / 8] & (1 << line % 8)) != 0;
     }
-
 
 }

@@ -4,7 +4,9 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A component inside a sidebar.
@@ -45,5 +47,38 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
      * This should not change but may be allowed in the future.
      */
     int getComponentLength();
+
+    class Builder<V extends SidebarViewer<V>> {
+        private final List<Component> contents;
+
+        public Builder() {
+            this.contents = new ArrayList<>();
+        }
+
+        public Builder<V> line(Component component) {
+            this.contents.add(component);
+
+            return this;
+        }
+
+        public SidebarComponent<V> build() {
+            return new SidebarComponent<V>() {
+                @Override
+                public boolean canDisplay(@NotNull V viewer) {
+                    return true;
+                }
+
+                @Override
+                public Collection<Component> getContents(@NotNull V viewer) {
+                    return contents;
+                }
+
+                @Override
+                public int getComponentLength() {
+                    return contents.size();
+                }
+            };
+        }
+    }
 
 }
