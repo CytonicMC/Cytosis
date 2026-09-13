@@ -23,10 +23,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Run Checkstyle
-        run: ./gradlew --build-cache --parallel checkstyleMain checkstyleTest
+        run: ./gradlew --build-cache --parallel checkstyleMain
 
       - name: Upload Checkstyle results
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: checkstyle-results

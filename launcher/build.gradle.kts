@@ -27,8 +27,8 @@ minestomEvents {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.matching("GraalVM")
+        languageVersion.set(JavaLanguageVersion.of(25))
+        vendor.set(JvmVendorSpec.GRAAL_VM)
         nativeImageCapable = true
     }
 }
@@ -66,11 +66,11 @@ graalvmNative {
         named("main") {
             buildArgs(
                 listOf(
+                    "-DSERVER_SECRET=${System.getenv("SERVER_SECRET") ?: "testsecret"}",
                     "--enable-native-access=ALL-UNNAMED", "--enable-monitoring=jfr",
-                    "--features=net.cytonic.nativeimage.NativeImageFeature",
+                    "--features=net.cytonic.cytosis.nativeimage.NativeImageFeature",
                     "-H:+UseCompressedReferences", "-R:MaxHeapSize=200m",
                     "--static-nolibc", "--no-fallback",
-                    "--emit build-report",
                     "--enable-url-protocols=http,https",
                     "--initialize-at-build-time=net.cytonic.cytosis.StaticInitializers",
                     "--report-unsupported-elements-at-runtime",
