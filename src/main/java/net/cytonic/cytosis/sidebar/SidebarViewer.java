@@ -32,7 +32,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>
      * If the component is already being displayed, the function will fail and return false.
      * <p>
-     * <h1>Update warnings</h1>
+     * <h3>Update warnings</h3>
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
      * <p>Adding at the start of the scoreboard is usually the fastest scenario since no lines need to be moved.</p>
      * <p>This function may move other lines if needed using a `set_score` packet.</p>
@@ -48,7 +48,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>
      * If the component is already being displayed, the function will fail and return false.
      * <p>
-     * <h1>Update warnings</h1>
+     * <h3>Update warnings</h3>
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
      * <p>Adding at the end of the scoreboard is usually the fastest scenario since no lines need to be moved.</p>
      * <p>This function may move other lines if needed using a `set_score` packet.</p>
@@ -63,7 +63,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>
      * If the component is already hidden / not being displayed, the function will fail and return false.
      * <p>
-     * <h1>Update warnings</h1>
+     * <h3>Update warnings</h3>
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
      * <p>This function usually is pretty fast as it only requires resetting scores rather than moving them.</p>
      *
@@ -77,7 +77,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * <p>
      * If the viewer isn't viewing the component, the function will fail and return false.
      * <p>
-     * <h1>Update warnings</h1>
+     * <h3>Update warnings</h3>
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
      *
      * @param component The component to update.
@@ -87,7 +87,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
     /**
      * Updates the sidebar title.
      *
-     * <h1>Update warnings</h1>
+     * <h3>Update warnings</h3>
      * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
      */
     void updateSidebarTitle();
