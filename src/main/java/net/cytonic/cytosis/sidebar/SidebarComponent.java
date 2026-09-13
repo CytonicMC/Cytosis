@@ -3,10 +3,12 @@ package net.cytonic.cytosis.sidebar;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * A component inside a sidebar.
@@ -98,6 +100,69 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
                 @Override
                 public boolean isFullyStatic() {
                     return true;
+                }
+            };
+        }
+    }
+
+    /**
+     * A variant of builder that allows for dynamic lines.
+     * It is highly not recommended to use this to construct actual
+     * dynamic components.
+     * @param <V>
+     */
+    class DynamicBuilder<V extends SidebarViewer<V>> {
+        private final List<Function<V, Component>> contents;
+        private final Function<V, Boolean> canDisplayInner;
+        private final String id;
+
+        public DynamicBuilder(String id, Function<V, Boolean> canDisplay) {
+            this.id = id;
+            this.canDisplayInner = canDisplay;
+            this.contents = new ArrayList<>();
+        }
+
+        public DynamicBuilder<V> line(Component component) {
+            this.contents.add((_) -> component);
+            return this;
+        }
+
+        public DynamicBuilder<V> line(Function<V, Component> line) {
+            this.contents.add(line);
+            return this;
+        }
+
+        public SidebarComponent<V> build() {
+            return new SidebarComponent<V>() {
+                @Override
+                public boolean canDisplay(@NonNull V viewer) {
+                    return canDisplayInner.apply(viewer);
+                }
+
+                @Override
+                public Collection<Component> getContents(@NonNull V viewer) {
+                    List<Component> components = new ArrayList<>();
+
+                    for(Function<V, Component> line : contents) {
+                        components.add(line.apply(viewer));
+                    }
+
+                    return components;
+                }
+
+                @Override
+                public int getComponentLength() {
+                    return contents.size();
+                }
+
+                @Override
+                public @Nullable String getId() {
+                    return id;
+                }
+
+                @Override
+                public boolean isFullyStatic() {
+                    return false;
                 }
             };
         }
