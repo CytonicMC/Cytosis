@@ -4,6 +4,7 @@ import net.cytonic.cytosis.commands.utils.CytosisCommand;
 import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sidebar.SidebarComponent;
+import net.cytonic.cytosis.utils.Msg;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
@@ -13,7 +14,7 @@ public class UpdateCommand extends CytosisCommand {
     public UpdateCommand() {
         super("update");
 
-        this.setDefaultExecutor((sender, ctx) -> sender.sendMessage("§cYou must specify a component ID to update! Use /sidebartest updateall to update all updatable!"));
+        this.setDefaultExecutor((sender, ctx) -> sender.sendMessage(Msg.red("You must specify a component ID to update! Use /sidebartest updateall to update all updatable!")));
 
         var componentIDArgument = ArgumentType.Word("componentID").setSuggestionCallback((sender, ctx, suggestion) -> {
             if(!(sender instanceof CytosisPlayer player)) return;
