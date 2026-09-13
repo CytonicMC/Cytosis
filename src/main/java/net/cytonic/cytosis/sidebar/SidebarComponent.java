@@ -53,6 +53,11 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
      */
     @Nullable String getId();
 
+    /**
+     * Checks if this component's content could ever change / be updated.
+     */
+    boolean isFullyStatic();
+
     class Builder<V extends SidebarViewer<V>> {
         private final List<Component> contents;
         private final String id;
@@ -88,6 +93,11 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
                 @Override
                 public @Nullable String getId() {
                     return id;
+                }
+
+                @Override
+                public boolean isFullyStatic() {
+                    return true;
                 }
             };
         }
