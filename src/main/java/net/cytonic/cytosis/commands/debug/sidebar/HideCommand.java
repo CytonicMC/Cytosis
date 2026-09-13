@@ -31,6 +31,8 @@ public class HideCommand extends CytosisCommand {
         this.addSyntax((sender, ctx) -> {
             CytosisPlayer player = (CytosisPlayer) sender;
 
+            if(player.getCurrentSidebar() == null) return;
+
             String id = ctx.get(componentIDArgument);
             player.sendMessage("Hiding every component with ID " + id);
 

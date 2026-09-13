@@ -14,6 +14,8 @@ public class UpdateAllCommand extends CytosisCommand {
         this.setDefaultExecutor((sender, ctx) -> {
             CytosisPlayer player = (CytosisPlayer) sender;
 
+            if(player.getCurrentSidebar() == null) return;
+
             player.sendMessage("Updating every updatable component...");
 
             for(SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {

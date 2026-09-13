@@ -31,6 +31,8 @@ public class ShowCommand extends CytosisCommand {
         this.addSyntax((sender, ctx) -> {
             CytosisPlayer player = (CytosisPlayer) sender;
 
+            if(player.getCurrentSidebar() == null) return;
+
             String id = ctx.get(componentIDArgument);
             player.sendMessage("Showing every component with ID " + id);
 

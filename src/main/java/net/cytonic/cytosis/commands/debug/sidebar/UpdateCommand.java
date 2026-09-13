@@ -30,6 +30,8 @@ public class UpdateCommand extends CytosisCommand {
         this.addSyntax((sender, ctx) -> {
             CytosisPlayer player = (CytosisPlayer) sender;
 
+            if(player.getCurrentSidebar() == null) return;
+
             String id = ctx.get(componentIDArgument);
             player.sendMessage("Updating every component with ID " + id);
 
