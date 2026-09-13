@@ -48,10 +48,17 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
      */
     int getComponentLength();
 
+    /**
+     * Gets the "id" / name of the component. Is used internally only.
+     */
+    @Nullable String getId();
+
     class Builder<V extends SidebarViewer<V>> {
         private final List<Component> contents;
+        private final String id;
 
-        public Builder() {
+        public Builder(String id) {
+            this.id = id;
             this.contents = new ArrayList<>();
         }
 
@@ -76,6 +83,11 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
                 @Override
                 public int getComponentLength() {
                     return contents.size();
+                }
+
+                @Override
+                public @Nullable String getId() {
+                    return id;
                 }
             };
         }
