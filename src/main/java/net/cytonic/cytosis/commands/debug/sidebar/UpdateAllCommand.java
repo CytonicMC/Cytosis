@@ -19,7 +19,7 @@ public class UpdateAllCommand extends CytosisCommand {
             player.sendMessage("Updating every updatable component...");
 
             for(SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
-                if(!component.isFullyStatic()) {
+                if(!component.isStatic()) {
                     player.sendMessage("Updating component " + component.getId());
 
                     player.updateComponent(component);
