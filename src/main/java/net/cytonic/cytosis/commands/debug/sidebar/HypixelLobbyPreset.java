@@ -4,6 +4,7 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sidebar.Sidebar;
 import net.cytonic.cytosis.sidebar.SidebarComponent;
+import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 
 public class HypixelLobbyPreset implements PresetCommand.IPreset {
@@ -18,30 +19,29 @@ public class HypixelLobbyPreset implements PresetCommand.IPreset {
 
     static {
         SidebarComponent<CytosisPlayer> footer = new SidebarComponent.Builder<CytosisPlayer>("FOOTER")
-            .line(Component.text("§ehypixel.net"))
+            .line(Msg.yellow("hypixel.net"))
             .line(Component.empty())
             .build();
 
-
         SidebarComponent<CytosisPlayer> bottomInfo = new SidebarComponent.DynamicBuilder<CytosisPlayer>("BOTTOM_INFO", (_) -> true)
-            .line(Component.text("Server ID: §7" + Cytosis.getServer().serverType()))
-            .line((player) -> Component.text("Friends: §a" + player.getFriends().size()))
+            .line(Msg.mm("Server ID: <gray>" + Cytosis.getServer().serverType()))
+            .line((player) -> Msg.mm("Friends: <green>" + player.getFriends().size()))
             .line(Component.empty())
             .build();
 
         SidebarComponent<CytosisPlayer> middleInfo = new SidebarComponent.DynamicBuilder<CytosisPlayer>("MIDDLE_INFO", (_) -> true)
-            .line(Component.text("Players Online: §a" + Cytosis.getOnlinePlayers().size()))
-            .line(Component.text("Server Version: §a" + Cytosis.getServer().version()))
+            .line(Msg.mm("Players Online: <green>" + Cytosis.getOnlinePlayers().size()))
+            .line(Msg.mm("Server Version: <green>" + Cytosis.getServer().version()))
             .line(Component.empty())
             .build();
 
         SidebarComponent<CytosisPlayer> topInfo = new SidebarComponent.DynamicBuilder<CytosisPlayer>("TOP_INFO", (_) -> true)
-            .line((player) -> Component.text("Level: §3" + player.getLevel()))
-            .line((player) -> Component.text("Ping: §e" + player.getLatency()))
+            .line((player) -> Msg.mm("Level: <aqua>" + player.getLevel()))
+            .line((player) -> Msg.mm("Ping: <yellow>" + player.getLatency()))
             .line((player) -> Component.text("Rank: " + player.getRank().name()))
             .build();
 
-        SIDEBAR = new Sidebar.Builder<CytosisPlayer>((_) -> Component.text("§e§lHYPIXEL"))
+        SIDEBAR = new Sidebar.Builder<CytosisPlayer>((_) -> Msg.mm("<yellow><bold>HYPIXEL.NET"))
             .component(footer)
             .component(bottomInfo)
             .component(middleInfo)
