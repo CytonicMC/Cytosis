@@ -1,8 +1,10 @@
 package net.cytonic.cytosis.managers;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import lombok.NoArgsConstructor;
+import net.hollowcube.polar.PolarLoader;
 import net.hollowcube.polar.PolarReader;
 import net.hollowcube.polar.PolarWorld;
 import net.hollowcube.polar.PolarWriter;
@@ -16,9 +18,9 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 @CytosisComponent(dependsOn = {InstanceManager.class})
 public class WorldManager {
 
-    public CompletableFuture<PolarWorld> loadWorld(Key key) {
-        CompletableFuture<PolarWorld> future = new CompletableFuture<>();
-        Cytosis.get(GarageManager.class).downloadObject(
+    public CompletableFuture<PolarLoader> loadWorld(Key key) {
+        CompletableFuture<PolarLoader> future = new CompletableFuture<>();
+        Cytosis.get(GarageManager.class).downloadObjectAsStream(
             "cytonic-worlds",
             "/" + key.namespace() + "/" + key.value() + ".polar"
         ).whenComplete((data, throwable) -> {
@@ -26,7 +28,12 @@ public class WorldManager {
                 future.completeExceptionally(throwable);
                 return;
             }
-            future.complete(PolarReader.read(data));
+            try {
+                future.complete(new PolarLoader(data));
+            } catch (IOException e) {
+                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+            }
         });
         return future;
     }

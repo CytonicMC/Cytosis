@@ -46,12 +46,9 @@ public class CytosisBootstrap {
     public void run() {
         long startTime = System.currentTimeMillis();
 
-        CytosisConfig config = server.getConfigOrThrow(CytosisConfig.class);
-
-        Environment environment = config.environment();
+        Environment environment = cytosisContext.getComponent(CytosisConfig.class).environment();
         Logger.info("Starting Cytosis server in environment %s", environment);
 
-        cytosisContext.registerComponent(config);
         cytosisContext.registerComponent(AbstractCytosisServer.class, server);
         cytosisContext.registerComponent(server);
         cytosisContext.registerComponent(environment);

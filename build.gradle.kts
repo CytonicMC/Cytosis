@@ -34,7 +34,7 @@ repositories {
 
 dependencies {
     api(project(":protocol"))
-    implementation(project(":nativeimage"))
+    api(project(":nativeimage"))
     api(libs.entrypoint)
     api(libs.codecutils)
 
