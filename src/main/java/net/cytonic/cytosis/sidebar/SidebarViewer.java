@@ -85,6 +85,14 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
     void updateComponent(@NotNull SidebarComponent<V> component);
 
     /**
+     * Updates the sidebar title.
+     *
+     * <h1>Update warnings</h1>
+     * <p>This function <b>will</b> update the viewer's scoreboard if it doesn't fail.</p>
+     */
+    void updateSidebarTitle();
+
+    /**
      * Get the current sidebar the viewer is viewing.
      * @return The current sidebar or null if there's none.
      */

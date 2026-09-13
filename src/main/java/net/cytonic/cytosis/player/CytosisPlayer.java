@@ -577,7 +577,13 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
 
             ++i;
         }
+    }
 
+    @Override
+    public void updateSidebarTitle() {
+        assert this.currentSidebar != null;
+
+        this.sidebarController.renameSidebar(this.currentSidebar.getTitle(this));
     }
 
     @Override
