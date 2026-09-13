@@ -54,6 +54,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings("unused")
 @Getter
+@Deprecated(forRemoval = true)
 public class Sideboard {
 
     private final Player player;

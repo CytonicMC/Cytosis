@@ -26,6 +26,7 @@ import net.cytonic.cytosis.sideboard.SideboardCreator;
  * A manager class for sideboards
  */
 @NoArgsConstructor
+@Deprecated(forRemoval = true)
 @CytosisComponent(dependsOn = {NicknameManager.class})
 public class SideboardManager<P extends CytosisPlayer> implements Bootstrappable {
 

@@ -9,6 +9,7 @@ import net.cytonic.cytosis.player.CytosisPlayer;
 /**
  * An interface for creating sideboards.
  */
+@Deprecated(forRemoval = true)
 public interface SideboardCreator<P extends CytosisPlayer> {
 
     /**
