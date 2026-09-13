@@ -609,6 +609,8 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
         this.currentSidebar = sidebar;
 
         if (this.currentSidebar != null) {
+            this.currentSidebar.addViewer(this); // Add viewer to sidebar
+
             // Create new packet sidebar
             this.sidebarController.createSidebar(this.currentSidebar.getTitle(this));
 
