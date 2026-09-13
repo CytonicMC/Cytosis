@@ -496,7 +496,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
     }
 
     @Override
-    public boolean canPhysicallyViewComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
+    public boolean canFitComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
         return this.sidebarController.getFurthestLine() + component.getComponentLength() < SidebarController.SIDEBAR_LINE_SIZE;
     }
 
@@ -511,7 +511,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
 
     @Override
     public boolean forceDisplayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if (this.isViewingComponent(component) || !this.canPhysicallyViewComponent(component)) {
+        if (this.isViewingComponent(component) || !this.canFitComponent(component)) {
             return false;
         }
 

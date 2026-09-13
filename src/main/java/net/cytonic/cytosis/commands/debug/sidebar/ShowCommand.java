@@ -5,6 +5,7 @@ import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.sidebar.SidebarComponent;
 import net.cytonic.cytosis.utils.Msg;
+import net.minestom.server.command.builder.arguments.Argument;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 
@@ -16,7 +17,7 @@ public class ShowCommand extends CytosisCommand {
 
         this.setDefaultExecutor((sender, ctx) -> sender.sendMessage(Msg.whoops("You must specify a component ID to show!")));
 
-        var componentIDArgument = ArgumentType.Word("componentID").setSuggestionCallback((sender, ctx, suggestion) -> {
+        Argument<String> componentIDArgument = ArgumentType.Word("componentID").setSuggestionCallback((sender, ctx, suggestion) -> {
             if(!(sender instanceof CytosisPlayer player)) return;
 
             if(player.getCurrentSidebar() == null) return;

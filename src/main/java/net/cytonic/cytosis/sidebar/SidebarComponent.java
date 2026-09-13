@@ -58,7 +58,7 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
     /**
      * Checks if this component's content could ever change / be updated.
      */
-    boolean isFullyStatic();
+    boolean isStatic();
 
     class Builder<V extends SidebarViewer<V>> {
         private final List<Component> contents;
@@ -98,7 +98,7 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
                 }
 
                 @Override
-                public boolean isFullyStatic() {
+                public boolean isStatic() {
                     return true;
                 }
             };
@@ -161,7 +161,7 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
                 }
 
                 @Override
-                public boolean isFullyStatic() {
+                public boolean isStatic() {
                     return false;
                 }
             };

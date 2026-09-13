@@ -23,7 +23,7 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * {@link #displayComponent(SidebarComponent)} and {@link #forceDisplayComponent(SidebarComponent)}.
      * @param component The given component.
      */
-    boolean canPhysicallyViewComponent(@NotNull SidebarComponent<V> component);
+    boolean canFitComponent(@NotNull SidebarComponent<V> component);
 
     /**
      * Display the component to the viewer if the viewer can view it.
