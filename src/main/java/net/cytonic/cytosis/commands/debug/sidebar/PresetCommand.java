@@ -26,7 +26,7 @@ public class PresetCommand extends CytosisCommand {
 
             Preset preset = ctx.get(selectedPreset);
 
-            IPreset set = switch (preset) {
+            PresetSupplier set = switch (preset) {
                 case HYPIXEL_LOBBY -> HypixelLobbyPreset.PRESET;
             };
 
@@ -45,7 +45,7 @@ public class PresetCommand extends CytosisCommand {
         HYPIXEL_LOBBY
     }
 
-    public interface IPreset {
+    public interface PresetSupplier {
         public Sidebar<CytosisPlayer> getSidebar();
     }
 

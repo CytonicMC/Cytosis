@@ -7,7 +7,7 @@ import net.cytonic.cytosis.sidebar.SidebarComponent;
 import net.cytonic.cytosis.utils.Msg;
 import net.kyori.adventure.text.Component;
 
-public class HypixelLobbyPreset implements PresetCommand.IPreset {
+public class HypixelLobbyPreset implements PresetCommand.PresetSupplier {
 
     public static final Sidebar<CytosisPlayer> SIDEBAR;
     public static final HypixelLobbyPreset PRESET = new HypixelLobbyPreset();
