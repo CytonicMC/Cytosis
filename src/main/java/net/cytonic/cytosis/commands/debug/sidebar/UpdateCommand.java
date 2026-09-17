@@ -18,27 +18,27 @@ public class UpdateCommand extends CytosisCommand {
         this.setDefaultExecutor((sender, ctx) -> sender.sendMessage(Msg.red("You must specify a component ID to update! Use /sidebartest updateall to update all updatable!")));
 
         Argument<String> componentIDArgument = ArgumentType.Word("componentID").setSuggestionCallback((sender, ctx, suggestion) -> {
-            if(!(sender instanceof CytosisPlayer player)) return;
+            if (!(sender instanceof CytosisPlayer player)) return;
 
-            if(player.getCurrentSidebar() == null) return;
+            if (player.getCurrentSidebar() == null) return;
 
-            for(SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
-                if(player.isViewingComponent(component) && component.getId() != null) {
+            for (SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
+                if (player.isViewingComponent(component) && component.getId() != null) {
                     suggestion.addEntry(new SuggestionEntry(component.getId()));
                 }
             }
         });
 
         this.addSyntax((sender, ctx) -> {
-            CytosisPlayer player = (CytosisPlayer) sender;
+            if (!(sender instanceof CytosisPlayer player)) return;
 
-            if(player.getCurrentSidebar() == null) return;
+            if (player.getCurrentSidebar() == null) return;
 
             String id = ctx.get(componentIDArgument);
             player.sendMessage("Updating every component with ID " + id);
 
-            for(SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
-                if(id.equals(component.getId())) {
+            for (SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
+                if (id.equals(component.getId())) {
                     player.updateComponent(component);
                 }
             }

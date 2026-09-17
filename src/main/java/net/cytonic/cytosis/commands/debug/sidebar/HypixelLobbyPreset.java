@@ -9,8 +9,8 @@ import net.kyori.adventure.text.Component;
 
 public class HypixelLobbyPreset implements PresetCommand.IPreset {
 
-    public static Sidebar<CytosisPlayer> SIDEBAR;
-    public static HypixelLobbyPreset PRESET = new HypixelLobbyPreset();
+    public static final Sidebar<CytosisPlayer> SIDEBAR;
+    public static final HypixelLobbyPreset PRESET = new HypixelLobbyPreset();
 
     @Override
     public Sidebar<CytosisPlayer> getSidebar() {

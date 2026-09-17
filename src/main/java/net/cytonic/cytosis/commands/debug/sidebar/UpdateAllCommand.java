@@ -12,14 +12,14 @@ public class UpdateAllCommand extends CytosisCommand {
         super("updateall");
 
         this.setDefaultExecutor((sender, ctx) -> {
-            CytosisPlayer player = (CytosisPlayer) sender;
+            if (!(sender instanceof CytosisPlayer player)) return;
 
-            if(player.getCurrentSidebar() == null) return;
+            if (player.getCurrentSidebar() == null) return;
 
             player.sendMessage("Updating every updatable component...");
 
-            for(SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
-                if(!component.isStatic()) {
+            for (SidebarComponent<CytosisPlayer> component : player.getCurrentSidebar().getComponents()) {
+                if (!component.isStatic()) {
                     player.sendMessage("Updating component " + component.getId());
 
                     player.updateComponent(component);

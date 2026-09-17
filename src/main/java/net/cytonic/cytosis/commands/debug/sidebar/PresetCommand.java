@@ -22,11 +22,11 @@ public class PresetCommand extends CytosisCommand {
         });
 
         this.addSyntax((sender, ctx) -> {
-            CytosisPlayer player = (CytosisPlayer) sender;
+            if (!(sender instanceof CytosisPlayer player)) return;
 
             Preset preset = ctx.get(selectedPreset);
 
-            IPreset set = switch(preset) {
+            IPreset set = switch (preset) {
                 case HYPIXEL_LOBBY -> HypixelLobbyPreset.PRESET;
             };
 
