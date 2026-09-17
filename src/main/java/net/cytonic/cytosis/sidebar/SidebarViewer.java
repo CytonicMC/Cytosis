@@ -40,7 +40,13 @@ public interface SidebarViewer<V extends SidebarViewer<V>> {
      * @param component The component to display.
      * @return the fail state of the display. If the component couldn't be displayed, return false, otherwise true.
      */
-    boolean displayComponent(@NotNull SidebarComponent<V> component);
+    default boolean displayComponent(@NotNull SidebarComponent<V> component) {
+        if (!component.canDisplay(this)) {
+            return false;
+        }
+
+        return this.forceDisplayComponent(component);
+    }
 
     /**
      * The "unsafe" variant of {@link #displayComponent(SidebarComponent)}.

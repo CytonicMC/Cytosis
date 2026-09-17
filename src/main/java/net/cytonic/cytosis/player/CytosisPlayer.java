@@ -8,6 +8,7 @@ import dev.minestomunited.entrypoint.minestom.player.NetworkPlayer;
 import io.github.togar2.pvp.player.CombatPlayerImpl;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import net.cytonic.cytosis.sidebar.PlayerSidebarViewer;
 import net.cytonic.cytosis.sidebar.Sidebar;
 import net.cytonic.cytosis.sidebar.SidebarComponent;
 import net.cytonic.cytosis.sidebar.SidebarViewer;
@@ -63,7 +64,7 @@ import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
  * managers themselves.
  */
 @SuppressWarnings("unused")
-public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable, SidebarViewer<CytosisPlayer> {
+public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable, PlayerSidebarViewer<CytosisPlayer> {
 
     private PlayerRank rank;
 
@@ -491,99 +492,13 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
     }
 
     @Override
-    public boolean isViewingComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        return this.visibleSidebarComponents.contains(component);
+    public @NotNull SidebarController<CytosisPlayer> getSidebarController() {
+        return this.sidebarController;
     }
 
     @Override
-    public boolean canFitComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        return this.sidebarController.getFurthestLine() + component.getComponentLength() < SidebarController.SIDEBAR_LINE_SIZE;
-    }
-
-    @Override
-    public boolean displayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if (!component.canDisplay(this)) {
-            return false;
-        }
-
-        return this.forceDisplayComponent(component);
-    }
-
-    @Override
-    public boolean forceDisplayComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if (this.isViewingComponent(component) || !this.canFitComponent(component)) {
-            return false;
-        }
-
-        assert this.currentSidebar != null;
-
-        int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
-        int endAbsoluteID = startAbsoluteID + component.getComponentLength();
-
-        // First, we displace everything below to make space
-        this.sidebarController.displaceAllBelow(startAbsoluteID, component.getComponentLength());
-
-        int componentStartScore = this.sidebarController.getPreviousAbsoluteIDOffset(startAbsoluteID) + 1;
-
-        // Then, we can add the component
-        this.sidebarController.addComponent(startAbsoluteID, componentStartScore, component.getContents(this));
-
-        // Then finally update the viewed component list
-        this.visibleSidebarComponents.add(component);
-
-        return true;
-    }
-
-    @Override
-    public boolean hideComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if (!this.isViewingComponent(component)) {
-            return false;
-        }
-
-        assert this.currentSidebar != null;
-
-        int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
-        int endAbsoluteID = startAbsoluteID + component.getComponentLength();
-
-        // First, we remove the component
-        this.sidebarController.removeComponent(startAbsoluteID, component.getComponentLength());
-
-        // Then, we move the below lines for them to be of a continuous score
-        this.sidebarController.displaceAllBelow(startAbsoluteID, -component.getComponentLength());
-
-        // Then finally update the viewed component list
-        this.visibleSidebarComponents.remove(component);
-
-        return true;
-    }
-
-    @Override
-    public void updateComponent(@NotNull SidebarComponent<CytosisPlayer> component) {
-        if (!this.isViewingComponent(component)) {
-            return;
-        }
-
-        assert this.currentSidebar != null;
-
-        int startAbsoluteID = this.currentSidebar.getStartAbsoluteIDComponent(component, this);
-        int endAbsoluteID = startAbsoluteID + component.getComponentLength();
-
-        Collection<Component> componentContents = component.getContents(this);
-        assert componentContents != null; // Is true because we assume the player can view the component.
-
-        int i = 0;
-        for(Component c : componentContents) {
-            this.sidebarController.changeLineText(startAbsoluteID + i, c);
-
-            ++i;
-        }
-    }
-
-    @Override
-    public void updateSidebarTitle() {
-        assert this.currentSidebar != null;
-
-        this.sidebarController.renameSidebar(this.currentSidebar.getTitle(this));
+    public @NotNull HashSet<SidebarComponent<CytosisPlayer>> getVisibleComponents() {
+        return this.visibleSidebarComponents;
     }
 
     @Override
@@ -593,31 +508,6 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
 
     @Override
     public void setCurrentSidebar(@Nullable Sidebar<CytosisPlayer> sidebar) {
-        // Remove past sidebar
-
-        if (this.currentSidebar != null) {
-            // Delete old component & scoreboard tracking
-            this.visibleSidebarComponents.clear();
-            this.currentSidebar.removeViewer(this);
-
-            // Delete packet sidebar
-            this.sidebarController.deleteSidebar();
-        }
-
-        // Add new sidebar
-
         this.currentSidebar = sidebar;
-
-        if (this.currentSidebar != null) {
-            this.currentSidebar.addViewer(this); // Add viewer to sidebar
-
-            // Create new packet sidebar
-            this.sidebarController.createSidebar(this.currentSidebar.getTitle(this));
-
-            // Append new sidebar components to the sidebar
-            for (SidebarComponent<CytosisPlayer> component : this.currentSidebar.getComponents()) {
-                this.displayComponent(component);
-            }
-        }
     }
 }

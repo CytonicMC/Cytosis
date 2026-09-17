@@ -32,7 +32,7 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
      *
      * @param viewer The viewer.
      */
-    boolean canDisplay(@NotNull V viewer);
+    boolean canDisplay(@NotNull SidebarViewer<V> viewer);
 
     /**
      * Builds the contents of the sidebar component based on the viewer.
@@ -78,7 +78,7 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
         public SidebarComponent<V> build() {
             return new SidebarComponent<V>() {
                 @Override
-                public boolean canDisplay(@NotNull V viewer) {
+                public boolean canDisplay(@NotNull SidebarViewer<V> viewer) {
                     return true;
                 }
 
@@ -113,10 +113,10 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
      */
     class DynamicBuilder<V extends SidebarViewer<V>> {
         private final List<Function<V, Component>> contents;
-        private final Function<V, Boolean> canDisplayInner;
+        private final Function<SidebarViewer<V>, Boolean> canDisplayInner;
         private final String id;
 
-        public DynamicBuilder(String id, Function<V, Boolean> canDisplay) {
+        public DynamicBuilder(String id, Function<SidebarViewer<V>, Boolean> canDisplay) {
             this.id = id;
             this.canDisplayInner = canDisplay;
             this.contents = new ArrayList<>();
@@ -135,7 +135,7 @@ public interface SidebarComponent<V extends SidebarViewer<V>> {
         public SidebarComponent<V> build() {
             return new SidebarComponent<V>() {
                 @Override
-                public boolean canDisplay(@NonNull V viewer) {
+                public boolean canDisplay(@NonNull SidebarViewer<V> viewer) {
                     return canDisplayInner.apply(viewer);
                 }
 

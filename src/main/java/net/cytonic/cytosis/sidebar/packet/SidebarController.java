@@ -1,7 +1,9 @@
 package net.cytonic.cytosis.sidebar.packet;
 
 import net.cytonic.cytosis.player.CytosisPlayer;
+import net.cytonic.cytosis.sidebar.SidebarViewer;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.play.DisplayScoreboardPacket;
 import net.minestom.server.network.packet.server.play.ResetScorePacket;
 import net.minestom.server.network.packet.server.play.ScoreboardObjectivePacket;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class SidebarController<P extends CytosisPlayer> {
+public class SidebarController<P extends Player & SidebarViewer<P>> {
 
     public static final String SIDEBAR_ID = "cytosis__sidebar";
     public static final String SIDEBAR_ABSOLUTE_ID_PREFIX = "L_";
