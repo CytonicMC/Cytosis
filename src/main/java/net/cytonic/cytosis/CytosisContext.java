@@ -179,7 +179,7 @@ public class CytosisContext {
         return new CytonicServer(
             Utils.getServerIP(),
             SERVER_ID,
-            getComponent(ServerConfig.class).port(),
+            Cytosis.get(ServerConfig.class).port(),
             Cytosis.getServer().serverType()
         );
     }

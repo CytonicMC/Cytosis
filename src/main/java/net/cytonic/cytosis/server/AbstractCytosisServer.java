@@ -28,7 +28,6 @@ import net.cytonic.cytosis.server.chat.ChatService;
 import net.cytonic.cytosis.server.player.PlayerServiceImpl;
 import net.cytonic.cytosis.server.playerList.PlayerListService;
 import net.cytonic.cytosis.server.session.SessionServiceImpl;
-import net.cytonic.cytosis.server.sideboard.SideboardService;
 
 @Getter
 @Accessors(fluent = true)
@@ -84,8 +83,6 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
     public abstract ChatService<P> chatService();
 
     public abstract PlayerListService<P> playerListService();
-
-    public abstract SideboardService<P> sideboardService();
 
     public abstract ActionBarService<P> actionBarService();
 
