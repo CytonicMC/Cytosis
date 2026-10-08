@@ -11,6 +11,11 @@
       "enabled": false
     },
     {
+      "description": "Jandex 4.x creates a circular dependency with ebeanEnhance",
+      "matchDepNames": ["com.github.vlsi.jandex"],
+      "enabled": false
+    },
+    {
       "description": "Group all updates into one PR",
       "matchPackageNames": ["*"],
       "groupName": "all dependencies",
