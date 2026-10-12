@@ -8,11 +8,11 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("io.freefair.lombok") version "9.5.0"
+    id("io.freefair.lombok") version "9.8.0"
     alias(libs.plugins.blossom)
     alias(libs.plugins.indragit)
     id("checkstyle")
-    id("io.ebean") version "19.4.0"
+    id("io.ebean") version "19.6.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.3"
     id("com.github.vlsi.jandex") version "3.0.2"

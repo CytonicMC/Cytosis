@@ -1,7 +1,7 @@
 import com.github.vlsi.jandex.JandexTask
 
 plugins {
-    id("io.freefair.lombok") version "9.5.0"
+    id("io.freefair.lombok") version "9.8.0"
     `maven-publish`
     `java-library`
     java
