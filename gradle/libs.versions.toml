@@ -2,7 +2,7 @@ metadata.format.version = "1.1"
 
 [versions]
 adventure = "5.2.0"
-classgraph = "4.8.199"
+classgraph = "6.0.0"
 graalvm = "25.4.4.1.1"
 gson = "2.14.0"
 guava = "33.7.2-jre"
