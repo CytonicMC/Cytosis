@@ -8,7 +8,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("io.freefair.lombok") version "9.8.0"
+    id("io.freefair.lombok") version "9.8.2"
     alias(libs.plugins.blossom)
     alias(libs.plugins.indragit)
     id("checkstyle")
