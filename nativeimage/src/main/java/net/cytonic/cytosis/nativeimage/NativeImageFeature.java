@@ -23,7 +23,7 @@ public class NativeImageFeature implements Feature {
     @Override
     public void beforeAnalysis(BeforeAnalysisAccess access) {
         try (ScanResult scanResult = new ClassGraph()
-                .overrideClasspath(access.getApplicationClassPath())
+                .enableClasspathEntries(access.getApplicationClassPath())
                 .enableClassInfo()
                 .enableFieldInfo()
                 .enableAnnotationInfo()
@@ -34,19 +34,19 @@ public class NativeImageFeature implements Feature {
                 .acceptPackages("net.cytonic", "net.minestom")
                 .scan()) {
 
-            scanResult.getSubclasses(Record.class).forEach(ci -> processRecordClass(access, ci));
+            scanResult.getAllSubclasses(Record.class).forEach(ci -> processRecordClass(access, ci));
 
-            processScan(scanResult.getSubclasses("me.devnatan.inventoryframework.View"), access);
-            processScan(scanResult.getClassesImplementing("net.minestom.server.event.Event"), access);
-            processScan(scanResult.getClassesImplementing("net.cytonic.protocol.notify.NotifyListener"), access);
-            processScan(scanResult.getClassesImplementing("net.cytonic.protocol.Endpoint"), access);
+            processScan(scanResult.getAllSubclasses("me.devnatan.inventoryframework.View"), access);
+            processScan(scanResult.getAllClassesImplementing("net.minestom.server.event.Event"), access);
+            processScan(scanResult.getAllClassesImplementing("net.cytonic.protocol.notify.NotifyListener"), access);
+            processScan(scanResult.getAllClassesImplementing("net.cytonic.protocol.Endpoint"), access);
             processScan(scanResult.getClassesWithMethodAnnotation("net.cytonic.protocol.utils.NotifyHandler"), access);
             processScan(scanResult.getClassesWithMethodAnnotation("net.cytonic.cytosis.events.api.Listener"), access);
             processScan(scanResult.getClassesWithAnnotation("jakarta.persistence.Embeddable"), access);
             processScan(scanResult.getClassesWithAnnotation("jakarta.persistence.Entity"), access);
-            processScan(scanResult.getSubclasses("net.cytonic.protocol.ProtocolObject"), access);
-            processScan(scanResult.getSubclasses("net.cytonic.cytosis.commands.utils.CytosisCommand"), access);
-            processScan(scanResult.getSubclasses("net.cytonic.cytosis.entity.npc.NPC"), access);
+            processScan(scanResult.getAllSubclasses("net.cytonic.protocol.ProtocolObject"), access);
+            processScan(scanResult.getAllSubclasses("net.cytonic.cytosis.commands.utils.CytosisCommand"), access);
+            processScan(scanResult.getAllSubclasses("net.cytonic.cytosis.entity.npc.NPC"), access);
             processScan(
                     scanResult.getClassesWithAnnotation("net.cytonic.cytosis.bootstrap.annotations.CytosisComponent"),
                     access);
@@ -55,7 +55,7 @@ public class NativeImageFeature implements Feature {
         }
 
         try (ScanResult scanResult = new ClassGraph()
-                .overrideClasspath(access.getApplicationClassPath())
+                .enableClasspathEntries(access.getApplicationClassPath())
                 .enableClassInfo()
                 .enableFieldInfo()
                 .enableAnnotationInfo()
@@ -65,7 +65,7 @@ public class NativeImageFeature implements Feature {
                 .ignoreFieldVisibility()
                 .acceptPackages("io.minio")
                 .scan()) {
-            scanResult.getSubclasses("io.minio.BaseArgs").forEach(ci -> {
+            scanResult.getAllSubclasses("io.minio.BaseArgs").forEach(ci -> {
                 Class<?> clazz = access.findClassByName(ci.getName());
 
                 if (clazz == null) {
@@ -91,9 +91,8 @@ public class NativeImageFeature implements Feature {
             });
         }
 
-
         try (ScanResult scanResult = new ClassGraph()
-                .overrideClasspath(access.getApplicationClassPath())
+                .enableClasspathEntries(access.getApplicationClassPath())
                 .enableClassInfo()
                 .ignoreClassVisibility()
                 .acceptPackages("net.minestom", "net.kyori", "ch.qos.logback", "org.jctools", "it.unimi.dsi.fastutil",
