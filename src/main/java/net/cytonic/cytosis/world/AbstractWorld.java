@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.key.Key;
+import lombok.Getter;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
@@ -16,6 +17,9 @@ import net.minestom.server.world.DimensionType;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.managers.WorldManager;
 
+import net.cytonic.cytosis.particles.ParticleEngine;
+
+@Getter
 public abstract class AbstractWorld extends InstanceContainer {
 
     public static final Tag<Key> MAP_ID;
@@ -25,12 +29,18 @@ public abstract class AbstractWorld extends InstanceContainer {
         MAP_ID = tag.defaultValue(Key.key("cytosis:default"));
     }
 
+    private final ParticleEngine particleEngine;
+
     public AbstractWorld(UUID uuid, RegistryKey<DimensionType> dimensionType) {
         this(uuid, dimensionType, true);
     }
 
     public AbstractWorld(UUID uuid, RegistryKey<DimensionType> dimensionType, boolean autoRegister) {
         super(uuid, dimensionType);
+        // make particle engine accessible via a tag or method
+        this.particleEngine = new ParticleEngine(this);
+        setTag(ParticleEngine.TAG, particleEngine);
+
         if (autoRegister) {
             MinecraftServer.getInstanceManager().registerInstance(this);
         }

@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import dev.minestomunited.entrypoint.config.ServerConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
-import net.cytonic.cytosis.config.CytosisConfig;
 import net.cytonic.cytosis.data.objects.CytonicServer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.utils.Utils;
@@ -37,7 +37,7 @@ public class CytosisContext {
     private boolean stopping = false;
     @Nullable
     private Instant shutdownAt = null;
-    private boolean sendErrorsThroughSnooper = false;
+    private boolean sendErrorsThroughSnooper = true;
     private int shutdownDuration = 60;
 
     /**
@@ -179,7 +179,7 @@ public class CytosisContext {
         return new CytonicServer(
             Utils.getServerIP(),
             SERVER_ID,
-            getComponent(CytosisConfig.class).port(),
+            Cytosis.get(ServerConfig.class).port(),
             Cytosis.getServer().serverType()
         );
     }

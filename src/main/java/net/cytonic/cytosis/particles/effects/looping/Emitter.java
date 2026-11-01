@@ -2,9 +2,9 @@ package net.cytonic.cytosis.particles.effects.looping;
 
 import java.util.function.Supplier;
 
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 
+import net.cytonic.cytosis.particles.ParticleAudience;
 import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.particles.effects.fixed.SingleParticleEffect;
 import net.cytonic.cytosis.particles.util.ParticleSupplier;
@@ -32,21 +32,21 @@ public class Emitter extends LoopingEffect {
     }
 
     @Override
-    public void playNextTick(PacketGroupingAudience audience) {
+    public void playNextTick(ParticleAudience audience, ParticleEngine engine) {
         currentTick++;
         if (frequency < 1) {
             int interval = (int) Math.round(1 / frequency);
-            if (currentTick % interval == 0) emitParticle(audience);
+            if (currentTick % interval == 0) emitParticle(audience, engine);
         } else {
             accumulator += frequency;
             while (accumulator >= 1) {
-                emitParticle(audience);
+                emitParticle(audience, engine);
                 accumulator -= 1;
             }
         }
     }
 
-    private void emitParticle(PacketGroupingAudience audience) {
-        ParticleEngine.playStatic(new SingleParticleEffect(supplier, getPosSupplier().get()), audience);
+    private void emitParticle(ParticleAudience audience, ParticleEngine engine) {
+        engine.playStatic(new SingleParticleEffect(supplier, getPosSupplier().get()), audience);
     }
 }

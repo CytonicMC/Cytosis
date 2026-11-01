@@ -26,12 +26,10 @@ public class HealthCheckProtocolObject extends ProtocolObject<Packet, Response> 
     }
 
     public record Packet() implements Message<Packet, Response> {
-
         public static final Codec<Packet> CODEC = ProtocolCodecUtils.Unit(new Packet());
     }
 
     public record Response() {
-
         public static final Codec<Response> CODEC = ProtocolCodecUtils.Unit(new Response());
     }
 }

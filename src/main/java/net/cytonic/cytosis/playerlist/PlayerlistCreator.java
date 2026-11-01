@@ -43,7 +43,7 @@ public interface PlayerlistCreator<P extends CytosisPlayer> {
                 PlayerRank rank = p.getTrueRank();
                 if (player.getUuid().equals(p.getUuid())) {
                     players.add(new PlayerListEntry(rank.getPrefix()
-                        .append(p.getTrueName().color(rank.getTeamColor())), rank.ordinal(),
+                        .append(p.getTrueName().color(rank.getTeamColor().textColor())), rank.ordinal(),
                         new PlayerInfoUpdatePacket.Property("textures", p.getTrueSkin()
                             .textures(), p.getTrueSkin()
                             .signature())));
@@ -51,8 +51,9 @@ public interface PlayerlistCreator<P extends CytosisPlayer> {
                 }
 
                 if (player.isStaff()) {
-                    players.add(new PlayerListEntry(rank.getPrefix().append(p.getTrueName().color(rank.getTeamColor()))
-                        .append(Msg.darkAqua(" \uD83C\uDFAD")), p.getRank()
+                    players.add(new PlayerListEntry(
+                        rank.getPrefix().append(p.getTrueName().color(rank.getTeamColor().textColor()))
+                            .append(Msg.darkAqua(" \uD83C\uDFAD")), p.getRank()
                         .ordinal(), new PlayerInfoUpdatePacket.Property("textures", p.getTrueSkin()
                         .textures(), p.getTrueSkin()
                         .signature())));

@@ -44,11 +44,6 @@ Components can be retrieved from the central context:
 MyService service = Cytosis.get(MyService.class);
 ```
 
-### Plugin System
-
-Cytosis includes a built-in plugin loader that supports Java plugins. Plugins can define their own components, entities,
-and commands, integrating seamlessly with the core framework.
-
 ---
 
 ## Data & Persistence

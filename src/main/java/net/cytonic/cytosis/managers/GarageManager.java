@@ -1,13 +1,15 @@
 package net.cytonic.cytosis.managers;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 
+import io.minio.errors.MinioException;
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
@@ -19,26 +21,19 @@ import net.cytonic.cytosis.logging.Logger;
 @CytosisComponent
 public class GarageManager implements Bootstrappable {
 
-    private final ExecutorService worker;
     private MinioClient client;
 
-    public GarageManager() {
-        this.worker = Executors.newCachedThreadPool(Thread.ofVirtual().name("CytosisGarageWorker")
-            .uncaughtExceptionHandler(
-                (t, e) -> Logger.error("An uncaught exception occurred on the garage worker thread: " + t.getName(),
-                    e)).factory());
-    }
 
     @Override
     public void init() {
         GarageConfig config = Cytosis.get(CytosisConfig.class).garage();
 
         client = MinioClient
-            .builder()
-            .endpoint(config.host() + ":" + config.port())
-            .credentials(config.username(), config.password())
-            .region("garage")
-            .build();
+                .builder()
+                .endpoint(config.host() + ":" + config.port())
+                .credentials(config.username(), config.password())
+                .region("garage")
+                .build();
 
         Cytosis.CONTEXT.registerComponent(client);
     }
@@ -53,39 +48,81 @@ public class GarageManager implements Bootstrappable {
     }
 
     public CompletableFuture<byte[]> downloadObject(String bucket, String object) {
-        CompletableFuture<byte[]> future = new CompletableFuture<>();
-        worker.submit(() -> {
-            GetObjectArgs request = GetObjectArgs
-                .builder()
-                .bucket(Cytosis.get(Environment.class).getPrefix().replace('_', '-') + bucket)
-                .object(object)
-                .build();
+        return downloadObjectAsStream(bucket, object).thenApplyAsync(rs -> {
             try {
-                future.complete(client.getObject(request).readAllBytes());
-            } catch (Exception e) {
-                future.completeExceptionally(e);
-                Logger.error("An error occurred while trying to download object from bucket: " + bucket, e);
+                return rs.readAllBytes();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
-        return future;
+    }
+
+    /**
+     * Returns a completable future of an input stream. The stream must be closed to free up resources after reading.
+     */
+    public CompletableFuture<InputStream> downloadObjectAsStream(String bucket, String object) {
+        return CompletableFuture.supplyAsync(() -> {
+            GetObjectArgs request = GetObjectArgs
+                    .builder()
+                    .bucket(Cytosis.get(Environment.class).getPrefix().replace('_', '-') + bucket)
+                    .object(object)
+                    .build();
+
+            try {
+                return client.getObject(request);
+            } catch (MinioException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
     public CompletableFuture<Void> uploadObject(String bucket, String object, byte[] data) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        worker.submit(() -> {
+        return uploadObject(
+                bucket,
+                object,
+                new ByteArrayInputStream(data),
+                data.length
+        );
+    }
+
+    /**
+     * Uploads an object from a stream.
+     *
+     * @param bucket     bucket name without the environment prefix
+     * @param object     object key
+     * @param data       input stream containing the object data
+     * @param objectSize object size in bytes, or -1 if unknown
+     */
+    public CompletableFuture<Void> uploadObject(
+            String bucket,
+            String object,
+            InputStream data,
+            long objectSize
+    ) {
+        return CompletableFuture.runAsync(() -> {
+            String prefixedBucket = Cytosis.get(Environment.class)
+                    .getPrefix()
+                    .replace('_', '-') + bucket;
+
             PutObjectArgs request = PutObjectArgs
-                .builder()
-                .bucket(Cytosis.get(Environment.class).getPrefix().replace('_', '-') + bucket)
-                .object(object)
-                .data(data, data.length)
-                .build();
-            try {
+                    .builder()
+                    .bucket(prefixedBucket)
+                    .object(object)
+                    .stream(
+                            data,
+                            objectSize,
+                            10 * 1024 * 1024L // 10 MiB multipart part size
+                    )
+                    .build();
+
+            try (InputStream input = data) {
                 client.putObject(request);
-                future.complete(null);
             } catch (Exception e) {
-                Logger.error("An error occurred while trying to upload object from bucket: " + bucket, e);
+                throw new RuntimeException(
+                        "Failed to upload object '" + object + "' to bucket '" + prefixedBucket + "'",
+                        e
+                );
             }
         });
-        return future;
     }
 }

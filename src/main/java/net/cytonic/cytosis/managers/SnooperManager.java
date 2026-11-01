@@ -22,6 +22,8 @@ import net.cytonic.cytosis.data.RedisDatabase;
 import net.cytonic.cytosis.data.containers.SnoopsContainer;
 import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.messaging.NatsManager;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.snooper.SnoopPersistenceManager;
 import net.cytonic.cytosis.snooper.SnooperChannel;
@@ -148,6 +150,7 @@ public class SnooperManager implements Bootstrappable {
             }
         });
         new SnooperNotifyPacket.Packet(message).publish(channel.channel());
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.SNOOPS_SENT, 1);
     }
 
     public void snoop(CytosisPlayer player, @NotNull String channel) {

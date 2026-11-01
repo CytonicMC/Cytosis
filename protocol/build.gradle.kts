@@ -1,11 +1,12 @@
 import com.github.vlsi.jandex.JandexTask
 
 plugins {
-    id("io.freefair.lombok") version "9.5.0"
+    id("io.freefair.lombok") version "9.8.2"
     `maven-publish`
     `java-library`
     java
     id("com.github.vlsi.jandex") version "3.0.2"
+    id("org.graalvm.buildtools.native") version "1.1.17"
 }
 
 group = "net.cytonic"
@@ -22,8 +23,7 @@ dependencies {
     implementation(libs.adventure.serializer.gson)
     implementation(libs.jandex)
     implementation(libs.jnats)
-    implementation(libs.log4j.core)
-    implementation(libs.log4j.slf4j2.impl)
+    implementation(libs.logback)
 }
 
 java {

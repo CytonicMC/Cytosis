@@ -7,9 +7,6 @@ public class PreferenceCommand extends CytosisCommand {
 
     public PreferenceCommand() {
         super("preference", "pref");
-        setDefaultExecutor((sender, cmdc) -> sender.sendMessage(Msg.mm("<red>Please specify an operation!")));
-
-        addSubcommand(new GetPreferenceCommand());
-        addSubcommand(new SetPreferenceCommand());
+        setDefaultExecutor((sender, _) -> sender.sendMessage(Msg.red("Please specify an operation!")));
     }
 }

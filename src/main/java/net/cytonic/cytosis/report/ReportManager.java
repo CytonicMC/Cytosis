@@ -16,6 +16,8 @@ import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.config.Snoops;
 import net.cytonic.cytosis.managers.SnooperManager;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
@@ -55,14 +57,16 @@ public class ReportManager {
             entity.setId(report.uuid());
             entity.setReporter(report.reporter());
             entity.setPlayer(report.player());
-            entity.setContext(Utils.toJson(report.context(),
-                (Codec<ReportContext<T>>) report.type().getContextCodec()));
+            entity.setContext(
+                Utils.toJson(report.context(), (Codec<ReportContext<T>>) report.type().getContextCodec()));
             entity.setType(report.type().getKey().asString());
             entity.setResolved(report.resolved());
             entity.save();
 
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.REPORTS_SUBMITTED, 1);
+
             Cytosis.get(SnooperManager.class)
-                .sendSnoop(Snoops.REPORT_SUBMITTED, Msg.mm("%s submitted report %s against %s for %s.",
+                .sendSnoop(Snoops.REPORT_SUBMITTED, Msg.snoop("%s submitted report %s against %s for %s.",
                     Players.trueMiniName(report.reporter()), report.uuid(),
                     Players.trueMiniName(report.player()),
                     Msg.toMini(report.type().getDisplayName())));

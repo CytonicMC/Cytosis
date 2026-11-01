@@ -55,7 +55,7 @@ public class ChatChannelCommand extends CytosisCommand {
                 return;
             }
 
-            player.whoops("You are already in the <gold>%s<gold> channel!", channel.name());
+            player.whoops("You are already in the <gold>%s</gold> channel!", channel.name());
         }, arg);
     }
 

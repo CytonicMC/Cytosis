@@ -2,7 +2,9 @@ package net.cytonic.cytosis.server;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
+import dev.minestomunited.common.config.Config;
 import dev.minestomunited.common.config.ConfigRegistry;
 import dev.minestomunited.entrypoint.minestom.BasicMinestomService;
 import dev.minestomunited.entrypoint.minestom.MinestomService;
@@ -14,17 +16,18 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.Auth;
+import org.graalvm.nativeimage.ImageInfo;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.config.CytosisConfig;
+import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.server.actionBar.ActionBarService;
 import net.cytonic.cytosis.server.chat.ChatService;
 import net.cytonic.cytosis.server.player.PlayerServiceImpl;
 import net.cytonic.cytosis.server.playerList.PlayerListService;
 import net.cytonic.cytosis.server.session.SessionServiceImpl;
-import net.cytonic.cytosis.server.sideboard.SideboardService;
 
 @Getter
 @Accessors(fluent = true)
@@ -39,8 +42,13 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
         super(registry);
         sessionService = new SessionServiceImpl();
         playerService = new PlayerServiceImpl();
-        minestomService = new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
-        Cytosis.CONTEXT.registerComponent(getConfigOrThrow(CytosisConfig.class).environment());
+        // true if we're running as a native-image executable (build-time OR runtime)
+        boolean nativeCompatible = ImageInfo.inImageCode();
+        Logger.debug("Running in Native Image: " + nativeCompatible);
+        minestomService = nativeCompatible
+            ? new NativeMinestomService<>(this, registry, sessionService, playerService, playerProvider)
+            : new BasicMinestomService<>(this, registry, sessionService, playerService, playerProvider);
+        Cytosis.CONTEXT.registerComponent(super.getConfigOrThrow(CytosisConfig.class));
     }
 
     @Override
@@ -49,7 +57,7 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
             return new Auth.Online();
         }
 
-        String secret = getConfigOrThrow(CytosisConfig.class).secret();
+        String secret = Cytosis.get(CytosisConfig.class).secret();
         if (secret == null || secret.isEmpty()) {
             throw new IllegalStateException("Velocity secret is null or empty!");
         }
@@ -58,10 +66,12 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
 
     @Override
     public boolean isStandalone() {
-        return getConfigOrThrow(CytosisConfig.class).standalone();
+        return Cytosis.get(CytosisConfig.class).standalone();
     }
 
     public abstract Key serverType();
+
+    public abstract String version();
 
     public abstract void onShutdown();
 
@@ -74,7 +84,27 @@ public abstract class AbstractCytosisServer<P extends CytosisPlayer> extends Abs
 
     public abstract PlayerListService<P> playerListService();
 
-    public abstract SideboardService<P> sideboardService();
-
     public abstract ActionBarService<P> actionBarService();
+
+    /**
+     * Determines if the server should the server kick the player if they have not agreed to the policies. Defaults to
+     * {@code true}, as it should be the normal behavior.
+     */
+    public boolean shouldKickWithoutPolicyAgreement() {
+        return true;
+    }
+
+    @Override
+    public <C extends Config> Optional<C> getConfig(Class<C> clazz) {
+        Logger.warn(
+            "Using AbstractCytosisServer#getConfig does not include environment overrides! Use Cytosis.get(Class<C>) instead!");
+        return super.getConfig(clazz);
+    }
+
+    @Override
+    public <C extends Config> C getConfigOrThrow(Class<C> clazz) {
+        Logger.warn(
+            "Using AbstractCytosisServer#getConfigOrThrow does not include environment overrides! Use Cytosis.get(Class<C>) instead!");
+        return super.getConfigOrThrow(clazz);
+    }
 }

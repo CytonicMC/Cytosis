@@ -3,11 +3,12 @@ package net.cytonic.cytosis.particles.effects.looping;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.ApiStatus;
 
+import net.cytonic.cytosis.particles.ParticleAudience;
+import net.cytonic.cytosis.particles.ParticleEngine;
 import net.cytonic.cytosis.particles.effects.keyframed.BridgingStrategy;
 import net.cytonic.cytosis.particles.util.ParticleSupplier;
 
@@ -114,7 +115,7 @@ public class CircularLoopingEffect extends LoopingEffect {
 
     @Override
     @ApiStatus.Internal
-    public void playNextTick(PacketGroupingAudience audience) {
+    public void playNextTick(ParticleAudience audience, ParticleEngine engine) {
         if (currentTick >= resolution) {
             currentAngle = 0;
             currentTick = 0;

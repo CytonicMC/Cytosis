@@ -1,10 +1,10 @@
 package net.cytonic.cytosis.particles.effects.keyframed;
 
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import org.jetbrains.annotations.ApiStatus;
 
+import net.cytonic.cytosis.particles.ParticleAudience;
 import net.cytonic.cytosis.particles.effects.fixed.LineEffect;
 import net.cytonic.cytosis.particles.effects.fixed.SingleParticleEffect;
 import net.cytonic.cytosis.particles.effects.fixed.StaticEffect;
@@ -121,7 +121,7 @@ public interface BridgingStrategy {
         public StaticEffect render(ParticleSupplier supplier, Point start, Point end) {
             return new StaticEffect() {
                 @Override
-                public void play(PacketGroupingAudience audience) {
+                public void play(ParticleAudience audience) {
 
                 }
             }; // an empty effect

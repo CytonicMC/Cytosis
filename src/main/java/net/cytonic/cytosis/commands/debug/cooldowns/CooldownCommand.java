@@ -16,10 +16,5 @@ public class CooldownCommand extends CytosisCommand {
         super("cooldown");
         setCondition(CommandUtils.IS_ADMIN);
         setDefaultExecutor(HELP_EXECUTOR);
-
-        addSubcommand(new CooldownHelpCommand());
-        addSubcommand(new SetCooldownCommand());
-        addSubcommand(new GetCooldownCommand());
-        addSubcommand(new ClearCooldownCommand());
     }
 }

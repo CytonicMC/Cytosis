@@ -79,7 +79,7 @@ public class RankCommand extends CytosisCommand {
         actor = player.trueFormattedName();
 
         String usr = Cytosis.get(CytonicNetwork.class).getLifetimePlayers().getByKey(uuid);
-        Component usrComp = oldRank.getPrefix().append(Component.text(usr, oldRank.getTeamColor()));
+        Component usrComp = oldRank.getPrefix().append(Component.text(usr, oldRank.getTeamColor().textColor()));
 
         Component snoop = actor.append(Msg.mm("<gray> changed ")).append(usrComp).append(Msg.mm("<gray>'s rank to "))
             .append(rank.getPrefix().replaceText(builder -> builder.match(" ").replacement("")))

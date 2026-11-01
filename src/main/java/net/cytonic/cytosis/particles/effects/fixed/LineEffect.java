@@ -2,10 +2,10 @@ package net.cytonic.cytosis.particles.effects.fixed;
 
 import java.util.List;
 
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 
+import net.cytonic.cytosis.particles.ParticleAudience;
 import net.cytonic.cytosis.particles.util.ParticleSupplier;
 import net.cytonic.cytosis.utils.Utils;
 
@@ -39,7 +39,7 @@ public class LineEffect extends StaticEffect {
     }
 
     @Override
-    public void play(PacketGroupingAudience audience) {
+    public void play(ParticleAudience audience) {
         positions.forEach(p -> audience.sendGroupedPacket(supplier.get().getPacket(p)));
     }
 }

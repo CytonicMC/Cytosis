@@ -36,7 +36,7 @@ public class EntityAnvilLoader extends AnvilLoader {
     Path entitiesPath;
 
     public EntityAnvilLoader(@NotNull Path path) {
-        super(path);
+        super(path, Key.key("overworld"));
         this.entitiesPath = path.resolve("entities");
     }
 

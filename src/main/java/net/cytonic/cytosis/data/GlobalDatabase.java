@@ -19,6 +19,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import net.minestom.server.MinecraftServer;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -647,25 +648,22 @@ public class GlobalDatabase implements Bootstrappable {
         return list;
     }
 
-    public CompletableFuture<@Nullable PreferenceData> loadPlayerPreferences(UUID player) {
-        CompletableFuture<PreferenceData> future = new CompletableFuture<>();
-        worker.submit(() -> {
-            try (Connection conn = getConnection()) {
-                PreparedStatement load = conn.prepareStatement(
-                    "SELECT * FROM cytonic_preferences WHERE uuid = ?");
-                load.setObject(1, player);
-                ResultSet rs = load.executeQuery();
-                if (rs.next()) {
-                    PreferenceData data = PreferenceData.deserialize(rs.getString("preferences"));
-                    future.complete(data);
-                } else {
-                    future.complete(null);
-                }
-            } catch (Exception exception) {
-                future.completeExceptionally(exception);
+    @Blocking
+    @Nullable
+    public PreferenceData loadPlayerPreferences(UUID player) {
+        try (Connection conn = getConnection()) {
+            PreparedStatement load = conn.prepareStatement(
+                "SELECT * FROM cytonic_preferences WHERE uuid = ?");
+            load.setObject(1, player);
+            ResultSet rs = load.executeQuery();
+            if (rs.next()) {
+                return PreferenceData.deserialize(rs.getString("preferences"));
+            } else {
+                return null;
             }
-        });
-        return future;
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     public CompletableFuture<Set<UUID>> loadFriends(UUID player) {

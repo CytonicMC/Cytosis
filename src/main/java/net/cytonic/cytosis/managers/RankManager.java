@@ -6,10 +6,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.NoArgsConstructor;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.color.TeamColor;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamBuilder;
+import org.jetbrains.annotations.Blocking;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.CytonicNetwork;
@@ -45,11 +47,29 @@ public class RankManager implements Bootstrappable {
         for (PlayerRank value : PlayerRank.values()) {
             Team team = new TeamBuilder(value.ordinal() + value.name(), MinecraftServer.getTeamManager()).collisionRule(
                     TeamsPacket.CollisionRule.NEVER)
-                .teamColor(value.getTeamColor())
+                .teamColor(TeamColor.valueOf(value.getTeamColor().name()))
                 .prefix(value.getPrefix())
                 .build();
             teamMap.put(value, team);
         }
+    }
+
+    @Blocking
+    public void loadPlayerNow(UUID uuid) {
+        PlayerRank rank = PlayerRank.DEFAULT;
+        String cachedRank = redis.getFromGlobalHash("player_ranks", uuid.toString());
+        if (cachedRank != null) {
+            rank = PlayerRank.valueOf(cachedRank);
+        } else {
+            // we need to load it for next time!
+            gdb.getPlayerRank(uuid).thenAccept(playerRank -> {
+                rankMap.put(uuid, playerRank);
+                Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(uuid, playerRank);
+                redis
+                    .addToGlobalHash("player_ranks", uuid.toString(), playerRank.name());
+            });
+        }
+        rankMap.put(uuid, rank);
     }
 
     /**
@@ -130,23 +150,7 @@ public class RankManager implements Bootstrappable {
      * @param player the player whose rank to load
      */
     public void loadPlayer(UUID player) {
-        Thread.ofVirtual().start(() -> {
-            PlayerRank rank = PlayerRank.DEFAULT;
-            String cachedRank = redis
-                .getFromGlobalHash("player_ranks", player.toString());
-            if (cachedRank != null) {
-                rank = PlayerRank.valueOf(cachedRank);
-            } else {
-                // we need to load it for next time!
-                gdb.getPlayerRank(player).thenAccept(playerRank -> {
-                    rankMap.put(player, playerRank);
-                    Cytosis.get(CytonicNetwork.class).updateCachedPlayerRank(player, playerRank);
-                    redis
-                        .addToGlobalHash("player_ranks", player.toString(), playerRank.name());
-                });
-            }
-            rankMap.put(player, rank);
-        });
+        Thread.ofVirtual().start(() -> loadPlayerNow(player));
     }
 
     /**

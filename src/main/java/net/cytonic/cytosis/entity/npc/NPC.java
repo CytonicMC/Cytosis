@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.color.TeamColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
@@ -23,6 +23,9 @@ import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.network.packet.server.play.SpawnEntityPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
+import net.minestom.server.network.packet.server.play.TeamsPacket.CollisionRule;
+import net.minestom.server.network.packet.server.play.TeamsPacket.NameTagVisibility;
+import net.minestom.server.network.packet.server.play.TeamsPacket.Settings;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
@@ -216,14 +219,17 @@ public abstract class NPC {
                 .setByte(MetadataDef.Avatar.DISPLAYED_MODEL_PARTS_FLAGS.index(), (byte) 127)
                 .setBoolean(MetadataDef.Player.HAS_NO_GRAVITY.index(), true)
                 .build(),
+
             new TeamsPacket("npc_team", new TeamsPacket.CreateTeamAction(
-                Component.text("NPCs"),
-                (byte) 0,
-                TeamsPacket.NameTagVisibility.NEVER,
-                TeamsPacket.CollisionRule.NEVER,
-                NamedTextColor.WHITE,
-                Component.empty(),
-                Component.empty(),
+                new Settings(
+                    Component.text("NPCs"),
+                    Component.empty(),
+                    Component.empty(),
+                    NameTagVisibility.NEVER,
+                    CollisionRule.NEVER,
+                    TeamColor.WHITE,
+                    (byte) 0
+                ),
                 List.of(entity.getUsername())
             ))
         );

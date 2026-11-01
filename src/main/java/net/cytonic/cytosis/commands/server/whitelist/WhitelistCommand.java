@@ -24,6 +24,5 @@ public class WhitelistCommand extends CytosisCommand {
         super("whitelist");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((sender, _) -> sender.sendMessage(HELP));
-        addSubcommands(new GrantCommand(), new RevokeCommand(), new StatusCommand());
     }
 }

@@ -5,9 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minestom.server.adventure.audience.PacketGroupingAudience;
-
 import net.cytonic.cytosis.particles.Keyframeable;
+import net.cytonic.cytosis.particles.ParticleAudience;
 import net.cytonic.cytosis.particles.ParticleEffect;
 import net.cytonic.cytosis.particles.ParticleEffectType;
 
@@ -70,7 +69,7 @@ public abstract class KeyframedEffect extends ParticleEffect implements Keyframe
     }
 
     @Override
-    public void play(PacketGroupingAudience audience) {
+    public void play(ParticleAudience audience) {
         throw new UnsupportedOperationException(
             "Keyframed effects cannot be played directly. Use ParticleEngine#playKeyframed(PacketGroupingAudience,"
                 + " KeyframedEffect) instead.");

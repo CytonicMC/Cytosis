@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import dev.minestomunited.entrypoint.config.ServerConfig;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.client.ErrorListener;
@@ -66,7 +67,7 @@ public class NatsManager implements Bootstrappable {
         new ServerStatusNotifyPacket.Packet(
             Utils.getServerIP(),
             Cytosis.CONTEXT.SERVER_ID,
-            Cytosis.get(CytosisConfig.class).port(),
+            Cytosis.get(ServerConfig.class).port(),
             Instant.now(),
             Cytosis.getServer().serverType()
         ).publish(isStartup ? Subjects.SERVER_REGISTER : Subjects.SERVER_SHUTDOWN);

@@ -30,13 +30,5 @@ public class SnooperCommand extends CytosisCommand {
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor(
             (sender, _) -> Cytosis.get(CommandManager.class).execute(sender, "snooper help"));
-        addSubcommand(new SnooperHelpCommand());
-        addSubcommand(new SnooperListenCommand());
-        addSubcommand(new SnooperBlindCommand());
-        addSubcommand(new SnooperTestCommand());
-        addSubcommand(new SnooperListCommand());
-        addSubcommand(new SnooperMuteCommand());
-        addSubcommand(new SnooperAuditCommand());
-        addSubcommand(new SnooperAboutCommand());
     }
 }

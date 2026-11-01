@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.event.EventDispatcher;
@@ -20,6 +22,8 @@ import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
 import net.cytonic.cytosis.data.enums.ChatChannel;
 import net.cytonic.cytosis.data.enums.PlayerRank;
 import net.cytonic.cytosis.data.objects.ChatMessage;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.events.network.PlayerSendMessageEvent;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
@@ -91,9 +95,15 @@ public class ChatManager implements Bootstrappable {
      * @param player          The player who sent the message
      */
     public void sendMessage(String originalMessage, ChatChannel channel, CytosisPlayer player) {
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.MESSAGES_SENT, 1, Attributes.of(
+            AttributeKey.stringKey("channel"), channel.name(),
+            AttributeKey.stringKey("uuid"), player.getUuid().toString()
+        ));
+
         originalMessage = Msg.stripTags(originalMessage);
         if (channel == ChatChannel.ALL) {
             Cytosis.getServer().chatService().handleAllChat(player, originalMessage);
+            logMessage(null, player.getUuid(), originalMessage, ChatChannel.ALL);
             return;
         }
 

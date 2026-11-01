@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+  <changeSet type="apply">
+    <addColumn tableName="cytonic_reports">
+      <column defaultValue="false" name="notified" notnull="true" type="boolean"/>
+      <column name="resolution_context" type="jsonb"/>
+    </addColumn>
+  </changeSet>
+</migration>

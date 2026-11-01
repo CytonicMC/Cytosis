@@ -1,103 +1,119 @@
 package net.cytonic.cytosis.commands.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import lombok.NoArgsConstructor;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import net.cytonic.cytosis.Bootstrappable;
 import net.cytonic.cytosis.Cytosis;
 import net.cytonic.cytosis.bootstrap.annotations.CytosisComponent;
-import net.cytonic.cytosis.commands.HelpCommand;
-import net.cytonic.cytosis.commands.chatting.AllChatCommand;
-import net.cytonic.cytosis.commands.chatting.ChatChannelCommand;
-import net.cytonic.cytosis.commands.chatting.IgnoreChatChannelCommand;
-import net.cytonic.cytosis.commands.chatting.MsgCommand;
-import net.cytonic.cytosis.commands.chatting.PartyChatCommand;
-import net.cytonic.cytosis.commands.chatting.ReplyCommand;
-import net.cytonic.cytosis.commands.chatting.ToggleChatPingCommand;
-import net.cytonic.cytosis.commands.debug.cooldowns.CooldownCommand;
-import net.cytonic.cytosis.commands.debug.particles.ParticleCommand;
-import net.cytonic.cytosis.commands.debug.preferences.PreferenceCommand;
-import net.cytonic.cytosis.commands.defaultMinecraft.GamemodeCommand;
-import net.cytonic.cytosis.commands.defaultMinecraft.TeleportCommand;
-import net.cytonic.cytosis.commands.disabling.DisableCommand;
-import net.cytonic.cytosis.commands.disabling.EnableCommand;
-import net.cytonic.cytosis.commands.friends.FriendCommand;
-import net.cytonic.cytosis.commands.moderation.BanCommand;
-import net.cytonic.cytosis.commands.moderation.ClearchatCommand;
-import net.cytonic.cytosis.commands.moderation.KickCommand;
-import net.cytonic.cytosis.commands.moderation.MuteCommand;
-import net.cytonic.cytosis.commands.moderation.UnbanCommand;
-import net.cytonic.cytosis.commands.moderation.UnmuteCommand;
-import net.cytonic.cytosis.commands.moderation.VanishCommand;
-import net.cytonic.cytosis.commands.movement.LobbyCommand;
-import net.cytonic.cytosis.commands.movement.PlayCommand;
-import net.cytonic.cytosis.commands.nicknames.NickCommand;
-import net.cytonic.cytosis.commands.party.PartyCommand;
-import net.cytonic.cytosis.commands.server.BroadcastCommand;
-import net.cytonic.cytosis.commands.server.LinkCommand;
-import net.cytonic.cytosis.commands.server.PingCommand;
-import net.cytonic.cytosis.commands.server.RecalculatePermissionsCommand;
-import net.cytonic.cytosis.commands.server.ReportCommand;
-import net.cytonic.cytosis.commands.server.ServerCommand;
-import net.cytonic.cytosis.commands.server.StopCommand;
-import net.cytonic.cytosis.commands.server.TimeCommand;
-import net.cytonic.cytosis.commands.server.TpsCommand;
-import net.cytonic.cytosis.commands.server.WhereAmiCommand;
-import net.cytonic.cytosis.commands.server.YoinkCommand;
-import net.cytonic.cytosis.commands.server.nomad.AllocationDetailsCommand;
-import net.cytonic.cytosis.commands.server.nomad.CreateInstanceCommand;
-import net.cytonic.cytosis.commands.server.nomad.ShutdownInstancesCommand;
-import net.cytonic.cytosis.commands.server.nomad.UpdateInstancesCommand;
-import net.cytonic.cytosis.commands.server.recording.RecordingCommand;
-import net.cytonic.cytosis.commands.server.whitelist.WhitelistCommand;
-import net.cytonic.cytosis.commands.server.worlds.ImportWorld;
-import net.cytonic.cytosis.commands.staff.FindCommand;
-import net.cytonic.cytosis.commands.staff.FlyCommand;
-import net.cytonic.cytosis.commands.staff.LoopCommand;
-import net.cytonic.cytosis.commands.staff.OpMeCommand;
-import net.cytonic.cytosis.commands.staff.RankCommand;
-import net.cytonic.cytosis.commands.staff.ServerAlertsCommand;
-import net.cytonic.cytosis.commands.staff.snooper.SnooperCommand;
+import net.cytonic.cytosis.logging.Logger;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.utils.Msg;
+import net.cytonic.protocol.utils.JandexUtils;
 
 /**
  * A class that handles the commands, their execution, and allegedly a console.
  */
 @NoArgsConstructor
-@CytosisComponent(priority = 2, dependsOn = {CommandManager.class})
+@CytosisComponent(priority = 100, dependsOn = {CommandManager.class})
 public class CommandHandler implements Bootstrappable {
+
+    private final List<CytosisCommand> COMMANDS = JandexUtils.getExtendedClasses(CytosisCommand.class);
+    private final Map<Class<? extends CytosisCommand>, CytosisCommand> commandMap = new HashMap<>();
 
     private CommandManager commandManager;
 
     @Override
     public void init() {
         this.commandManager = Cytosis.get(CommandManager.class);
+        commandManager.setUnknownCommandCallback((commandSender, s) -> {
+            if (!(commandSender instanceof CytosisPlayer player)) return;
+            player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
+            Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.UNKNOWN_COMMANDS, 1, Attributes.of(
+                //todo: (Foxikle) This seems like it might be an invasion of privacy, and should be disclosed, or possibly even disabled.
+                AttributeKey.stringKey("uuid"), player.getUuid().toString(),
+                AttributeKey.stringKey("rank"), player.getRank().name().toLowerCase(),
+                AttributeKey.stringKey("usage"), s
+            ));
+        });
     }
 
     /**
      * Registers the default Cytosis commands
      */
-    public void registerCytosisCommands() {
-        commandManager.setUnknownCommandCallback((commandSender, s) -> {
-            if (!(commandSender instanceof CytosisPlayer player)) return;
-            player.sendMessage(Msg.redSplash("UNKNOWN COMMAND!", "The command '/%s' does not exist.", s));
-        });
+    public void registerCommands() {
+        Map<Class<? extends CytosisCommand>, List<CytosisCommand>> depends = new HashMap<>();
 
-        commandManager.register(new GamemodeCommand(), new RankCommand(), new BanCommand(), new ChatChannelCommand(),
-            new StopCommand(), new ServerCommand(), new CreateInstanceCommand(), new ShutdownInstancesCommand(),
-            new AllocationDetailsCommand(), new TeleportCommand(), new FindCommand(), new PreferenceCommand(),
-            new ServerAlertsCommand(), new FlyCommand(), new BroadcastCommand(), new HelpCommand(),
-            new AllChatCommand(), new TimeCommand(), new PingCommand(), new FriendCommand(), new ClearchatCommand(),
-            new VanishCommand(), new IgnoreChatChannelCommand(), new UnbanCommand(), new MuteCommand(),
-            new UnmuteCommand(), new KickCommand(), new MsgCommand(), new CooldownCommand(),
-            new LoopCommand(), new RecalculatePermissionsCommand(), new YoinkCommand(), new ReplyCommand(),
-            new SnooperCommand(), new PlayCommand(), new LobbyCommand(), new WhereAmiCommand(), new DisableCommand(),
-            new EnableCommand(), new UpdateInstancesCommand(), new NickCommand(),
-            new ImportWorld(), new ToggleChatPingCommand(), new ParticleCommand(), new OpMeCommand(),
-            new WhitelistCommand(), new PartyCommand(), new PartyChatCommand(), new TpsCommand(), new ReportCommand(),
-            new DummyCommand(), new LinkCommand(), new MiniMessageCommand(), new RecordingCommand());
+        for (CytosisCommand command : COMMANDS) {
+            commandMap.put(command.getClass(), command);
+            if (command.getClass().isAnnotationPresent(SubCommand.class)) {
+                SubCommand annotation = command.getClass().getAnnotation(SubCommand.class);
+                if (commandMap.containsKey(annotation.value())) {
+                    // already registered parent, add sub command!
+                    commandMap.get(annotation.value()).addSubCommandInternal(command);
+                } else {
+                    depends.computeIfAbsent(annotation.value(), _ -> new ArrayList<>()).add(command);
+                }
+
+                if (depends.containsKey(command.getClass())) {
+                    for (CytosisCommand dependent : depends.remove(command.getClass())) {
+                        command.addSubCommandInternal(dependent);
+                    }
+                }
+                continue;
+            }
+            commandManager.register(command);
+        }
+
+        if (!depends.isEmpty()) {
+            depends.forEach((parent, children) -> {
+                if (commandMap.containsKey(parent)) {
+                    children.forEach(child -> commandMap.get(parent).addSubCommandInternal(child));
+                    return;
+                }
+
+                Logger.warn("Missing parent command `%s` for subcommand(s) %s", parent.getName(),
+                    Arrays.toString(children.toArray()));
+            });
+        }
+
+        // special case
+        commandManager.register(DummyCommand.INSTANCE);
+    }
+
+    /**
+     * Adds commands as subcommands of an existing command. Use case: Adding implementation specific subcommands. i.e.
+     * attaching more commands to the debug command.
+     *
+     * @return if the sub commands were successfully registered to the parent
+     */
+    public boolean attachSubCommands(Class<? extends CytosisCommand> parent, CytosisCommand... subs) {
+        if (!commandMap.containsKey(parent)) {
+            Logger.debug("Attempting to register sub command to an unregistered parent: %s", parent.getSimpleName());
+            return false;
+        }
+        commandManager.unregister(DummyCommand.INSTANCE);
+        commandMap.get(parent).addSubcommands(subs);
+        commandManager.register(DummyCommand.INSTANCE);
+        return true;
+    }
+
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public <T extends CytosisCommand> T getCommand(Class<T> clazz) {
+        return (T) commandMap.getOrDefault(clazz, null);
     }
 
     /**

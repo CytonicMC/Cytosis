@@ -173,7 +173,7 @@ public class BlockPlacementUtils {
                 if (b.name().toUpperCase().contains("BUTTON")) {
                     if (!placementState.instance()
                         .getBlock(placementState.placePosition().relative(placementState.blockFace().getOppositeFace()))
-                        .isSolid()) {
+                        .solid()) {
                         return null;
                     }
 
@@ -193,10 +193,10 @@ public class BlockPlacementUtils {
                 Block currentBlock = state.currentBlock();
 
                 // Check neighboring blocks
-                boolean north = state.instance().getBlock(pos.add(0, 0, -1)).isSolid();
-                boolean south = state.instance().getBlock(pos.add(0, 0, 1)).isSolid();
-                boolean west = state.instance().getBlock(pos.add(-1, 0, 0)).isSolid();
-                boolean east = state.instance().getBlock(pos.add(1, 0, 0)).isSolid();
+                boolean north = state.instance().getBlock(pos.add(0, 0, -1)).solid();
+                boolean south = state.instance().getBlock(pos.add(0, 0, 1)).solid();
+                boolean west = state.instance().getBlock(pos.add(-1, 0, 0)).solid();
+                boolean east = state.instance().getBlock(pos.add(1, 0, 0)).solid();
 
                 // Set block states for connection
                 return currentBlock
@@ -220,7 +220,7 @@ public class BlockPlacementUtils {
             @Override
             public @Nullable Block blockPlace(@NotNull PlacementState placementState) {
                 if (placementState.instance()
-                    .getBlock(placementState.placePosition().add(0, 1, 0), Block.Getter.Condition.TYPE).isSolid()) {
+                    .getBlock(placementState.placePosition().add(0, 1, 0), Block.Getter.Condition.TYPE).solid()) {
                     return block;
                 }
                 return null;
@@ -233,7 +233,7 @@ public class BlockPlacementUtils {
             @Override
             public @Nullable Block blockPlace(@NotNull PlacementState placementState) {
                 if (placementState.instance()
-                    .getBlock(placementState.placePosition().sub(0, 1, 0), Block.Getter.Condition.TYPE).isSolid()) {
+                    .getBlock(placementState.placePosition().sub(0, 1, 0), Block.Getter.Condition.TYPE).solid()) {
                     return block;
                 }
                 return null;
@@ -246,7 +246,7 @@ public class BlockPlacementUtils {
             @Override
             public @Nullable Block blockPlace(@NotNull PlacementState placementState) {
                 if (!placementState.instance()
-                    .getBlock(placementState.placePosition().sub(0, 1, 0), Block.Getter.Condition.TYPE).isAir()) {
+                    .getBlock(placementState.placePosition().sub(0, 1, 0), Block.Getter.Condition.TYPE).air()) {
                     return block;
                 }
                 return null;
@@ -275,16 +275,16 @@ public class BlockPlacementUtils {
                 Block s = i.getBlock(p.relative(BlockFace.SOUTH));
                 Block w = i.getBlock(p.relative(BlockFace.WEST));
 
-                up = (n.isSolid() ^ s.isSolid()) || (e.isSolid() ^ w.isSolid()) || !(n.isSolid() || e.isSolid()
-                    || s.isSolid() || w.isSolid());
+                up = (n.solid() ^ s.solid()) || (e.solid() ^ w.solid()) || !(n.solid() || e.solid()
+                    || s.solid() || w.solid());
 
-                east = e.isSolid() ? (i.getBlock(p.relative(BlockFace.EAST).add(0, 1, 0)).isSolid() ? "tall" : "low")
+                east = e.solid() ? (i.getBlock(p.relative(BlockFace.EAST).add(0, 1, 0)).solid() ? "tall" : "low")
                     : "none";
-                west = w.isSolid() ? (i.getBlock(p.relative(BlockFace.WEST).add(0, 1, 0)).isSolid() ? "tall" : "low")
+                west = w.solid() ? (i.getBlock(p.relative(BlockFace.WEST).add(0, 1, 0)).solid() ? "tall" : "low")
                     : "none";
-                north = n.isSolid() ? (i.getBlock(p.relative(BlockFace.NORTH).add(0, 1, 0)).isSolid() ? "tall" : "low")
+                north = n.solid() ? (i.getBlock(p.relative(BlockFace.NORTH).add(0, 1, 0)).solid() ? "tall" : "low")
                     : "none";
-                south = s.isSolid() ? (i.getBlock(p.relative(BlockFace.SOUTH).add(0, 1, 0)).isSolid() ? "tall" : "low")
+                south = s.solid() ? (i.getBlock(p.relative(BlockFace.SOUTH).add(0, 1, 0)).solid() ? "tall" : "low")
                     : "none";
 
                 return state.currentBlock().withProperty("east", east).withProperty("west", west)
@@ -370,7 +370,7 @@ public class BlockPlacementUtils {
             public @Nullable Block blockPlace(@NotNull PlacementState placementState) {
                 Block b = placementState.instance()
                     .getBlock(placementState.placePosition().relative(placementState.blockFace().getOppositeFace()));
-                if (b.isSolid()) {
+                if (b.solid()) {
                     return placementState.block();
                 } else {
                     return null;

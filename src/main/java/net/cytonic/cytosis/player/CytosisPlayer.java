@@ -2,15 +2,16 @@ package net.cytonic.cytosis.player;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import dev.minestomunited.entrypoint.minestom.player.NetworkPlayer;
 import io.github.togar2.pvp.player.CombatPlayerImpl;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import net.cytonic.cytosis.player.trait.PlayerSidebarViewer;
+import net.cytonic.cytosis.sidebar.Sidebar;
+import net.cytonic.cytosis.sidebar.SidebarComponent;
+import net.cytonic.cytosis.sidebar.packet.SidebarController;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -38,8 +39,11 @@ import net.cytonic.cytosis.logging.Logger;
 import net.cytonic.cytosis.managers.ActionBarManager;
 import net.cytonic.cytosis.managers.ChatManager;
 import net.cytonic.cytosis.managers.FriendManager;
+import net.cytonic.cytosis.managers.PreferenceManager;
 import net.cytonic.cytosis.managers.RankManager;
 import net.cytonic.cytosis.managers.VanishManager;
+import net.cytonic.cytosis.metrics.Metrics;
+import net.cytonic.cytosis.metrics.MetricsManager;
 import net.cytonic.cytosis.nicknames.NicknameManager;
 import net.cytonic.cytosis.parties.PartyManager;
 import net.cytonic.cytosis.player.trait.Cooldownable;
@@ -59,9 +63,14 @@ import net.cytonic.protocol.impl.objects.FriendApiProtocolObject;
  * managers themselves.
  */
 @SuppressWarnings("unused")
-public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable {
+public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Preferable, Cooldownable, Messagable, PlayerSidebarViewer<CytosisPlayer> {
 
     private PlayerRank rank;
+
+    private SidebarController<CytosisPlayer> sidebarController;
+
+    private @Nullable Sidebar<CytosisPlayer> currentSidebar;
+    private HashSet<SidebarComponent<CytosisPlayer>> visibleSidebarComponents;
 
     /**
      * Creates a new instance of a player
@@ -72,17 +81,21 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      */
     public CytosisPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         this(playerConnection, new GameProfile(uuid, username));
-        rank = Cytosis.get(RankManager.class).getPlayerRank(uuid).orElseGet(() -> {
-            Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
-            return PlayerRank.DEFAULT;
-        });
     }
 
     public CytosisPlayer(@NotNull PlayerConnection playerConnection, GameProfile gameProfile) {
         super(playerConnection, gameProfile);
-        rank = Cytosis.get(RankManager.class).getPlayerRank(gameProfile.uuid()).orElseGet(() -> {
-            Logger.warn(
-                "The rank manager does not have a rank for " + gameProfile.name() + ". Using default rank instead.");
+        RankManager rm = Cytosis.get(RankManager.class);
+        UUID uuid = gameProfile.uuid();
+        rm.loadPlayerNow(uuid);
+        Cytosis.get(PreferenceManager.class).loadPlayerPreferencesNow(uuid, false);
+
+        this.sidebarController = new SidebarController<>(this);
+        this.currentSidebar = null;
+        this.visibleSidebarComponents = new HashSet<>();
+
+        rank = rm.getPlayerRank(uuid).orElseGet(() -> {
+            Logger.warn("The rank manager does not have a rank for " + uuid + ". Using default rank instead.");
             return PlayerRank.DEFAULT;
         });
     }
@@ -210,7 +223,7 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      * @return The formatted name, including their rank prefix
      */
     public Component formattedName() {
-        return getRank().getPrefix().append(Component.text(getUsername(), getRank().getTeamColor()));
+        return getRank().getPrefix().append(Component.text(getUsername(), getRank().getTeamColor().textColor()));
     }
 
     /**
@@ -221,7 +234,8 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
      * @return The formatted name, including their rank prefix
      */
     public Component trueFormattedName() {
-        return getTrueRank().getPrefix().append(Component.text(getTrueUsername(), getTrueRank().getTeamColor()));
+        return getTrueRank().getPrefix()
+            .append(Component.text(getTrueUsername(), getTrueRank().getTeamColor().textColor()));
     }
 
     public boolean canSendToChannel(ChatChannel channel) {
@@ -387,6 +401,10 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
             reason = KickReason.UNKNOWN;
         }
         new PlayerKickNotifyPacket.Packet(getUuid(), reason, message).publish();
+        Cytosis.get(MetricsManager.class).addToLongCounter(Metrics.PLAYER_KICKS, 1, Attributes.of(
+            AttributeKey.stringKey("reason"), reason.name().toLowerCase(),
+            AttributeKey.stringKey("uuid"), getUuid().toString()
+        ));
     }
 
     public void kickInternal(Component msg) {
@@ -484,5 +502,25 @@ public class CytosisPlayer extends CombatPlayerImpl implements NetworkPlayer, Pr
     public void closeBook() {
         sendPacket(new OpenWindowPacket(100, 0, Component.empty()));
         sendPacket(new CloseWindowPacket(100));
+    }
+
+    @Override
+    public @NotNull SidebarController<CytosisPlayer> getSidebarController() {
+        return this.sidebarController;
+    }
+
+    @Override
+    public @NotNull HashSet<SidebarComponent<CytosisPlayer>> getVisibleComponents() {
+        return this.visibleSidebarComponents;
+    }
+
+    @Override
+    public @Nullable Sidebar<CytosisPlayer> getCurrentSidebar() {
+        return this.currentSidebar;
+    }
+
+    @Override
+    public void setCurrentSidebar(@Nullable Sidebar<CytosisPlayer> sidebar) {
+        this.currentSidebar = sidebar;
     }
 }
