@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.color.TeamColor;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -105,11 +104,16 @@ public interface ReplayEvent {
      */
     record PlayerIdent(int tick, Map<Integer, UUID> idents) implements ReplayEvent {
 
-        public static final Type<PlayerIdent> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, PlayerIdent::tick,
-                NetworkBuffer.VAR_INT.mapValue(NetworkBuffer.UUID), PlayerIdent::idents,
-                PlayerIdent::new
-        );
+        public static final int DATA_VERSION = 1;
+
+        public static final Type<PlayerIdent> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, PlayerIdent::tick,
+                    NetworkBuffer.VAR_INT.mapValue(NetworkBuffer.UUID), PlayerIdent::idents,
+                    PlayerIdent::new);
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
+
 
         @Override
         public int getId() {
@@ -124,11 +128,16 @@ public interface ReplayEvent {
 
     record PlayerJoin(int tick, int entityId) implements ReplayEvent {
 
-        public static final Type<PlayerJoin> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, PlayerJoin::tick,
-                NetworkBuffer.VAR_INT, PlayerJoin::entityId,
-                PlayerJoin::new
-        );
+        public static final int DATA_VERSION = 1;
+
+        public static final Type<PlayerJoin> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, PlayerJoin::tick,
+                    NetworkBuffer.VAR_INT, PlayerJoin::entityId,
+                    PlayerJoin::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         @Override
         public int getId() {
@@ -186,12 +195,17 @@ public interface ReplayEvent {
     }
 
     record PlayerLeave(int tick, int entityId) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final Type<PlayerLeave> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, PlayerLeave::tick,
-                NetworkBuffer.VAR_INT, PlayerLeave::entityId,
-                PlayerLeave::new
-        );
+        public static final Type<PlayerLeave> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, PlayerLeave::tick,
+                    NetworkBuffer.VAR_INT, PlayerLeave::entityId,
+                    PlayerLeave::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
+
 
         @Override
         public int getId() {
@@ -214,12 +228,16 @@ public interface ReplayEvent {
     }
 
     record PosRot(int tick, Map<Integer, Snapshot> entries) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final Type<PosRot> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, PosRot::tick,
-                NetworkBuffer.VAR_INT.mapValue(Snapshot.NETWORK_TYPE, Integer.MAX_VALUE), PosRot::entries,
-                PosRot::new
-        );
+        public static final Type<PosRot> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, PosRot::tick,
+                    NetworkBuffer.VAR_INT.mapValue(Snapshot.NETWORK_TYPE, Integer.MAX_VALUE), PosRot::entries,
+                    PosRot::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         public PosRot(Map<Integer, Pos> deltas, Set<Integer> isAbsolute, int tick) {
             Map<Integer, Snapshot> entries = new HashMap<>(deltas.size());
@@ -341,14 +359,18 @@ public interface ReplayEvent {
     }
 
     record BlockUpdate(int tick, Point pos, Block block, @Nullable Block existing) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final NetworkBuffer.Type<BlockUpdate> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, ReplayEvent::tick,
-                NetworkBuffer.BLOCK_POSITION, BlockUpdate::pos,
-                NetworkBuffer.VAR_INT.transform(Block::fromStateId, Block::stateId), BlockUpdate::block,
-                NetworkBuffer.VAR_INT.transform(Block::fromStateId, Block::stateId).optional(), BlockUpdate::existing,
-                BlockUpdate::new
-        );
+        public static final Type<BlockUpdate> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, ReplayEvent::tick,
+                    NetworkBuffer.BLOCK_POSITION, BlockUpdate::pos,
+                    NetworkBuffer.VAR_INT.transform(Block::fromStateId, Block::stateId), BlockUpdate::block,
+                    NetworkBuffer.VAR_INT.transform(Block::fromStateId, Block::stateId).optional(), BlockUpdate::existing,
+                    BlockUpdate::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
 
         @Override
@@ -382,13 +404,17 @@ public interface ReplayEvent {
     }
 
     record Animation(int tick, int entityId, EntityAnimationPacket.Animation animation) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final NetworkBuffer.Type<Animation> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, ReplayEvent::tick,
-                NetworkBuffer.VAR_INT, Animation::entityId,
-                NetworkBuffer.Enum(EntityAnimationPacket.Animation.class), Animation::animation,
-                Animation::new
-        );
+        public static final Type<Animation> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, ReplayEvent::tick,
+                    NetworkBuffer.VAR_INT, Animation::entityId,
+                    NetworkBuffer.Enum(EntityAnimationPacket.Animation.class), Animation::animation,
+                    Animation::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         @Override
         public int getId() {
@@ -404,14 +430,18 @@ public interface ReplayEvent {
     //todo: serialize model data too
     //todo: figure out inverse. (needs to be state aware?)
     record EquipmentUpdate(int tick, int entityId, Map<EquipmentSlot, ItemStack> slots) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final NetworkBuffer.Type<EquipmentUpdate> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, ReplayEvent::tick,
-                NetworkBuffer.VAR_INT, EquipmentUpdate::entityId,
-                NetworkBuffer.Enum(EquipmentSlot.class)
-                        .mapValue(Material.NETWORK_TYPE.transform(ItemStack::of, ItemStack::material)), EquipmentUpdate::slots,
-                EquipmentUpdate::new
-        );
+        public static final Type<EquipmentUpdate> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, ReplayEvent::tick,
+                    NetworkBuffer.VAR_INT, EquipmentUpdate::entityId,
+                    NetworkBuffer.Enum(EquipmentSlot.class)
+                            .mapValue(Material.NETWORK_TYPE.transform(ItemStack::of, ItemStack::material)), EquipmentUpdate::slots,
+                    EquipmentUpdate::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         @Override
         public int getId() {
@@ -425,9 +455,10 @@ public interface ReplayEvent {
     }
 
     record MetaUpdate(int tick, int entityId, Map<Integer, Metadata.Entry<?>> entries) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
         /// stolen from {@link EntityMetaDataPacket#SERIALIZER}
-        private static final NetworkBuffer.Type<Map<Integer, Metadata.Entry<?>>> MAP_TYPE = new NetworkBuffer.Type<>() {
+        private static final NetworkBuffer.Type<Map<Integer, Metadata.Entry<?>>> MAP_TYPE_1 = new NetworkBuffer.Type<>() {
             @Override
             public void write(@NonNull NetworkBuffer buffer, Map<Integer, Metadata.Entry<?>> value) {
                 for (Map.Entry<Integer, Metadata.Entry<?>> entry : value.entrySet()) {
@@ -452,12 +483,15 @@ public interface ReplayEvent {
             }
         };
 
-        public static final NetworkBuffer.Type<MetaUpdate> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, MetaUpdate::tick,
-                NetworkBuffer.VAR_INT, MetaUpdate::entityId,
-                MAP_TYPE, MetaUpdate::entries,
-                MetaUpdate::new
-        );
+        public static final Type<MetaUpdate> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, MetaUpdate::tick,
+                    NetworkBuffer.VAR_INT, MetaUpdate::entityId,
+                    MAP_TYPE_1, MetaUpdate::entries,
+                    MetaUpdate::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         @Override
         public int getId() {
@@ -471,14 +505,18 @@ public interface ReplayEvent {
     }
 
     record ChatMessage(int tick, int entityId, Component message, ChatChannel channel) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final NetworkBuffer.Type<ChatMessage> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, ReplayEvent::tick,
-                NetworkBuffer.VAR_INT, ChatMessage::entityId,
-                NetworkBuffer.COMPONENT, ChatMessage::message,
-                NetworkBuffer.Enum(ChatChannel.class), ChatMessage::channel,
-                ChatMessage::new
-        );
+        public static final Type<ChatMessage> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, ReplayEvent::tick,
+                    NetworkBuffer.VAR_INT, ChatMessage::entityId,
+                    NetworkBuffer.COMPONENT, ChatMessage::message,
+                    NetworkBuffer.Enum(ChatChannel.class), ChatMessage::channel,
+                    ChatMessage::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         @Override
         public int getId() {
@@ -499,13 +537,17 @@ public interface ReplayEvent {
     }
 
     record Command(int tick, int entityId, String command) implements ReplayEvent {
+        public static final int DATA_VERSION = 1;
 
-        public static final NetworkBuffer.Type<Command> NETWORK_TYPE = NetworkBufferTemplate.template(
-                NetworkBuffer.VAR_INT, ReplayEvent::tick,
-                NetworkBuffer.VAR_INT, Command::entityId,
-                NetworkBuffer.STRING, Command::command,
-                Command::new
-        );
+        public static final Type<Command> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, ReplayEvent::tick,
+                    NetworkBuffer.VAR_INT, Command::entityId,
+                    NetworkBuffer.STRING, Command::command,
+                    Command::new
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
 
         @Override
         public int getId() {

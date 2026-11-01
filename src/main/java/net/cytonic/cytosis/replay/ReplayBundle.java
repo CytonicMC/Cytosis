@@ -32,13 +32,19 @@ import net.cytonic.cytosis.replay.ReplayEvent.PlayerJoin;
  */
 public record ReplayBundle(UUID uuid, Map<Integer, UUID> idents, List<ReplayEvent> events, ReplayMeta meta) {
 
-    public static NetworkBuffer.Type<ReplayBundle> NETWORK_TYPE = NetworkBufferTemplate.template(
-        NetworkBuffer.UUID, ReplayBundle::uuid,
-        NetworkBuffer.VAR_INT.mapValue(NetworkBuffer.UUID), ReplayBundle::idents,
-        ReplayEvent.NETWORK_TYPE.list(), ReplayBundle::events,
-        ReplayMeta.NETWORK_TYPE, ReplayBundle::meta,
-        ReplayBundle::new
-    );
+    public static final int DATA_VERSION = 1;
+
+    public static NetworkBuffer.Type<ReplayBundle> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(i -> switch (i) {
+        case 1 -> NetworkBufferTemplate.template(
+                NetworkBuffer.UUID, ReplayBundle::uuid,
+                NetworkBuffer.VAR_INT.mapValue(NetworkBuffer.UUID), ReplayBundle::idents,
+                ReplayEvent.NETWORK_TYPE.list(), ReplayBundle::events,
+                ReplayMeta.NETWORK_TYPE, ReplayBundle::meta,
+                ReplayBundle::new
+        );
+        default -> throw new UnsupportedFormatException("Unknown bundle version: " + i);
+    }, _ -> DATA_VERSION);
+
 
     /**
      * Creates a new replay bundle
