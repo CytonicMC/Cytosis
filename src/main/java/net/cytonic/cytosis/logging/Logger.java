@@ -9,6 +9,7 @@ package net.cytonic.cytosis.logging;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.logs.Severity;
+import io.opentelemetry.api.trace.Span;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -66,17 +67,11 @@ public interface Logger {
 
     static void warn(String message, Throwable ex) {
         LOGGER.warn(message, ex);
-        if (Cytosis.CONTEXT.isMetricsEnabled()) {
-            Span span = Span.current();
-            OTEL_LOGGER.logRecordBuilder().setSeverity(Severity.WARN).setBody(message)
-                .setAttribute(AttributeKey.stringKey("server_id"), Cytosis.CONTEXT.SERVER_ID)
-                .setAttribute(AttributeKey.stringKey("throwable_message"), ex.getMessage())
-                .setAttribute(AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName())
-                .setAttribute(AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))
-                .setAttribute(AttributeKey.stringKey("trace_id"), span.getSpanContext().getTraceId()) // Add trace ID
-                .setAttribute(AttributeKey.stringKey("span_id"), span.getSpanContext().getSpanId())   // Add span ID
-                .emit();
-        }
+        emit(Severity.WARN, message, Attributes.of(
+                AttributeKey.stringKey("throwable_message"), ex.getMessage(),
+                AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName(),
+                AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))
+        );
     }
 
     /**

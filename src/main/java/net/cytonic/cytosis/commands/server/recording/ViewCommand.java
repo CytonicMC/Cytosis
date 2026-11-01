@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import com.github.luben.zstd.Zstd;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -26,6 +27,7 @@ import net.cytonic.cytosis.replay.ReplayManager;
 import net.cytonic.cytosis.replay.instance.ReplayInstance;
 import net.cytonic.cytosis.utils.Msg;
 
+@SubCommand(RecordingCommand.class)
 class ViewCommand extends CytosisCommand {
 
     ViewCommand() {

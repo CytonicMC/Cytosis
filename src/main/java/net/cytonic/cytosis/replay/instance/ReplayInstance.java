@@ -21,6 +21,7 @@ import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.color.TeamColor;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerHand;
@@ -66,7 +67,7 @@ public class ReplayInstance extends AbstractWorld {
 
 
     private static final Consumable CONSUMABLE = new Consumable(Float.MAX_VALUE, ItemAnimation.NONE,
-        SoundEvent.AMBIENT_UNDERWATER_LOOP, false, List.of());
+            SoundEvent.AMBIENT_UNDERWATER_LOOP, false, List.of());
     private static final DecimalFormat TIME_FORMAT = new DecimalFormat("0.#");
     public static final String TEAM_NAME = "replayteam";
     public static final int TRANSPOSAL_OFFSET = 8_000_000;
@@ -96,30 +97,30 @@ public class ReplayInstance extends AbstractWorld {
      * Replay items
      */
     private final ItemStack LEAVE_ITEM = ItemStack.builder(Material.BARRIER)
-        .customName(Msg.red("<b>Leave Replay")).set(DataComponents.CONSUMABLE, CONSUMABLE).set(LEAVE_BUTTON, true)
-        .build();
+            .customName(Msg.red("<b>Leave Replay")).set(DataComponents.CONSUMABLE, CONSUMABLE).set(LEAVE_BUTTON, true)
+            .build();
     private final Supplier<ItemStack> PAUSE_ITEM = () -> ItemStack.builder(
-            getTag(PAUSED) ? Material.CLOSED_EYEBLOSSOM : Material.OPEN_EYEBLOSSOM)
-        .customName(Msg.mm("%s", getTag(PAUSED) ? "<green>Play" : "<red>Pause"))
-        .set(DataComponents.CONSUMABLE, CONSUMABLE).set(PAUSE_BUTTON, true).build();
+                    getTag(PAUSED) ? Material.CLOSED_EYEBLOSSOM : Material.OPEN_EYEBLOSSOM)
+            .customName(Msg.mm("%s", getTag(PAUSED) ? "<green>Play" : "<red>Pause"))
+            .set(DataComponents.CONSUMABLE, CONSUMABLE).set(PAUSE_BUTTON, true).build();
     private final ItemStack SKIP_FORWARD_ITEM = ItemStack.builder(Material.ARROW)
-        .customName(Msg.yellow("Skip Forward"))
-        .lore(Msg.mm(""), Msg.yellow("<red>'</red>\uD83D\uDDB0 Left Click to skip 30 seconds"),
-            Msg.yellow("\uD83D\uDDB0<red>'</red> Right Click to skip 10 seconds"))
-        .set(DataComponents.CONSUMABLE, CONSUMABLE)
-        .set(SKIP_FORWARD_BUTTON, true).build();
+            .customName(Msg.yellow("Skip Forward"))
+            .lore(Msg.mm(""), Msg.yellow("<red>'</red>\uD83D\uDDB0 Left Click to skip 30 seconds"),
+                    Msg.yellow("\uD83D\uDDB0<red>'</red> Right Click to skip 10 seconds"))
+            .set(DataComponents.CONSUMABLE, CONSUMABLE)
+            .set(SKIP_FORWARD_BUTTON, true).build();
     private final ItemStack SKIP_BACKWARD_ITEM = ItemStack.builder(Material.ARROW)
-        .customName(Msg.yellow("Skip Backwards"))
-        .lore(Msg.mm(""), Msg.yellow("<red>'</red>\uD83D\uDDB0 Left Click to skip 30 seconds"),
-            Msg.yellow("\uD83D\uDDB0<red>'</red> Right Click to skip 10 seconds"))
-        .set(DataComponents.CONSUMABLE, CONSUMABLE)
-        .set(SKIP_BACKWARD_BUTTON, true).build();
+            .customName(Msg.yellow("Skip Backwards"))
+            .lore(Msg.mm(""), Msg.yellow("<red>'</red>\uD83D\uDDB0 Left Click to skip 30 seconds"),
+                    Msg.yellow("\uD83D\uDDB0<red>'</red> Right Click to skip 10 seconds"))
+            .set(DataComponents.CONSUMABLE, CONSUMABLE)
+            .set(SKIP_BACKWARD_BUTTON, true).build();
     private final Supplier<ItemStack> SPEED_ITEM = () -> ItemStack.builder(Material.CLOCK)
-        .customName(Msg.aqua("Change Speed"))
-        .lore(Msg.mm(""), Msg.aqua("Current Speed: <gold>%s", getTag(PLAYBACK_SPEED).getDisplay()), Msg.mm(""),
-            Msg.yellow("<red>'</red>\uD83D\uDDB0 Left Click to Decrease"),
-            Msg.yellow("\uD83D\uDDB0<red>'</red> Right Click to Increase")).set(DataComponents.CONSUMABLE, CONSUMABLE)
-        .set(SPEED_BUTTON, true).build();
+            .customName(Msg.aqua("Change Speed"))
+            .lore(Msg.mm(""), Msg.aqua("Current Speed: <gold>%s", getTag(PLAYBACK_SPEED).getDisplay()), Msg.mm(""),
+                    Msg.yellow("<red>'</red>\uD83D\uDDB0 Left Click to Decrease"),
+                    Msg.yellow("\uD83D\uDDB0<red>'</red> Right Click to Increase")).set(DataComponents.CONSUMABLE, CONSUMABLE)
+            .set(SPEED_BUTTON, true).build();
     private final ReplayBundle replay;
 
     public ReplayInstance(ReplayBundle bundle) {
@@ -144,71 +145,72 @@ public class ReplayInstance extends AbstractWorld {
         updateBossBar();
 
         eventNode().addListener(PlayerSpawnEvent.class, e -> {
-                if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
+                    if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
 
-                player.showBossBar(getTag(BOSSBAR));
-                player.setAllowFlying(true);
-                player.getInventory().clear();
-                PlayerInventory inv = player.getInventory();
-                inv.setItemStack(0, SPEED_ITEM.get());
-                inv.setItemStack(3, SKIP_BACKWARD_ITEM);
-                inv.setItemStack(4, PAUSE_ITEM.get());
-                inv.setItemStack(5, SKIP_FORWARD_ITEM);
-                inv.setItemStack(8, LEAVE_ITEM);
-                player.sendPacket(new TeamsPacket(TEAM_NAME,
-                    new CreateTeamAction(Msg.grey("REPLAY TEAM"), (byte) 0x00, NameTagVisibility.ALWAYS,
-                        CollisionRule.PUSH_OWN_TEAM, NamedTextColor.GRAY, Msg.grey("「REPLAY」</gray>"), Component.empty(),
-                        List.of())));
-                Cytosis.get(ActionBarManager.class)
-                    .addImmediate(player.getUuid(), Msg.green("Viewing Replay %s", bundle.uuid()), Integer.MAX_VALUE);
-            }).addListener(PlayerBeginItemUseEvent.class, e -> {
-                if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
-                if (e.getHand() != PlayerHand.MAIN) return;
-                ItemStack i = e.getItemStack();
-                if (i.getTag(PAUSE_BUTTON)) {
-                    pause(player);
-                }
-                if (i.getTag(LEAVE_BUTTON)) {
-                    leave(player);
-                }
-                if (i.getTag(SPEED_BUTTON)) {
-                    increaseSpeed(player);
-                }
-                if (i.getTag(SKIP_FORWARD_BUTTON)) {
-                    int ticks = Math.toIntExact(10_000 / getTag(PLAYBACK_SPEED).period);
-                    skipForward(ticks);
-                }
-                if (i.getTag(SKIP_BACKWARD_BUTTON)) {
-                    int ticks = Math.toIntExact(10_000 / getTag(PLAYBACK_SPEED).period);
-                    skipBack(ticks);
-                }
-            })
-            .addListener(ItemDropEvent.class, e -> e.setCancelled(true))
-            .addListener(PlayerBlockBreakEvent.class, e -> e.setCancelled(true))
-            .addListener(PlayerBlockPlaceEvent.class, e -> e.setCancelled(true))
-            .addListener(InventoryPreClickEvent.class, e -> e.setCancelled(true))
-            .addListener(PlayerHandAnimationEvent.class, e -> {
-                if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
-                if (e.getHand() != PlayerHand.MAIN) return;
-                ItemStack i = player.getItemInMainHand();
-                if (i.getTag(SPEED_BUTTON)) {
-                    decreaseSpeed(player);
-                }
-                if (i.getTag(PAUSE_BUTTON)) {
-                    pause(player);
-                }
-                if (i.getTag(LEAVE_BUTTON)) {
-                    leave(player);
-                }
-                if (i.getTag(SKIP_FORWARD_BUTTON)) {
-                    int ticks = Math.toIntExact(30_000 / getTag(PLAYBACK_SPEED).period);
-                    skipForward(ticks);
-                }
-                if (i.getTag(SKIP_BACKWARD_BUTTON)) {
-                    int ticks = Math.toIntExact(30_000 / getTag(PLAYBACK_SPEED).period);
-                    skipBack(ticks);
-                }
-            });
+                    player.showBossBar(getTag(BOSSBAR));
+                    player.setAllowFlying(true);
+                    player.getInventory().clear();
+                    PlayerInventory inv = player.getInventory();
+                    inv.setItemStack(0, SPEED_ITEM.get());
+                    inv.setItemStack(3, SKIP_BACKWARD_ITEM);
+                    inv.setItemStack(4, PAUSE_ITEM.get());
+                    inv.setItemStack(5, SKIP_FORWARD_ITEM);
+                    inv.setItemStack(8, LEAVE_ITEM);
+                    player.sendPacket(new TeamsPacket(TEAM_NAME,
+                            new CreateTeamAction(new TeamsPacket.Settings(Msg.grey("REPLAY TEAM"), Msg.grey("「REPLAY」</gray>"),
+                                    Component.empty(), NameTagVisibility.ALWAYS,
+                                    CollisionRule.PUSH_OWN_TEAM, TeamColor.GRAY, (byte) 0),
+                                    List.of())));
+                    Cytosis.get(ActionBarManager.class)
+                            .addImmediate(player.getUuid(), Msg.green("Viewing Replay %s", bundle.uuid()), Integer.MAX_VALUE);
+                }).addListener(PlayerBeginItemUseEvent.class, e -> {
+                    if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
+                    if (e.getHand() != PlayerHand.MAIN) return;
+                    ItemStack i = e.getItemStack();
+                    if (i.getTag(PAUSE_BUTTON)) {
+                        pause(player);
+                    }
+                    if (i.getTag(LEAVE_BUTTON)) {
+                        leave(player);
+                    }
+                    if (i.getTag(SPEED_BUTTON)) {
+                        increaseSpeed(player);
+                    }
+                    if (i.getTag(SKIP_FORWARD_BUTTON)) {
+                        int ticks = Math.toIntExact(10_000 / getTag(PLAYBACK_SPEED).period);
+                        skipForward(ticks);
+                    }
+                    if (i.getTag(SKIP_BACKWARD_BUTTON)) {
+                        int ticks = Math.toIntExact(10_000 / getTag(PLAYBACK_SPEED).period);
+                        skipBack(ticks);
+                    }
+                })
+                .addListener(ItemDropEvent.class, e -> e.setCancelled(true))
+                .addListener(PlayerBlockBreakEvent.class, e -> e.setCancelled(true))
+                .addListener(PlayerBlockPlaceEvent.class, e -> e.setCancelled(true))
+                .addListener(InventoryPreClickEvent.class, e -> e.setCancelled(true))
+                .addListener(PlayerHandAnimationEvent.class, e -> {
+                    if (!(e.getPlayer() instanceof CytosisPlayer player)) return;
+                    if (e.getHand() != PlayerHand.MAIN) return;
+                    ItemStack i = player.getItemInMainHand();
+                    if (i.getTag(SPEED_BUTTON)) {
+                        decreaseSpeed(player);
+                    }
+                    if (i.getTag(PAUSE_BUTTON)) {
+                        pause(player);
+                    }
+                    if (i.getTag(LEAVE_BUTTON)) {
+                        leave(player);
+                    }
+                    if (i.getTag(SKIP_FORWARD_BUTTON)) {
+                        int ticks = Math.toIntExact(30_000 / getTag(PLAYBACK_SPEED).period);
+                        skipForward(ticks);
+                    }
+                    if (i.getTag(SKIP_BACKWARD_BUTTON)) {
+                        int ticks = Math.toIntExact(30_000 / getTag(PLAYBACK_SPEED).period);
+                        skipBack(ticks);
+                    }
+                });
         Cytosis.get(InstanceManager.class).registerInstance(this);
         Cytosis.get(ReplayManager.class).registerPlayback(bundle.uuid(), getUuid());
     }
@@ -224,7 +226,7 @@ public class ReplayInstance extends AbstractWorld {
         boolean newVal = !getTag(PAUSED);
         setTag(PAUSED, newVal);
         Component msg = newVal ? Msg.redSplash("PAUSED!", "Playback has been paused.")
-            : Msg.greenSplash("PLAYING!", "Playback has been resumed.");
+                : Msg.greenSplash("PLAYING!", "Playback has been resumed.");
         Sound sound = Sound.sound(SoundEvent.ITEM_FLINTANDSTEEL_USE, Sound.Source.PLAYER, .7f, 0.8F);
         for (Player p : getPlayers()) {
             p.playSound(sound);
@@ -238,7 +240,7 @@ public class ReplayInstance extends AbstractWorld {
         setTag(PLAYBACK_SPEED, speed);
         ItemStack speedItem = SPEED_ITEM.get();
         Component msg = Msg.darkAquaSplash("UPDATED!", "The playback speed was updated to <gold>%s</gold>!",
-            speed.getDisplay());
+                speed.getDisplay());
         Sound sound = Sound.sound(SoundEvent.BLOCK_LAVA_POP, Sound.Source.PLAYER, .7f, 1.0F);
         getPlayers().forEach(player -> {
             player.playSound(sound);
@@ -285,11 +287,11 @@ public class ReplayInstance extends AbstractWorld {
         if (paused) {
             bb.color(Color.RED);
             bb.name(Msg.aqua("<red><b>%s</b></red> %s / %s <gray>(%s)", icon,
-                formatTime(currentSeconds), formatTime(totalSeconds), speed));
+                    formatTime(currentSeconds), formatTime(totalSeconds), speed));
         } else {
             bb.color(Color.GREEN);
             bb.name(Msg.aqua("<green><b>%s</b></green> %s / %s <gray>(%s)", icon,
-                formatTime(currentSeconds), formatTime(totalSeconds), speed));
+                    formatTime(currentSeconds), formatTime(totalSeconds), speed));
         }
         bb.progress(Math.clamp(current / (float) denominator, 0F, 1F));
     }
@@ -309,7 +311,7 @@ public class ReplayInstance extends AbstractWorld {
         getTag(LOOP).cancel(true);
         getTag(SCHEDULER).shutdownNow();
         scheduler().buildTask(() -> Cytosis.get(InstanceManager.class).unregisterInstance(this))
-            .delay(TaskSchedule.seconds(5)).schedule();
+                .delay(TaskSchedule.seconds(5)).schedule();
         Cytosis.get(ReplayManager.class).removePlayback(replay.uuid());
     }
 
@@ -403,8 +405,8 @@ public class ReplayInstance extends AbstractWorld {
             existing.cancel(false);
         }
         ScheduledFuture<?> task = exec.scheduleAtFixedRate(() -> playTick(false), 100,
-            getTag(PLAYBACK_SPEED).getPeriod(),
-            TimeUnit.MILLISECONDS);
+                getTag(PLAYBACK_SPEED).getPeriod(),
+                TimeUnit.MILLISECONDS);
 
         setTag(LOOP, task);
     }
@@ -442,7 +444,7 @@ public class ReplayInstance extends AbstractWorld {
     @Getter
     public enum PlaybackSpeed {
         ONE_TENTH(500, "0.1x"), ONE_QUARTER(200, "0.25x"), ONE_HALF(100, "0.5x"), ONE(50, "1x"), ONE_AND_HALF(33,
-            "1.5x"), TWO(25, "2x"), THREE(17, "3x"), FIVE(10, "5x"), TEN(5, "10x");
+                "1.5x"), TWO(25, "2x"), THREE(17, "3x"), FIVE(10, "5x"), TEN(5, "10x");
 
         private final long period;
         private final String display;

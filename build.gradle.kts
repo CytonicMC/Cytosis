@@ -68,7 +68,7 @@ dependencies {
     implementation(libs.bouncycastle)
     api(libs.minimessage)
     api(libs.minestomevents)
-    downloadOrShade(libs.zstd)
+    api(libs.zstd)
     annotationProcessor(libs.ebean.query)
     //shuts Gradle up about how lombok goes above and beyond (jakarta bind XML)
     compileOnly(libs.lombokwarningfix)

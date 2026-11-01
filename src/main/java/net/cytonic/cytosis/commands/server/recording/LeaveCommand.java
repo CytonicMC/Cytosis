@@ -1,9 +1,11 @@
 package net.cytonic.cytosis.commands.server.recording;
 
 import net.cytonic.cytosis.commands.utils.CytosisCommand;
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.cytonic.cytosis.player.CytosisPlayer;
 import net.cytonic.cytosis.replay.instance.ReplayInstance;
 
+@SubCommand(RecordingCommand.class)
 class LeaveCommand extends CytosisCommand {
 
     LeaveCommand() {

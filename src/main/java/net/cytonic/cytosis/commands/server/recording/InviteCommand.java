@@ -1,6 +1,7 @@
 package net.cytonic.cytosis.commands.server.recording;
 
 
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.kyori.adventure.text.event.ClickEvent;
 
 import net.cytonic.cytosis.commands.utils.CommandUtils;
@@ -11,6 +12,7 @@ import net.cytonic.cytosis.utils.Msg;
 import net.cytonic.cytosis.utils.Players;
 
 //todo: make this support inviting from across the network
+@SubCommand(RecordingCommand.class)
 class InviteCommand extends CytosisCommand {
 
     InviteCommand() {

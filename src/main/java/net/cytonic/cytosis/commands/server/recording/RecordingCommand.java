@@ -10,6 +10,5 @@ public class RecordingCommand extends CytosisCommand {
         super("recording", "replay");
         setCondition(CommandUtils.IS_STAFF);
         setDefaultExecutor((s, _) -> s.sendMessage(Msg.whoops("Use a subcommand, doofus.")));
-        addSubcommands(new SaveCommand(), new ViewCommand(), new LeaveCommand(), new InviteCommand());
     }
 }

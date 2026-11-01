@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 
+import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.arguments.ArgumentWord;
@@ -20,6 +21,7 @@ import net.cytonic.cytosis.replay.io.BundleIO;
 import net.cytonic.cytosis.utils.DurationParser;
 import net.cytonic.cytosis.utils.Msg;
 
+@SubCommand(RecordingCommand.class)
 class SaveCommand extends CytosisCommand {
 
     SaveCommand() {

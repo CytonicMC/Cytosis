@@ -54,7 +54,7 @@ public abstract class AbstractWorld extends InstanceContainer {
             return CompletableFuture.completedFuture(null);
         }
         return Cytosis.get(WorldManager.class).loadWorld(map).thenAccept(pw -> {
-            setChunkLoader(new PolarLoader(pw));
+            setChunkLoader(pw);
             setTag(MAP_ID, map);
         });
     }
