@@ -114,6 +114,7 @@ public interface Logger {
 
     private static void emit(Severity severity, String msg, @Nullable Attributes attribs) {
         if (!(Cytosis.CONTEXT.isMetricsEnabled())) return;
+        if (attribs == null) attribs = Attributes.empty();
         Cytosis.get(CytosisOpenTelemetry.class)
             .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(severity)
             .setBody(msg)
