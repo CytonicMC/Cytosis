@@ -8,7 +8,9 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,6 +56,16 @@ public final class Utils {
     @SafeVarargs
     public static <E> List<E> list(E... vararg) {
         return new ArrayList<>(List.of(vararg));
+    }
+
+    /**
+     * Creates a MUTABLE singleton map with the provided key and value.
+     *
+     * @param <K> the type of the key of this map
+     * @param <V> the type of the value of this map
+     */
+    public static <K, V> Map<K, V> map(K key, V value) {
+        return new HashMap<>(Map.of(key, value));
     }
 
     /**

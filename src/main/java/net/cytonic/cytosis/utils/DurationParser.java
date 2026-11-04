@@ -40,11 +40,11 @@ public final class DurationParser {
     }
 
     /**
-     * Parses a duration from a string akin to "1y5d6h23m12s" `-1` provides a null, representing a permanant value
+     * Parses a duration from a string akin to "1y5d6h23m12s" `-1` provides a null, representing a permanent value
      *
      * @param input The string to parse the value from
-     * @return null if the duration is permanant, returns {@link Instant#now()} if the input doesn't contain any
-     * parsable data, or an {@link Instant} with the specified duration from now.
+     * @return null if the duration is permanent, returns {@link Duration#ZERO} if the input doesn't contain any
+     * parsable data, or an {@link Duration} with the specified duration from now.
      */
     @Nullable
     public static Duration parse(String input) {

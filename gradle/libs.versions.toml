@@ -33,6 +33,7 @@ minestomevents = "0.0.3"
 codec = "0.0.3"
 blossom = "2.2.0"
 indragit = "4.1.0"
+zstd = "1.5.7-11"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -68,6 +69,7 @@ codecutils = { module = "dev.minestom-united.common:codec-utils", version.ref = 
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongo" }
 minestomevents = { module = "dev.minestom-united:minestom-events-core", version.ref = "minestomevents" }
 codec = { module = "dev.minestom-united.common:codec", version.ref = "codec" }
+zstd = { module = "com.github.luben:zstd-jni", version.ref = "zstd" }
 
 # Native image stuff
 nativeimage = { group = "org.graalvm.sdk", name = "nativeimage", version.ref = "graalvm" }
