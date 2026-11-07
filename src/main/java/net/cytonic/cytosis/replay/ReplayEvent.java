@@ -76,7 +76,9 @@ public interface ReplayEvent {
         case 7 -> cast(MetaUpdate.NETWORK_TYPE);
         case 8 -> cast(ChatMessage.NETWORK_TYPE);
         case 9 -> cast(Command.NETWORK_TYPE);
-        case null, default -> throw new IllegalArgumentException("Unknown replay event id: " + i);
+        case 10 -> cast(EntitySpawn.NETWORK_TYPE);
+        case 11 -> cast(EntityRemove.NETWORK_TYPE);
+        default -> throw new UnsupportedFormatException("Unknown replay event id: " + i);
     }, ReplayEvent::getId);
 
     @SuppressWarnings("unchecked")
@@ -148,14 +150,17 @@ public interface ReplayEvent {
         public void play(ReplayInstance i) {
             UUID packet = i.getTag(ReplayInstance.UUID_MAP).get(entityId);
             UUID uuid = i.getTag(ReplayInstance.IDENTS_MAP).get(entityId);
+            if (packet == null || uuid == null) return;
             OfflinePlayer op = Players.offline(uuid);
 
             SpawnEntityPacket spawn = new SpawnEntityPacket(transposeId(entityId), packet, EntityType.PLAYER, Pos.ZERO,
                     0, 0, Vec.ZERO);
 
             PlayerSkin skin = PlayerSkin.fromUuid(uuid.toString());
-            Property props = new Property("textures", skin.textures(), skin.signature());
-            Entry e = new Entry(packet, getName(i), List.of(props),
+            List<Property> properties = skin == null
+                    ? List.of()
+                    : List.of(new Property("textures", skin.textures(), skin.signature()));
+            Entry e = new Entry(packet, getName(i), properties,
                     true, 0, GameMode.ADVENTURE, Msg.grey("⌜\uD83D\uDCFA⌟</gray>%s", op.username()), null, 1, true);
             PlayerInfoUpdatePacket info = new PlayerInfoUpdatePacket(Action.ADD_PLAYER, e);
 
@@ -216,14 +221,97 @@ public interface ReplayEvent {
         public void play(ReplayInstance i) {
             DestroyEntitiesPacket remove = new DestroyEntitiesPacket(transposeId(entityId));
             UUID player = i.getTag(ReplayInstance.UUID_MAP).get(entityId);
-            PlayerInfoRemovePacket info = new PlayerInfoRemovePacket(player);
-            i.sendPackets(info, remove);
+            if (player == null) {
+                i.sendPackets(remove);
+                return;
+            }
+            i.sendPackets(new PlayerInfoRemovePacket(player), remove);
         }
 
         @Override
         @NonNull
         public ReplayEvent inverse() {
             return new PlayerJoin(tick, entityId);
+        }
+    }
+
+    /**
+     * Spawns a non-player entity during playback. Player spawns are represented by {@link PlayerJoin}.
+     */
+    record EntitySpawn(int tick, int entityId, UUID uuid, EntityType type, Pos position, Vec velocity)
+        implements ReplayEvent {
+
+        public static final int DATA_VERSION = 1;
+
+        public static final Type<EntitySpawn> NETWORK_TYPE =
+                NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                NetworkBuffer.VAR_INT, EntitySpawn::tick,
+                NetworkBuffer.VAR_INT, EntitySpawn::entityId,
+                NetworkBuffer.UUID, EntitySpawn::uuid,
+                EntityType.NETWORK_TYPE, EntitySpawn::type,
+                NetworkBuffer.POS, EntitySpawn::position,
+                NetworkBuffer.VECTOR3D, EntitySpawn::velocity,
+                (tick, entityId, uuid, type, position, velocity) ->
+                    new EntitySpawn(tick, entityId, uuid, type, position, velocity.asVec())
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
+
+        @Override
+        public int getId() {
+            return 10;
+        }
+
+        @Override
+        public void play(ReplayInstance instance) {
+            if (uuid == null || type == null || position == null) return;
+            instance.sendPackets(new SpawnEntityPacket(transposeId(entityId), uuid, type, position,
+                position.yaw(), 0, velocity == null ? Vec.ZERO : velocity));
+        }
+
+        @Override
+        public @NonNull ReplayEvent inverse() {
+            return new EntityRemove(tick, entityId, uuid, type, position, velocity);
+        }
+    }
+
+    /**
+     * Removes a non-player entity during playback. Player removals are represented by {@link PlayerLeave}.
+     */
+    record EntityRemove(int tick, int entityId, UUID uuid, EntityType type, Pos position, Vec velocity)
+        implements ReplayEvent {
+
+        public static final int DATA_VERSION = 1;
+
+        public static final Type<EntityRemove> NETWORK_TYPE =
+                NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+            case 1 -> NetworkBufferTemplate.template(
+                NetworkBuffer.VAR_INT, EntityRemove::tick,
+                NetworkBuffer.VAR_INT, EntityRemove::entityId,
+                NetworkBuffer.UUID, EntityRemove::uuid,
+                EntityType.NETWORK_TYPE, EntityRemove::type,
+                NetworkBuffer.POS, EntityRemove::position,
+                NetworkBuffer.VECTOR3D, EntityRemove::velocity,
+                (tick, entityId, uuid, type, position, velocity) ->
+                    new EntityRemove(tick, entityId, uuid, type, position, velocity.asVec())
+            );
+            default -> throw new UnsupportedFormatException("No data version header");
+        }, _ -> DATA_VERSION);
+
+        @Override
+        public int getId() {
+            return 11;
+        }
+
+        @Override
+        public void play(ReplayInstance instance) {
+            instance.sendPackets(new DestroyEntitiesPacket(transposeId(entityId)));
+        }
+
+        @Override
+        public @NonNull ReplayEvent inverse() {
+            return new EntitySpawn(tick, entityId, uuid, type, position, velocity);
         }
     }
 
@@ -325,7 +413,9 @@ public interface ReplayEvent {
             }
 
             private static float byteToAngle(byte b) {
-                return (b & 0xFF) * 360.0f / 256.0f;
+                // Sign-extend: protocol angles are a signed byte. This also keeps pitch in [-180, 180], which is
+                // required by EntityPositionSyncPacket (it sends raw floats, unlike the byte-based movement packets).
+                return b * 360.0f / 256.0f;
             }
 
             public static Snapshot fromPos(Pos delta, boolean isAbsolute) {
@@ -335,8 +425,8 @@ public interface ReplayEvent {
                         (int) (delta.x() * factor),
                         (int) (delta.y() * factor),
                         (int) (delta.z() * factor),
-                        (int) (delta.yaw()),
-                        (int) (delta.pitch())
+                        delta.yaw(),
+                        delta.pitch()
                 );
             }
 
@@ -392,8 +482,11 @@ public interface ReplayEvent {
                 if (event == null) return;
                 instance.playSound(Sound.sound(event.key(), Sound.Source.BLOCK, type.volume(), type.pitch()), pos);
             } else {
+                if (type == null) return;
+                SoundEvent event = type.placeSound();
+                if (event == null) return;
                 instance.playSound(
-                        Sound.sound(type.placeSound().key(), Sound.Source.BLOCK, type.volume(), type.pitch()), pos);
+                        Sound.sound(event.key(), Sound.Source.BLOCK, type.volume(), type.pitch()), pos);
             }
         }
 
@@ -430,14 +523,22 @@ public interface ReplayEvent {
     //todo: serialize model data too
     //todo: figure out inverse. (needs to be state aware?)
     record EquipmentUpdate(int tick, int entityId, Map<EquipmentSlot, ItemStack> slots) implements ReplayEvent {
-        public static final int DATA_VERSION = 1;
+        public static final int DATA_VERSION = 2;
 
-        public static final Type<EquipmentUpdate> NETWORK_TYPE = NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
+        public static final Type<EquipmentUpdate> NETWORK_TYPE =
+                NetworkBuffer.VAR_INT.unionType(integer -> switch (integer) {
             case 1 -> NetworkBufferTemplate.template(
                     NetworkBuffer.VAR_INT, ReplayEvent::tick,
                     NetworkBuffer.VAR_INT, EquipmentUpdate::entityId,
                     NetworkBuffer.Enum(EquipmentSlot.class)
-                            .mapValue(Material.NETWORK_TYPE.transform(ItemStack::of, ItemStack::material)), EquipmentUpdate::slots,
+                            .mapValue(Material.NETWORK_TYPE.transform(ItemStack::of, ItemStack::material)),
+                    EquipmentUpdate::slots,
+                    EquipmentUpdate::new
+            );
+            case 2 -> NetworkBufferTemplate.template(
+                    NetworkBuffer.VAR_INT, ReplayEvent::tick,
+                    NetworkBuffer.VAR_INT, EquipmentUpdate::entityId,
+                    NetworkBuffer.Enum(EquipmentSlot.class).mapValue(ItemStack.NETWORK_TYPE), EquipmentUpdate::slots,
                     EquipmentUpdate::new
             );
             default -> throw new UnsupportedFormatException("No data version header");
@@ -556,8 +657,15 @@ public interface ReplayEvent {
 
         @Override
         public void play(ReplayInstance i) {
-            if (i.getTag(ReplayInstance.COMMANDS)) {
-                i.sendPackets(new SystemChatPacket(Msg.grey("「COMMAND」%s » /%s", i.mini(entityId), command), false));
+            if (!i.getTag(ReplayInstance.COMMANDS)) return;
+            SystemChatPacket packet = new SystemChatPacket(
+                    Msg.grey("「COMMAND」%s » /%s", i.mini(entityId), command), false);
+            for (net.minestom.server.entity.Player player : i.getPlayers()) {
+                // Commands can contain private messages or staff actions, so they use the same audit boundary as
+                // staff chat rather than being visible to every replay viewer.
+                if (player instanceof CytosisPlayer p && p.isStaff()) {
+                    p.sendPacket(packet);
+                }
             }
         }
     }

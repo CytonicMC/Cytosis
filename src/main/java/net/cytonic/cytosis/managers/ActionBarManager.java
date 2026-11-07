@@ -167,6 +167,21 @@ public class ActionBarManager<P extends CytosisPlayer> implements Bootstrappable
     }
 
     /**
+     * Removes all queued messages for a player and sends an empty action bar. Used when leaving a context that owns
+     * its action bar (for example, a replay).
+     *
+     * @param uuid the player to clear
+     */
+    public void clear(UUID uuid) {
+        // Keep the queue entries so the per-tick handler continues to service future messages for this player.
+        messageQueues.put(uuid, new ConcurrentLinkedQueue<>());
+        immediateQueues.put(uuid, new ConcurrentLinkedQueue<>());
+        currentMessages.remove(uuid);
+        cooldowns.remove(uuid);
+        Cytosis.getPlayer(uuid).ifPresent(p -> p.sendPacket(new ActionBarPacket(Component.empty())));
+    }
+
+    /**
      * Simple holder for a message with remaining ticks.
      */
     private static final class MessageEntry {

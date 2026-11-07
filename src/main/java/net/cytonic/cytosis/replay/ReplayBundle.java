@@ -45,7 +45,6 @@ public record ReplayBundle(UUID uuid, Map<Integer, UUID> idents, List<ReplayEven
         default -> throw new UnsupportedFormatException("Unknown bundle version: " + i);
     }, _ -> DATA_VERSION);
 
-
     /**
      * Creates a new replay bundle
      */
@@ -71,9 +70,11 @@ public record ReplayBundle(UUID uuid, Map<Integer, UUID> idents, List<ReplayEven
         // elements here need to be removed for deduplication or otherwise
         List<Integer> removalIndices = new ArrayList<>();
         Map<Integer, ReplayEvent> replacementIndices = new HashMap<>();
+        int earliestTick = Integer.MAX_VALUE;
         for (int i = 0; i < events.size(); i++) {
             ReplayEvent event = events.get(i);
             if (event instanceof PlayerIdent e) {
+                earliestTick = Math.min(earliestTick, e.tick());
                 removalIndices.add(i);
                 idents.putAll(e.idents());
                 continue;
@@ -102,8 +103,8 @@ public record ReplayBundle(UUID uuid, Map<Integer, UUID> idents, List<ReplayEven
                 // this is because the Player events have existing block information, while the instance event does not.
                 // The instance event has more accurate block states, since it is called after block handlers, so the
                 // events should be merged together if available.
-                // this means that blocks created by the minestom API may not have accurate inverses (if the blocks changed
-                // were not air.)
+                // this means that blocks created by the minestom API may not have accurate inverses (if the blocks
+                // changed were not air.)
             }
 
             if (event instanceof EquipmentUpdate e) {
@@ -134,7 +135,9 @@ public record ReplayBundle(UUID uuid, Map<Integer, UUID> idents, List<ReplayEven
         Set<Integer> missingJoin = new HashSet<>(idents.keySet());
         missingJoin.removeAll(hasJoinEvent);
         if (!missingJoin.isEmpty()) { // some players need join events to be injected
-            int tick = events.getFirst().tick();
+            int tick = events.isEmpty() ? earliestTick : events.getFirst().tick();
+            if (tick == Integer.MAX_VALUE) tick = 0;
+            if (earliestTick != Integer.MAX_VALUE) tick = Math.min(tick, earliestTick);
             for (Integer i : missingJoin) {
                 Logger.warn("Injecting player into bundle: %d", i);
                 events.addFirst(new PlayerJoin(tick, i));

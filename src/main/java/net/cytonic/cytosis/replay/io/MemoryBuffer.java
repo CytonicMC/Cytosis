@@ -19,7 +19,7 @@ public class MemoryBuffer {
     private final List<ReplayEvent> events = new ArrayList<>();
     private Instant lastFlush = Instant.now();
 
-    public void addEvent(ReplayEvent event) {
+    public synchronized void addEvent(ReplayEvent event) {
         if (event == null) {
             Logger.warn("Attempted to log null replay event!", new Exception());
             return;
@@ -27,15 +27,18 @@ public class MemoryBuffer {
         events.add(event);
     }
 
-    public boolean shouldFlush() {
+    public synchronized boolean shouldFlush() {
         return events.size() >= MAX_EVENTS || lastFlush.plusSeconds(5).isBefore(Instant.now());
     }
 
     /**
      * Serializes everything currently buffered and clears state.
      */
-    public byte[] drainAndSerialize() {
-        if (events.isEmpty()) return new byte[0];
+    public synchronized byte[] drainAndSerialize() {
+        if (events.isEmpty()) {
+            lastFlush = Instant.now();
+            return new byte[0];
+        }
         List<ReplayEvent> snapshot = new ArrayList<>(events);
         events.clear();
         lastFlush = Instant.now();
