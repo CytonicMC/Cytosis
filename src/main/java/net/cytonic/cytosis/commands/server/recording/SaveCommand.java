@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 
+import net.cytonic.cytosis.commands.utils.CommandUtils;
 import net.cytonic.cytosis.commands.utils.SubCommand;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -24,15 +25,16 @@ import net.cytonic.cytosis.utils.Msg;
 @SubCommand(RecordingCommand.class)
 class SaveCommand extends CytosisCommand {
 
+    private static final ArgumentWord durArg = ArgumentType.Word("duration");
+
     SaveCommand() {
         super("save");
-        ArgumentWord a = ArgumentType.Word("duration");
-        addSubcommands(new GarageCommand(a), new LocalCommand(a));
+        setCondition(CommandUtils.IS_STAFF);
     }
 
     @Nullable
-    private ReplayBundle extractBundle(ArgumentWord arg, CommandContext ctx, CytosisPlayer player) {
-        String rawDur = ctx.get(arg);
+    private static ReplayBundle extractBundle(CommandContext ctx, CytosisPlayer player) {
+        String rawDur = ctx.get(durArg);
         Duration dur = DurationParser.parse(rawDur);
         if (dur == null || dur.equals(Duration.ZERO)) {
             player.whoops("%s is not a valid duration.", rawDur);
@@ -53,13 +55,14 @@ class SaveCommand extends CytosisCommand {
         return bundle;
     }
 
-    class GarageCommand extends CytosisCommand {
+    @SubCommand(SaveCommand.class)
+    static class GarageCommand extends CytosisCommand {
 
-        GarageCommand(ArgumentWord durArg) {
+        GarageCommand() {
             super("garage");
             addSyntax((sender, context) -> {
                 if (!(sender instanceof CytosisPlayer player)) return;
-                ReplayBundle bundle = extractBundle(durArg, context, player);
+                ReplayBundle bundle = extractBundle(context, player);
                 if (bundle == null) return;
 
                 Cytosis.get(BundleIO.class).writeFileToGarage(bundle)
@@ -75,15 +78,16 @@ class SaveCommand extends CytosisCommand {
         }
     }
 
-    class LocalCommand extends CytosisCommand {
+    @SubCommand(SaveCommand.class)
+    static class LocalCommand extends CytosisCommand {
 
-        LocalCommand(ArgumentWord durArg) {
+        LocalCommand() {
             super("local");
             ArgumentWord nameArg = ArgumentType.Word("recording-name");
             nameArg.setDefaultValue(() -> Instant.now().toString());
             addSyntax((sender, context) -> {
                 if (!(sender instanceof CytosisPlayer player)) return;
-                ReplayBundle bundle = extractBundle(durArg, context, player);
+                ReplayBundle bundle = extractBundle(context, player);
                 if (bundle == null) return;
                 Path p;
                 try {
