@@ -19,7 +19,6 @@ import net.kyori.adventure.bossbar.BossBar.Overlay;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.color.TeamColor;
 import net.minestom.server.component.DataComponents;
@@ -46,6 +45,7 @@ import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket.CollisionRule;
 import net.minestom.server.network.packet.server.play.TeamsPacket.CreateTeamAction;
 import net.minestom.server.network.packet.server.play.TeamsPacket.NameTagVisibility;
+import net.minestom.server.network.packet.server.play.TeamsPacket.RemoveTeamAction;
 import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.timer.TaskSchedule;
@@ -64,7 +64,6 @@ import net.cytonic.cytosis.utils.Players;
 import net.cytonic.cytosis.world.AbstractWorld;
 
 public class ReplayInstance extends AbstractWorld {
-
 
     private static final Consumable CONSUMABLE = new Consumable(Float.MAX_VALUE, ItemAnimation.NONE,
             SoundEvent.AMBIENT_UNDERWATER_LOOP, false, List.of());
@@ -85,8 +84,8 @@ public class ReplayInstance extends AbstractWorld {
     public static final Tag<Boolean> PAUSE_BUTTON = Tag.Boolean("replay:pause_button").defaultValue(false);
     public static final Tag<Boolean> SKIP_FORWARD_BUTTON = Tag.Boolean("replay:skip_forward").defaultValue(false);
     public static final Tag<Boolean> SKIP_BACKWARD_BUTTON = Tag.Boolean("replay:skip_back").defaultValue(false);
-    public static final Tag<Boolean> SPEED_BUTTON = Tag.Boolean("replay:leave_button").defaultValue(false);
-    public static final Tag<Boolean> LEAVE_BUTTON = Tag.Boolean("replay:speed_button").defaultValue(false);
+    public static final Tag<Boolean> SPEED_BUTTON = Tag.Boolean("replay:speed_button").defaultValue(false);
+    public static final Tag<Boolean> LEAVE_BUTTON = Tag.Boolean("replay:leave_button").defaultValue(false);
     public static final Tag<Boolean> FINISHED = Tag.Boolean("replay:finished").defaultValue(false);
     public static final Tag<ScheduledExecutorService> SCHEDULER = Tag.Transient("replay:scheduler");
     public static final Tag<Integer> EVENTS_INDEX = Tag.Integer("replay:event_index");
@@ -125,6 +124,12 @@ public class ReplayInstance extends AbstractWorld {
 
     public ReplayInstance(ReplayBundle bundle) {
         super(UUID.randomUUID(), DimensionType.OVERWORLD, false);
+        if (bundle.events().isEmpty()) {
+            throw new IllegalArgumentException("Cannot open a replay with no events");
+        }
+        if (bundle.meta() == null || bundle.meta().map() == null) {
+            throw new IllegalArgumentException("Cannot open a replay without a map");
+        }
         loadPolarWorld(bundle.meta().map()).join();
         replay = bundle;
         setTag(InstanceRecorder.RECORDING_EXEMPT, true); // don't record replays of recordings
@@ -275,7 +280,7 @@ public class ReplayInstance extends AbstractWorld {
     private void updateBossBar() {
         BossBar bb = getTag(BOSSBAR);
         int current = getTag(CURRENT_TICK);
-        int denominator = getTag(MAX_TICK) - getTag(TICK_OFFSET);
+        int denominator = Math.max(1, getTag(MAX_TICK) - getTag(TICK_OFFSET));
 
         double currentSeconds = current / 20.0;
         double totalSeconds = denominator / 20.0;
@@ -305,14 +310,25 @@ public class ReplayInstance extends AbstractWorld {
     private void cleanup() {
         for (Player player : getPlayers()) {
             player.hideBossBar(getTag(BOSSBAR));
+            removeTeams(player);
+            Cytosis.get(ActionBarManager.class).clear(player.getUuid());
             player.getInventory().clear();
             player.setInstance(Cytosis.get(InstanceContainer.class)).join();
         }
-        getTag(LOOP).cancel(true);
-        getTag(SCHEDULER).shutdownNow();
+        ScheduledFuture<?> loop = getTag(LOOP);
+        if (loop != null) loop.cancel(true);
+        ScheduledExecutorService scheduler = getTag(SCHEDULER);
+        if (scheduler != null) scheduler.shutdownNow();
         scheduler().buildTask(() -> Cytosis.get(InstanceManager.class).unregisterInstance(this))
                 .delay(TaskSchedule.seconds(5)).schedule();
         Cytosis.get(ReplayManager.class).removePlayback(replay.uuid());
+    }
+
+    private void removeTeams(Player player) {
+        player.sendPacket(new TeamsPacket(TEAM_NAME, new RemoveTeamAction()));
+        for (UUID fakeUuid : getTag(UUID_MAP).values()) {
+            player.sendPacket(new TeamsPacket(fakeUuid.toString(), new RemoveTeamAction()));
+        }
     }
 
     /**
@@ -324,9 +340,10 @@ public class ReplayInstance extends AbstractWorld {
             return true;
         }
         updateBossBar();
+        if (getTag(FINISHED)) return true;
         if (getTag(PAUSED) && !isSkip) return false;
         int currentTick = getTag(CURRENT_TICK);
-        if (currentTick > getTag(MAX_TICK)) return true;
+        if (currentTick >= getTag(MAX_TICK)) return true;
 
         int tick = getAndUpdateTag(CURRENT_TICK, i -> i + 1) + getTag(TICK_OFFSET);
         for (int i = getTag(EVENTS_INDEX); i < replay.events().size(); i++) {
@@ -378,6 +395,11 @@ public class ReplayInstance extends AbstractWorld {
         }
         if (skipped > 0) {
             setTag(FINISHED, false);
+        } else {
+            Sound sound = Sound.sound(SoundEvent.ENTITY_ENDERMAN_HURT, Sound.Source.PLAYER, .7f, 0.75F);
+            playSound(sound);
+            sendMessage(Msg.whoops("This replay is already at the beginning!"));
+            return;
         }
         double secondsSkipped = getTag(PLAYBACK_SPEED).period * skipped / 1000.0;
         DecimalFormat df = new DecimalFormat("0.##");
@@ -388,8 +410,14 @@ public class ReplayInstance extends AbstractWorld {
     private void skipForward(int ticks) {
         int skipped = 0;
         for (int i = 0; i < ticks; i++) {
-            skipped++;
             if (playTick(true)) break;
+            skipped++;
+        }
+        if (skipped == 0 || getTag(FINISHED)) {
+            Sound sound = Sound.sound(SoundEvent.ENTITY_ENDERMAN_HURT, Sound.Source.PLAYER, .7f, 0.75F);
+            playSound(sound);
+            sendMessage(Msg.whoops("This replay has already finished!"));
+            return;
         }
         double secondsSkipped = getTag(PLAYBACK_SPEED).period * skipped / 1000.0;
         DecimalFormat df = new DecimalFormat("0.##");
@@ -428,6 +456,8 @@ public class ReplayInstance extends AbstractWorld {
         Sound sound = Sound.sound(SoundEvent.BLOCK_MOSS_BREAK, Sound.Source.PLAYER, 2.0f, 1.0F);
         player.playSound(sound);
         player.hideBossBar(getTag(BOSSBAR));
+        removeTeams(player);
+        Cytosis.get(ActionBarManager.class).clear(player.getUuid());
         player.getInventory().clear();
         player.setInstance(Cytosis.get(InstanceContainer.class));
         player.success("Left replay %s.", replay.uuid());
