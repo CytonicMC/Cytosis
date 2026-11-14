@@ -9,6 +9,7 @@ package net.cytonic.cytosis.logging;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.logs.Severity;
+import io.opentelemetry.api.trace.Span;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,15 @@ public interface Logger {
         emit(Severity.WARN, message.formatted(args), null);
     }
 
+    static void warn(String message, Throwable ex) {
+        LOGGER.warn(message, ex);
+        emit(Severity.WARN, message, Attributes.of(
+                AttributeKey.stringKey("throwable_message"), ex.getMessage(),
+                AttributeKey.stringKey("throwable_type"), ex.getClass().getSimpleName(),
+                AttributeKey.stringKey("throwable_stack_trace"), getStackTrace(ex))
+        );
+    }
+
     /**
      * Logs an error message in the ERROR level
      *
@@ -104,6 +114,7 @@ public interface Logger {
 
     private static void emit(Severity severity, String msg, @Nullable Attributes attribs) {
         if (!(Cytosis.CONTEXT.isMetricsEnabled())) return;
+        if (attribs == null) attribs = Attributes.empty();
         Cytosis.get(CytosisOpenTelemetry.class)
             .getLogger().get("DefaultLogger").logRecordBuilder().setSeverity(severity)
             .setBody(msg)
