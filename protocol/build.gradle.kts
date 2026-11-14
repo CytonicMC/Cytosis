@@ -1,12 +1,12 @@
 import com.github.vlsi.jandex.JandexTask
 
 plugins {
-    id("io.freefair.lombok") version "9.8.2"
+    id("io.freefair.lombok") version "9.8.3"
     `maven-publish`
     `java-library`
     java
     id("com.github.vlsi.jandex") version "3.0.2"
-    id("org.graalvm.buildtools.native") version "1.1.14"
+    id("org.graalvm.buildtools.native") version "1.1.18"
 }
 
 group = "net.cytonic"

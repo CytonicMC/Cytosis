@@ -8,7 +8,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("java")
-    id("io.freefair.lombok") version "9.8.2"
+    id("io.freefair.lombok") version "9.8.3"
     alias(libs.plugins.blossom)
     alias(libs.plugins.indragit)
     id("checkstyle")
@@ -16,7 +16,7 @@ plugins {
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
     id("dev.minestom-united.minestom-events") version "0.0.3"
     id("com.github.vlsi.jandex") version "3.0.2"
-    id("org.graalvm.buildtools.native") version "1.1.14"
+    id("org.graalvm.buildtools.native") version "1.1.18"
 }
 
 group = "net.cytonic"
@@ -213,7 +213,7 @@ java {
 
 // Checkstyle configuration
 checkstyle {
-    toolVersion = "14.3.0"
+    toolVersion = "14.4.0"
     configFile = file("${rootDir}/checkstyle.xml")
     isIgnoreFailures = false
     maxWarnings = 0
