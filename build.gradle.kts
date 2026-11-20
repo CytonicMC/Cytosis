@@ -14,9 +14,9 @@ plugins {
     id("checkstyle")
     id("io.ebean") version "19.6.0"
     id("net.cytonic.migration-generator") version "1.0-SNAPSHOT"
-    id("dev.minestom-united.minestom-events") version "0.0.3"
+    id("dev.minestom-united.minestom-events") version "0.0.4"
     id("com.github.vlsi.jandex") version "3.0.2"
-    id("org.graalvm.buildtools.native") version "1.1.18"
+    id("org.graalvm.buildtools.native") version "1.1.19"
 }
 
 group = "net.cytonic"
@@ -76,7 +76,7 @@ dependencies {
 buildscript {
     repositories { mavenCentral() }
     dependencies {
-        classpath("io.smallrye:jandex:3.6.0")
+        classpath("io.smallrye:jandex:3.6.1")
     }
 }
 
